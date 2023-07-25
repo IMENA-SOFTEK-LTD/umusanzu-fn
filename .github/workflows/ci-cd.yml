@@ -1,0 +1,71 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    
+  pull_request:
+    branches:
+      - main
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier
+        run: npm run format
+
+      - name: Build
+        run: npm run build  
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Node.js and dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Node.js and dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Build production app
+        run: npm run build
