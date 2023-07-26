@@ -1,5 +1,5 @@
 import Logo from '../../assets/LOGO.png'
-function Login() {
+function Login () {
   return (
     <div className="bg-white relative ">
       <div
