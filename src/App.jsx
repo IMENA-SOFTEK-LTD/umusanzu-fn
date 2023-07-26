@@ -1,28 +1,25 @@
-import {
-  createBrowserRouter,
-  // eslint-disable-next-line no-unused-vars
-  RouterProvider
-} from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
-// eslint-disable-next-line no-unused-vars
 import Login from './pages/auth/login.jsx'
+import Validate2faPage from './pages/auth/Validate2faPage.jsx'
 
-function App () {
+function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <Login />
-
+      element: <Login />,
     },
     {
       path: '/login',
-      element: <Login />
-    }
+      element: <Login />,
+    },
+    {
+      path: '/validate2fa',
+      element: <Validate2faPage />,
+    },
   ])
 
-  return (
-      <RouterProvider router={router}/>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App
