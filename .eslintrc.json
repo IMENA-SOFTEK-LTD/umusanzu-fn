@@ -13,6 +13,7 @@
     "import/no-deprecated": "off",
     "import/no-extraneous-dependencies": "off",
     "import/no-mutable-exports": "off",
-    "no-unused-vars": ["error", { "varsIgnorePattern": ".*" }]
+    "no-unused-vars": ["error", { "varsIgnorePattern": ".*" }],
+    "comma-dangle": ["error", "never"]
   }
 }
