@@ -1,7 +1,9 @@
 import DashboardCard from '../../components/DashboardCard'
+import Sidebar from '../../components/sidebar'
 
 const Dashboard = () => {
   return (
+
     <main className="w-full p-12 flex items-center flex-wrap gap-4">
       {Array.from({ length: 10 }, (_, i) => {
         const props = {
@@ -10,9 +12,10 @@ const Dashboard = () => {
           amount: '897,399',
           increaseValue: (Math.random() * 10).toFixed(2)
         }
-        return <DashboardCard key={i} props = {props} />
+        return <DashboardCard key={i} props={props} />
       })}
     </main>
+
   )
 }
 
