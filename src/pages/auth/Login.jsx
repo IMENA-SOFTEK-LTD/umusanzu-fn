@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-absolute-path
 import Logo from '/logo.png'
-function Login () {
+function Login() {
   return (
     <div className="h-screen bg-gradient-to-r from-rose-100 to-teal-100 py-20 px-3">
       <div className="max-w-7xl flex h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">

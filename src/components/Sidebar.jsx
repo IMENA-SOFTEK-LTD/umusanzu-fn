@@ -2,7 +2,7 @@
 import logo from '/logo.png'
 import { useLocation } from 'react-router-dom'
 
-function Sidebar () {
+function Sidebar() {
   const { pathname } = useLocation()
 
   if (pathname === '/login') return null

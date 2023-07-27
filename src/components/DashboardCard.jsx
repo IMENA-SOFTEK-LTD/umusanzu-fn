@@ -3,7 +3,7 @@ import {
   faArrowDown,
   faArrowUp,
   faHouse,
-  faMoneyBill
+  faMoneyBill,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -17,8 +17,8 @@ const DashboardCard = ({
     amount: '892,560,000',
     index: 0,
     progress: 50,
-    increaseValue: 2.15
-  }
+    increaseValue: 2.15,
+  },
 }) => {
   let newProps = { ...props }
 
@@ -28,7 +28,7 @@ const DashboardCard = ({
         ...props,
         title: 'Target',
         period: 'month',
-        funds: true
+        funds: true,
       }
       break
     case 2:
@@ -36,7 +36,7 @@ const DashboardCard = ({
         ...props,
         title: 'Total collected',
         period: 'month',
-        funds: true
+        funds: true,
       }
       break
     case 3:
@@ -44,7 +44,7 @@ const DashboardCard = ({
         ...props,
         title: 'Pending',
         period: 'month',
-        funds: true
+        funds: true,
       }
       break
     case 4:
@@ -52,7 +52,7 @@ const DashboardCard = ({
         ...props,
         period: 'month',
         title: "Monthly's collections",
-        funds: true
+        funds: true,
       }
       break
     case 5:
@@ -60,7 +60,7 @@ const DashboardCard = ({
         ...props,
         title: 'Pending paid',
         period: 'month',
-        funds: true
+        funds: true,
       }
       break
     case 6:
@@ -68,7 +68,7 @@ const DashboardCard = ({
         ...props,
         title: 'Advanced',
         period: 'month',
-        funds: true
+        funds: true,
       }
       break
     case 7:
@@ -76,7 +76,7 @@ const DashboardCard = ({
         ...props,
         period: 'day',
         title: "Today's Collections",
-        funds: true
+        funds: true,
       }
       break
     case 8:
@@ -84,21 +84,21 @@ const DashboardCard = ({
         ...props,
         title: 'Total households',
         period: 'month',
-        funds: false
+        funds: false,
       }
       break
     case 9:
       newProps = {
         ...props,
         title: 'Active households',
-        funds: false
+        funds: false,
       }
       break
     case 10:
       newProps = {
         ...props,
         title: 'Inactive households',
-        funds: false
+        funds: false,
       }
       break
     default:
@@ -178,8 +178,8 @@ DashboardCard.propTypes = {
     title: PropTypes.string,
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     index: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    progress: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-  })
+    progress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
 }
 
 export default DashboardCard

@@ -5,12 +5,12 @@ import Sidebar from './components/sidebar.jsx'
 import Navbar from './components/Navbar.jsx'
 import Dashboard from './pages/dashboard/Dashboard.jsx'
 
-function App () {
+function App() {
   return (
     <Router>
       <div className="App relative flex items-start">
-      <Navbar />
-          <Sidebar />
+        <Navbar />
+        <Sidebar />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
