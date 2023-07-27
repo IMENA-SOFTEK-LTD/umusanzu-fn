@@ -1,5 +1,4 @@
 import { useState } from 'react'
-
 const Validate2faPage = () => {
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', ''])
 
@@ -9,7 +8,8 @@ const Validate2faPage = () => {
     setOtpValues(newOtpValues)
   }
   return (
-    <div className="h-screen bg-white py-20 px-3">
+    <>
+    <div className="h-screen bg-gradient-to-r from-rose-100 to-teal-100 py-20 px-3">
       <div className="container mx-auto">
         <div className="max-w-sm mx-auto md:max-w-lg">
           <div className="w-full">
@@ -85,6 +85,7 @@ const Validate2faPage = () => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
