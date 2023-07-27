@@ -1,5 +1,6 @@
-import Logo from '../../assets/LOGO.png'
-function Login() {
+// eslint-disable-next-line import/no-absolute-path
+import Logo from '/logo.png'
+function Login () {
   return (
     <div className="bg-white relative ">
       <div
