@@ -1,11 +1,9 @@
 // eslint-disable-next-line import/no-absolute-path
 import Logo from '/logo.png'
-function Login () {
+function Login() {
   return (
-    <div className="bg-white relative ">
-      <div
-        className="max-w-7xl flex h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row"
-      >
+    <div className="h-screen bg-gradient-to-r from-rose-100 to-teal-100 py-20 px-3">
+      <div className="max-w-7xl flex h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
         <div className="flex flex-col items-center justify-center min-h-[80vh] h-full m-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row  ">
           <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
             <div
@@ -64,13 +62,13 @@ function Login () {
                     Submit
                   </a>
 
-                  <a
+                  {/* <a
                     href="https://umusanzu.co.rw/history/"
                     className="w-full h-12 inline-block pt-2 mt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-tertiary
-                      rounded-lg transition duration-200 hover:bg-indigo-600 ease"
+                      rounded-lg transition duration-200 hover:bg-accent ease"
                   >
                     Umusanzu Digital Data
-                  </a>
+                  </a> */}
                 </div>
               </div>
             </div>
