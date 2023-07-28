@@ -26,7 +26,7 @@ const DashboardCard = ({
     case 1:
       newProps = {
         ...props,
-        title: 'Target',
+        title: 'Monthly Target',
         period: 'month',
         funds: true,
       }
@@ -34,7 +34,7 @@ const DashboardCard = ({
     case 2:
       newProps = {
         ...props,
-        title: 'Total collected',
+        title: 'Total Collected',
         period: 'month',
         funds: true,
       }
@@ -51,14 +51,14 @@ const DashboardCard = ({
       newProps = {
         ...props,
         period: 'month',
-        title: "Monthly's collections",
+        title: "Monthly's Collections",
         funds: true,
       }
       break
     case 5:
       newProps = {
         ...props,
-        title: 'Pending paid',
+        title: 'Pending Payments',
         period: 'month',
         funds: true,
       }
@@ -66,7 +66,7 @@ const DashboardCard = ({
     case 6:
       newProps = {
         ...props,
-        title: 'Advanced',
+        title: 'Advance Payments',
         period: 'month',
         funds: true,
       }
@@ -82,7 +82,7 @@ const DashboardCard = ({
     case 8:
       newProps = {
         ...props,
-        title: 'Total households',
+        title: 'Total Households',
         period: 'month',
         funds: false,
       }
@@ -90,14 +90,14 @@ const DashboardCard = ({
     case 9:
       newProps = {
         ...props,
-        title: 'Active households',
+        title: 'Active Households',
         funds: false,
       }
       break
     case 10:
       newProps = {
         ...props,
-        title: 'Inactive households',
+        title: 'Inactive Households',
         funds: false,
       }
       break

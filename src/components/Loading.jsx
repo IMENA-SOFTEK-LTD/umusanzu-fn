@@ -2,10 +2,10 @@ import PropTypes from 'prop-types'
 
 const Loading = ({ color = 'primaryBlue', size = 6 }) => {
   return (
-    <div role="status" className='flex items-center justify-center'>
+    <div role="status" className="flex items-center justify-center">
       <svg
         aria-hidden="true"
-        class={`w-${size} h-${size} mr-2 text-gray-200 animate-spin dark:text-${color} fill-${color}`}
+        className={`w-${size} h-${size} mr-2 text-gray-200 animate-spin dark:text-${color} fill-${color}`}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -24,8 +24,8 @@ const Loading = ({ color = 'primaryBlue', size = 6 }) => {
 }
 
 Loading.propTypes = {
-    color: PropTypes.string,
-    size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  color: PropTypes.string,
+  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 }
 
 export default Loading

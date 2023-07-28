@@ -1,16 +1,49 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLoginMutation } from '../../states/api/apiSlice'
 import Button from '../../components/Button'
+import Loading from '../../components/Loading'
 import Input from '../../components/Input'
 import Logo from '/logo.png'
-import Loading from '../../components/Loading'
+import { useEffect } from 'react'
+import { setUser } from '../../states/features/auth/authSlice'
 
 const Login = () => {
+
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate()
+
+  const { user } = useSelector((state) => state.auth)
+
+  const [login, { 
+    data: loginData,
+    isLoading: loginLoading,
+    isSuccess: loginSuccess,
+    isError: loginError,
+    error: loginErrorMessage,
+   }] = useLoginMutation()
+
   const { control, handleSubmit } = useForm()
 
   const onSubmit = (data) => {
-    console.log(data)
+    const { username, password } = data;
+
+    login({ username, password })
   }
+
+  useEffect(() => {
+    if (loginSuccess) {
+      dispatch(setUser(loginData))
+    }
+  }, [loginData, loginSuccess])
+
+
+  useEffect(() => {
+    if (loginSuccess) navigate('/dashboard')
+  }, [user, loginSuccess])
+
 
   return (
     <main className="bg-white relative ">
@@ -74,7 +107,7 @@ const Login = () => {
                       return (
                         <Button
                           submit
-                          value='Login'
+                          value={loginLoading ? <Loading /> : 'Login'}
                           className="w-full h-12 inline-block pt-2 mt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-primaryBlue
                   rounded-lg transition duration-200 hover:scale-[.99] ease-in-out"
                         />
