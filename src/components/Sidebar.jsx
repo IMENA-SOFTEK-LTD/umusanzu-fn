@@ -1,14 +1,13 @@
 // eslint-disable-next-line import/no-absolute-path
 import logo from '/logo.png'
 import { useLocation } from 'react-router-dom'
-
-function Sidebar() {
+function Sidebar () {
   const { pathname } = useLocation()
 
   if (pathname === '/login') return null
 
   return (
-    <aside className="flex flex-col absolute w-full max-w-[20%] h-screen z-[999] px-12 py-8 drop-shadow-2xl overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l">
+    <aside className="flex flex-col w-full h-screen z-[999] px-12 py-8 drop-shadow-2xl overflow-y-auto bg-white border-r-none rtl:border-r-0 rtl:border-l">
       <div className="flex items-stretch">
         <a href="#">
           <img className="w-auto h-16 w-16" src={logo} alt="Logo" />
