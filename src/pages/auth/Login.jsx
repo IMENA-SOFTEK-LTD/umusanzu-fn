@@ -1,84 +1,96 @@
-// eslint-disable-next-line import/no-absolute-path
+import { Link } from 'react-router-dom'
+import { Controller, useForm } from 'react-hook-form'
+import Button from '../../components/Button'
+import Input from '../../components/Input'
 import Logo from '/logo.png'
-function Login() {
+import Loading from '../../components/Loading'
+
+const Login = () => {
+  const { control, handleSubmit } = useForm()
+
+  const onSubmit = (data) => {
+    console.log(data)
+  }
+
   return (
-    <div className="h-screen bg-gradient-to-r from-rose-100 to-teal-100 py-20 px-3">
+    <main className="bg-white relative ">
       <div className="max-w-7xl flex h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
-        <div className="flex flex-col items-center justify-center min-h-[80vh] h-full m-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row  ">
+        <div className="flex flex-col items-center justify-center min-h-[100vh] h-full m-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row  ">
           <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
-            <div
-              className="flex flex-col items-start justify-start pt-10 pr-10 pb-10 pl-10 bg-white shadow-2xl rounded-xl
-                relative z-10"
+            <form
+              className="flex flex-col items-start justify-start min-h-[60vh] p-12 bg-white shadow-2xl rounded-xl gap-8 relative z-10"
+              onSubmit={handleSubmit(onSubmit)}
             >
-              <a
-                href="#"
-                class="flex items-center mb-6  text-2xl font-semibold text-gray-700 "
+              <Link
+                to="#"
+                className="flex items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 "
               >
-                <img className="w-16 h-16 ml-16 mr-4" src={Logo} alt="logo" />
+                <img className="w-16 h-16" src={Logo} alt="logo" />
                 Imena Softek
-              </a>
-              <p className="w-full text-4xl font-medium text-center leading-snug font-serif">
-                Login{' '}
-              </p>
-              <div className="w-full mt-6 mr-0 mb-0 ml-0 relative space-y-8">
-                <div className="relative">
-                  <p
-                    className="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600
-                      absolute"
-                  >
-                    Username
-                  </p>
-                  <input
-                    placeholder="John"
-                    type="text"
-                    name="name"
-                    className="border placeholder-gray-400 focus:outline-none
-                      focus:border-black w-full h-12 pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
-                      border-gray-300 rounded-md"
-                  />
-                </div>
+              </Link>
+              <article className="w-full relative flex flex-col gap-8 h-fit">
+                <span className='flex flex-col gap-6'>
+                <Controller
+                  name="username"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        placeholder="Agent"
+                        label="Username"
+                        type="text"
+                        value={field.value}
+                        onChange={field.onChange}
+                        ref={field.ref}
+                      />
+                    )
+                  }}
+                />
 
-                <div className="relative">
-                  <p
-                    className="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600
-                      absolute"
-                  >
-                    Password
-                  </p>
-                  <input
-                    placeholder="Password"
-                    type="password"
-                    name="password"
-                    className="border placeholder-gray-400 focus:outline-none
-                      focus:border-black w-full h-12 pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
-                      border-gray-300 rounded-md"
+                <Controller
+                  name="password"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        placeholder="*******"
+                        label="Password"
+                        type="password"
+                        value={field.value}
+                        onChange={field.onChange}
+                        ref={field.ref}
+                      />
+                    )
+                  }}
+                />
+                </span>
+                <span className="relative">
+                  <Controller
+                    name="submit"
+                    control={control}
+                    render={({ field }) => {
+                      return (
+                        <Button
+                          submit
+                          value='Login'
+                          className="w-full h-12 inline-block pt-2 mt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-primaryBlue
+                  rounded-lg transition duration-200 hover:scale-[.99] ease-in-out"
+                        />
+                      )
+                    }}
                   />
-                </div>
-                <div className="relative">
-                  <a
-                    className="w-full h-12 inline-block pt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-indigo-500
-                      rounded-lg transition duration-200 hover:bg-indigo-600 ease"
-                  >
-                    Submit
-                  </a>
-
-                  {/* <a
-                    href="https://umusanzu.co.rw/history/"
-                    className="w-full h-12 inline-block pt-2 mt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-tertiary
-                      rounded-lg transition duration-200 hover:bg-accent ease"
-                  >
-                    Umusanzu Digital Data
-                  </a> */}
-                </div>
-              </div>
-            </div>
+                </span>
+              </article>
+            </form>
             <svg
-              viewbox="0 0 91 91"
+              viewBox="0 0 91 91"
               className="absolute top-0 left-0 z-0 w-32 h-32 -mt-12 -ml-12 text-yellow-300
                 fill-current"
             >
-              <g stroke="none" strokewidth="1" fillrule="evenodd">
-                <g fillrule="nonzero">
+              <g stroke="none" strokeWidth="1" fillRule="evenodd">
+                <g fillRule="nonzero">
                   <g>
                     <g>
                       <circle cx="3.261" cy="3.445" r="2.72" />
@@ -165,12 +177,12 @@ function Login() {
               </g>
             </svg>
             <svg
-              viewbox="0 0 91 91"
-              class="absolute bottom-0 right-0 z-0 w-32 h-32 -mb-12 -mr-12 text-indigo-500
+              viewBox="0 0 91 91"
+              className="absolute bottom-0 right-0 z-0 w-32 h-32 -mb-12 -mr-12 text-indigo-500
                 fill-current"
             >
-              <g stroke="none" strokewidth="1" fillrule="evenodd">
-                <g fillrule="nonzero">
+              <g stroke="none" strokeWidth="1" fillRule="evenodd">
+                <g fillRule="nonzero">
                   <g>
                     <g>
                       <circle cx="3.261" cy="3.445" r="2.72" />
@@ -259,7 +271,7 @@ function Login() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 export default Login

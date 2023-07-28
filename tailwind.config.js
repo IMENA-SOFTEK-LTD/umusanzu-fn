@@ -4,10 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#F6EEE0',
+        primary: '#C79700',
         secondary: '#E4B7A0',
         tertiary: '#A45C40',
         accent: '#C38370',
+        primaryBlue: '#6366F1'
       },
       fontFamily: {
         primary: "'Montserrat', sans-serif",

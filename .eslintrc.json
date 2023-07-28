@@ -14,6 +14,17 @@
     "import/no-extraneous-dependencies": "off",
     "import/no-mutable-exports": "off",
     "no-unused-vars": ["error", { "varsIgnorePattern": ".*" }],
-    "comma-dangle": ["error", "never"]
-  }
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "never",
+        "objects": "never",
+        "imports": "never",
+        "exports": "never",
+        "functions": "never"
+      }
+    ]
+  },
+  "trailing-comma": ["error", "never"],
+  "no-absolute-path": "off"
 }
