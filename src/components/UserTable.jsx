@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import DataTable from 'react-data-table-component'
 
-const userTable = () => {
+const UserTable = () => {
   const column = [
     {
       name: 'N',
@@ -60,6 +60,17 @@ const userTable = () => {
       totalAmount: '$100',
       bank: 'ABC Bank',
       commission: '$10',
+      datePaid: '2023-06-01',
+    },
+    {
+      id: 1,
+      name: 'John Nishimwe',
+      monthPaid: 'January',
+      cell: '123-456-7890',
+      village: 'Nyarugenge',
+      totalAmount: '$100',
+      bank: 'ABC Bank',
+      commission: '$67',
       datePaid: '2023-06-01',
     },
   ]
@@ -231,4 +242,4 @@ const userTable = () => {
   )
 }
 
-export default userTable
+export default UserTable;
