@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useLazyGetTotalHouseholdPaysQuery } from '../states/api/apiSlice'
 import {
   faArrowDown,
   faArrowUp,
@@ -6,6 +7,7 @@ import {
   faMoneyBill,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useEffect } from 'react'
 
 const HouseholdDetailsCard = ({
   props = {
@@ -15,69 +17,111 @@ const HouseholdDetailsCard = ({
     numberofHouseholds:189,
     istotalHouseholdsTarget: false,
     totalHouseholdsTarget: 1000000,
-
-    
+    user: {}
   },
 }) => {
   let newProps = { ...props }
+
+  const [getTotalHouseholdPays, {
+    data,
+    isLoading,
+    isError,
+    isSuccess,
+  }] = useLazyGetTotalHouseholdPaysQuery()
+
+  console.log(props.user)
 
   switch (props.index) {
     case 1:
       newProps = {
         ...props,
-        numberOfPays: 0,
-        amount: 0,
+        amount: 5000,
         isHousehold:true,
-        
+        numberOfPays: data?.data[0]?.totalagentPays,
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 5000,
+        })
+      }, [])
       break
     case 2:
       newProps = {
         ...props,
-        numberOfPays: 6,
-        amount: 23000,
+        numberOfPays: data?.data[0]?.totalagentPays,
+        amount: 3000,
         isHousehold:true,
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 3000,
+        })
+      }, [])
       break
     case 3:
       newProps = {
         ...props,
-        numberOfPays: 8,
-        amount: 30000,
-        isHousehold:true,
+        numberOfPays: data?.data[0]?.totalagentPays,
+        amount: 2000,
+        isHousehold:true,        
       }
+
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 2000,
+        })
+      }, [])
       break
     case 4:
       newProps = {
         ...props,
-        numberOfPays: 1,
-        amount: 1000,
+        numberOfPays: data?.data[0]?.totalagentPays,
+        amount: 15000,
         isHousehold:true,
-       
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 15000,
+        })
+      }, [])
       break
     case 5:
       newProps = {
         ...props,
-        numberOfPays: 3,
-        amount: 6000,
-        isHousehold:true,
-        
+        numberOfPays: data?.data[0]?.totalagentPays,
+        amount: 500,
+        isHousehold:true,        
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 500,
+        })
+      }, [])
       break
     case 6:
       newProps = {
         ...props,
-        numberOfPays: 5,
-        amount: 10000,
+        numberOfPays: data?.data[0]?.totalagentPays,
+        amount: 0,
         isHousehold:true,
     
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 0,
+        })
+      }, [])
       break
       case 7:
       newProps = {
         ...props,
-        numberOfPays: 2,
+        numberOfPays: data?.data[0]?.totalagentPays,
         amount: 1000,
         isHousehold:true,
     
@@ -86,25 +130,38 @@ const HouseholdDetailsCard = ({
       case 8:
       newProps = {
         ...props,
-        numberOfPays: 4,
-        amount: 8000,
+        numberOfPays: data?.data[0]?.totalagentPays,
+        amount: 4000,
         isHousehold:true,
     
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 4000,
+        })
+      }, [])
       break
       case 9:
       newProps = {
         ...props,
         numberOfPays: 1,
-        amount: 3000,
+        amount: 25000,
         isHousehold:true,
     
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 500,
+        })
+      }, [])
       break
     default:
       newProps = { ...newProps }
   }
 
+  console.log(data?.data[0]?.totalagentPays)
   return (
     <article
       className={`w-full max-w-[20rem] h-full max-h-[25rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-100 rounded-xl shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
@@ -145,7 +202,14 @@ HouseholdDetailsCard.propTypes = {
     isHousehold: PropTypes.bool,
     istotalHouseholdsTarget: PropTypes.bool,
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-
+    user: PropTypes.shape({
+      department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      departments: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        name: PropTypes.string,
+        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      })
+    })
   }),
 }
 
