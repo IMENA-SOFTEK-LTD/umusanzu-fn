@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-absolute-path
 import logo from '/logo.png'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 function Sidebar() {
   const { pathname } = useLocation()
 
@@ -18,7 +18,7 @@ function Sidebar() {
       <div className="flex flex-col justify-between flex-1 mt-6">
         <nav className="-mx-3 space-y-6 ">
           <div className="space-y-3 ">
-            <a
+            <Link to="/dashboard"
               className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
               href="#"
             >
@@ -40,7 +40,7 @@ function Sidebar() {
               <span className="mx-2 text-sm font-medium text-gray-800">
                 Dashboard
               </span>
-            </a>
+            </Link>
           </div>
 
           <div className="space-y-3 ">
@@ -96,7 +96,7 @@ function Sidebar() {
               </span>
             </a>
 
-            <a
+            <Link to="/houseDetails"
               className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
               href="#"
             >
@@ -118,7 +118,7 @@ function Sidebar() {
               <span className="mx-2 text-sm font-medium text-gray-800">
                 Household Details
               </span>
-            </a>
+            </Link>
           </div>
 
           <div className="space-y-3 ">

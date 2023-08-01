@@ -5,6 +5,7 @@ import Sidebar from './components/sidebar.jsx'
 import Navbar from './components/Navbar.jsx'
 import Dashboard from './containers/dashboard/Dashboard.jsx'
 import UserTable from './components/userTable.jsx'
+import HouseDetails from './containers/dashboard/HouseDetails.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -35,6 +36,7 @@ function App() {
             <Route path="/login" element={<Login />}   />
             <Route path="/validate2faPage" element={<Validate2faPage />} />
             <Route path="/table" element={<UserTable />} />
+            <Route path="/houseDetails" element={<HouseDetails />} />
           </Routes>
         </main>
       </div>
