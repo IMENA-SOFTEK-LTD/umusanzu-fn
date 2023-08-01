@@ -7,4 +7,4 @@ const IsLoggedIn = () => {
   return tokenAvailable && userAuth ? <Outlet /> : <Navigate to="/login" />
 }
 
-export default IsLoggedIn;
+export default IsLoggedIn

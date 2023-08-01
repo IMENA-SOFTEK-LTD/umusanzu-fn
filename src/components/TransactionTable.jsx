@@ -1,56 +1,60 @@
-import { useState } from 'react'
+import { useState, useRef, useMemo } from 'react'
+import { useTable, usePagination, useFilters } from 'react-table'
 
-import DataTable from 'react-data-table-component'
+const TransactionTable = () => {
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: 'N',
+        accessor: 'id',
+        sortable: true,
+      },
+      {
+        Header: 'Names',
+        accessor: 'name',
+        sortable: true,
+      },
+      {
+        Header: 'Month paid',
+        accessor: 'monthPaid',
+        sortable: true,
+      },
+      {
+        Header: 'Cell',
+        accessor: 'cell',
+        sortable: true,
+      },
+      {
+        Header: 'Village',
+        accessor: 'village',
+        sortable: true,
+      },
+      {
+        Header: 'Total',
+        accessor: 'totalAmount',
+        sortable: true,
+      },
+      {
+        Header: 'Bank',
+        accessor: 'bank',
+        sortable: true,
+      },
+      {
+        Header: 'Commission',
+        accessor: 'commission',
+        sortable: true,
+      },
+      {
+        Header: 'Date',
+        accessor: 'datePaid',
+        sortable: true,
+      },
+    ],
+    []
+  )
 
-const UserTable = () => {
-  const column = [
-    {
-      name: 'N',
-      selector: (row) => row.id, // Assuming 'id' is the property for 'N' column
-      sortable: true,
-    },
-    {
-        name: 'Names',
-        selector: (row) => row.name, // 'name' property for 'Names' column
-        sortable: true,
-      },
-      {
-        name: 'Month paid',
-        selector: (row) => row.monthPaid, // 'monthPaid' property for 'Month paid' column
-        sortable: true,
-      },
-      {
-        name: 'Cell',
-        selector: (row) => row.cell, // 'cell' property for 'Cell' column
-        sortable: true,
-      },
-      {
-        name: 'Village',
-        selector: (row) => row.village, // 'village' property for 'Village' column
-        sortable: true,
-      },
-      {
-        name: 'Total',
-        selector: (row) => row.totalAmount, // 'totalAmount' property for 'Total' column
-        sortable: true,
-      },
-      {
-        name: 'Bank',
-        selector: (row) => row.bank, // 'bank' property for 'Bank' column
-        sortable: true,
-      },
-      {
-        name: 'Commission',
-        selector: (row) => row.commission, // 'commission' property for 'Commission' column
-        sortable: true,
-      },
-      {
-        name: 'Date',
-        selector: (row) => row.datePaid, // 'datePaid' property for 'Date' column
-        sortable: true,
-      },
-  ]
-  const Data = [
+  // Sample Data
+  const initialData = [
     {
       id: 1,
       name: 'John Doe',
@@ -63,7 +67,29 @@ const UserTable = () => {
       datePaid: '2023-06-01',
     },
     {
-      id: 1,
+      id: 2,
+      name: 'John Nishimwe',
+      monthPaid: 'January',
+      cell: '123-456-7890',
+      village: 'Nyarugenge',
+      totalAmount: '$100',
+      bank: 'ABC Bank',
+      commission: '$67',
+      datePaid: '2023-06-01',
+    },
+    {
+      id: 3,
+      name: 'John Doe',
+      monthPaid: 'January',
+      cell: '123-456-7890',
+      village: 'Nyarugenge',
+      totalAmount: '$100',
+      bank: 'ABC Bank',
+      commission: '$10',
+      datePaid: '2023-06-01',
+    },
+    {
+      id: 4,
       name: 'John Nishimwe',
       monthPaid: 'January',
       cell: '123-456-7890',
@@ -74,36 +100,32 @@ const UserTable = () => {
       datePaid: '2023-06-01',
     },
   ]
-  const village = 'Nyarugenge'
 
-  const [data, setData] = useState(Data)
+  const [data, setData] = useState(initialData)
   const [searchQuery, setSearchQuery] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [status, setStatus] = useState('All')
   const [paymentMethod, setPaymentMethod] = useState('All')
+
   // Function to handle date from input change
   const handleDateFromChange = (e) => {
     setDateFrom(e.target.value)
-    filterData()
   }
 
   // Function to handle date to input change
   const handleDateToChange = (e) => {
     setDateTo(e.target.value)
-    filterData()
   }
 
   // Function to handle payment method select change
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value)
-    filterData()
   }
 
   // Function to handle status select change
   const handleStatusChange = (e) => {
     setStatus(e.target.value)
-    filterData()
   }
 
   // Function to handle search button click
@@ -113,7 +135,7 @@ const UserTable = () => {
 
   // Function to filter data based on search query, date range, status, and payment method
   const filterData = () => {
-    let filteredData = Data
+    let filteredData = data
 
     if (searchQuery) {
       filteredData = filteredData.filter(
@@ -141,14 +163,40 @@ const UserTable = () => {
       )
     }
 
-    setData(filteredData)
+    return filteredData
   }
 
   // Function to handle search input changes
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value)
-    filterData(e.target.value)
+    const searchQuery = e.target.value
+    setSearchQuery(searchQuery)
   }
+
+  const filteredData = useMemo(
+    () => filterData(),
+    [searchQuery, dateFrom, dateTo, status, paymentMethod]
+  )
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    prepareRow,
+    state: { pageIndex, pageSize, canPreviousPage, canNextPage },
+    setPageSize,
+    gotoPage,
+    previousPage, // Add this line to extract previousPage function
+    pageCount,
+  } = useTable(
+    {
+      columns,
+      data: filteredData,
+      initialState: { pageIndex: 0, pageSize: 10 },
+    },
+    useFilters,
+    usePagination
+  )
 
   return (
     <div className="p-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 min-h-screen">
@@ -216,30 +264,104 @@ const UserTable = () => {
           className="border rounded-lg p-2 w-full"
           value={searchQuery}
           onChange={handleSearchChange}
+          onInput={handleSearchChange}
         />
       </div>
-      <DataTable
-        title={`List Of ${village} Village ALL Transactions`}
-        columns={column}
-        data={data}
-        pagination
-        paginationPerPage={5}
-        paginationRowsPerPageOptions={[5, 10, 15, 20, 25, 30]}
-        paginationComponentOptions={{
-          rowsPerPageText: 'Rows per page:',
-          rangeSeparatorText: 'of',
-          noRowsPerPage: false,
-          selectAllRowsItem: false,
-          selectAllRowsItemText: 'All',
-        }}
-        className="bg-white text-gray-800 shadow-lg rounded-lg"
-        responsive
-        highlightOnHover
-        striped
-        dense
-      />
+      <div>
+        <div className="overflow-x-auto">
+          <table className="table-auto w-full">
+            <thead>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th
+                      className="px-4 py-2 text-left bg-gray-100"
+                      {...column.getHeaderProps()}
+                    >
+                      {column.render('Header')}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {page.map((row) => {
+                prepareRow(row)
+                return (
+                  <tr {...row.getRowProps()}>
+                    {row.cells.map((cell) => (
+                      <td className="border px-4 py-2" {...cell.getCellProps()}>
+                        {cell.render('Cell')}
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex items-center justify-center mt-4">
+          <button
+            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
+            onClick={() => gotoPage(0)}
+            disabled={pageIndex === 0}
+          >
+            {'<<'}
+          </button>
+          <button
+            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+          >
+            {'<'}
+          </button>
+          <button
+            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
+            onClick={() => nextPage()}
+            disabled={!canNextPage}
+          >
+            {'>'}
+          </button>
+          <button
+            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
+            onClick={() => gotoPage(pageCount - 1)}
+            disabled={pageIndex === pageCount - 1}
+          >
+            {'>>'}
+          </button>
+          <span className="mr-2">
+            Page{' '}
+            <strong>
+              {pageIndex + 1} of {pageCount}
+            </strong>
+          </span>
+          <input
+            type="number"
+            className="w-16 px-2 py-1 text-center border rounded-md"
+            value={pageIndex + 1}
+            onChange={(e) => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0
+              gotoPage(page)
+            }}
+          />
+          <span>of {pageCount}</span>
+          <select
+            className="w-24 ml-2 border rounded-md"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value))
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
     </div>
   )
 }
 
-export default UserTable;
+export default TransactionTable

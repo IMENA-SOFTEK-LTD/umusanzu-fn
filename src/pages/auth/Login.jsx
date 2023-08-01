@@ -10,25 +10,27 @@ import { useEffect } from 'react'
 import { setUser } from '../../states/features/auth/authSlice'
 
 const Login = () => {
-
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   const navigate = useNavigate()
 
   const { user } = useSelector((state) => state.auth)
 
-  const [login, { 
-    data: loginData,
-    isLoading: loginLoading,
-    isSuccess: loginSuccess,
-    isError: loginError,
-    error: loginErrorMessage,
-   }] = useLoginMutation()
+  const [
+    login,
+    {
+      data: loginData,
+      isLoading: loginLoading,
+      isSuccess: loginSuccess,
+      isError: loginError,
+      error: loginErrorMessage,
+    },
+  ] = useLoginMutation()
 
   const { control, handleSubmit } = useForm()
 
   const onSubmit = (data) => {
-    const { username, password } = data;
+    const { username, password } = data
 
     login({ username, password })
   }
@@ -39,11 +41,9 @@ const Login = () => {
     }
   }, [loginData, loginSuccess])
 
-
   useEffect(() => {
     if (loginSuccess) navigate('/dashboard')
   }, [user, loginSuccess])
-
 
   return (
     <main className="bg-white relative ">
@@ -62,42 +62,42 @@ const Login = () => {
                 Imena Softek
               </Link>
               <article className="w-full relative flex flex-col gap-8 h-fit">
-                <span className='flex flex-col gap-6'>
-                <Controller
-                  name="username"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => {
-                    return (
-                      <Input
-                        placeholder="Agent"
-                        label="Username"
-                        type="text"
-                        value={field.value}
-                        onChange={field.onChange}
-                        ref={field.ref}
-                      />
-                    )
-                  }}
-                />
+                <span className="flex flex-col gap-6">
+                  <Controller
+                    name="username"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => {
+                      return (
+                        <Input
+                          placeholder="Agent"
+                          label="Username"
+                          type="text"
+                          value={field.value}
+                          onChange={field.onChange}
+                          ref={field.ref}
+                        />
+                      )
+                    }}
+                  />
 
-                <Controller
-                  name="password"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => {
-                    return (
-                      <Input
-                        placeholder="*******"
-                        label="Password"
-                        type="password"
-                        value={field.value}
-                        onChange={field.onChange}
-                        ref={field.ref}
-                      />
-                    )
-                  }}
-                />
+                  <Controller
+                    name="password"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => {
+                      return (
+                        <Input
+                          placeholder="*******"
+                          label="Password"
+                          type="password"
+                          value={field.value}
+                          onChange={field.onChange}
+                          ref={field.ref}
+                        />
+                      )
+                    }}
+                  />
                 </span>
                 <span className="relative">
                   <Controller
