@@ -25,8 +25,13 @@ export const apiSlice = createApi({
           },
         }),
       }),
+      dashboardCard: builder.query({
+        query: ({ department, departmentId, route }) => ({
+          url: `/${department}/${route}/?departmentId=${departmentId}`,
+        }),
+      }),
     }
   },
 })
 
-export const { useLoginMutation } = apiSlice;
+export const { useLoginMutation, useLazyDashboardCardQuery } = apiSlice;
