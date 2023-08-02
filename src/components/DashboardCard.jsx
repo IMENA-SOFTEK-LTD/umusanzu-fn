@@ -89,7 +89,7 @@ const DashboardCard = ({
       useEffect(() => {
         dashboardCard({
           department,
-          route: 'totalCollected',
+          route: 'totalCollections',
           departmentId: props?.user?.department_id,
         })
       }, [])

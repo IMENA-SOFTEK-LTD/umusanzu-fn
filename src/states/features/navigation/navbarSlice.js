@@ -7,7 +7,6 @@ const navbarSlice = createSlice({
     },
     reducers: {
         toggleNavDropdown: (state, { payload }) => {
-            console.log(payload)
             state.navDropdown = payload;
         },
     },
