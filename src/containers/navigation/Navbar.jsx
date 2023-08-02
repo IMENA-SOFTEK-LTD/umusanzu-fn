@@ -1,12 +1,23 @@
-import { Link, useLocation } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 import CoatOFArms from '/CoatOFArms.png'
 import PropTypes from 'prop-types'
+import Button from '../../components/Button'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons'
+import { toggleNavDropdown } from '../../states/features/navigation/navbarSlice'
+import { logOut } from '../../utils/user'
 
 function Navbar({ user }) {
   const { pathname } = useLocation()
 
   const { user: stateUser } = useSelector((state) => state.auth)
+
+  const { navDropdown } = useSelector((state) => state.navbar)
+
+  const dispatch = useDispatch()
+
+  const navigate = useNavigate()
 
   if (pathname === '/login') return null
 
@@ -50,17 +61,42 @@ function Navbar({ user }) {
           Dashboard
         </span>
       </Link>
-      <div className="flex items-center gap-2 content-start w-fit mr-8 divide-x-2 divide-gray-200">
-        <div className="grid grid-cols-1">
-          <span className="text-gray-600">{user?.names || stateUser?.names}</span>
-        </div>
-        <div className="ml-2 w-fit">
+      <div className="flex relative items-center gap-2 content-start w-fit px-8 divide-x-2 divide-gray-200">
+        <Button
+        value={<span className='flex items-center gap-4'>
+          <p>{stateUser?.names || user.names}</p>
+          <FontAwesomeIcon icon={navDropdown ? faCaretUp : faCaretDown} className='hover:scale-[1.02] ease-in-out duration-500' />
+        </span>}
+        className='bg-transparent hover:scale-[1.01] ease-in-out duration-300'
+        onClick={(e) => {
+          e.preventDefault()
+          console.log('clicked')
+          dispatch(toggleNavDropdown(!navDropdown))
+        }}
+        />
+        <figure className="ml-2 w-fit">
           <img
             className="inline-block h-10 w-10 rounded-full ring-2 ring-white ml-2"
             src={CoatOFArms}
             alt="avatar"
           />
-        </div>
+        </figure>
+        <article className={`${!navDropdown ? 'translate-y-[-200%]' : 'translate-y-0'} ease-in-out duration-500 absolute top-14 right-20 rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[12rem]`}>
+        <Button
+        className='bg-white text-[15px] w-full py-4 px-8 flex items-center justify-center hover:scale-[1.01]'
+        value='Settings'
+        />
+        <Button
+        className='bg-white text-[15px] w-full py-4 px-8 flex items-center justify-center hover:scale-[1.01]'
+        value='Logout'
+        onClick={(e) => {
+          e.preventDefault()
+          logOut();
+          dispatch(toggleNavDropdown(!navDropdown))
+          navigate('/login')
+        }}
+        />
+      </article>
       </div>
     </nav>
   )
