@@ -9,6 +9,7 @@ import Loading from './Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useLazyDashboardCardQuery } from '../states/api/apiSlice'
 import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
 const DashboardCard = ({
   props = {
@@ -272,13 +273,17 @@ const DashboardCard = ({
     )
   }, [dashboardCardIsSuccess])
 
+  const { isOpen } = useSelector((state) => state.sidebar)
+
   return (
     <article
       className={`${
         newProps.period === 'month' && newProps.target <= 20
           ? 'bg-yellow-50'
           : null
-      } w-full max-w-[20rem] h-full max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
+      } ${
+        isOpen ? 'w-[20%]' : 'w-[23%]'
+      } h-full max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
     >
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
@@ -323,11 +328,15 @@ const DashboardCard = ({
           >
             {newProps.increaseValue}%
           </p>
-          <p className="text-[13px] ml-2 text-slate-500">
+          <p className="text-[13px] text-center ml-2 text-slate-500">
             Last {newProps.period}
           </p>
         </span>
-        <button className="p-2 px-4 rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black text-[15px] hover:bg-accent hover:text-white">
+        <button
+          className={`${
+            isOpen ? 'px-2 text-sm' : 'px-4'
+          } p-2 rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black text-[15px] hover:bg-accent hover:text-white`}
+        >
           View more
         </button>
       </section>

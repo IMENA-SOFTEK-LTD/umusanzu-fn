@@ -1,109 +1,176 @@
-// eslint-disable-next-line import/no-absolute-path
 import logo from '/logo.png'
 import { Link, useLocation } from 'react-router-dom'
 import { BsHousesFill } from 'react-icons/bs'
 import { AiOutlineTransaction } from 'react-icons/ai'
 import { FaListAlt, FaMicrosoft, FaBorderAll } from 'react-icons/fa'
 import { MdOutlineSettingsSuggest } from 'react-icons/md'
+import { useState, useEffect } from 'react'
+import {
+  BsFillArrowLeftSquareFill,
+  BsFillArrowRightSquareFill,
+} from 'react-icons/bs'
+
+import { motion, useAnimation } from 'framer-motion'
+import { useDispatch, useSelector } from 'react-redux'
+import { toggleSidebar } from '../../states/features/navigation/sidebarSlice'
+
+const data = [
+  {
+    name: 'Manage',
+    items: [
+      {
+        title: 'Dashboard',
+        icon: FaMicrosoft,
+        path: '/dashboard',
+      },
+      {
+        title: 'Households',
+        icon: BsHousesFill,
+        path: '/houseDetails',
+      },
+      {
+        title: 'Departments',
+        icon: FaBorderAll,
+        path: '/createVillage',
+      },
+      {
+        title: 'Transactions',
+        icon: AiOutlineTransaction,
+        path: '/transactionTable',
+      },
+      {
+        title: 'Household Details',
+        icon: FaListAlt,
+        path: '/houseDetails',
+      },
+    ],
+  },
+  {
+    name: 'Customization',
+    items: [
+      {
+        title: 'Settings',
+        icon: MdOutlineSettingsSuggest,
+        path: '/settings',
+      },
+    ],
+  },
+]
 
 function Sidebar() {
-  const { pathname } = useLocation()
+  const [active, setActive] = useState(false)
+  const controls = useAnimation()
+  const controlText = useAnimation()
+  const controlTitleText = useAnimation()
 
-  if (pathname === '/login') return null
+  const { pathname } = useLocation();
+
+  if (pathname == '/login') {
+    return null
+  }
+
+  const { isOpen } = useSelector((state) => state.sidebar)
+
+  const dispatch = useDispatch()
+
+  const showMore = () => {
+    controls.start({
+      width: '280px',
+      transition: { duration: 0.001 },
+    })
+    controlText.start({
+      opacity: 1,
+      display: 'block',
+      transition: { delay: 0.3 },
+    })
+    controlTitleText.start({
+      opacity: 1,
+      transition: { delay: 0.3 },
+    })
+
+    setActive(true)
+  }
+
+  const showLess = () => {
+    controls.start({
+      width: '55px',
+      transition: { duration: 0.001 },
+    })
+
+    controlText.start({
+      opacity: 0,
+      display: 'none',
+    })
+
+    controlTitleText.start({
+      opacity: 0,
+    })
+
+    setActive(false)
+  }
+
+  useEffect(() => {
+    showMore()
+  }, [])
 
   return (
-    <aside className="flex flex-col w-full left-0 sticky max-w-[20%] h-screen z-[999] px-12 py-8 drop-shadow-2xl overflow-y-auto bg-white border-r-none rtl:border-r-0 rtl:border-l">
-      <div className="flex items-stretch">
-        <a href="#">
-          <img className="h-16 w-16" src={logo} alt="Logo" />
-        </a>
-        <p className="ml-2 mt-6">Imena Softek</p>
-      </div>
+    <div className="min-h-screen relative bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999]">
+      <motion.div
+        animate={controls}
+        className="z-[999] w-full animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen"
+      >
+        {active && (
+          <BsFillArrowLeftSquareFill
+            onClick={() => {
+              showLess()
+              dispatch(toggleSidebar(!isOpen))
+            }}
+            className="absolute ease-in-out duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-10 bg-amber-800 rounded-none"
+          />
+        )}
+        {!active && (
+          <BsFillArrowRightSquareFill
+            onClick={() => {
+              showMore()
+              dispatch(toggleSidebar(!isOpen))
+            }}
+            className="absolute ease-in-out duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-10 bg-amber-800 rounded-none"
+          />
+        )}
 
-      <div className="flex flex-col justify-between flex-1 mt-6">
-        <nav className="-mx-3 space-y-6 ">
-          <div className="space-y-3 ">
-            <Link
-              to="/dashboard"
-              className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
-              href="#"
-            >
-              <FaMicrosoft className="w-5 h-5" />
+        <div className="grow ">
+          {data.map((group, index) => (
+            <div key={index} className="my-2 pt-5">
+              <motion.p
+                animate={controlTitleText}
+                className="mb-2 ml-4 text-md uppercase font-bold text-black"
+              >
+                {group.name}
+              </motion.p>
 
-              <span className="mx-2 text-sm font-medium text-gray-800">
-                Dashboard
-              </span>
-            </Link>
-          </div>
-
-          <div className="space-y-3 ">
-            <label className="px-3 text-xs text-gray-500 uppercase dark:text-gray-500">
-              content
-            </label>
-
-            <a
-              className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
-              href="#"
-            >
-              <BsHousesFill className="w-5 h-5" />
-
-              <span className="mx-2 text-sm font-medium text-gray-800">
-                Households
-              </span>
-            </a>
-            <a
-              className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
-              href="#"
-            >
-              <FaBorderAll className="w-5 h-5" />
-
-              <span className="mx-2 text-sm font-medium text-gray-800">
-                Departments
-              </span>
-            </a>
-
-            < Link to="/transactionTable"
-              className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
-              href="#"
-            >
-              <AiOutlineTransaction className="w-5 h-5" />
-
-              <span className="mx-2 text-sm font-medium text-gray-800">
-                Transactions
-              </span>
-            </Link>
-
-            <Link
-              to="/houseDetails"
-              className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
-              href="#"
-            >
-              <FaListAlt className="w-5 h-5" />
-
-              <span className="mx-2 text-sm font-medium text-gray-800">
-                Household Details
-              </span>
-            </Link>
-          </div>
-
-          <div className="space-y-3 ">
-            <label className="px-3 text-xs text-gray-500 uppercase dark:text-gray-500">
-              Customization
-            </label>
-
-            <a
-              className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
-              href="#"
-            >
-              <MdOutlineSettingsSuggest className="w-5 h-5" />
-              <span className="mx-2 text-sm font-medium text-gray-800">
-                Settings
-              </span>
-            </a>
-          </div>
-        </nav>
-      </div>
-    </aside>
+              {group.items.map((item, index2) => (
+                <Link to={item.path}>
+                  <figure
+                    key={index2}
+                    className="flex px-4 py-1 cursor-pointer pt-3 pb-3 hover:bg-gray-800 "
+                  >
+                    <item.icon className="text-lg text-amber-600  transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700" />
+                    <motion.p
+                      to={item.path}
+                      animate={controlText}
+                      className="ml-4 text-sm font-bold text-white"
+                    >
+                      {' '}
+                      {item.title}
+                    </motion.p>
+                  </figure>
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
   )
 }
 

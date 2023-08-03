@@ -32,11 +32,23 @@ export const apiSlice = createApi({
       }),
       //end point to get total household pays which take department_Id and ubudehe as query params
       getTotalHouseholdPays: builder.query({
-        query: ({ departmentId, ubudehe }) => ({
-          url: `agent/totalPays/?departmentId=${departmentId}&ubudehe=${ubudehe}`,
+        query: ({ departmentId, ubudehe, route }) => ({
+          url: `${route}/totalPays/?departmentId=${departmentId}&ubudehe=${ubudehe}`,
           method: 'GET',
         }),
       }),
+      //end point to update user profile
+      updateUserProfile: builder.mutation({
+        query: ({ id, names, email, phone1, phone2, departmentId, route , username}) => ({
+          url: `/userProfile/${route}/${id}/?departmentId=${departmentId}`,
+          method: 'PUT',
+          body: {names,email,phone1,phone2,username},
+        }),
+      }),
+      getUserProfile: builder.query({
+        query: ({ id, departmentId }) => `userProfile/${id}?departmentId=${departmentId}`, // Replace with your actual API endpoint and query params
+      }),
+
       createDepartment: builder.mutation({
         query: ({
           name,
@@ -60,7 +72,7 @@ export const apiSlice = createApi({
             email,
           },
         }),
-      }),
+      }),      
     }
   },
 })
@@ -69,4 +81,6 @@ export const {
   useLoginMutation,
   useLazyDashboardCardQuery,
   useLazyGetTotalHouseholdPaysQuery,
+  useUpdateUserProfileMutation,
+  useLazyGetUserProfileQuery,
 } = apiSlice
