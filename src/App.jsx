@@ -10,6 +10,7 @@ import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import CreateVillageModel from './components/models/createVillageModel.jsx'
+import Settings from './pages/Settings.jsx'
 
 function App() {
   const [navUser, setNavUser] = useState({})
@@ -38,6 +39,7 @@ function App() {
             <Route path="/houseDetails" element={<HouseDetails />} />
             <Route path="/transactionTable" element={<TransactionTable />} />
             <Route path="/createVillage" element={<CreateVillageModel />} />
+            <Route path="/settings" element={<Settings user={user} />} />
           </Routes>
         </main>
       </div>

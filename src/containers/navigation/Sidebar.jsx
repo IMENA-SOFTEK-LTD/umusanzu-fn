@@ -91,7 +91,7 @@ function Sidebar() {
               Customization
             </label>
 
-            <a
+            <Link to="/settings"
               className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700"
               href="#"
             >
@@ -99,7 +99,7 @@ function Sidebar() {
               <span className="mx-2 text-sm font-medium text-gray-800">
                 Settings
               </span>
-            </a>
+            </Link>
           </div>
         </nav>
       </div>
