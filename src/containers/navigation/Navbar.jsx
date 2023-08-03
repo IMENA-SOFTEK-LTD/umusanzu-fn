@@ -61,12 +61,18 @@ function Navbar({ user }) {
           Dashboard
         </span>
       </Link>
-      <div className="flex items-center gap-2 content-start w-fit mr-8 divide-x-2 divide-gray-200">
-        <div className="grid grid-cols-1">
-          <span className="text-gray-600">
-            {user?.names || stateUser?.names}
-          </span>
-        </div>
+      <div className="flex relative items-center gap-2 content-start w-fit px-8 divide-x-2 divide-gray-200">
+        <Button
+        value={<span className='flex items-center gap-4'>
+          <p>{stateUser?.names || user.names}</p>
+          <FontAwesomeIcon icon={navDropdown ? faCaretUp : faCaretDown} className='hover:scale-[1.02] ease-in-out duration-500' />
+        </span>}
+        className='bg-transparent hover:scale-[1.01] ease-in-out duration-300'
+        onClick={(e) => {
+          e.preventDefault()
+          dispatch(toggleNavDropdown(!navDropdown))
+        }}
+        />
         <figure className="ml-2 w-fit">
           <img
             className="inline-block h-10 w-10 rounded-full ring-2 ring-white ml-2"
