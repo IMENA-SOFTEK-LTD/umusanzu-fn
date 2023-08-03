@@ -9,6 +9,7 @@ import TransactionTable from './components/TransactionTable.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import Settings from './pages/Settings.jsx'
 
 function App() {
   const [navUser, setNavUser] = useState({})
@@ -36,6 +37,7 @@ function App() {
             <Route path="/validate2faPage" element={<Validate2faPage />} />
             <Route path="/houseDetails" element={<HouseDetails />} />
             <Route path="/transactionTable" element={<TransactionTable />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
       </div>
