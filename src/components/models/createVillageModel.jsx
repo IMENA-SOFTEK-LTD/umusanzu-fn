@@ -19,8 +19,7 @@ const CreateVillageModel = () => {
   }
 
   const onSubmit = (data) => {
-    console.log(data)
-    closeModal() // Close the modal after successful form submission
+    closeModal()
   }
 
   return (

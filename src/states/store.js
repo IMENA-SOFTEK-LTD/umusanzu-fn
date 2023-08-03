@@ -3,6 +3,7 @@ import { apiSlice } from './api/apiSlice'
 import authSlice from './features/auth/authSlice'
 import navbarSlice from './features/navigation/navbarSlice'
 import sidebarSlice from './features/navigation/sidebarSlice'
+import paginationSlice from './features/pagination/paginationSlice'
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     auth: authSlice,
     navbar: navbarSlice,
     sidebar: sidebarSlice,
+    pagination: paginationSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware)

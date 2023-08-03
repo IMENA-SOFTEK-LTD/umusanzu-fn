@@ -1,22 +1,126 @@
-import { useState, useRef, useMemo } from 'react'
-import { useTable, usePagination, useFilters } from 'react-table'
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
+import { useState, useEffect, useMemo } from 'react'
+import moment from 'moment'
+import PropTypes from 'prop-types'
+import { faAnglesLeft, faAnglesRight, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import {
+  useGlobalFilter,
+  useTable,
+  useAsyncDebounce,
+  useFilters,
+  useSortBy,
+  usePagination,
+} from 'react-table';
+import { setPage, setSize, setTotalPages } from '../states/features/pagination/paginationSlice';
+import { useLazyGetTransactionsListQuery } from '../states/api/apiSlice'
+import Loading from './Loading'
+import Button, { PageButton } from './Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useSelector, useDispatch } from 'react-redux';
+import Input from './Input'
 
-const TransactionTable = () => {
-  const columns = React.useMemo(
+
+const TransactionTable = ({ user }) => {
+
+  const [getTransactionsList, {
+    data: transactionsListData,
+    isLoading: transactionsListIsLoading,
+    isSuccess: transactionsListIsSuccess,
+    isError: transactionsListIsError,
+    error: transactionsListError,
+  }] = useLazyGetTransactionsListQuery()
+
+  const { page: offset, size, totalPages } = useSelector((state) => state.pagination)
+
+  const dispatch = useDispatch()
+
+  let department = ''
+
+  switch (user?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
+  }
+
+  const [data, setData] = useState(transactionsListData?.data || [])
+
+
+  useEffect(() => {
+    getTransactionsList({
+      department,
+      departmentId: user?.departments?.id,
+      route: 'monthlyTarget/list',
+      id: user?.departments?.id,
+    })
+  }, [])
+
+  useEffect(() => {
+    getTransactionsList({
+      department,
+      departmentId: user?.departments?.id,
+      route: 'monthlyTarget/list',
+      id: user?.departments?.id,
+      size,
+      page: offset,
+    })
+    .unwrap()
+    .then((data) => {
+      dispatch(setTotalPages(data?.data?.totalPages))
+      setData(data?.data?.rows.map((row, index) => ({
+        id: index + 1,
+        name: row.households.name,
+        cell: user?.departments?.name,
+        amount: row.amount,
+        month_paid: moment(row.month_paid).format('MM-YYYY'),
+        payment_method: row.payment_method.split('_').join(' '),
+        agent: row?.agents?.names,
+        commission: Number(row.amount)/10,
+        transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
+      })) || [])
+    })
+  }, [offset, size])
+
+  useEffect(() => {
+    if (transactionsListIsSuccess) {
+      dispatch(setTotalPages(data?.data?.totalPages))
+      setData(transactionsListData?.data?.rows.map((row, index) => ({
+        id: index + 1,
+        name: row.households.name,
+        cell: user?.departments?.name,
+        amount: row.amount,
+        month_paid: moment(row.month_paid).format('MM-YYYY'),
+        payment_method: row.payment_method.split('_').join(' '),
+        agent: row?.agents?.names,
+        commission: Number(row.amount)/10,
+        transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
+      })) || [])
+    }
+  }, [transactionsListIsSuccess, transactionsListIsError])
+
+
+  const columns = useMemo(
     () => [
-      {
-        Header: 'N',
-        accessor: 'id',
-        sortable: true,
-      },
       {
         Header: 'Names',
         accessor: 'name',
-        sortable: true,
-      },
-      {
-        Header: 'Month paid',
-        accessor: 'monthPaid',
         sortable: true,
       },
       {
@@ -25,18 +129,25 @@ const TransactionTable = () => {
         sortable: true,
       },
       {
-        Header: 'Village',
-        accessor: 'village',
+        Header: 'Amount',
+        accessor: 'amount',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Month Paid',
+        accessor: 'month_paid',
         sortable: true,
       },
       {
-        Header: 'Total',
-        accessor: 'totalAmount',
+        Header: 'Payment Method',
+        accessor: 'payment_method',
         sortable: true,
+        Filter: SelectColumnFilter,
       },
       {
-        Header: 'Bank',
-        accessor: 'bank',
+        Header: 'Agent',
+        accessor: 'agent',
         sortable: true,
       },
       {
@@ -46,322 +157,376 @@ const TransactionTable = () => {
       },
       {
         Header: 'Date',
-        accessor: 'datePaid',
+        accessor: 'transaction_date',
         sortable: true,
       },
     ],
     []
   )
 
-  // Sample Data
-  const initialData = [
+  const tableHooks = (hooks) => {
+    hooks.visibleColumns.push((columns) => [
+      {
+        id: 'no',
+        Header: 'No',
+        accessor: 'id',
+        Cell: ({ row, index }) => <p>{row.index + 1}</p>,
+        sortable: true,
+      },
+      ...columns,
+    ])
+  }
+
+  const TableInstance = useTable(
     {
-      id: 1,
-      name: 'John Doe',
-      monthPaid: 'January',
-      cell: '123-456-7890',
-      village: 'Nyarugenge',
-      totalAmount: '$100',
-      bank: 'ABC Bank',
-      commission: '$10',
-      datePaid: '2023-06-01',
+      columns,
+      data,
+      filterTypes: {
+        dateRange: dateRangeFilter,
+      },
     },
-    {
-      id: 2,
-      name: 'John Nishimwe',
-      monthPaid: 'January',
-      cell: '123-456-7890',
-      village: 'Nyarugenge',
-      totalAmount: '$100',
-      bank: 'ABC Bank',
-      commission: '$67',
-      datePaid: '2023-06-01',
-    },
-    {
-      id: 3,
-      name: 'John Doe',
-      monthPaid: 'January',
-      cell: '123-456-7890',
-      village: 'Nyarugenge',
-      totalAmount: '$100',
-      bank: 'ABC Bank',
-      commission: '$10',
-      datePaid: '2023-06-01',
-    },
-    {
-      id: 4,
-      name: 'John Nishimwe',
-      monthPaid: 'January',
-      cell: '123-456-7890',
-      village: 'Nyarugenge',
-      totalAmount: '$100',
-      bank: 'ABC Bank',
-      commission: '$67',
-      datePaid: '2023-06-01',
-    },
-  ]
-
-  const [data, setData] = useState(initialData)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
-  const [status, setStatus] = useState('All')
-  const [paymentMethod, setPaymentMethod] = useState('All')
-
-  // Function to handle date from input change
-  const handleDateFromChange = (e) => {
-    setDateFrom(e.target.value)
-  }
-
-  // Function to handle date to input change
-  const handleDateToChange = (e) => {
-    setDateTo(e.target.value)
-  }
-
-  // Function to handle payment method select change
-  const handlePaymentMethodChange = (e) => {
-    setPaymentMethod(e.target.value)
-  }
-
-  // Function to handle status select change
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value)
-  }
-
-  // Function to handle search button click
-  const handleSearchButtonClick = () => {
-    filterData()
-  }
-
-  // Function to filter data based on search query, date range, status, and payment method
-  const filterData = () => {
-    let filteredData = data
-
-    if (searchQuery) {
-      filteredData = filteredData.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.village.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    }
-
-    if (dateFrom) {
-      filteredData = filteredData.filter((item) => item.datePaid >= dateFrom)
-    }
-
-    if (dateTo) {
-      filteredData = filteredData.filter((item) => item.datePaid <= dateTo)
-    }
-
-    if (status !== 'All') {
-      filteredData = filteredData.filter((item) => item.status === status)
-    }
-
-    if (paymentMethod !== 'All') {
-      filteredData = filteredData.filter(
-        (item) => item.paymentMethod === paymentMethod
-      )
-    }
-
-    return filteredData
-  }
-
-  // Function to handle search input changes
-  const handleSearchChange = (e) => {
-    const searchQuery = e.target.value
-    setSearchQuery(searchQuery)
-  }
-
-  const filteredData = useMemo(
-    () => filterData(),
-    [searchQuery, dateFrom, dateTo, status, paymentMethod]
+    useFilters,
+    tableHooks,
+    useGlobalFilter,
+    useSortBy,
+    usePagination
   )
 
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    page,
+    setGlobalFilter,
+    rows,
     prepareRow,
-    state: { pageIndex, pageSize, canPreviousPage, canNextPage },
-    setPageSize,
-    gotoPage,
-    previousPage, // Add this line to extract previousPage function
+    state,
+    preGlobalFilteredRows,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
     pageCount,
-  } = useTable(
-    {
-      columns,
-      data: filteredData,
-      initialState: { pageIndex: 0, pageSize: 10 },
-    },
-    useFilters,
-    usePagination
-  )
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+  } = TableInstance
+
+  if (transactionsListIsSuccess) {
+    return (
+      <main className='my-12 w-full'>
+        <div className="flex flex-col items-center gap-6">
+        <div className="search-filter flex flex-col items-center gap-6">
+            <span>
+            <GlobalFilter
+              preGlobalFilteredRows={preGlobalFilteredRows}
+              globalFilter={state.globalFilter}
+              setGlobalFilter={setGlobalFilter}
+            />
+
+            </span>
+            <span className='w-full h-fit flex items-center gap-4'>
+            {headerGroups.map((headerGroup) =>
+              headerGroup.headers.map((column) =>
+                column.Filter ? (
+                  <div key={column.id} className='p-[5px] px-2 border-[1px] shadow-md rounded-md'>
+                    <label htmlFor={column.id}></label>
+                    {column.render('Filter')}
+                  </div>
+                ) : null
+              )
+            )}
+            </span>
+          </div>
+          <div className="mt-2 flex flex-col w-[95%] mx-auto">
+            <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
+              <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                  <table
+                    {...getTableProps()}
+                    border="1"
+                    className="min-w-full divide-y divide-gray-200"
+                  >
+                    <thead className="bg-gray-50">
+                      {headerGroups.map((headerGroup) => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                          {headerGroup.headers.map((column) => (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              {...column.getHeaderProps(
+                                column.getSortByToggleProps()
+                              )}
+                            >
+                              {column.render('Header')}
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? ' ▼'
+                                    : ' ▲'
+                                  : ''}
+                              </span>
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody
+                      className="bg-white divide-y divide-gray-200"
+                      {...getTableBodyProps()}
+                    >
+                      {page.map((row, i) => {
+                        prepareRow(row)
+                        return (
+                          <tr {...row.getRowProps()}>
+                            {row.cells.map((cell) => {
+                              return (
+                                <td
+                                  {...cell.getCellProps()}
+                                  className="px-6 py-4 whitespace-nowrap"
+                                >
+                                  {cell.render('Cell')}
+                                </td>
+                              )
+                            })}
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="pagination w-[95%] mx-auto">
+          <div className="py-3 flex items-center justify-between">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <Button
+                onClick={() => previousPage()}
+                disabled={!canPreviousPage}
+                value='Previous'
+              >
+                Previous
+              </Button>
+              <Button onClick={() => nextPage()} disabled={!canNextPage} value='Next'>
+                Next
+              </Button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div className="flex gap-x-2">
+                <span className="text-sm text-gray-700 p-2">
+                  {' '}
+                  <span className="font-medium">
+                    {offset + 1}
+                  </span> of{' '}
+                  <span className="font-medium">{totalPages}</span>
+                </span>
+                <label>
+                  <span className="sr-only">Items Per Page</span>
+                  <select
+                    className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    value={state.pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value))
+                      dispatch(setSize(Number(e.target.value)))
+                    }}
+                  >
+                    {[20, 50, 100].map((pageSize) => (
+                      <option key={pageSize} value={pageSize}>
+                        Show {pageSize}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div>
+                <nav
+                  className="relative z-0 gap-1 inline-flex rounded-md shadow-sm -space-x-px"
+                  aria-label="Pagination"
+                >
+                  <PageButton
+                    className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
+                    onClick={() => gotoPage(0)}
+                    // disabled={!canPreviousPage}
+                  >
+                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                      First
+                    </span>
+                    <FontAwesomeIcon icon={faAnglesLeft} />
+                  </PageButton>
+                  <PageButton
+                    onClick={() => {
+                      previousPage()
+                      dispatch(setPage(offset > 0 ? offset - 1 : offset))
+                    }}
+                    // disabled={!canPreviousPage}
+                    className="px-4 cursor-pointer hover:scale-[1.02] p-2 shadow-md"
+                  >
+                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                      Previous
+                    </span>
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                  </PageButton>
+                  <PageButton
+                    onClick={() => {
+                      nextPage()
+                      dispatch(setPage(offset + 1))
+                    }}
+                    // disabled={!canNextPage}
+                    className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
+                  >
+                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                      Next
+                    </span>
+                    <FontAwesomeIcon icon={faChevronRight} />
+                  </PageButton>
+                  <PageButton
+                    className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
+                    onClick={() => {
+                      gotoPage(offset - 1)
+                      dispatch(setPage(offset > 0 ? offset - 1 : offset))
+                    }}
+                    // disabled={!canNextPage}
+                  >
+                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                      Last
+                    </span>
+                    <FontAwesomeIcon icon={faAnglesRight} />
+                  </PageButton>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  if (transactionsListError) {
+    return <main className='min-h-[80vh] flex items-center justify-center flex-col gap-6'>
+      <h1 className='text-[25px] font-medium text-center'>Could not load transactions data</h1>
+      <Button value='Go to dashboard' route='/dashboard' />
+    </main>
+  }
+
+  if (transactionsListIsLoading) {
+    return <main className='w-full min-h-[80vh] flex items-center justify-center'><Loading /></main>
+  }
+  return <main className='w-full min-h-[80vh] flex items-center justify-center'><Loading /></main>
+}
+
+TransactionTable.propTypes = {
+  user: PropTypes.shape({}),
+}
+
+function dateRangeFilter(rows, columnIds, filterValue) {
+  const { startDate, endDate } = filterValue;
+  if (!startDate || !endDate) {
+    return rows;
+  }
+
+  return rows.filter((row) => {
+    const date = moment(row.values[columnIds].transaction_date, 'DD-MM-YYYY');
+    return date.isBetween(startDate, endDate, null, '[]');
+  });
+}
+
+export function SelectColumnFilter({
+  column: { filterValue, setFilter, preFilteredRows, id, render },
+}) {
+  const options = useMemo(() => {
+    const options = new Set();
+    preFilteredRows.forEach((row) => {
+      options.add(row.values[id]);
+    });
+    return [...options.values()];
+  }, [id, preFilteredRows]);
 
   return (
-    <div className="p-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 min-h-screen">
-      {/* Search form by Date From, Date To, Status, Payment Method */}
-      <div className="flex flex-col md:flex-row justify-between md:space-x-4 bg-white rounded-lg p-4 shadow-lg mb-4">
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-          <div className="flex flex-col">
-            <label className="text-gray-600">Date From</label>
-            <input
-              type="date"
-              className="border rounded-lg p-2"
-              value={dateFrom}
-              onChange={handleDateFromChange}
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-gray-600">Date To</label>
-            <input
-              type="date"
-              className="border rounded-lg p-2"
-              value={dateTo}
-              onChange={handleDateToChange}
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-gray-600">Status</label>
-            <select
-              className="border rounded-lg p-2"
-              value={status}
-              onChange={handleStatusChange}
-            >
-              <option value="All">All</option>
-              <option value="Paid">Paid</option>
-              <option value="Unpaid">Unpaid</option>
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label className="text-gray-600">Payment Method</label>
-            <select
-              className="border rounded-lg p-2"
-              value={paymentMethod}
-              onChange={handlePaymentMethodChange}
-            >
-              <option value="All">All</option>
-              <option value="Bank">Bank</option>
-              <option value="Mobile Money">Mobile Money</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex items-center mt-4 md:mt-0">
-          <button
-            className="bg-indigo-500 text-white rounded-lg p-2 shadow-md"
-            onClick={handleSearchButtonClick}
-          >
-            Search
-          </button>
-        </div>
-      </div>
-      {/* End of search form */}
-      {/* Search form by using text */}
-      <div className="bg-white rounded-lg p-4 shadow-lg mb-4">
-        <label className="text-gray-600">Search</label>
-        <input
-          type="text"
-          className="border rounded-lg p-2 w-full"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          onInput={handleSearchChange}
-        />
-      </div>
-      <div>
-        <div className="overflow-x-auto">
-          <table className="table-auto w-full">
-            <thead>
-              {headerGroups.map((headerGroup) => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map((column) => (
-                    <th
-                      className="px-4 py-2 text-left bg-gray-100"
-                      {...column.getHeaderProps()}
-                    >
-                      {column.render('Header')}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {page.map((row) => {
-                prepareRow(row)
-                return (
-                  <tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <td className="border px-4 py-2" {...cell.getCellProps()}>
-                        {cell.render('Cell')}
-                      </td>
-                    ))}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-center mt-4">
-          <button
-            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
-            onClick={() => gotoPage(0)}
-            disabled={pageIndex === 0}
-          >
-            {'<<'}
-          </button>
-          <button
-            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
-            onClick={() => previousPage()}
-            disabled={!canPreviousPage}
-          >
-            {'<'}
-          </button>
-          <button
-            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
-            onClick={() => nextPage()}
-            disabled={!canNextPage}
-          >
-            {'>'}
-          </button>
-          <button
-            className="px-2 py-1 mr-1 rounded-lg bg-gray-200"
-            onClick={() => gotoPage(pageCount - 1)}
-            disabled={pageIndex === pageCount - 1}
-          >
-            {'>>'}
-          </button>
-          <span className="mr-2">
-            Page{' '}
-            <strong>
-              {pageIndex + 1} of {pageCount}
-            </strong>
-          </span>
-          <input
-            type="number"
-            className="w-16 px-2 py-1 text-center border rounded-md"
-            value={pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              gotoPage(page)
-            }}
-          />
-          <span>of {pageCount}</span>
-          <select
-            className="w-24 ml-2 border rounded-md"
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value))
-            }}
-          >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-    </div>
-  )
+    <label className="flex gap-x-2 items-baseline">
+      <span className="text-gray-1000">{render('Header')}: </span>
+      <select
+        className="py-[3px] rounded-sm px-4 bg-transparent outline-none border-none focus:border-none focus:outline-primaryBlue"
+        name={id}
+        id={id}
+        value={filterValue}
+        onChange={(e) => {
+          setFilter(e.target.value || undefined);
+        }}
+      >
+        <option value="">All</option>
+        {options.map((option, i) => (
+          <option key={i} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }
+
+function GlobalFilter({
+  preGlobalFilteredRows,
+  globalFilter,
+  setGlobalFilter,
+}) {
+  const count = preGlobalFilteredRows.length;
+  const [value, setValue] = React.useState(globalFilter);
+  const onChange = useAsyncDebounce((value) => {
+    setGlobalFilter(value || undefined);
+  }, 200);
+
+  return (
+    <label className="flex gap-4 items-center">
+      <Input
+        type="text"
+        className='p-2 outline-[2px] border-[1px] border-primary rounded-md outline-primary focus:outline-primary'
+        value={value || ''}
+        onChange={(e) => {
+          setValue(e.target.value);
+          onChange(e.target.value);
+        }}
+        placeholder={`${count} households...`}
+      />
+      <Button value='Search' onClick={() => {
+        setGlobalFilter(value || undefined)
+      }} />
+    </label>
+  );
+}
+
+function DateRangeFilter({
+  column: { filterValue, preFilteredRows, setFilter },
+}) {
+  const [startDate, setStartDate] = useState(filterValue?.startDate || '');
+  const [endDate, setEndDate] = useState(filterValue?.endDate || '');
+
+  const onChange = () => {
+    setFilter({
+      startDate: moment(startDate).format('DD-MM-YYYY'),
+      endDate: moment(endDate).format('DD-MM-YYYY')
+    });
+  };
+
+  return (
+    <div className='flex items-center'>
+      <input
+        type="date"
+        value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
+        onBlur={onChange}
+      />
+      <span>-</span>
+      <input
+        type="date"
+        value={endDate}
+        onChange={(e) => setEndDate(e.target.value)}
+        onBlur={onChange}
+      />
+    </div>
+  );
+}
+
 
 export default TransactionTable

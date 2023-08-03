@@ -13,7 +13,6 @@ import CreateVillageModel from './components/models/createVillageModel.jsx'
 import Settings from './pages/Settings.jsx'
 
 function App() {
-  const [navUser, setNavUser] = useState({})
 
   const { user: stateUser } = useSelector((state) => state.auth)
 
@@ -21,15 +20,11 @@ function App() {
 
   const user = JSON.parse(localStorage.getItem('user'))
 
-  useEffect(() => {
-    setNavUser(user || stateUser)
-  }, [stateUser])
-
   return (
     <Router>
-       <main className={`${isOpen ? 'grid grid-cols-[10%,90%]' : 'grid grid-cols-[0%,100%]'}`}>
+       <main className={`relative ${isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[4vw,96vw]'}`}>
        <Sidebar />
-        <section className={`${isOpen ? 'w-[90%]' : 'w-full'} absolute top-0 right-0 ${isOpen ? 'left-[280px]': 'left-[55px]'} mx-auto`}>
+        <section className={`w-full ${isOpen ? 'left-[280px]' : 'left-[55px]'} mx-auto`}>
           <Navbar user={user} />
           <Routes>
             <Route element={<IsLoggedIn />}>
@@ -39,7 +34,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/validate2faPage" element={<Validate2faPage />} />
             <Route path="/houseDetails" element={<HouseDetails />} />
-            <Route path="/transactionTable" element={<TransactionTable />} />
+            <Route path="/transactions" element={<TransactionTable user={user} />} />
             <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/settings" element={<Settings user={user} />} />
           </Routes>

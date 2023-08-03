@@ -69,11 +69,7 @@ const DashboardCard = ({
         title: 'Monthly Target',
         period: 'month',
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
-          <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.monthlyTarget
-        ),
+        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.monthlyTarget || 0,
       }
       useEffect(() => {
         dashboardCard({
@@ -265,14 +261,6 @@ const DashboardCard = ({
       newProps = { ...newProps }
   }
 
-  useEffect(() => {
-    console.log(
-      dashboardCardData?.data[0]?.amountPendingPaid,
-      department,
-      props?.user?.department_id
-    )
-  }, [dashboardCardIsSuccess])
-
   const { isOpen } = useSelector((state) => state.sidebar)
 
   return (
@@ -282,15 +270,15 @@ const DashboardCard = ({
           ? 'bg-yellow-50'
           : null
       } ${
-        isOpen ? 'w-[20%]' : 'w-[23%]'
+        isOpen ? 'w-[18%]' : 'w-[23%]'
       } h-full max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
     >
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
-          <h3 className="text-slate-700 text-[1rem] font-bold">
+          <h3 className={`text-slate-700 ${isOpen ? 'text-[14px]' : 'text-[1rem]'} font-bold`}>
             {newProps.title}
           </h3>
-          <span className="text-[18px] w-full flex items-center gap-2 font-black">
+          <span className={`${isOpen ? 'text-[14px]' : 'text-[16px]'}  w-full flex items-center gap-2 font-black`}>
             <p>{newProps.amount}</p>
             <p className={`${newProps.funds ? 'flex' : 'hidden'}`}>RWF</p>
           </span>
