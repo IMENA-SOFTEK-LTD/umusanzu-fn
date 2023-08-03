@@ -30,8 +30,19 @@ export const apiSlice = createApi({
           url: `/${department}/${route}/?departmentId=${departmentId}`,
         }),
       }),
+      //end point to get total household pays which take department_Id and ubudehe as query params
+      getTotalHouseholdPays: builder.query({
+        query: ({ departmentId, ubudehe }) => ({
+          url: `agent/totalPays/?departmentId=${departmentId}&ubudehe=${ubudehe}`,
+          method: 'GET',
+        }),
+      }),      
     }
   },
 })
 
-export const { useLoginMutation, useLazyDashboardCardQuery } = apiSlice;
+export const {
+  useLoginMutation,
+  useLazyDashboardCardQuery,
+  useLazyGetTotalHouseholdPaysQuery,
+} = apiSlice
