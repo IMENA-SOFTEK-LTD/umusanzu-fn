@@ -4,7 +4,6 @@ import Validate2faPage from './pages/auth/Validate2faPage.jsx'
 import Sidebar from './containers/navigation/Sidebar.jsx'
 import Navbar from './containers/navigation/Navbar.jsx'
 import Dashboard from './containers/dashboard/Dashboard.jsx'
-import UserTable from './components/userTable.jsx'
 import HouseDetails from './containers/dashboard/HouseDetails.jsx'
 import TransactionTable from './components/TransactionTable.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
@@ -35,7 +34,6 @@ function App() {
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/validate2faPage" element={<Validate2faPage />} />
-            <Route path="/userTable" element={<UserTable />} />
             <Route path="/houseDetails" element={<HouseDetails />} />
             <Route path="/transactionTable" element={<TransactionTable />} />
           </Routes>

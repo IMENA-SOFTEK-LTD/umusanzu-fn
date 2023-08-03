@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect } from 'react'
+import Loading from './Loading'
 
 const HouseholdDetailsCard = ({
   props = {
@@ -37,7 +38,7 @@ const HouseholdDetailsCard = ({
         ...props,
         amount: 5000,
         isHousehold:true,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
       }
       useEffect(() => {
         getTotalHouseholdPays({
@@ -49,7 +50,7 @@ const HouseholdDetailsCard = ({
     case 2:
       newProps = {
         ...props,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 3000,
         isHousehold:true,
       }
@@ -63,7 +64,7 @@ const HouseholdDetailsCard = ({
     case 3:
       newProps = {
         ...props,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 2000,
         isHousehold:true,        
       }
@@ -78,7 +79,7 @@ const HouseholdDetailsCard = ({
     case 4:
       newProps = {
         ...props,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays:isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 15000,
         isHousehold:true,
       }
@@ -92,7 +93,7 @@ const HouseholdDetailsCard = ({
     case 5:
       newProps = {
         ...props,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 500,
         isHousehold:true,        
       }
@@ -106,7 +107,7 @@ const HouseholdDetailsCard = ({
     case 6:
       newProps = {
         ...props,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 0,
         isHousehold:true,
     
@@ -121,16 +122,22 @@ const HouseholdDetailsCard = ({
       case 7:
       newProps = {
         ...props,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 1000,
         isHousehold:true,
     
       }
+      useEffect(() => {
+        getTotalHouseholdPays({
+          departmentId: props?.user?.department_id,
+          ubudehe: 1000,
+        })
+      }, [])
       break
       case 8:
       newProps = {
         ...props,
-        numberOfPays: data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 4000,
         isHousehold:true,
     
@@ -145,7 +152,7 @@ const HouseholdDetailsCard = ({
       case 9:
       newProps = {
         ...props,
-        numberOfPays: 1,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 25000,
         isHousehold:true,
     
