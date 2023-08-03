@@ -6,13 +6,13 @@ import Navbar from './containers/navigation/Navbar.jsx'
 import Dashboard from './containers/dashboard/Dashboard.jsx'
 import UserTable from './components/userTable.jsx'
 import HouseDetails from './containers/dashboard/HouseDetails.jsx'
+import TransactionTable from './components/TransactionTable.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 function App() {
-
-  const [navUser, setNavUser] = useState({});
+  const [navUser, setNavUser] = useState({})
 
   const { user: stateUser } = useSelector((state) => state.auth)
 
@@ -33,10 +33,11 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
-            <Route path="/login" element={<Login />}   />
+            <Route path="/login" element={<Login />} />
             <Route path="/validate2faPage" element={<Validate2faPage />} />
-            <Route path="/table" element={<UserTable />} />
+            <Route path="/userTable" element={<UserTable />} />
             <Route path="/houseDetails" element={<HouseDetails />} />
+            <Route path="/transactionTable" element={<TransactionTable />} />
           </Routes>
         </main>
       </div>
