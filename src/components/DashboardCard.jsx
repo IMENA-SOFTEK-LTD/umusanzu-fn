@@ -21,20 +21,22 @@ const DashboardCard = ({
     index: 0,
     progress: 50,
     increaseValue: 2.15,
-    user: {}
+    user: {},
   },
 }) => {
-
-  const [dashboardCard, {
-    data: dashboardCardData,
-    isLoading: dashboardCardIsLoading,
-    isSuccess: dashboardCardIsSuccess,
-    isError: dashboardCardIsError,
-    error: dashboardCardError,
-  }] = useLazyDashboardCardQuery()
+  const [
+    dashboardCard,
+    {
+      data: dashboardCardData,
+      isLoading: dashboardCardIsLoading,
+      isSuccess: dashboardCardIsSuccess,
+      isError: dashboardCardIsError,
+      error: dashboardCardError,
+    },
+  ] = useLazyDashboardCardQuery()
 
   let newProps = { ...props }
-  let department = '';
+  let department = ''
 
   switch (props.user?.departments?.level_id) {
     case 1:
@@ -66,7 +68,11 @@ const DashboardCard = ({
         title: 'Monthly Target',
         period: 'month',
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.monthlyTarget,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.monthlyTarget
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -84,7 +90,9 @@ const DashboardCard = ({
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
-        ) : dashboardCardData?.data[0]?.totalCollected || 0,
+        ) : (
+          dashboardCardData?.data[0]?.totalCollected || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -100,7 +108,11 @@ const DashboardCard = ({
         title: 'Cleared Pending Payments',
         period: 'month',
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.amountPendingPaid || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.amountPendingPaid || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -116,7 +128,11 @@ const DashboardCard = ({
         period: 'month',
         title: "Monthly's Collections",
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.monthlyCollections || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.monthlyCollections || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -132,7 +148,11 @@ const DashboardCard = ({
         title: 'Pending Payments',
         period: 'month',
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.amountPendingNotPaid || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.amountPendingNotPaid || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -148,7 +168,11 @@ const DashboardCard = ({
         title: 'Advance Payments',
         period: 'month',
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.advancePayments || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.advancePayments || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -164,7 +188,11 @@ const DashboardCard = ({
         period: 'day',
         title: "Today's Collections",
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.todayCollections || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.todayCollections || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -180,7 +208,11 @@ const DashboardCard = ({
         title: 'Total Households',
         period: 'month',
         funds: false,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.totalHouseholds || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.totalHouseholds || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -195,7 +227,11 @@ const DashboardCard = ({
         ...props,
         title: 'Active Households',
         funds: false,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.activeHouseholds || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.activeHouseholds || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -210,7 +246,11 @@ const DashboardCard = ({
         ...props,
         title: 'Inactive Households',
         funds: false,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.inactiveHouseholds || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.inactiveHouseholds || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -225,7 +265,11 @@ const DashboardCard = ({
   }
 
   useEffect(() => {
-    console.log(dashboardCardData?.data[0]?.amountPendingPaid, department, props?.user?.department_id)
+    console.log(
+      dashboardCardData?.data[0]?.amountPendingPaid,
+      department,
+      props?.user?.department_id
+    )
   }, [dashboardCardIsSuccess])
 
   return (
@@ -308,8 +352,8 @@ DashboardCard.propTypes = {
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         name: PropTypes.string,
         level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      })
-    })
+      }),
+    }),
   }),
 }
 
