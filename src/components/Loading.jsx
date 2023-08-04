@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 
 const Loading = ({ color = 'primaryBlue', size = 6 }) => {
   return (
-    <a href='#' role="status" className="flex items-center justify-center">
+    <a href="#" role="status" className="flex items-center justify-center">
       <svg
         aria-hidden="true"
         className={`w-${size} h-${size} mr-2 text-${color} animate-spin fill-white`}

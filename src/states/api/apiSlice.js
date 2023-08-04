@@ -36,7 +36,31 @@ export const apiSlice = createApi({
           url: `agent/totalPays/?departmentId=${departmentId}&ubudehe=${ubudehe}`,
           method: 'GET',
         }),
-      }),      
+      }),
+      createDepartment: builder.mutation({
+        query: ({
+          name,
+          merchant_code,
+          department_id,
+          level_id,
+          phone1,
+          phone2,
+          email,
+          department,
+        }) => ({
+          url: `/${department}`,
+          method: 'POST',
+          body: {
+            name,
+            merchant_code,
+            department_id,
+            level_id,
+            phone1,
+            phone2,
+            email,
+          },
+        }),
+      }),
     }
   },
 })

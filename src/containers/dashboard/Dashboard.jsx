@@ -2,7 +2,6 @@ import DashboardCard from '../../components/DashboardCard'
 import Sidebar from '../../containers/navigation/Sidebar'
 
 const Dashboard = () => {
-
   const user = JSON.parse(localStorage.getItem('user'))
 
   return (
