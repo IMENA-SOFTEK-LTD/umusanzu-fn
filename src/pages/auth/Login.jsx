@@ -8,7 +8,6 @@ import Input from '../../components/Input'
 import Logo from '/logo.png'
 import { useEffect } from 'react'
 import { setUser } from '../../states/features/auth/authSlice'
-import { toggleSidebar } from '../../states/features/navigation/sidebarSlice'
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -49,9 +48,9 @@ const Login = () => {
   }, [user, loginSuccess])
 
   return (
-    <main className="bg-white relative">
-      <div className="max-w-7xl flex h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
-        <div className="flex flex-col items-center justify-center min-h-[100vh] h-full m-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row">
+    <main className="bg-white relative flx flex-col items-start">
+      <div className="max-w-7xl flex flex-col items-start h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
+        <div className="flex flex-col items-center justify-center min-h-[100vh] h-full my-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row">
           <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
             <form
               className="flex flex-col items-start justify-start min-h-[60vh] p-12 bg-white shadow-2xl rounded-xl gap-8 relative z-10"
