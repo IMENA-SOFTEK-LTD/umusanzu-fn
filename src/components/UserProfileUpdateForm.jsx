@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react'
 import { FaPenNib } from 'react-icons/fa'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, set } from 'react-hook-form'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import { useUpdateUserProfileMutation, useLazyGetUserProfileQuery } from '../states/api/apiSlice'
+import Loading from './Loading'
 
-function UserProfileUpdateForm({ user }) {
+ function UserProfileUpdateForm({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [
-    updateUserProfile,
-    {
-      isLoading: userProfileIsLoading,
-      isError: userProfileIsError,
-      isSuccess: userProfileIsSuccess,
-    },
+    updateUserProfile
   ] = useUpdateUserProfileMutation()
-  const [getUserProfile, { data: userProfileData }] =
+  const [getUserProfile, ] =
     useLazyGetUserProfileQuery()
 
   let department = ''
@@ -66,14 +65,16 @@ function UserProfileUpdateForm({ user }) {
   }
 
   const closeModal = () => {
+    setErrorMessage('');
+    setSuccessMessage('');
     setShowModal(false)
   }
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
+    setIsLoading(true);
 
-    console.log(user.id)
-
-    updateUserProfile({
+  try{
+    await updateUserProfile({
       id: user.id,
       route: department,
       departmentId: user?.department_id || stateUser?.department_id,
@@ -82,20 +83,33 @@ function UserProfileUpdateForm({ user }) {
       phone1: values.phone1,
       phone2: values.phone2,
       username: values.username,
+    }).unwrap()
+    .then(() => {
+      setErrorMessage('');        
+      setSuccessMessage('Profile updated successfully!');             
+      setTimeout(() => {
+        setIsLoading(false);
+        closeModal();
+      }, 1200);
     })
-    .unwrap()
-      .then(() => {
-        alert('Profile updated successfully!');
-      })
-      .catch((error) => {
-        alert(error.data.message);
+    .catch((error) => {     
         console.error(error);
+        if (error.data && error.data.message) {
+          setTimeout(() => {
+          setIsLoading(false);
+          setErrorMessage(error.data.message);
+          }, 1200);
+        } else {
+          setIsLoading(false);
+          setErrorMessage('An error occurred while updating the profile.');
+        }
+
       });
-
-    closeModal(); // Close the modal after successful form submission
- 
-
   }
+  catch (error) {
+    console.log(error)
+  }
+}
 
   return (
     <div>
@@ -138,11 +152,16 @@ function UserProfileUpdateForm({ user }) {
               <span className="sr-only">Close modal</span>
             </button>
             <div className="px-6 py-6 lg:px-8">
+               
               <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
                 Update Your Profile
               </h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+             
                 <div>
+                {successMessage && (<span className="success-message text-green-500">{successMessage}</span>)}
+                {errorMessage && <span className="error-message text-red-500">{errorMessage}</span>}
+                
                   <label
                     htmlFor="names"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -284,9 +303,10 @@ function UserProfileUpdateForm({ user }) {
 
                 <button
                   type="submit"
+                  disabled={isLoading}
                   className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
-                  Edit profile
+                  {isLoading ? <Loading /> : 'Edit profile'}
                 </button>
               </form>
             </div>
@@ -296,7 +316,6 @@ function UserProfileUpdateForm({ user }) {
     </div>
   )
 }
-
 UserProfileUpdateForm.propTypes = {
   user: PropTypes.shape({
     names: PropTypes.string,
