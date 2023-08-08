@@ -13,7 +13,6 @@ import { useState } from 'react'
 export const Department = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
   const user = JSON.parse(localStorage.getItem('user'))
-  console.log(user)
 
   const [showModals, setShowModals] = useState(false)
 

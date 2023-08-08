@@ -36,9 +36,6 @@ const CreateVillageModel = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const onSubmit = (data) => {
-    console.log(data)
-
-    console.log(user || stateUser)
 
     createDepartment({
       name: data.departmentName,

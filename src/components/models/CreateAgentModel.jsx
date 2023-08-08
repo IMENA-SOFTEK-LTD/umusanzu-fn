@@ -79,7 +79,6 @@ const CreateAgentModel = () => {
 
   useEffect(() => {
     if (agentSuccess || agentError) {
-      console.log(agentData)
       if (agentSuccess) {
         closeModal()
         toast.success('Agent created successfully')

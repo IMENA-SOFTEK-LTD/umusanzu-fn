@@ -40,7 +40,6 @@ const CreateCellModel = () => {
   const user = JSON.parse(localStorage.getItem('user'))
 
   const onSubmit = (data) => {
-    console.log(data, user?.department_id || stateUser.department_id)
     createCell({
       name: data.name,
       department_id: user?.department_id || stateUser.department_id,
@@ -61,7 +60,6 @@ const CreateCellModel = () => {
     }
     if (celError) {
       toast.error(celError.message)
-      console.log(celError.message)
     }
   }, [celData, celSuccess, celError])
 
@@ -86,7 +84,7 @@ const CreateCellModel = () => {
             <button
               onClick={closeModal}
               type="button"
-              className="absolute top-3 right-2.5 text-primary bg-transparent hover:bg-primary hover:text-primary rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-primary dark:hover:text-white"
+              className="absolute top-3 right-2.5 bg-transparent hover:bg-gray-200 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
             >
               <svg
                 className="w-3 h-3"

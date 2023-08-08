@@ -36,7 +36,6 @@ const CreateDistrictModel = () => {
   const user = JSON.parse(localStorage.getItem('user'))
 
   const onSubmit = (data) => {
-    console.log(data, user?.department_id || stateUser.department_id)
     createDistrict({
       name: data.name,
       department_id: user?.department_id || stateUser.department_id,

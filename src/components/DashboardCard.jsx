@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useLazyDashboardCardQuery } from '../states/api/apiSlice'
 import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import Button from './Button'
 
 const DashboardCard = ({
   props = {
@@ -21,6 +22,7 @@ const DashboardCard = ({
     amount: '892,560,000',
     index: 0,
     progress: 50,
+    route: '#',
     increaseValue: 2.15,
     user: {},
   },
@@ -68,6 +70,7 @@ const DashboardCard = ({
         ...props,
         title: 'Monthly Target',
         period: 'month',
+        route: 'monthlyTarget',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -88,6 +91,7 @@ const DashboardCard = ({
         ...props,
         title: 'Total Collected',
         period: 'month',
+        route: 'totalCollections',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -108,6 +112,7 @@ const DashboardCard = ({
         ...props,
         title: 'Cleared Pending Payments',
         period: 'month',
+        route: 'amountPendingNotPaid',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -128,6 +133,7 @@ const DashboardCard = ({
         ...props,
         period: 'month',
         title: "Monthly's Collections",
+        route: 'monthlyCollections',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -147,6 +153,7 @@ const DashboardCard = ({
       newProps = {
         ...props,
         title: 'Pending Payments',
+        route: 'amountPendingNotPaid',
         period: 'month',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
@@ -168,6 +175,7 @@ const DashboardCard = ({
         ...props,
         title: 'Advance Payments',
         period: 'month',
+        route: 'advancePayments',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -188,6 +196,7 @@ const DashboardCard = ({
         ...props,
         period: 'day',
         title: "Today's Collections",
+        route: 'todayCollections',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -208,6 +217,7 @@ const DashboardCard = ({
         ...props,
         title: 'Total Households',
         period: 'month',
+        route: 'households',
         funds: false,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -227,6 +237,7 @@ const DashboardCard = ({
       newProps = {
         ...props,
         title: 'Active Households',
+        route: 'households/active',
         funds: false,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -246,6 +257,7 @@ const DashboardCard = ({
       newProps = {
         ...props,
         title: 'Inactive Households',
+        route: 'households/inactive',
         funds: false,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -332,13 +344,13 @@ const DashboardCard = ({
             Last {newProps.period}
           </p>
         </span>
-        <button
+        <Button
+        value='View more'
+        route={`/transactions/?${newProps?.route}`}
           className={`${
-            isOpen ? 'px-2 text-sm' : 'px-4'
-          } p-2 rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black text-[15px] hover:bg-accent hover:text-white`}
-        >
-          View more
-        </button>
+            isOpen ? 'px-2 text-sm text-center ml-4' : 'px-4'
+          } p-2 rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black text-[15px] hover:bg-primary hover:text-white`}
+        />
       </section>
     </article>
   )
@@ -351,6 +363,7 @@ DashboardCard.propTypes = {
     increase: PropTypes.bool,
     period: PropTypes.string,
     target: PropTypes.number,
+    route: PropTypes.string,
     title: PropTypes.string,
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     index: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
