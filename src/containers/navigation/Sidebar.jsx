@@ -36,7 +36,7 @@ const data = [
       {
         title: 'Transactions',
         icon: AiOutlineTransaction,
-        path: '/transactionTable',
+        path: '/transactions',
       },
       {
         title: 'Household Details',
@@ -65,17 +65,11 @@ function Sidebar() {
 
   const { pathname } = useLocation();
 
-  if (pathname == '/login') {
-    return null
-  }
-
-  const { isOpen } = useSelector((state) => state.sidebar)
-
   const dispatch = useDispatch()
 
   const showMore = () => {
     controls.start({
-      width: '280px',
+      width: '20vw',
       transition: { duration: 0.001 },
     })
     controlText.start({
@@ -93,7 +87,7 @@ function Sidebar() {
 
   const showLess = () => {
     controls.start({
-      width: '55px',
+      width: '4vw',
       transition: { duration: 0.001 },
     })
 
@@ -113,34 +107,39 @@ function Sidebar() {
     showMore()
   }, [])
 
+
+  if (pathname == '/login') {
+    return <div>{''}</div>
+  }
+
   return (
     <div className="min-h-screen relative bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999]">
       <motion.div
         animate={controls}
-        className="z-[999] w-full animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen"
+        className={`z-[999] w-full animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`}
       >
         {active && (
           <BsFillArrowLeftSquareFill
             onClick={() => {
               showLess()
-              dispatch(toggleSidebar(!isOpen))
+              dispatch(toggleSidebar(false))
             }}
-            className="absolute ease-in-out duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-10 bg-amber-800 rounded-none"
+            className="absolute ease-in-out text-white duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-[55px] rounded-none"
           />
         )}
         {!active && (
           <BsFillArrowRightSquareFill
             onClick={() => {
               showMore()
-              dispatch(toggleSidebar(!isOpen))
+              dispatch(toggleSidebar(true))
             }}
-            className="absolute ease-in-out duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-10 bg-amber-800 rounded-none"
+            className="absolute ease-in-out duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-10 text-white rounded-none"
           />
         )}
 
         <div className="grow ">
           {data.map((group, index) => (
-            <div key={index} className="my-2 pt-5">
+            <div key={index} className="pt-5">
               <motion.p
                 animate={controlTitleText}
                 className="mb-2 ml-4 text-md uppercase font-bold text-black"

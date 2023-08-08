@@ -30,7 +30,6 @@ export const apiSlice = createApi({
           url: `/${department}/${route}/?departmentId=${departmentId}`,
         }),
       }),
-      //end point to get total household pays which take department_Id and ubudehe as query params
       getTotalHouseholdPays: builder.query({
         query: ({ departmentId, ubudehe, route }) => ({
           url: `${route}/totalPays/?departmentId=${departmentId}&ubudehe=${ubudehe}`,
@@ -73,6 +72,11 @@ export const apiSlice = createApi({
           },
         }),
       }),      
+      getTransactionsList: builder.query({
+        query: ({ department, departmentId, route, page, size }) => ({
+          url: `/${department}/${route}/?departmentId=${departmentId}&page=${page || 0}&size=${size || 20}`,
+        }),
+      }),
     }
   },
 })
@@ -83,4 +87,5 @@ export const {
   useLazyGetTotalHouseholdPaysQuery,
   useUpdateUserProfileMutation,
   useLazyGetUserProfileQuery,
+  useLazyGetTransactionsListQuery,
 } = apiSlice

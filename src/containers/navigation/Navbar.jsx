@@ -22,10 +22,8 @@ function Navbar({ user }) {
 
   if (pathname === '/login') return null
 
-  const { isOpen } = useSelector((state) => state.sidebar)
-
   return (
-    <nav className={`${isOpen ? 'max-w-[100%]' : 'w-full'} bg-white drop-shadow-md z-20 py-4 my-2 px-8 mx-auto border-l-none border-b border-gray-200 flex items-center justify-between`}>
+    <nav className={`w-full bg-white drop-shadow-md z-20 py-4 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between`}>
       <Link
         to="/dashboard"
         className="flex items-center py-1 px-3  text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-100 dark:hover:bg-gray-100 dark:hover:text-amber-800 hover:text-gray-700"
@@ -64,16 +62,16 @@ function Navbar({ user }) {
         <article
           className={`${
             !navDropdown ? 'translate-y-[-200%]' : 'translate-y-0'
-          } ease-in-out duration-500 absolute top-14 right-20 rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[12rem]`}
+          } ease-in-out duration-500 absolute top-14 right-20 rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[15rem]`}
         >
           <Link
             to="/settings"
-            className="bg-white text-[15px] w-full py-4 px-8 flex items-center justify-center hover:scale-[1.01]"
+            className="bg-white text-[15px] w-full py-4 px-8 flex items-center z-[999] justify-center hover:scale-[1.01] hover:bg-cyan-800 hover:text-white"
           >
             Settings
           </Link>
           <Button
-            className="bg-white text-[15px] w-full py-4 px-8 flex items-center justify-center hover:scale-[1.01]"
+            className="bg-white text-[15px] w-full py-4 px-8 flex items-center z-[999] justify-center hover:scale-[1.01] hover:bg-cyan-800 hover:text-white"
             value="Logout"
             onClick={(e) => {
               e.preventDefault()

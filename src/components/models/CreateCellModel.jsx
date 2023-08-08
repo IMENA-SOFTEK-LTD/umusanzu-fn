@@ -19,7 +19,6 @@ const CreateCellModel = () => {
   }
 
   const onSubmit = (data) => {
-    console.log(data)
     closeModal()
   }
 

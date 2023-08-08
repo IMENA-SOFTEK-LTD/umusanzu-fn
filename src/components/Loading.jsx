@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 
-const Loading = ({ color = 'primaryBlue', size = 6 }) => {
+const Loading = ({ color = 'primary', size = 6 }) => {
   return (
     <a href="#" role="status" className="flex items-center justify-center">
       <svg
