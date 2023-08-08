@@ -10,11 +10,14 @@ import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import CreateVillageModel from './components/models/createVillageModel.jsx'
+import Settings from './pages/Settings.jsx'
 
 function App() {
   const [navUser, setNavUser] = useState({})
 
   const { user: stateUser } = useSelector((state) => state.auth)
+
+  const { isOpen } = useSelector((state) => state.sidebar)
 
   const user = JSON.parse(localStorage.getItem('user'))
 
@@ -24,9 +27,9 @@ function App() {
 
   return (
     <Router>
-      <div className="App flex items-start">
-        <Sidebar />
-        <main className="w-full mx-auto">
+       <main className={`${isOpen ? 'grid grid-cols-[10%,90%]' : 'grid grid-cols-[0%,100%]'}`}>
+       <Sidebar />
+        <section className={`${isOpen ? 'w-[90%]' : 'w-full'} absolute top-0 right-0 ${isOpen ? 'left-[280px]': 'left-[55px]'} mx-auto`}>
           <Navbar user={user} />
           <Routes>
             <Route element={<IsLoggedIn />}>
@@ -38,9 +41,10 @@ function App() {
             <Route path="/houseDetails" element={<HouseDetails />} />
             <Route path="/transactionTable" element={<TransactionTable />} />
             <Route path="/createVillage" element={<CreateVillageModel />} />
+            <Route path="/settings" element={<Settings user={user} />} />
           </Routes>
-        </main>
-      </div>
+        </section>
+       </main>
     </Router>
   )
 }

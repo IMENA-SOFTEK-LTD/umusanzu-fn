@@ -1,11 +1,10 @@
 import DashboardCard from '../../components/DashboardCard'
-import Sidebar from '../../containers/navigation/Sidebar'
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'))
 
   return (
-    <main className="w-full mx-auto p-4 flex items-center flex-wrap gap-4">
+    <main className="w-full p-4 mx-auto flex items-center flex-wrap gap-4">
       {Array.from({ length: 10 }, (_, i) => {
         const props = {
           index: i + 1,

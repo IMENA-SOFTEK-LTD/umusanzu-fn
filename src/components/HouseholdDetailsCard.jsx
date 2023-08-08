@@ -26,7 +26,30 @@ const HouseholdDetailsCard = ({
   const [getTotalHouseholdPays, { data, isLoading, isError, isSuccess }] =
     useLazyGetTotalHouseholdPaysQuery()
 
-  console.log(props.user)
+    let department = ''
+
+    switch (props.user?.departments?.level_id) {
+      case 1:
+        department = 'province'
+        break
+      case 2:
+        department = 'district'
+        break
+      case 3:
+        department = 'sector'
+        break
+      case 4:
+        department = 'cell'
+        break
+      case 5:
+        department = 'country'
+        break
+      case 6:
+        department = 'agent'
+        break
+      default:
+        department = 'agent'
+    }
 
   switch (props.index) {
     case 1:
@@ -40,6 +63,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 5000,
+          route: department,
         })
       }, [])
       break
@@ -54,6 +78,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 3000,
+          route: department,
         })
       }, [])
       break
@@ -69,6 +94,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 2000,
+          route: department,
         })
       }, [])
       break
@@ -83,6 +109,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 15000,
+          route: department,
         })
       }, [])
       break
@@ -97,6 +124,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 500,
+          route: department,
         })
       }, [])
       break
@@ -111,6 +139,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 0,
+          route: department,
         })
       }, [])
       break
@@ -125,6 +154,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 1000,
+          route: department,
         })
       }, [])
       break
@@ -139,6 +169,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 4000,
+          route: department,
         })
       }, [])
       break
@@ -153,6 +184,7 @@ const HouseholdDetailsCard = ({
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 500,
+          route: department,
         })
       }, [])
       break
@@ -160,7 +192,7 @@ const HouseholdDetailsCard = ({
       newProps = { ...newProps }
   }
 
-  console.log(data?.data[0]?.totalagentPays)
+  
   return (
     <article
       className={`w-full max-w-[20rem] h-full max-h-[25rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-100 rounded-xl shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
