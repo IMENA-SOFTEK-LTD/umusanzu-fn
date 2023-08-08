@@ -36,7 +36,6 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
-      //end point to update user profile
       updateUserProfile: builder.mutation({
         query: ({
           id,
@@ -55,7 +54,7 @@ export const apiSlice = createApi({
       }),
       getUserProfile: builder.query({
         query: ({ id, departmentId }) =>
-          `userProfile/${id}?departmentId=${departmentId}`, // Replace with your actual API endpoint and query params
+          `userProfile/${id}?departmentId=${departmentId}`,
       }),
 
       createDepartment: builder.mutation({
@@ -144,6 +143,40 @@ export const apiSlice = createApi({
           },
         }),
       }),
+      getSectorVillages: builder.query({
+        query: ({ id }) => {
+          return `department/sector/${id}/villages`
+        },
+      }),
+      createAgent: builder.mutation({
+        query: ({
+          names,
+          username,
+          department_id,
+          staff_role,
+          nid,
+          phone1,
+          phone2,
+          email,
+          password,
+        }) => {
+          return {
+            url: `department/agent`,
+            method: 'POST',
+            body: {
+              names,
+              username,
+              department_id,
+              staff_role,
+              nid,
+              phone1,
+              phone2,
+              email,
+              password,
+            },
+          }
+        },
+      }),
     }
   },
 })
@@ -159,4 +192,6 @@ export const {
   useCreateHouseHoldMutation,
   useCreateCellMutation,
   useCreateDistrictMutation,
+  useLazyGetSectorVillagesQuery,
+  useCreateAgentMutation,
 } = apiSlice

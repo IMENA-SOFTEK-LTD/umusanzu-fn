@@ -33,7 +33,6 @@ export const Department = () => {
               setShowModals(!showModals)
             }}
           />
-          
           <article
             className={`${
               showModals ? 'flex ease-in-out duration-100' : 'hidden'
