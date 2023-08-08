@@ -10,11 +10,12 @@ const navbarSlice = createSlice({
       state.navDropdown = payload
     },
     reducers: {
-        toggleNavDropdown: (state, { payload }) => {
-            state.navDropdown = payload;
-        },
+      toggleNavDropdown: (state, { payload }) => {
+        state.navDropdown = payload
+      },
     },
-}});
+  },
+})
 
 export default navbarSlice.reducer
 

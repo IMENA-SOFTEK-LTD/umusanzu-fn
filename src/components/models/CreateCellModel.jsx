@@ -1,9 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
+import { useCreateCellMutation } from '../../states/api/apiSlice'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
+import Loading from '../../components/Loading'
+
+import { useSelector } from 'react-redux'
 const CreateCellModel = () => {
   const [showModal, setShowModal] = useState(false)
+
   const {
     control,
     handleSubmit,
@@ -18,9 +25,41 @@ const CreateCellModel = () => {
     setShowModal(false)
   }
 
+  const [
+    createCell,
+    {
+      isLoading: celLoading,
+      isSuccess: celSuccess,
+      isError: celError,
+      data: celData,
+      error: celErrorMessage,
+    },
+  ] = useCreateCellMutation()
+  const { user: stateUser } = useSelector((state) => state.auth)
+  const user = JSON.parse(localStorage.getItem('user'))
+
   const onSubmit = (data) => {
-    closeModal()
+    console.log(data, user?.department_id || stateUser.department_id)
+    createCell({
+      name: data.name,
+      department_id: user?.department_id || stateUser.department_id,
+      level_id: 4,
+      phone1: data.phone1,
+      phone2: data.phone2,
+      email: data.email,
+      department: 'cell',
+    })
   }
+
+  useEffect(() => {
+    if (celSuccess) {
+      closeModal()
+      toast.success('Cell created successfully')
+    }
+    if (celError) {
+      toast.error('An error occurred while creating the cell')
+    }
+  }, [celData, celSuccess, celError])
 
   return (
     <div>
@@ -30,7 +69,7 @@ const CreateCellModel = () => {
         type="button"
       >
         <BsFillHouseAddFill className="mr-2 text-lg" />
-        Add New District
+        Add New Cell
       </button>
 
       {showModal && (
@@ -72,10 +111,10 @@ const CreateCellModel = () => {
                     htmlFor="fname"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    District Name
+                    Cell Name
                   </label>
                   <Controller
-                    name="fname"
+                    name="name"
                     control={control}
                     rules={{ required: 'District name is required' }}
                     render={({ field }) => (
@@ -180,7 +219,7 @@ const CreateCellModel = () => {
                   className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   {' '}
-                  Add New Cell
+                  {celLoading ? <Loading /> : 'Add New Cell'}
                 </button>
               </form>
             </div>

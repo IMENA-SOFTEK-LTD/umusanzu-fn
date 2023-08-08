@@ -3,7 +3,12 @@ import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import moment from 'moment'
 import PropTypes from 'prop-types'
-import { faAnglesLeft, faAnglesRight, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAnglesLeft,
+  faAnglesRight,
+  faChevronLeft,
+  faChevronRight,
+} from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
   useTable,
@@ -11,27 +16,36 @@ import {
   useFilters,
   useSortBy,
   usePagination,
-} from 'react-table';
-import { setPage, setSize, setTotalPages } from '../states/features/pagination/paginationSlice';
+} from 'react-table'
+import {
+  setPage,
+  setSize,
+  setTotalPages,
+} from '../states/features/pagination/paginationSlice'
 import { useLazyGetTransactionsListQuery } from '../states/api/apiSlice'
 import Loading from './Loading'
-import Button, { PageButton } from './Button';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useSelector, useDispatch } from 'react-redux';
+import Button, { PageButton } from './Button'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useSelector, useDispatch } from 'react-redux'
 import Input from './Input'
 
-
 const TransactionTable = ({ user }) => {
+  const [
+    getTransactionsList,
+    {
+      data: transactionsListData,
+      isLoading: transactionsListIsLoading,
+      isSuccess: transactionsListIsSuccess,
+      isError: transactionsListIsError,
+      error: transactionsListError,
+    },
+  ] = useLazyGetTransactionsListQuery()
 
-  const [getTransactionsList, {
-    data: transactionsListData,
-    isLoading: transactionsListIsLoading,
-    isSuccess: transactionsListIsSuccess,
-    isError: transactionsListIsError,
-    error: transactionsListError,
-  }] = useLazyGetTransactionsListQuery()
-
-  const { page: offset, size, totalPages } = useSelector((state) => state.pagination)
+  const {
+    page: offset,
+    size,
+    totalPages,
+  } = useSelector((state) => state.pagination)
 
   const dispatch = useDispatch()
 
@@ -62,7 +76,6 @@ const TransactionTable = ({ user }) => {
 
   const [data, setData] = useState(transactionsListData?.data || [])
 
-
   useEffect(() => {
     getTransactionsList({
       department,
@@ -81,40 +94,43 @@ const TransactionTable = ({ user }) => {
       size,
       page: offset,
     })
-    .unwrap()
-    .then((data) => {
-      dispatch(setTotalPages(data?.data?.totalPages))
-      setData(data?.data?.rows.map((row, index) => ({
-        id: index + 1,
-        name: row.households.name,
-        cell: user?.departments?.name,
-        amount: row.amount,
-        month_paid: moment(row.month_paid).format('MM-YYYY'),
-        payment_method: row.payment_method.split('_').join(' '),
-        agent: row?.agents?.names,
-        commission: Number(row.amount)/10,
-        transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
-      })) || [])
-    })
+      .unwrap()
+      .then((data) => {
+        dispatch(setTotalPages(data?.data?.totalPages))
+        setData(
+          data?.data?.rows.map((row, index) => ({
+            id: index + 1,
+            name: row.households.name,
+            cell: user?.departments?.name,
+            amount: row.amount,
+            month_paid: moment(row.month_paid).format('MM-YYYY'),
+            payment_method: row.payment_method.split('_').join(' '),
+            agent: row?.agents?.names,
+            commission: Number(row.amount) / 10,
+            transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
+          })) || []
+        )
+      })
   }, [offset, size])
 
   useEffect(() => {
     if (transactionsListIsSuccess) {
       dispatch(setTotalPages(data?.data?.totalPages))
-      setData(transactionsListData?.data?.rows.map((row, index) => ({
-        id: index + 1,
-        name: row.households.name,
-        cell: user?.departments?.name,
-        amount: row.amount,
-        month_paid: moment(row.month_paid).format('MM-YYYY'),
-        payment_method: row.payment_method.split('_').join(' '),
-        agent: row?.agents?.names,
-        commission: Number(row.amount)/10,
-        transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
-      })) || [])
+      setData(
+        transactionsListData?.data?.rows.map((row, index) => ({
+          id: index + 1,
+          name: row.households.name,
+          cell: user?.departments?.name,
+          amount: row.amount,
+          month_paid: moment(row.month_paid).format('MM-YYYY'),
+          payment_method: row.payment_method.split('_').join(' '),
+          agent: row?.agents?.names,
+          commission: Number(row.amount) / 10,
+          transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
+        })) || []
+      )
     }
   }, [transactionsListIsSuccess, transactionsListIsError])
-
 
   const columns = useMemo(
     () => [
@@ -214,28 +230,30 @@ const TransactionTable = ({ user }) => {
 
   if (transactionsListIsSuccess) {
     return (
-      <main className='my-12 w-full'>
+      <main className="my-12 w-full">
         <div className="flex flex-col items-center gap-6">
-        <div className="search-filter flex flex-col items-center gap-6">
+          <div className="search-filter flex flex-col items-center gap-6">
             <span>
-            <GlobalFilter
-              preGlobalFilteredRows={preGlobalFilteredRows}
-              globalFilter={state.globalFilter}
-              setGlobalFilter={setGlobalFilter}
-            />
-
+              <GlobalFilter
+                preGlobalFilteredRows={preGlobalFilteredRows}
+                globalFilter={state.globalFilter}
+                setGlobalFilter={setGlobalFilter}
+              />
             </span>
-            <span className='w-full h-fit flex items-center gap-4'>
-            {headerGroups.map((headerGroup) =>
-              headerGroup.headers.map((column) =>
-                column.Filter ? (
-                  <div key={column.id} className='p-[5px] px-2 border-[1px] shadow-md rounded-md'>
-                    <label htmlFor={column.id}></label>
-                    {column.render('Filter')}
-                  </div>
-                ) : null
-              )
-            )}
+            <span className="w-full h-fit flex items-center gap-4">
+              {headerGroups.map((headerGroup) =>
+                headerGroup.headers.map((column) =>
+                  column.Filter ? (
+                    <div
+                      key={column.id}
+                      className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
+                    >
+                      <label htmlFor={column.id}></label>
+                      {column.render('Filter')}
+                    </div>
+                  ) : null
+                )
+              )}
             </span>
           </div>
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
@@ -305,11 +323,15 @@ const TransactionTable = ({ user }) => {
               <Button
                 onClick={() => previousPage()}
                 disabled={!canPreviousPage}
-                value='Previous'
+                value="Previous"
               >
                 Previous
               </Button>
-              <Button onClick={() => nextPage()} disabled={!canNextPage} value='Next'>
+              <Button
+                onClick={() => nextPage()}
+                disabled={!canNextPage}
+                value="Next"
+              >
                 Next
               </Button>
             </div>
@@ -317,9 +339,7 @@ const TransactionTable = ({ user }) => {
               <div className="flex gap-x-2">
                 <span className="text-sm text-gray-700 p-2">
                   {' '}
-                  <span className="font-medium">
-                    {offset + 1}
-                  </span> of{' '}
+                  <span className="font-medium">{offset + 1}</span> of{' '}
                   <span className="font-medium">{totalPages}</span>
                 </span>
                 <label>
@@ -404,16 +424,28 @@ const TransactionTable = ({ user }) => {
   }
 
   if (transactionsListError) {
-    return <main className='min-h-[80vh] flex items-center justify-center flex-col gap-6'>
-      <h1 className='text-[25px] font-medium text-center'>Could not load transactions data</h1>
-      <Button value='Go to dashboard' route='/dashboard' />
-    </main>
+    return (
+      <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
+        <h1 className="text-[25px] font-medium text-center">
+          Could not load transactions data
+        </h1>
+        <Button value="Go to dashboard" route="/dashboard" />
+      </main>
+    )
   }
 
   if (transactionsListIsLoading) {
-    return <main className='w-full min-h-[80vh] flex items-center justify-center'><Loading /></main>
+    return (
+      <main className="w-full min-h-[80vh] flex items-center justify-center">
+        <Loading />
+      </main>
+    )
   }
-  return <main className='w-full min-h-[80vh] flex items-center justify-center'><Loading /></main>
+  return (
+    <main className="w-full min-h-[80vh] flex items-center justify-center">
+      <Loading />
+    </main>
+  )
 }
 
 TransactionTable.propTypes = {
@@ -421,27 +453,27 @@ TransactionTable.propTypes = {
 }
 
 function dateRangeFilter(rows, columnIds, filterValue) {
-  const { startDate, endDate } = filterValue;
+  const { startDate, endDate } = filterValue
   if (!startDate || !endDate) {
-    return rows;
+    return rows
   }
 
   return rows.filter((row) => {
-    const date = moment(row.values[columnIds].transaction_date, 'DD-MM-YYYY');
-    return date.isBetween(startDate, endDate, null, '[]');
-  });
+    const date = moment(row.values[columnIds].transaction_date, 'DD-MM-YYYY')
+    return date.isBetween(startDate, endDate, null, '[]')
+  })
 }
 
 export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },
 }) {
   const options = useMemo(() => {
-    const options = new Set();
+    const options = new Set()
     preFilteredRows.forEach((row) => {
-      options.add(row.values[id]);
-    });
-    return [...options.values()];
-  }, [id, preFilteredRows]);
+      options.add(row.values[id])
+    })
+    return [...options.values()]
+  }, [id, preFilteredRows])
 
   return (
     <label className="flex gap-x-2 items-baseline">
@@ -452,7 +484,7 @@ export function SelectColumnFilter({
         id={id}
         value={filterValue}
         onChange={(e) => {
-          setFilter(e.target.value || undefined);
+          setFilter(e.target.value || undefined)
         }}
       >
         <option value="">All</option>
@@ -463,7 +495,7 @@ export function SelectColumnFilter({
         ))}
       </select>
     </label>
-  );
+  )
 }
 
 function GlobalFilter({
@@ -471,46 +503,49 @@ function GlobalFilter({
   globalFilter,
   setGlobalFilter,
 }) {
-  const count = preGlobalFilteredRows.length;
-  const [value, setValue] = React.useState(globalFilter);
+  const count = preGlobalFilteredRows.length
+  const [value, setValue] = React.useState(globalFilter)
   const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
-  }, 200);
+    setGlobalFilter(value || undefined)
+  }, 200)
 
   return (
     <label className="flex gap-4 items-center">
       <Input
         type="text"
-        className='p-2 outline-[2px] border-[1px] border-primary rounded-md outline-primary focus:outline-primary'
+        className="p-2 outline-[2px] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
         value={value || ''}
         onChange={(e) => {
-          setValue(e.target.value);
-          onChange(e.target.value);
+          setValue(e.target.value)
+          onChange(e.target.value)
         }}
         placeholder={`${count} households...`}
       />
-      <Button value='Search' onClick={() => {
-        setGlobalFilter(value || undefined)
-      }} />
+      <Button
+        value="Search"
+        onClick={() => {
+          setGlobalFilter(value || undefined)
+        }}
+      />
     </label>
-  );
+  )
 }
 
 function DateRangeFilter({
   column: { filterValue, preFilteredRows, setFilter },
 }) {
-  const [startDate, setStartDate] = useState(filterValue?.startDate || '');
-  const [endDate, setEndDate] = useState(filterValue?.endDate || '');
+  const [startDate, setStartDate] = useState(filterValue?.startDate || '')
+  const [endDate, setEndDate] = useState(filterValue?.endDate || '')
 
   const onChange = () => {
     setFilter({
       startDate: moment(startDate).format('DD-MM-YYYY'),
-      endDate: moment(endDate).format('DD-MM-YYYY')
-    });
-  };
+      endDate: moment(endDate).format('DD-MM-YYYY'),
+    })
+  }
 
   return (
-    <div className='flex items-center'>
+    <div className="flex items-center">
       <input
         type="date"
         value={startDate}
@@ -525,8 +560,7 @@ function DateRangeFilter({
         onBlur={onChange}
       />
     </div>
-  );
+  )
 }
-
 
 export default TransactionTable

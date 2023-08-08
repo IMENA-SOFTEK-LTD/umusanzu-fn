@@ -17,7 +17,7 @@ export const paginationSlice = createSlice({
     },
     setTotalPages: (state, { payload }) => {
       state.totalPages = payload
-    }
+    },
   },
 })
 

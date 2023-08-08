@@ -3,19 +3,19 @@ import { FaPenNib } from 'react-icons/fa'
 import { useForm, Controller, set } from 'react-hook-form'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
-import { useUpdateUserProfileMutation, useLazyGetUserProfileQuery } from '../states/api/apiSlice'
+import {
+  useUpdateUserProfileMutation,
+  useLazyGetUserProfileQuery,
+} from '../states/api/apiSlice'
 import Loading from './Loading'
 
- function UserProfileUpdateForm({ user }) {
+function UserProfileUpdateForm({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [
-    updateUserProfile
-  ] = useUpdateUserProfileMutation()
-  const [getUserProfile, ] =
-    useLazyGetUserProfileQuery()
+  const [successMessage, setSuccessMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [updateUserProfile] = useUpdateUserProfileMutation()
+  const [getUserProfile] = useLazyGetUserProfileQuery()
 
   let department = ''
 
@@ -65,51 +65,50 @@ import Loading from './Loading'
   }
 
   const closeModal = () => {
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage('')
+    setSuccessMessage('')
     setShowModal(false)
   }
 
   const onSubmit = async (values) => {
-    setIsLoading(true);
+    setIsLoading(true)
 
-  try{
-    await updateUserProfile({
-      id: user.id,
-      route: department,
-      departmentId: user?.department_id || stateUser?.department_id,
-      names: values.names,
-      email: values.email,
-      phone1: values.phone1,
-      phone2: values.phone2,
-      username: values.username,
-    }).unwrap()
-    .then(() => {
-      setErrorMessage('');        
-      setSuccessMessage('Profile updated successfully!');             
-      setTimeout(() => {
-        setIsLoading(false);
-        closeModal();
-      }, 1200);
-    })
-    .catch((error) => {     
-        console.error(error);
-        if (error.data && error.data.message) {
+    try {
+      await updateUserProfile({
+        id: user.id,
+        route: department,
+        departmentId: user?.department_id || stateUser?.department_id,
+        names: values.names,
+        email: values.email,
+        phone1: values.phone1,
+        phone2: values.phone2,
+        username: values.username,
+      })
+        .unwrap()
+        .then(() => {
+          setErrorMessage('')
+          setSuccessMessage('Profile updated successfully!')
           setTimeout(() => {
-          setIsLoading(false);
-          setErrorMessage(error.data.message);
-          }, 1200);
-        } else {
-          setIsLoading(false);
-          setErrorMessage('An error occurred while updating the profile.');
-        }
-
-      });
+            setIsLoading(false)
+            closeModal()
+          }, 1200)
+        })
+        .catch((error) => {
+          console.error(error)
+          if (error.data && error.data.message) {
+            setTimeout(() => {
+              setIsLoading(false)
+              setErrorMessage(error.data.message)
+            }, 1200)
+          } else {
+            setIsLoading(false)
+            setErrorMessage('An error occurred while updating the profile.')
+          }
+        })
+    } catch (error) {
+      console.log(error)
+    }
   }
-  catch (error) {
-    console.log(error)
-  }
-}
 
   return (
     <div>
@@ -152,16 +151,22 @@ import Loading from './Loading'
               <span className="sr-only">Close modal</span>
             </button>
             <div className="px-6 py-6 lg:px-8">
-               
               <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
                 Update Your Profile
               </h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-             
                 <div>
-                {successMessage && (<span className="success-message text-green-500">{successMessage}</span>)}
-                {errorMessage && <span className="error-message text-red-500">{errorMessage}</span>}
-                
+                  {successMessage && (
+                    <span className="success-message text-green-500">
+                      {successMessage}
+                    </span>
+                  )}
+                  {errorMessage && (
+                    <span className="error-message text-red-500">
+                      {errorMessage}
+                    </span>
+                  )}
+
                   <label
                     htmlFor="names"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -229,7 +234,7 @@ import Loading from './Loading'
                           type="text"
                           placeholder="Phone Number"
                           defaultValue={field.value}
-                        onChange={field.onChange}
+                          onChange={field.onChange}
                           {...field}
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                         />
@@ -256,7 +261,7 @@ import Loading from './Loading'
                           type="text"
                           {...field}
                           defaultValue={field.value}
-                        onChange={field.onChange}
+                          onChange={field.onChange}
                           placeholder="Phone Number"
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                         />
@@ -322,8 +327,7 @@ UserProfileUpdateForm.propTypes = {
     phone1: PropTypes.string,
     phone2: PropTypes.string,
     email: PropTypes.string,
-    department_id:  PropTypes.oneOfType([PropTypes.string, PropTypes.number]),   
-
+    department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }),
 }
 

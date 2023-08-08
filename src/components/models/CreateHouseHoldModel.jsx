@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
+import { useCreateHouseHoldMutation } from '../../states/api/apiSlice'
+import { useSelector } from 'react-redux'
+import { useEffect } from 'react'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css' // Import the CSS for styling
+
+import Loading from '../../components/Loading'
 
 const CreateHouseHoldModel = () => {
   const [showModal, setShowModal] = useState(false)
@@ -18,12 +25,44 @@ const CreateHouseHoldModel = () => {
     setShowModal(false)
   }
 
+  const [
+    createHouseHold,
+    {
+      isLoading: houseHoldLoading,
+      isSuccess: houseHoldSuccess,
+      isError: houseHoldError,
+      data: houseHoldData,
+      error: houseHoldErrorMessage,
+    },
+  ] = useCreateHouseHoldMutation()
+
+  const { user: stateUser } = useSelector((state) => state.auth)
+  const user = JSON.parse(localStorage.getItem('user'))
+
   const onSubmit = (data) => {
-    closeModal()
+    createHouseHold({
+      name: data.name,
+      ubudehe: data.amount,
+      nid: data.nid,
+      phone1: data.phone1,
+      phone2: data.phone2,
+      departmentId: user?.department_id || stateUser?.department_id,
+    })
   }
+
+  useEffect(() => {
+    if (houseHoldSuccess) {
+      closeModal()
+      toast.success('Household created successfully')
+    }
+    if (houseHoldError) {
+      toast.error(houseHoldErrorMessage)
+    }
+  }, [houseHoldData, houseHoldSuccess, houseHoldError, houseHoldErrorMessage])
 
   return (
     <div>
+      <ToastContainer />
       <button
         onClick={openModal}
         className="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-700 to-blue-800 rounded-lg shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300"
@@ -69,26 +108,27 @@ const CreateHouseHoldModel = () => {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
                   <label
-                    htmlFor="fname"
+                    htmlFor="name"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Full Name
                   </label>
                   <Controller
-                    name="fname"
+                    name="name"
                     control={control}
                     rules={{ required: 'Full name is required' }}
                     render={({ field }) => (
                       <input
                         type="text"
                         {...field}
+                        defaultValue=""
                         placeholder="Full Name"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                       />
                     )}
                   />
-                  {errors.fname && (
-                    <span className="text-red-500">{errors.fname.message}</span>
+                  {errors.name && (
+                    <span className="text-red-500">{errors.name.message}</span>
                   )}
                 </div>
                 <div>
@@ -106,6 +146,7 @@ const CreateHouseHoldModel = () => {
                       <input
                         type="text"
                         {...field}
+                        defaultValue=""
                         placeholder="National Identification"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                       />
@@ -207,7 +248,7 @@ const CreateHouseHoldModel = () => {
                   className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   {' '}
-                  Add New Household
+                  {houseHoldLoading ? <Loading /> : ' Add New Household'}
                 </button>
               </form>
             </div>

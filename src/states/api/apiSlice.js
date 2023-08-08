@@ -38,14 +38,24 @@ export const apiSlice = createApi({
       }),
       //end point to update user profile
       updateUserProfile: builder.mutation({
-        query: ({ id, names, email, phone1, phone2, departmentId, route , username}) => ({
+        query: ({
+          id,
+          names,
+          email,
+          phone1,
+          phone2,
+          departmentId,
+          route,
+          username,
+        }) => ({
           url: `/userProfile/${route}/${id}/?departmentId=${departmentId}`,
           method: 'PUT',
-          body: {names,email,phone1,phone2,username},
+          body: { names, email, phone1, phone2, username },
         }),
       }),
       getUserProfile: builder.query({
-        query: ({ id, departmentId }) => `userProfile/${id}?departmentId=${departmentId}`, // Replace with your actual API endpoint and query params
+        query: ({ id, departmentId }) =>
+          `userProfile/${id}?departmentId=${departmentId}`, // Replace with your actual API endpoint and query params
       }),
 
       createDepartment: builder.mutation({
@@ -59,7 +69,7 @@ export const apiSlice = createApi({
           email,
           department,
         }) => ({
-          url: `/${department}`,
+          url: `/department/${department}`,
           method: 'POST',
           body: {
             name,
@@ -71,10 +81,67 @@ export const apiSlice = createApi({
             email,
           },
         }),
-      }),      
+      }),
       getTransactionsList: builder.query({
         query: ({ department, departmentId, route, page, size }) => ({
-          url: `/${department}/${route}/?departmentId=${departmentId}&page=${page || 0}&size=${size || 20}`,
+          url: `/${department}/${route}/?departmentId=${departmentId}&page=${
+            page || 0
+          }&size=${size || 20}`,
+        }),
+      }),
+      createHouseHold: builder.mutation({
+        query: ({ name, ubudehe, nid, phone1, phone2, departmentId }) => ({
+          url: `/households/?departmentId=${departmentId}`,
+          method: 'POST',
+          body: {
+            name,
+            ubudehe,
+            nid,
+            phone1,
+            phone2,
+          },
+        }),
+      }),
+      createCell: builder.mutation({
+        query: ({
+          name,
+          department_id,
+          level_id,
+          phone1,
+          phone2,
+          email,
+          department,
+        }) => ({
+          url: `/department/${department}?departmentId=${department_id}`,
+          method: 'POST',
+          body: {
+            name,
+            level_id,
+            phone1,
+            phone2,
+            email,
+          },
+        }),
+      }),
+      createDistrict: builder.mutation({
+        query: ({
+          name,
+          departmentIid,
+          level_id,
+          phone1,
+          phone2,
+          email,
+          department,
+        }) => ({
+          url: `/department/${department}?departmentId=${departmentIid}`,
+          method: 'POST',
+          body: {
+            name,
+            level_id,
+            phone1,
+            phone2,
+            email,
+          },
         }),
       }),
     }
@@ -88,4 +155,8 @@ export const {
   useUpdateUserProfileMutation,
   useLazyGetUserProfileQuery,
   useLazyGetTransactionsListQuery,
+  useCreateDepartmentMutation,
+  useCreateHouseHoldMutation,
+  useCreateCellMutation,
+  useCreateDistrictMutation,
 } = apiSlice
