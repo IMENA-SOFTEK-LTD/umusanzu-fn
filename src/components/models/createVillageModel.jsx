@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
-
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { useCreateDepartmentMutation } from '../../states/api/apiSlice'
+import Loading from '../../components/Loading'
 const CreateVillageModel = () => {
   const [showModal, setShowModal] = useState(false)
   const {
@@ -18,12 +22,47 @@ const CreateVillageModel = () => {
     setShowModal(false)
   }
 
+  const [
+    createDepartment,
+    {
+      isLoading: departmentLoading,
+      isSuccess: departmentSuccess,
+      isError: departmentError,
+      data: departmentData,
+    },
+  ] = useCreateDepartmentMutation()
+
+  const { user: stateUser } = useSelector((state) => state.auth)
+
   const onSubmit = (data) => {
-    closeModal()
+    console.log(data)
+
+    console.log(user || stateUser)
+
+    createDepartment({
+      name: data.departmentName,
+      department_id: user?.department_id || stateUser.department_id,
+      level_id: 6,
+      phone1: data.phone1,
+      phone2: data.phone2,
+      email: data.email,
+      department: 'village',
+    })
   }
+
+  useEffect(() => {
+    if (departmentSuccess) {
+      closeModal()
+      toast.success('Village created successfully')
+    }
+    if (departmentError) {
+      toast.error('An error occurred while creating the village')
+    }
+  }, [departmentData, departmentSuccess, departmentError])
 
   return (
     <div>
+      <ToastContainer />
       <button
         onClick={openModal}
         className="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-700 to-blue-800 rounded-lg shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300"
@@ -75,7 +114,7 @@ const CreateVillageModel = () => {
                     Cell Name
                   </label>
                   <Controller
-                    name="fname"
+                    name="departmentName"
                     control={control}
                     rules={{ required: 'Cell name is required' }}
                     render={({ field }) => (
@@ -106,7 +145,7 @@ const CreateVillageModel = () => {
                       render={({ field }) => (
                         <input
                           type="text"
-                          defaultValue={field.value}
+                          {...field}
                           placeholder="Phone Number"
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                         />
@@ -179,7 +218,7 @@ const CreateVillageModel = () => {
                   type="submit"
                   className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
-                  Add New Village
+                  {departmentLoading ? <Loading /> : 'Add New Village'}
                 </button>
               </form>
             </div>
@@ -189,5 +228,4 @@ const CreateVillageModel = () => {
     </div>
   )
 }
-
 export default CreateVillageModel

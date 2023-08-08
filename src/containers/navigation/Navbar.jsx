@@ -23,7 +23,9 @@ function Navbar({ user }) {
   if (pathname === '/login') return null
 
   return (
-    <nav className={`w-full bg-white drop-shadow-md z-20 py-4 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between`}>
+    <nav
+      className={`w-full bg-white drop-shadow-md z-20 py-4 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between`}
+    >
       <Link
         to="/dashboard"
         className="flex items-center py-1 px-3  text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-100 dark:hover:bg-gray-100 dark:hover:text-amber-800 hover:text-gray-700"

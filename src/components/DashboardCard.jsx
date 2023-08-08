@@ -69,7 +69,11 @@ const DashboardCard = ({
         title: 'Monthly Target',
         period: 'month',
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? <Loading /> : dashboardCardData?.data[0]?.monthlyTarget || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.monthlyTarget || 0
+        ),
       }
       useEffect(() => {
         dashboardCard({
@@ -275,10 +279,18 @@ const DashboardCard = ({
     >
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
-          <h3 className={`text-slate-700 ${isOpen ? 'text-[14px]' : 'text-[1rem]'} font-bold`}>
+          <h3
+            className={`text-slate-700 ${
+              isOpen ? 'text-[14px]' : 'text-[1rem]'
+            } font-bold`}
+          >
             {newProps.title}
           </h3>
-          <span className={`${isOpen ? 'text-[14px]' : 'text-[16px]'}  w-full flex items-center gap-2 font-black`}>
+          <span
+            className={`${
+              isOpen ? 'text-[14px]' : 'text-[16px]'
+            }  w-full flex items-center gap-2 font-black`}
+          >
             <p>{newProps.amount}</p>
             <p className={`${newProps.funds ? 'flex' : 'hidden'}`}>RWF</p>
           </span>

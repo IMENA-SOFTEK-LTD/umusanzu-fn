@@ -26,37 +26,37 @@ const HouseholdDetailsCard = ({
   const [getTotalHouseholdPays, { data, isLoading, isError, isSuccess }] =
     useLazyGetTotalHouseholdPaysQuery()
 
-    let department = ''
+  let department = ''
 
-    switch (props.user?.departments?.level_id) {
-      case 1:
-        department = 'province'
-        break
-      case 2:
-        department = 'district'
-        break
-      case 3:
-        department = 'sector'
-        break
-      case 4:
-        department = 'cell'
-        break
-      case 5:
-        department = 'country'
-        break
-      case 6:
-        department = 'agent'
-        break
-      default:
-        department = 'agent'
-    }
+  switch (props.user?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
+  }
 
   switch (props.index) {
     case 1:
       newProps = {
         ...props,
         amount: 5000,
-        isHousehold:true,
+        isHousehold: true,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
       }
       useEffect(() => {
@@ -101,7 +101,7 @@ const HouseholdDetailsCard = ({
     case 4:
       newProps = {
         ...props,
-        numberOfPays:isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 15000,
         isHousehold: true,
       }
@@ -192,7 +192,6 @@ const HouseholdDetailsCard = ({
       newProps = { ...newProps }
   }
 
-  
   return (
     <article
       className={`w-full max-w-[20rem] h-full max-h-[25rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-100 rounded-xl shadow-md ease-in-out duration-200 hover:scale-[1.01]`}

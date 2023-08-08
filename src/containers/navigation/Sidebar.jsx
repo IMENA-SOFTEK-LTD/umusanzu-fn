@@ -63,7 +63,7 @@ function Sidebar() {
   const controlText = useAnimation()
   const controlTitleText = useAnimation()
 
-  const { pathname } = useLocation();
+  const { pathname } = useLocation()
 
   const dispatch = useDispatch()
 
@@ -106,7 +106,6 @@ function Sidebar() {
   useEffect(() => {
     showMore()
   }, [])
-
 
   if (pathname == '/login') {
     return <div>{''}</div>
