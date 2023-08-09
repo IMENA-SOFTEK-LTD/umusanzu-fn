@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Button from '../Button'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import { useCreateHouseHoldMutation } from '../../states/api/apiSlice'
@@ -61,11 +62,11 @@ const CreateHouseHoldModel = () => {
   }, [houseHoldData, houseHoldSuccess, houseHoldError, houseHoldErrorMessage])
 
   return (
-    <div>
+    <div className="relative">
       <ToastContainer />
       <button
         onClick={openModal}
-        className="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-700 to-blue-800 rounded-lg shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300"
+        className="flex items-center absolute right-6 top-4 justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg shadow-md ease-in-out duration-300 hover:scale-[]"
         type="button"
       >
         <BsFillHouseAddFill className="mr-2 text-lg" />
@@ -78,11 +79,11 @@ const CreateHouseHoldModel = () => {
           aria-hidden="true"
           className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
         >
-          <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <div className="relative bg-white rounded-lg shadow">
             <button
               onClick={closeModal}
               type="button"
-              className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              className="absolute top-3 right-2.5 text-primary bg-transparent hover:bg-primary hover:text-primary rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-primary dark:hover:text-white"
             >
               <svg
                 className="w-3 h-3"
@@ -102,14 +103,14 @@ const CreateHouseHoldModel = () => {
               <span className="sr-only">Close modal</span>
             </button>
             <div className="px-6 py-6 lg:px-8">
-              <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
+              <h3 className="mb-4 text-xl text-center font-medium text-black">
                 Add New Household
               </h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
                   <label
                     htmlFor="name"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium text-black"
                   >
                     Full Name
                   </label>
@@ -123,7 +124,7 @@ const CreateHouseHoldModel = () => {
                         {...field}
                         defaultValue=""
                         placeholder="Full Name"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
                     )}
                   />
@@ -134,7 +135,7 @@ const CreateHouseHoldModel = () => {
                 <div>
                   <label
                     htmlFor="nid"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium text-black"
                   >
                     National ID(NID)
                   </label>
@@ -148,7 +149,7 @@ const CreateHouseHoldModel = () => {
                         {...field}
                         defaultValue=""
                         placeholder="National Identification"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
                     )}
                   />
@@ -159,7 +160,7 @@ const CreateHouseHoldModel = () => {
                 <div>
                   <label
                     htmlFor="amount"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium text-black"
                   >
                     Choose Amount
                   </label>
@@ -170,7 +171,7 @@ const CreateHouseHoldModel = () => {
                     render={({ field }) => (
                       <select
                         {...field}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       >
                         <option value="" disabled>
                           Select an amount
@@ -192,7 +193,7 @@ const CreateHouseHoldModel = () => {
                   <div className="flex-1">
                     <label
                       htmlFor="phone1"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      className="block mb-2 text-sm font-medium text-black"
                     >
                       Phone 1 No.
                     </label>
@@ -205,7 +206,7 @@ const CreateHouseHoldModel = () => {
                           type="text"
                           {...field}
                           placeholder="Phone Number"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                          className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
                       )}
                     />
@@ -218,7 +219,7 @@ const CreateHouseHoldModel = () => {
                   <div className="flex-1">
                     <label
                       htmlFor="phone2"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      className="block mb-2 text-sm font-medium text-black"
                     >
                       Phone 2 No.
                     </label>
@@ -231,7 +232,7 @@ const CreateHouseHoldModel = () => {
                           type="text"
                           {...field}
                           placeholder="Phone Number"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                          className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
                       )}
                     />
@@ -242,14 +243,20 @@ const CreateHouseHoldModel = () => {
                     )}
                   </div>
                 </div>
-
-                <button
-                  type="submit"
-                  className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
-                  {' '}
-                  {houseHoldLoading ? <Loading /> : ' Add New Household'}
-                </button>
+                <Controller
+                  name="submit"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <Button
+                        submit
+                        value={
+                          houseHoldLoading ? <Loading /> : ' Add New Household'
+                        }
+                      />
+                    )
+                  }}
+                />
               </form>
             </div>
           </div>

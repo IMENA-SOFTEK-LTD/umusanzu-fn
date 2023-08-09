@@ -8,7 +8,7 @@ const Button = ({ value, submit = false, type, className, route, onClick }) => {
         type={type || 'submit'}
         className={
           className ||
-          'w-full py-2 px-6 flex items-center justify-center bg-primary text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.99]'
+          'w-full py-2 px-6 flex items-center justify-center rounded-md bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99]'
         }
       >
         {value}
