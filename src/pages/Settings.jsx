@@ -24,67 +24,57 @@ function Settings({ user }) {
   }, [user, stateUser, getUserProfile])
 
   return (
-<div className="flex flex-col items-center mt-10">
-<div class="bg-white overflow-hidden  shadow rounded-lg border">
-    <div class="px-4 py-5 sm:px-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">
+    <div className="flex flex-col items-center mt-10">
+      <div class="bg-white overflow-hidden  shadow rounded-lg border">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
             User Profile
-        </h3>
-        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
             This is some information about the user.
-        </p>
-    </div>
-    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-        <dl class="sm:divide-y sm:divide-gray-200">
+          </p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+          <dl class="sm:divide-y sm:divide-gray-200">
             <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">
-                    Full name
-                </dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500">Full name</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.names}{' '}
-                </dd>
+              </dd>
             </div>
             <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">
-                    Email address
-                </dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500">Email address</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.email}
-                </dd>
+              </dd>
             </div>
             <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">
-                    Phone number 1
-                </dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500">Phone number 1</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.phone1}
-                </dd>
+              </dd>
             </div>
             <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">
-                    Phone number 2
-                </dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500">Phone number 2</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.phone2}
-                </dd>
+              </dd>
             </div>
             <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">
-                    Department
-                </dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500">Department</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.department_id}
-                </dd>
+              </dd>
             </div>
-        </dl>
+          </dl>
+        </div>
+        <div className="flex items-center justify-center">
+          {' '}
+          {/* Center horizontally and vertically */}
+          <UserProfileUpdateForm user={user || stateUser} />
+        </div>
+      </div>
     </div>
-    <div className="flex items-center justify-center"> {/* Center horizontally and vertically */}
-      <UserProfileUpdateForm user={user || stateUser} />
-    </div>
-    </div>
-</div>
-
-
   )
 }
 
