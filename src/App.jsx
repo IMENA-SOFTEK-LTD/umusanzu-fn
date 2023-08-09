@@ -11,7 +11,6 @@ import TransactionTable from './components/TransactionTable.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import CreateVillageModel from './components/models/createVillageModel.jsx'
 import Settings from './pages/Settings.jsx'
 
 import { Department } from './pages/dashboard/Department.jsx'
@@ -48,7 +47,6 @@ function App() {
               path="/transactions"
               element={<TransactionTable user={user} />}
             />
-            <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/settings" element={<Settings user={user} />} />
             <Route path="/departments" element={<Department />} />
           </Routes>

@@ -69,7 +69,7 @@ const CreateVillageModel = () => {
         type="button"
       >
         <BsFillHouseAddFill className="mr-2 text-lg" />
-        Village Name
+       Add Village
       </button>
 
       {showModal && (

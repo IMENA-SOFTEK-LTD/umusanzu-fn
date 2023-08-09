@@ -31,7 +31,7 @@ const data = [
       {
         title: 'Departments',
         icon: FaBorderAll,
-        path: '/createVillage',
+        path: '/departments',
       },
       {
         title: 'Transactions',
