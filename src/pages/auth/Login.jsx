@@ -111,7 +111,7 @@ const Login = () => {
                         <Button
                           submit
                           value={loginLoading ? <Loading /> : 'Login'}
-                          className="w-full h-12 inline-block pt-2 mt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-primaryBlue
+                          className="w-full h-12 inline-block pt-2 mt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-primary
                   rounded-lg transition duration-200 hover:scale-[.99] ease-in-out"
                         />
                       )
