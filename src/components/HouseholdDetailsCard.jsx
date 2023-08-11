@@ -192,6 +192,8 @@ const HouseholdDetailsCard = ({
       newProps = { ...newProps }
   }
 
+  console.log(department)
+
   return (
     <article
       className={`w-full max-w-[20rem] h-full max-h-[25rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-100 rounded-xl shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
