@@ -2,8 +2,9 @@ import CreateCellModel from '../../components/models/CreateCellModel'
 import { useSelector } from 'react-redux'
 import CreateDistictModel from '../../components/models/createDistrictModel'
 import CreateHouseHoldModel from '../../components/models/CreateHouseHoldModel'
-import CreateVillageModel from '../../components/models/createVillageModel'
+import CreateVillageModel from '../../components/models/CreateVillageModel'
 import CreateAgentModel from '../../components/models/CreateAgentModel'
+import CreateAdminModel from '../../components/models/createAdminModel'
 import Button from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faX } from '@fortawesome/free-solid-svg-icons'
@@ -32,6 +33,7 @@ export const Department = () => {
               setShowModals(!showModals)
             }}
           />
+          
           <article
             className={`${
               showModals ? 'flex ease-in-out duration-100' : 'hidden'
@@ -39,6 +41,7 @@ export const Department = () => {
           >
             <CreateVillageModel />
             <CreateAgentModel />
+            <CreateAdminModel />
           </article>
         </main>
       )
