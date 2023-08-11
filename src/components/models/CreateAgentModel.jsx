@@ -1,14 +1,46 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
+import Loading from '../Loading'
+import { toast } from 'react-toastify'
+import {
+  useCreateAgentMutation,
+  useLazyGetSectorVillagesQuery,
+} from '../../states/api/apiSlice'
+
 const CreateAgentModel = () => {
   const [showModal, setShowModal] = useState(false)
+
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
+    setValue,
   } = useForm()
+
+  const [
+    getSectorVillages,
+    {
+      data: sectoVillages,
+      isLoading: sectorVillagesLoading,
+      isSuccess: sectorVillagesSuccess,
+      isError: sectorVillagesIsError,
+      error: sectorVillagesError,
+    },
+  ] = useLazyGetSectorVillagesQuery()
+
+  const [
+    createAgent,
+    {
+      data: agentData,
+      isLoading: agentLoading,
+      isSuccess: agentSuccess,
+      isError: agentError,
+    },
+  ] = useCreateAgentMutation()
 
   const openModal = () => {
     setShowModal(true)
@@ -19,8 +51,43 @@ const CreateAgentModel = () => {
   }
 
   const onSubmit = (data) => {
-    closeModal()
+    if (data.phone2 === undefined || data.phone2 === null) {
+      setValue('phone2', '')
+    }
+
+    createAgent({
+      names: data?.names,
+      username: data?.username,
+      nid: data?.nid,
+      password: data?.password,
+      email: data?.email,
+      department_id: data?.department_id,
+      staff_role: data?.staff_role,
+      phone1: data?.phone1,
+      phone2: data?.phone2,
+    })
   }
+
+  const { user: stateUser } = useSelector((state) => state.auth)
+  const user = JSON.parse(localStorage.getItem('user'))
+
+  useEffect(() => {
+    getSectorVillages({
+      id: stateUser?.departments?.id || user?.departments?.id,
+    })
+  }, [])
+
+  useEffect(() => {
+    if (agentSuccess || agentError) {
+      if (agentSuccess) {
+        closeModal()
+        toast.success('Agent created successfully')
+      }
+      if (agentError) {
+        toast.error('Failed to create agent')
+      }
+    }
+  }, [agentData, agentSuccess, agentError])
 
   return (
     <div className="relative">
@@ -76,7 +143,7 @@ const CreateAgentModel = () => {
                       Agent Name
                     </label>
                     <Controller
-                      name="agentName"
+                      name="names"
                       control={control}
                       rules={{ required: 'Agent Name is required' }}
                       render={({ field }) => (
@@ -89,8 +156,8 @@ const CreateAgentModel = () => {
                       )}
                     />
                     {errors.agentName && (
-                      <span className="text-red-500">
-                        {errors.agentName.message}
+                      <span className="text-red-500 text-[12px]">
+                        {errors.names.message}
                       </span>
                     )}
                   </div>
@@ -99,24 +166,24 @@ const CreateAgentModel = () => {
                       htmlFor="adminUsername"
                       className="block mb-2 text-sm font-medium text-black"
                     >
-                      Admin Username
+                      Username
                     </label>
                     <Controller
-                      name="adminUsername"
+                      name="username"
                       control={control}
-                      rules={{ required: 'Admin Username is required' }}
+                      rules={{ required: 'Username is required' }}
                       render={({ field }) => (
                         <input
                           type="text"
                           {...field}
-                          placeholder="Admin Username"
+                          placeholder="Username"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
                       )}
                     />
                     {errors.adminUsername && (
-                      <span className="text-red-500">
-                        {errors.adminUsername.message}
+                      <span className="text-red-500 text-[12px]">
+                        {errors.username.message}
                       </span>
                     )}
                   </div>
@@ -131,7 +198,6 @@ const CreateAgentModel = () => {
                   <Controller
                     name="nid"
                     control={control}
-                    rules={{ required: 'National ID(NID) is required' }}
                     render={({ field }) => (
                       <input
                         type="text"
@@ -141,9 +207,6 @@ const CreateAgentModel = () => {
                       />
                     )}
                   />
-                  {errors.nid && (
-                    <span className="text-red-500">{errors.nid.message}</span>
-                  )}
                 </div>
                 <div>
                   <label
@@ -172,7 +235,9 @@ const CreateAgentModel = () => {
                     )}
                   />
                   {errors.email && (
-                    <span className="text-red-500">{errors.email.message}</span>
+                    <span className="text-red-500 text-[12px]">
+                      {errors.email.message}
+                    </span>
                   )}
                 </div>
                 <div className="flex space-x-4">
@@ -191,13 +256,13 @@ const CreateAgentModel = () => {
                         <input
                           type="text"
                           {...field}
-                          placeholder="Phone Number"
+                          placeholder="Phone Number 1"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
                       )}
                     />
                     {errors.phone1 && (
-                      <span className="text-red-500">
+                      <span className="text-red-500 text-[12px]">
                         {errors.phone1.message}
                       </span>
                     )}
@@ -212,21 +277,16 @@ const CreateAgentModel = () => {
                     <Controller
                       name="phone2"
                       control={control}
-                      rules={{ required: 'Phone 2 No. is required' }}
                       render={({ field }) => (
                         <input
                           type="text"
+                          required={false}
                           {...field}
-                          placeholder="Phone Number"
+                          placeholder="Phone Number 2"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
                       )}
                     />
-                    {errors.phone2 && (
-                      <span className="text-red-500">
-                        {errors.phone2.message}
-                      </span>
-                    )}
                   </div>
                 </div>
                 <div>
@@ -237,7 +297,7 @@ const CreateAgentModel = () => {
                     Choose Village
                   </label>
                   <Controller
-                    name="village"
+                    name="department_id"
                     control={control}
                     rules={{ required: 'Amount is required' }}
                     render={({ field }) => (
@@ -246,17 +306,32 @@ const CreateAgentModel = () => {
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       >
                         <option value="" disabled>
-                          Select Village
+                          {sectorVillagesLoading
+                            ? 'Loading...'
+                            : 'Select your village'}
                         </option>
-                        <option value="100">Murama</option>
-                        <option value="200">Murama</option>
-                        <option value="500">Murama</option>
-                        {/* Add more options as needed */}
+                        {sectorVillagesLoading ? (
+                          <option disabled>Loading...</option>
+                        ) : sectorVillagesIsError ? (
+                          <option disabled>Could not load villages</option>
+                        ) : (
+                          sectoVillages?.data?.map((village, index) => {
+                            return (
+                              <option
+                                selected={index === 0}
+                                key={village.id}
+                                value={Number(village.id)}
+                              >
+                                {village.name}
+                              </option>
+                            )
+                          })
+                        )}
                       </select>
                     )}
                   />
                   {errors.amount && (
-                    <span className="text-red-500">
+                    <span className="text-red-500 text-[12px]">
                       {errors.amount.message}
                     </span>
                   )}
@@ -283,7 +358,7 @@ const CreateAgentModel = () => {
                       )}
                     />
                     {errors.password && (
-                      <span className="text-red-500">
+                      <span className="text-red-500 text-[12px]">
                         {errors.password.message}
                       </span>
                     )}
@@ -299,7 +374,7 @@ const CreateAgentModel = () => {
                       name="confirmPassword"
                       control={control}
                       rules={{
-                        required: 'Confirm Password is required',
+                        required: 'Repeat entered password',
                         validate: (value) =>
                           value === watch('password') ||
                           'Passwords do not match',
@@ -314,7 +389,7 @@ const CreateAgentModel = () => {
                       )}
                     />
                     {errors.confirmPassword && (
-                      <span className="text-red-500">
+                      <span className="text-red-500 text-[12px]">
                         {errors.confirmPassword.message}
                       </span>
                     )}
@@ -324,7 +399,14 @@ const CreateAgentModel = () => {
                   name="submit"
                   control={control}
                   render={({ field }) => {
-                    return <Button submit value="Add New Agent" />
+                    return (
+                      <Button
+                        submit
+                        value={
+                          sectorVillagesLoading ? <Loading /> : 'Add New Agent'
+                        }
+                      />
+                    )
                   }}
                 />
               </form>

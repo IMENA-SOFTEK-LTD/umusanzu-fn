@@ -9,7 +9,6 @@ export const paginationSlice = createSlice({
   },
   reducers: {
     setSize: (state, { payload }) => {
-      console.log(payload)
       state.size = payload
     },
     setPage: (state, { payload }) => {

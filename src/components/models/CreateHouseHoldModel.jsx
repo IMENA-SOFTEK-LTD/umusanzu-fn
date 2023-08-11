@@ -2,7 +2,10 @@ import { useState } from 'react'
 import Button from '../Button'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
-import { useCreateHouseHoldMutation } from '../../states/api/apiSlice'
+import {
+  useCreateHouseHoldMutation,
+  useLazyGetSectorVillagesQuery,
+} from '../../states/api/apiSlice'
 import { useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
@@ -26,6 +29,9 @@ const CreateHouseHoldModel = () => {
     setShowModal(false)
   }
 
+  const { user: stateUser } = useSelector((state) => state.auth)
+  const user = JSON.parse(localStorage.getItem('user'))
+
   const [
     createHouseHold,
     {
@@ -36,9 +42,6 @@ const CreateHouseHoldModel = () => {
       error: houseHoldErrorMessage,
     },
   ] = useCreateHouseHoldMutation()
-
-  const { user: stateUser } = useSelector((state) => state.auth)
-  const user = JSON.parse(localStorage.getItem('user'))
 
   const onSubmit = (data) => {
     createHouseHold({

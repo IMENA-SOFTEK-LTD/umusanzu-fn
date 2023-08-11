@@ -17,6 +17,7 @@ import {
   useSortBy,
   usePagination,
 } from 'react-table'
+import { useLocation } from 'react-router-dom'
 import {
   setPage,
   setSize,
@@ -51,6 +52,10 @@ const TransactionTable = ({ user }) => {
 
   let department = ''
 
+  const { pathname } = useLocation()
+
+  const queryRoute = pathname?.split('/?')[1] || 'monthlyTarget'
+
   switch (user?.departments?.level_id) {
     case 1:
       department = 'province'
@@ -80,7 +85,7 @@ const TransactionTable = ({ user }) => {
     getTransactionsList({
       department,
       departmentId: user?.departments?.id,
-      route: 'monthlyTarget/list',
+      route: `${queryRoute}/list`,
       id: user?.departments?.id,
     })
   }, [])
@@ -98,39 +103,45 @@ const TransactionTable = ({ user }) => {
       .then((data) => {
         dispatch(setTotalPages(data?.data?.totalPages))
         setData(
-          data?.data?.rows.map((row, index) => ({
+          data?.data?.rows?.map((row, index) => ({
             id: index + 1,
             name: row.households.name,
-            cell: user?.departments?.name,
+            department: row?.agents?.departments?.name,
             amount: row.amount,
             month_paid: moment(row.month_paid).format('MM-YYYY'),
             payment_method: row.payment_method.split('_').join(' '),
+            status: row?.payments[0]?.status,
+            remain_amount: row?.payments[0]?.remain_amount,
             agent: row?.agents?.names,
             commission: Number(row.amount) / 10,
-            transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
+            transaction_date: moment(row?.transaction_date).format(
+              'DD-MM-YYYY'
+            ),
           })) || []
         )
       })
-  }, [offset, size])
+  }, [offset, size, queryRoute])
 
   useEffect(() => {
     if (transactionsListIsSuccess) {
       dispatch(setTotalPages(data?.data?.totalPages))
       setData(
-        transactionsListData?.data?.rows.map((row, index) => ({
+        transactionsListData?.data?.rows?.map((row, index) => ({
           id: index + 1,
           name: row.households.name,
-          cell: user?.departments?.name,
-          amount: row.amount,
+          department: row?.agents?.departments?.name,
+          amount: row?.amount,
           month_paid: moment(row.month_paid).format('MM-YYYY'),
           payment_method: row.payment_method.split('_').join(' '),
           agent: row?.agents?.names,
-          commission: Number(row.amount) / 10,
+          status: row?.payments[0]?.status,
+          remain_amount: row?.payments[0]?.remain_amount,
+          commission: Number(row?.amount) / 10,
           transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
         })) || []
       )
     }
-  }, [transactionsListIsSuccess, transactionsListIsError])
+  }, [transactionsListIsSuccess, transactionsListIsError, queryRoute])
 
   const columns = useMemo(
     () => [
@@ -140,9 +151,10 @@ const TransactionTable = ({ user }) => {
         sortable: true,
       },
       {
-        Header: 'Cell',
-        accessor: 'cell',
+        Header: 'Village',
+        accessor: 'department',
         sortable: true,
+        Filter: SelectColumnFilter,
       },
       {
         Header: 'Amount',
@@ -153,6 +165,18 @@ const TransactionTable = ({ user }) => {
       {
         Header: 'Month Paid',
         accessor: 'month_paid',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Status',
+        accessor: 'status',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Remaining Amount',
+        accessor: 'remain_amount',
         sortable: true,
       },
       {
@@ -192,6 +216,8 @@ const TransactionTable = ({ user }) => {
       ...columns,
     ])
   }
+
+  console.log(transactionsListData)
 
   const TableInstance = useTable(
     {
@@ -427,7 +453,7 @@ const TransactionTable = ({ user }) => {
     return (
       <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
         <h1 className="text-[25px] font-medium text-center">
-          Could not load transactions data
+          Could not load transactions records
         </h1>
         <Button value="Go to dashboard" route="/dashboard" />
       </main>
