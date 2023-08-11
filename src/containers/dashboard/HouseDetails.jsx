@@ -1,9 +1,8 @@
-import { Provider } from 'react-redux'
+import {  useSelector } from 'react-redux'
 import HouseholdDetailsCard from '../../components/HouseholdDetailsCard'
-import { ApiProvider } from '@reduxjs/toolkit/dist/query/react'
-import { store } from '../../states/store'
 
 const HouseDetails = () => {
+  const { user: stateUser } = useSelector((state) => state.auth)
   const user = JSON.parse(localStorage.getItem('user'))
 
   return (
