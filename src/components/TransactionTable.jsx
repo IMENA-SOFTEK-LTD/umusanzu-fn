@@ -259,7 +259,7 @@ const TransactionTable = ({ user }) => {
       <main className="my-12 w-full">
         <div className="flex flex-col items-center gap-6">
           <div className="search-filter flex flex-col items-center gap-6">
-            <span>
+            <span className='w-fit min-w-[30rem] flex flex-col items-end justify-center'>
               <GlobalFilter
                 preGlobalFilteredRows={preGlobalFilteredRows}
                 globalFilter={state.globalFilter}
@@ -503,9 +503,9 @@ export function SelectColumnFilter({
 
   return (
     <label className="flex gap-x-2 items-baseline">
-      <span className="text-gray-1000">{render('Header')}: </span>
+      <span className="text-gray-1000 text-[14px]">{render('Header')}: </span>
       <select
-        className="py-[3px] rounded-sm px-4 bg-transparent outline-none border-none focus:border-none focus:outline-primaryBlue"
+        className="rounded-sm bg-transparent outline-none border-none focus:border-none focus:outline-primary"
         name={id}
         id={id}
         value={filterValue}
@@ -513,9 +513,9 @@ export function SelectColumnFilter({
           setFilter(e.target.value || undefined)
         }}
       >
-        <option value="">All</option>
+        <option className='text-[13px]' value="">All</option>
         {options.map((option, i) => (
-          <option key={i} value={option}>
+          <option className='text-[13px]' key={i} value={option}>
             {option}
           </option>
         ))}
@@ -536,10 +536,10 @@ function GlobalFilter({
   }, 200)
 
   return (
-    <label className="flex gap-4 items-center">
+    <label className="flex gap-2 items-center w-full mx-auto">
       <Input
         type="text"
-        className="p-2 outline-[2px] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
+        className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
         value={value || ''}
         onChange={(e) => {
           setValue(e.target.value)
@@ -554,38 +554,6 @@ function GlobalFilter({
         }}
       />
     </label>
-  )
-}
-
-function DateRangeFilter({
-  column: { filterValue, preFilteredRows, setFilter },
-}) {
-  const [startDate, setStartDate] = useState(filterValue?.startDate || '')
-  const [endDate, setEndDate] = useState(filterValue?.endDate || '')
-
-  const onChange = () => {
-    setFilter({
-      startDate: moment(startDate).format('DD-MM-YYYY'),
-      endDate: moment(endDate).format('DD-MM-YYYY'),
-    })
-  }
-
-  return (
-    <div className="flex items-center">
-      <input
-        type="date"
-        value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
-        onBlur={onChange}
-      />
-      <span>-</span>
-      <input
-        type="date"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-        onBlur={onChange}
-      />
-    </div>
   )
 }
 

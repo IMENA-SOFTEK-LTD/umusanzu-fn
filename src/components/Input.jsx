@@ -18,7 +18,7 @@ const Input = forwardRef(
     ref
   ) => {
     return (
-      <article className="relative">
+      <article className="relative w-[90%]">
         <p
           className={
             labelClassName ||
