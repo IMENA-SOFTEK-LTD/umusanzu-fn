@@ -2,22 +2,19 @@ import { useState, useEffect } from 'react'
 import { FaPenNib } from 'react-icons/fa'
 import { useForm, Controller, set } from 'react-hook-form'
 import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Button from '../components/Button'
 import {
   useUpdateUserProfileMutation,
-  useLazyGetUserProfileQuery,
-} from '../states/api/apiSlice'
+  } from '../states/api/apiSlice'
 import Loading from './Loading'
+import { toast } from 'react-toastify' 
 
-function UserProfileUpdateForm({ user }) {
+function UserProfileUpdateForm({ user, userProfile }) {
   const { user: stateUser } = useSelector((state) => state.auth)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [updateUserProfile] = useUpdateUserProfileMutation()
-  const [getUserProfile] = useLazyGetUserProfileQuery()
-
+  
   let department = ''
 
   switch (user?.departments?.level_id || stateUser?.departments?.level_id) {
@@ -43,31 +40,31 @@ function UserProfileUpdateForm({ user }) {
       department = 'agent'
   }
 
-  useEffect(() => {
-    if (user || stateUser) {
-      // Fetch user profile data here and set it in the form fields
-      const userId = user?.id || stateUser?.id
-      getUserProfile({
-        id: userId,
-        departmentId: user?.department_id || stateUser?.department_id,
-      })
-    }
-  }, [user, stateUser, getUserProfile])
+console.log(userProfile)
+ 
+  console.log(userProfile.names)
 
   const [showModal, setShowModal] = useState(false)
   const {
-    control,
     handleSubmit,
+    register,
     formState: { errors },
-  } = useForm()
+
+  } = useForm({
+    defaultValues: {
+      names: userProfile.names,
+      username: userProfile.username,
+      phone1: userProfile.phone1,
+      phone2: userProfile.phone2,
+      email: userProfile.email,
+    }
+  })
 
   const openModal = () => {
     setShowModal(true)
   }
 
   const closeModal = () => {
-    setErrorMessage('')
-    setSuccessMessage('')
     setShowModal(false)
   }
 
@@ -87,25 +84,24 @@ function UserProfileUpdateForm({ user }) {
       })
         .unwrap()
         .then(() => {
-          setErrorMessage('')
-          setSuccessMessage('Profile updated successfully!')
-          setTimeout(() => {
-            setIsLoading(false)
-            closeModal()
-          }, 1200)
+           toast.success('Profile updated successfully!')    
+           closeModal()
         })
         .catch((error) => {
           console.error(error)
-          if (error.data && error.data.message) {
-            setTimeout(() => {
-              setIsLoading(false)
-              setErrorMessage(error.data.message)
-            }, 1200)
-          } else {
-            setIsLoading(false)
-            setErrorMessage('An error occurred while updating the profile.')
+            if (error.data && error.data.message) {      
+                   
+              toast.error(error.data.message)
+          } else {                
+            toast.error('An error occurred while updating the profile. Please try again')
           }
+
+      
         })
+
+        .finally(() => {
+          setIsLoading(false); 
+        });
     } catch (error) {
       return error
     }
@@ -157,37 +153,20 @@ function UserProfileUpdateForm({ user }) {
               </h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  {successMessage && (
-                    <span className="success-message text-green-500">
-                      {successMessage}
-                    </span>
-                  )}
-                  {errorMessage && (
-                    <span className="error-message text-red-500">
-                      {errorMessage}
-                    </span>
-                  )}
-
+                 
                   <label
                     htmlFor="names"
                     className="block mb-2 text-sm font-medium text-black"
                   >
                     Names
                   </label>
-                  <Controller
-                    name="names"
-                    control={control}
-                    render={({ field }) => (
                       <input
                         type="text"
-                        defaultValue={field.value}
-                        onChange={field.onChange}
-                        {...field}
+                        defaultValue={userProfile?.names}
+                        {...register('names', { required: true })}
                         placeholder="Names"
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
-                    )}
-                  />
                   {errors.names && (
                     <span className="text-red-500">{errors.names.message}</span>
                   )}
@@ -198,21 +177,15 @@ function UserProfileUpdateForm({ user }) {
                     className="block mb-2 text-sm font-medium text-black"
                   >
                     Username
-                  </label>
-                  <Controller
-                    name="username"
-                    control={control}
-                    render={({ field }) => (
+                  </label>                 
                       <input
                         type="text"
-                        {...field}
-                        defaultValue={field.value}
-                        onChange={field.onChange}
+                        defaultValue={userProfile?.username}
+                        {...register('username', { required: true })}
                         placeholder="Username"
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                      />
-                    )}
-                  />
+                      />            
+               
                   {errors.username && (
                     <span className="text-red-500">
                       {errors.username.message}
@@ -227,20 +200,14 @@ function UserProfileUpdateForm({ user }) {
                     >
                       Phone 1 No.
                     </label>
-                    <Controller
-                      name="phone1"
-                      control={control}
-                      render={({ field }) => (
                         <input
                           type="text"
+                          defaultValue={userProfile?.phone1}
                           placeholder="Phone Number"
-                          defaultValue={field.value}
-                          onChange={field.onChange}
-                          {...field}
+                          {...register('phone1', { required: true })}
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
-                      )}
-                    />
+
                     {errors.phone1 && (
                       <span className="text-red-500">
                         {errors.phone1.message}
@@ -254,20 +221,13 @@ function UserProfileUpdateForm({ user }) {
                     >
                       Phone 2 No.
                     </label>
-                    <Controller
-                      name="phone2"
-                      control={control}
-                      render={({ field }) => (
-                        <input
+                       <input
                           type="text"
-                          {...field}
-                          defaultValue={field.value}
-                          onChange={field.onChange}
+                          defaultValue={userProfile?.phone2}
+                          {...register('phone2', { required: true })}
                           placeholder="Phone Number"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                        />
-                      )}
-                    />
+                        />  
                     {errors.phone2 && (
                       <span className="text-red-500">
                         {errors.phone2.message}
@@ -282,42 +242,22 @@ function UserProfileUpdateForm({ user }) {
                   >
                     Email Address
                   </label>
-                  <Controller
-                    name="email"
-                    control={control}
-                    rules={{
-                      pattern: {
-                        value: /^\S+@\S+$/i,
-                        message: 'Invalid email address',
-                      },
-                    }}
-                    render={({ field }) => (
-                      <input
+                     <input
                         type="email"
-                        defaultValue={field.value}
-                        onChange={field.onChange}
-                        {...field}
+                        defaultValue={userProfile?.email}
+                        {...register('email', { required: true })}
                         placeholder="Email Address"
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
-                    )}
-                  />
-                  {errors.email && (
+                    {errors.email && (
                     <span className="text-red-500">{errors.email.message}</span>
                   )}
-                </div>
-                <Controller
-                  name="submit"
-                  control={control}
-                  render={({ field }) => {
-                    return (
+                </div>                 
                       <Button
                         submit
+                        name="submit"
                         value={isLoading ? <Loading /> : 'Edit profile'}
                       />
-                    )
-                  }}
-                />
               </form>
             </div>
           </div>

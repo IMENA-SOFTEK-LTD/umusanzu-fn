@@ -4,6 +4,7 @@ import authSlice from './features/auth/authSlice'
 import navbarSlice from './features/navigation/navbarSlice'
 import sidebarSlice from './features/navigation/sidebarSlice'
 import paginationSlice from './features/pagination/paginationSlice'
+import userProfileSlice from './features/userProfileSlice'
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     navbar: navbarSlice,
     sidebar: sidebarSlice,
     pagination: paginationSlice,
+    userProfile: userProfileSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware)
