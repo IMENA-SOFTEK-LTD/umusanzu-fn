@@ -38,10 +38,6 @@ function UserProfileUpdateForm({ user, userProfile }) {
       department = 'agent'
   }
 
-  console.log(userProfile)
-
-  console.log(userProfile.names)
-
   const [showModal, setShowModal] = useState(false)
   const {
     handleSubmit,

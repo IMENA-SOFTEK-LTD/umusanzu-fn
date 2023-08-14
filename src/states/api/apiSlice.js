@@ -145,7 +145,26 @@ export const apiSlice = createApi({
       }),
       getSectorVillages: builder.query({
         query: ({ id }) => {
-          return `department/sector/${id}/villages`
+          return {
+            url: `/department/sector/${id}/villages/`,
+            method: 'GET',
+          }
+        }
+      }),
+      getCellVillages: builder.query({
+        query: ({ id }) => {
+          return {
+            url: `/department/cell/${id}/villages/`,
+            method: 'GET',
+          }
+        }
+      }),
+      getDistrictCells: builder.query({
+        query: ({ id }) => {
+          return {
+            url: `/department/district/${id}/cells/`,
+            method: 'GET',
+          }
         },
       }),
       createAgent: builder.mutation({
@@ -194,4 +213,6 @@ export const {
   useCreateDistrictMutation,
   useLazyGetSectorVillagesQuery,
   useCreateAgentMutation,
+  useLazyGetCellVillagesQuery,
+  useLazyGetDistrictCellsQuery
 } = apiSlice

@@ -9,8 +9,9 @@ import Loading from './Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useLazyDashboardCardQuery } from '../states/api/apiSlice'
 import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import Button from './Button'
+import { setMonthlyTarget } from '../states/features/dashboard/dashboardCardSlice'
 
 const DashboardCard = ({
   props = {
@@ -38,7 +39,12 @@ const DashboardCard = ({
     },
   ] = useLazyDashboardCardQuery()
 
-  let newProps = { ...props }
+  const dispatch = useDispatch()
+
+  const { monthlyTarget } = useSelector((state) => state.dashboardCard)
+  const { isOpen } = useSelector((state) => state.sidebar)
+
+  let newProps = { ...props, viewMore: true }
   let department = ''
 
   switch (props.user?.departments?.level_id) {
@@ -70,7 +76,14 @@ const DashboardCard = ({
         ...props,
         title: 'Monthly Target',
         period: 'month',
-        route: 'monthlyTarget',
+        viewMore: true,
+        progress:
+          Math.round(
+            (dashboardCardData?.data[0]?.monthlyTarget / monthlyTarget).toFixed(
+              2
+            ) * 100
+          ) || 0,
+        route: 'monthlyCollections',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -91,7 +104,14 @@ const DashboardCard = ({
         ...props,
         title: 'Total Collected',
         period: 'month',
-        route: 'totalCollections',
+        route: 'monthlyCollections',
+        viewMore: false,
+        progress:
+          Math.round(
+            (
+              dashboardCardData?.data[0]?.totalCollected / monthlyTarget
+            ).toFixed(2) * 100
+          ) || 0,
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -113,7 +133,14 @@ const DashboardCard = ({
         title: 'Cleared Pending Payments',
         period: 'month',
         route: 'amountPendingNotPaid',
+        viewMore: true,
         funds: !dashboardCardIsLoading,
+        progress:
+          Math.round(
+            (
+              dashboardCardData?.data[0]?.amountPendingPaid / monthlyTarget
+            ).toFixed(2) * 100
+          ) || 0,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
@@ -134,7 +161,14 @@ const DashboardCard = ({
         period: 'month',
         title: "Monthly's Collections",
         route: 'monthlyCollections',
+        viewMore: true,
         funds: !dashboardCardIsLoading,
+        progress:
+          Math.round(
+            (
+              dashboardCardData?.data[0]?.monthlyCollections / monthlyTarget
+            ).toFixed(2) * 100
+          ) || 0,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
@@ -155,6 +189,13 @@ const DashboardCard = ({
         title: 'Pending Payments',
         route: 'amountPendingNotPaid',
         period: 'month',
+        viewMore: true,
+        progress:
+          Math.round(
+            (
+              dashboardCardData?.data[0]?.amountPendingNotPaid / monthlyTarget
+            ).toFixed(2) * 100
+          ) || 0,
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -176,6 +217,13 @@ const DashboardCard = ({
         title: 'Advance Payments',
         period: 'month',
         route: 'advancePayments',
+        progress:
+          Math.round(
+            (
+              dashboardCardData?.data[0]?.advancePayments / monthlyTarget
+            ).toFixed(2) * 100
+          ) || 0,
+        viewMore: true,
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -197,6 +245,13 @@ const DashboardCard = ({
         period: 'day',
         title: "Today's Collections",
         route: 'todayCollections',
+        progress:
+          Math.round(
+            (
+              dashboardCardData?.data[0]?.todayCollections / monthlyTarget
+            ).toFixed(2) * 100
+          ) || 0,
+        viewMore: true,
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -217,7 +272,8 @@ const DashboardCard = ({
         ...props,
         title: 'Total Households',
         period: 'month',
-        route: 'households',
+        route: '',
+        viewMore: true,
         funds: false,
         amount: dashboardCardIsLoading ? (
           <Loading />
@@ -237,6 +293,7 @@ const DashboardCard = ({
       newProps = {
         ...props,
         title: 'Active Households',
+        viewMore: true,
         route: 'households/active',
         funds: false,
         amount: dashboardCardIsLoading ? (
@@ -257,6 +314,7 @@ const DashboardCard = ({
       newProps = {
         ...props,
         title: 'Inactive Households',
+        viewMore: true,
         route: 'households/inactive',
         funds: false,
         amount: dashboardCardIsLoading ? (
@@ -277,7 +335,11 @@ const DashboardCard = ({
       newProps = { ...newProps }
   }
 
-  const { isOpen } = useSelector((state) => state.sidebar)
+  useEffect(() => {
+    if (dashboardCardIsSuccess && dashboardCardData.data[0].monthlyTarget) {
+      dispatch(setMonthlyTarget(dashboardCardData?.data[0]?.monthlyTarget))
+    }
+  }, [dashboardCardIsSuccess])
 
   return (
     <article
@@ -313,7 +375,7 @@ const DashboardCard = ({
                 : newProps.progress < 70 && newProps.funds
                 ? 'text-yellow-900'
                 : 'text-slate-200'
-            } text-[14px]`}
+            } text-[14px] ${newProps.funds ? 'flex' : 'invisible'}`}
           >
             {newProps.progress}% of monthly target
           </p>
@@ -325,7 +387,7 @@ const DashboardCard = ({
           />
         </figure>
       </section>
-      <section className="border-t-[1px] bg-slate-50 flex w-full items-center justify-between py-2 px-4">
+      <section className="border-t-[1px] bg-slate-50 flex w-full h-full items-center justify-between py-2 px-4">
         <span className="flex items-center gap-1">
           <FontAwesomeIcon
             className={`${
@@ -346,9 +408,13 @@ const DashboardCard = ({
         </span>
         <Button
           value="View more"
-          route={`/transactions/?${newProps?.route}`}
-          className={`${
-            isOpen ? 'px-2 text-sm text-center ml-4' : 'px-4'
+          route={
+            newProps.funds
+              ? `/transactions/?query=${newProps?.route}`
+              : `/households/?query=${newProps?.route}`
+          }
+          className={`${isOpen ? 'px-2 text-sm text-center ml-4' : 'px-4'} ${
+            newProps.viewMore ? 'flex' : 'invisible'
           } p-2 rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black text-[15px] hover:bg-primary hover:text-white`}
         />
       </section>
@@ -377,6 +443,13 @@ DashboardCard.propTypes = {
       }),
     }),
   }),
+}
+
+DashboardCard.defaultProps = {
+  props: {
+    increaseValue: (Math.random() * 10).toFixed(2),
+    progress: Math.floor(Math.random() * 100),
+  },
 }
 
 export default DashboardCard

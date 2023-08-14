@@ -7,14 +7,15 @@ import Sidebar from './containers/navigation/Sidebar.jsx'
 import Navbar from './containers/navigation/Navbar.jsx'
 import Dashboard from './containers/dashboard/Dashboard.jsx'
 import HouseDetails from './containers/dashboard/HouseDetails.jsx'
-import TransactionTable from './components/TransactionTable.jsx'
+import TransactionTable from './containers/dashboard/TransactionTable.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useSelector } from 'react-redux'
 import CreateVillageModel from './components/models/CreateVillageModel'
 import Settings from './pages/Settings.jsx'
+import DepartmentsTable from './containers/dashboard/DepartmentsTable.jsx'
 
-import { Department } from './pages/dashboard/Department.jsx'
-function App() {
+
+const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const { isOpen } = useSelector((state) => state.sidebar)
@@ -49,7 +50,7 @@ function App() {
             />
             <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/settings" element={<Settings user={user} />} />
-            <Route path="/departments" element={<Department />} />
+            <Route path="/departments" element={<DepartmentsTable user={user} />} />
           </Routes>
         </section>
         <ToastContainer />
