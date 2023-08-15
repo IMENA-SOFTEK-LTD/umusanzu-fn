@@ -52,14 +52,20 @@ const Login = () => {
   }
   useEffect(() => {
     if (loginSuccess) {
-      dispatch(setUser(loginData))
       setSuccessMessage('Login successful! Redirecting...')
       setTimeout(() => {
+        dispatch(setUser(loginData))
         navigate('/dashboard')
-      }, 3000)
-      window.location.reload()
+      }, 1500)
     }
   }, [loginData, loginSuccess])
+
+  useEffect(() => {
+    if (loginSuccess) {
+      navigate('/dashboard')
+      window.location.reload()
+    }
+  }, [user])
 
   return (
     <main className="bg-white relative flx flex-col items-start">
@@ -71,7 +77,7 @@ const Login = () => {
               onSubmit={handleSubmit(onSubmit)}
             >
               <Link
-                to="#"
+                to="/"
                 className="flex items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 "
               >
                 <img className="w-16 h-16" src={Logo} alt="logo" />
