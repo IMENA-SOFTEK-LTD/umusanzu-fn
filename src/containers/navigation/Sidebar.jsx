@@ -1,5 +1,4 @@
-import logo from '/logo.png'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { BsHousesFill } from 'react-icons/bs'
 import { AiOutlineTransaction } from 'react-icons/ai'
 import { FaListAlt, FaMicrosoft, FaBorderAll } from 'react-icons/fa'
@@ -66,6 +65,7 @@ function Sidebar() {
   const { pathname } = useLocation()
 
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const showMore = () => {
     controls.start({
@@ -102,6 +102,8 @@ function Sidebar() {
 
     setActive(false)
   }
+
+  const { user: stateUser } = useSelector((state) => state.auth)
 
   useEffect(() => {
     showMore()
