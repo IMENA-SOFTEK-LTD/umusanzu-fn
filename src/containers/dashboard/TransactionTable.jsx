@@ -3,6 +3,7 @@ import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import moment from 'moment'
 import PropTypes from 'prop-types'
+import queryString from 'query-string'
 import {
   faAnglesLeft,
   faAnglesRight,
@@ -22,13 +23,13 @@ import {
   setPage,
   setSize,
   setTotalPages,
-} from '../states/features/pagination/paginationSlice'
-import { useLazyGetTransactionsListQuery } from '../states/api/apiSlice'
-import Loading from './Loading'
-import Button, { PageButton } from './Button'
+} from '../../states/features/pagination/paginationSlice'
+import { useLazyGetTransactionsListQuery } from '../../states/api/apiSlice'
+import Loading from '../../components/Loading'
+import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
-import Input from './Input'
+import Input from '../../components/Input'
 
 const TransactionTable = ({ user }) => {
   const [
@@ -52,9 +53,9 @@ const TransactionTable = ({ user }) => {
 
   let department = ''
 
-  const { pathname } = useLocation()
+  const location = useLocation()
 
-  const queryRoute = pathname?.split('/?')[1] || 'monthlyTarget'
+  const queryRoute = queryString.parse(location.search).query || 'monthlyCollections'
 
   switch (user?.departments?.level_id) {
     case 1:
@@ -94,7 +95,7 @@ const TransactionTable = ({ user }) => {
     getTransactionsList({
       department,
       departmentId: user?.departments?.id,
-      route: 'monthlyTarget/list',
+      route: `${queryRoute}/list`,
       id: user?.departments?.id,
       size,
       page: offset,
@@ -105,15 +106,15 @@ const TransactionTable = ({ user }) => {
         setData(
           data?.data?.rows?.map((row, index) => ({
             id: index + 1,
-            name: row.households.name,
+            name: row?.households?.name,
             department: row?.agents?.departments?.name,
-            amount: row.amount,
+            amount: row?.amount,
             month_paid: moment(row.month_paid).format('MM-YYYY'),
-            payment_method: row.payment_method.split('_').join(' '),
+            payment_method: row?.payment_method?.split('_').join(' '),
             status: row?.payments[0]?.status,
             remain_amount: row?.payments[0]?.remain_amount,
             agent: row?.agents?.names,
-            commission: Number(row.amount) / 10,
+            commission: Number(row?.amount) / 10,
             transaction_date: moment(row?.transaction_date).format(
               'DD-MM-YYYY'
             ),
@@ -216,8 +217,6 @@ const TransactionTable = ({ user }) => {
       ...columns,
     ])
   }
-
-  console.log(transactionsListData)
 
   const TableInstance = useTable(
     {
