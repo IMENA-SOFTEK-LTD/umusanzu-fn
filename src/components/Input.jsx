@@ -24,7 +24,7 @@ const Input = forwardRef(
             labelClassName ||
             `bg-${
               color || 'white'
-            } pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600 absolute`
+            } pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 text-[15px] font-medium text-gray-600 absolute`
           }
         >
           {label}
@@ -39,7 +39,7 @@ const Input = forwardRef(
           ref={ref}
           className={
             className ||
-            'border placeholder-gray-400 focus:outline-none focus:border-gray-300 w-full h-12 pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white border-gray-300 rounded-md'
+            'border placeholder-gray-400 focus:outline-none focus:border-gray-300 w-full h-[45px] pt-[14px] pr-[14px] pb-[14px] pl-[14px] mt-2 mr-0 mb-0 ml-0 text-[15px] text-base block bg-white border-gray-300 rounded-md'
           }
         />
       </article>
