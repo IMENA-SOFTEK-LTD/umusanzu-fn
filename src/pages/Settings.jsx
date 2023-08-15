@@ -50,19 +50,25 @@ function Settings({ user }) {
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Email address</dt>
+              <dt className="text-sm font-medium text-gray-500">
+                Email address
+              </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.email}
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Phone number 1</dt>
+              <dt className="text-sm font-medium text-gray-500">
+                Phone number 1
+              </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.phone1}
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Phone number 2</dt>
+              <dt className="text-sm font-medium text-gray-500">
+                Phone number 2
+              </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.phone2}
               </dd>
@@ -78,7 +84,10 @@ function Settings({ user }) {
         <div className="flex items-center justify-center">
           {' '}
           {/* Center horizontally and vertically */}
-          <UserProfileUpdateForm user={user || stateUser} userProfile={userProfile} />
+          <UserProfileUpdateForm
+            user={user || stateUser}
+            userProfile={userProfile}
+          />
         </div>
       </div>
     </div>

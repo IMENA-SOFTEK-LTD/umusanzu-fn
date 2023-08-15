@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Controller, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
-import { useLoginMutation } from '../../states/api/apiSlice';
-import Button from '../../components/Button';
-import Loading from '../../components/Loading';
-import Input from '../../components/Input';
-import Logo from '/logo.png';
-import { setUser } from '../../states/features/auth/authSlice';
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Controller, useForm } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLoginMutation } from '../../states/api/apiSlice'
+import Button from '../../components/Button'
+import Loading from '../../components/Loading'
+import Input from '../../components/Input'
+import Logo from '/logo.png'
+import { setUser } from '../../states/features/auth/authSlice'
 
 const Login = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
-  const [invalidLogin, setInvalidLogin] = useState(false);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { user } = useSelector((state) => state.auth)
+  const [invalidLogin, setInvalidLogin] = useState(false)
 
   const [
     login,
@@ -24,39 +24,42 @@ const Login = () => {
       isError: loginError,
       error: loginErrorMessage,
     },
-  ] = useLoginMutation();
+  ] = useLoginMutation()
 
   // State to track form validation errors
-  const [formErrors, setFormErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState('');
+  const [formErrors, setFormErrors] = useState({})
+  const [successMessage, setSuccessMessage] = useState('')
 
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit } = useForm()
 
   const onSubmit = async (data) => {
-    const { username, password } = data;
+    const { username, password } = data
 
     if (!username || !password) {
-      setFormErrors({ username: !username ? 'Username is required' : '', password: !password ? 'Password is required' : '' });
-      setInvalidLogin(false); // Clear the invalid login message
-      return;
+      setFormErrors({
+        username: !username ? 'Username is required' : '',
+        password: !password ? 'Password is required' : '',
+      })
+      setInvalidLogin(false) // Clear the invalid login message
+      return
     }
 
-    const response = await login({ username, password });
+    const response = await login({ username, password })
 
     if (response.error) {
-      setInvalidLogin(true);
+      setInvalidLogin(true)
     }
   }
   useEffect(() => {
     if (loginSuccess) {
-      dispatch(setUser(loginData));
-      setSuccessMessage('Login successful! Redirecting...');
+      dispatch(setUser(loginData))
+      setSuccessMessage('Login successful! Redirecting...')
       setTimeout(() => {
-        navigate('/dashboard');
-      }, 3000);
-      window.location.reload();
+        navigate('/dashboard')
+      }, 3000)
+      window.location.reload()
     }
-  }, [loginData, loginSuccess]);
+  }, [loginData, loginSuccess])
 
   return (
     <main className="bg-white relative flx flex-col items-start">
@@ -76,12 +79,21 @@ const Login = () => {
               </Link>
               {invalidLogin && (
                 <div className="flex justify-center items-center">
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center" role="alert">
-                    <span className="block sm:inline text-red-500">Invalid login, please try again</span>
+                  <div
+                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
+                    role="alert"
+                  >
+                    <span className="block sm:inline text-red-500">
+                      Invalid login, please try again
+                    </span>
                   </div>
                 </div>
               )}
-              {successMessage && <span className="block sm:inline text-green-500">{successMessage}</span>}
+              {successMessage && (
+                <span className="block sm:inline text-green-500">
+                  {successMessage}
+                </span>
+              )}
               <article className="w-full relative flex flex-col gap-8 h-fit items-center justify-center">
                 <span className="flex flex-col w-full pl-6 gap-6">
                   <Controller
@@ -98,7 +110,11 @@ const Login = () => {
                           onChange={field.onChange}
                           ref={field.ref}
                         />
-                        {formErrors.username && <span className="text-red-500">{formErrors.username}</span>}
+                        {formErrors.username && (
+                          <span className="text-red-500">
+                            {formErrors.username}
+                          </span>
+                        )}
                       </div>
                     )}
                   />
@@ -117,7 +133,11 @@ const Login = () => {
                           onChange={field.onChange}
                           ref={field.ref}
                         />
-                        {formErrors.password && <span className="text-red-500">{formErrors.password}</span>}
+                        {formErrors.password && (
+                          <span className="text-red-500">
+                            {formErrors.password}
+                          </span>
+                        )}
                       </div>
                     )}
                   />
@@ -326,7 +346,7 @@ const Login = () => {
         </div>
       </div>
     </main>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

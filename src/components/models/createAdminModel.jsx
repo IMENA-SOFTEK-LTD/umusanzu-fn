@@ -4,28 +4,26 @@ import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 
 function createAdminModel() {
+  const [showModal, setShowModal] = useState(false)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm()
 
-    const [showModal, setShowModal] = useState(false)
-    const {
-      control,
-      handleSubmit,
-      formState: { errors },
-    } = useForm()
-  
-    const openModal = () => {
-      setShowModal(true)
-    }
-  
-    const closeModal = () => {
-      setShowModal(false)
-    }
-  
-    const onSubmit = (data) => {
-      closeModal()
-    }
+  const openModal = () => {
+    setShowModal(true)
+  }
+
+  const closeModal = () => {
+    setShowModal(false)
+  }
+
+  const onSubmit = (data) => {
+    closeModal()
+  }
 
   return (
-
     <div className="relative">
       <button
         onClick={openModal}
@@ -231,7 +229,7 @@ function createAdminModel() {
                       </span>
                     )}
                   </div>
-                </div>                
+                </div>
                 <div className="flex space-x-4">
                   <div className="flex-1">
                     <label
@@ -304,7 +302,6 @@ function createAdminModel() {
         </div>
       )}
     </div>
-    
   )
 }
 
