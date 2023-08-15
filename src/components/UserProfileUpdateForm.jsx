@@ -4,17 +4,15 @@ import { useForm, Controller, set } from 'react-hook-form'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import Button from '../components/Button'
-import {
-  useUpdateUserProfileMutation,
-  } from '../states/api/apiSlice'
+import { useUpdateUserProfileMutation } from '../states/api/apiSlice'
 import Loading from './Loading'
-import { toast } from 'react-toastify' 
+import { toast } from 'react-toastify'
 
 function UserProfileUpdateForm({ user, userProfile }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [updateUserProfile] = useUpdateUserProfileMutation()
-  
+
   let department = ''
 
   switch (user?.departments?.level_id || stateUser?.departments?.level_id) {
@@ -40,8 +38,8 @@ function UserProfileUpdateForm({ user, userProfile }) {
       department = 'agent'
   }
 
-console.log(userProfile)
- 
+  console.log(userProfile)
+
   console.log(userProfile.names)
 
   const [showModal, setShowModal] = useState(false)
@@ -49,7 +47,6 @@ console.log(userProfile)
     handleSubmit,
     register,
     formState: { errors },
-
   } = useForm({
     defaultValues: {
       names: userProfile.names,
@@ -57,7 +54,7 @@ console.log(userProfile)
       phone1: userProfile.phone1,
       phone2: userProfile.phone2,
       email: userProfile.email,
-    }
+    },
   })
 
   const openModal = () => {
@@ -84,24 +81,23 @@ console.log(userProfile)
       })
         .unwrap()
         .then(() => {
-           toast.success('Profile updated successfully!')    
-           closeModal()
+          toast.success('Profile updated successfully!')
+          closeModal()
         })
         .catch((error) => {
           console.error(error)
-            if (error.data && error.data.message) {      
-                   
-              toast.error(error.data.message)
-          } else {                
-            toast.error('An error occurred while updating the profile. Please try again')
+          if (error.data && error.data.message) {
+            toast.error(error.data.message)
+          } else {
+            toast.error(
+              'An error occurred while updating the profile. Please try again'
+            )
           }
-
-      
         })
 
         .finally(() => {
-          setIsLoading(false); 
-        });
+          setIsLoading(false)
+        })
     } catch (error) {
       return error
     }
@@ -153,20 +149,19 @@ console.log(userProfile)
               </h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                 
                   <label
                     htmlFor="names"
                     className="block mb-2 text-sm font-medium text-black"
                   >
                     Names
                   </label>
-                      <input
-                        type="text"
-                        defaultValue={userProfile?.names}
-                        {...register('names', { required: true })}
-                        placeholder="Names"
-                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                      />
+                  <input
+                    type="text"
+                    defaultValue={userProfile?.names}
+                    {...register('names', { required: true })}
+                    placeholder="Names"
+                    className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                  />
                   {errors.names && (
                     <span className="text-red-500">{errors.names.message}</span>
                   )}
@@ -177,15 +172,15 @@ console.log(userProfile)
                     className="block mb-2 text-sm font-medium text-black"
                   >
                     Username
-                  </label>                 
-                      <input
-                        type="text"
-                        defaultValue={userProfile?.username}
-                        {...register('username', { required: true })}
-                        placeholder="Username"
-                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                      />            
-               
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={userProfile?.username}
+                    {...register('username', { required: true })}
+                    placeholder="Username"
+                    className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                  />
+
                   {errors.username && (
                     <span className="text-red-500">
                       {errors.username.message}
@@ -200,13 +195,13 @@ console.log(userProfile)
                     >
                       Phone 1 No.
                     </label>
-                        <input
-                          type="text"
-                          defaultValue={userProfile?.phone1}
-                          placeholder="Phone Number"
-                          {...register('phone1', { required: true })}
-                          className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                        />
+                    <input
+                      type="text"
+                      defaultValue={userProfile?.phone1}
+                      placeholder="Phone Number"
+                      {...register('phone1', { required: true })}
+                      className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                    />
 
                     {errors.phone1 && (
                       <span className="text-red-500">
@@ -221,13 +216,13 @@ console.log(userProfile)
                     >
                       Phone 2 No.
                     </label>
-                       <input
-                          type="text"
-                          defaultValue={userProfile?.phone2}
-                          {...register('phone2', { required: true })}
-                          placeholder="Phone Number"
-                          className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                        />  
+                    <input
+                      type="text"
+                      defaultValue={userProfile?.phone2}
+                      {...register('phone2', { required: true })}
+                      placeholder="Phone Number"
+                      className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                    />
                     {errors.phone2 && (
                       <span className="text-red-500">
                         {errors.phone2.message}
@@ -242,22 +237,22 @@ console.log(userProfile)
                   >
                     Email Address
                   </label>
-                     <input
-                        type="email"
-                        defaultValue={userProfile?.email}
-                        {...register('email', { required: true })}
-                        placeholder="Email Address"
-                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                      />
-                    {errors.email && (
+                  <input
+                    type="email"
+                    defaultValue={userProfile?.email}
+                    {...register('email', { required: true })}
+                    placeholder="Email Address"
+                    className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                  />
+                  {errors.email && (
                     <span className="text-red-500">{errors.email.message}</span>
                   )}
-                </div>                 
-                      <Button
-                        submit
-                        name="submit"
-                        value={isLoading ? <Loading /> : 'Edit profile'}
-                      />
+                </div>
+                <Button
+                  submit
+                  name="submit"
+                  value={isLoading ? <Loading /> : 'Edit profile'}
+                />
               </form>
             </div>
           </div>

@@ -345,8 +345,8 @@ const DashboardCard = ({
           </p>
         </span>
         <Button
-        value='View more'
-        route={`/transactions/?${newProps?.route}`}
+          value="View more"
+          route={`/transactions/?${newProps?.route}`}
           className={`${
             isOpen ? 'px-2 text-sm text-center ml-4' : 'px-4'
           } p-2 rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black text-[15px] hover:bg-primary hover:text-white`}

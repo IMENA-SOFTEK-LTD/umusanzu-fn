@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit'
 
 const userProfileSlice = createSlice({
   name: 'userProfile',
@@ -13,8 +13,8 @@ const userProfileSlice = createSlice({
       state.userProfile = null
     },
   },
-});
+})
 
-export const { setUserProfile, clearUserProfile } = userProfileSlice.actions;
+export const { setUserProfile, clearUserProfile } = userProfileSlice.actions
 
-export default userProfileSlice.reducer;
+export default userProfileSlice.reducer

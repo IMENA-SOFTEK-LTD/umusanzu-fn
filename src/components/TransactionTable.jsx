@@ -259,7 +259,7 @@ const TransactionTable = ({ user }) => {
       <main className="my-12 w-full">
         <div className="flex flex-col items-center gap-6">
           <div className="search-filter flex flex-col items-center gap-6">
-            <span className='w-fit min-w-[30rem] flex flex-col items-end justify-center'>
+            <span className="w-fit min-w-[30rem] flex flex-col items-end justify-center">
               <GlobalFilter
                 preGlobalFilteredRows={preGlobalFilteredRows}
                 globalFilter={state.globalFilter}
@@ -513,9 +513,11 @@ export function SelectColumnFilter({
           setFilter(e.target.value || undefined)
         }}
       >
-        <option className='text-[13px]' value="">All</option>
+        <option className="text-[13px]" value="">
+          All
+        </option>
         {options.map((option, i) => (
-          <option className='text-[13px]' key={i} value={option}>
+          <option className="text-[13px]" key={i} value={option}>
             {option}
           </option>
         ))}

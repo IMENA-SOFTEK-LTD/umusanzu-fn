@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,15 +7,13 @@ import Button from '../../components/Button'
 import Loading from '../../components/Loading'
 import Input from '../../components/Input'
 import Logo from '/logo.png'
-import { useEffect } from 'react'
 import { setUser } from '../../states/features/auth/authSlice'
 
 const Login = () => {
   const dispatch = useDispatch()
-
   const navigate = useNavigate()
-
   const { user } = useSelector((state) => state.auth)
+  const [invalidLogin, setInvalidLogin] = useState(false)
 
   const [
     login,
@@ -27,25 +26,40 @@ const Login = () => {
     },
   ] = useLoginMutation()
 
+  // State to track form validation errors
+  const [formErrors, setFormErrors] = useState({})
+  const [successMessage, setSuccessMessage] = useState('')
+
   const { control, handleSubmit } = useForm()
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const { username, password } = data
 
-    login({ username, password })
-  }
+    if (!username || !password) {
+      setFormErrors({
+        username: !username ? 'Username is required' : '',
+        password: !password ? 'Password is required' : '',
+      })
+      setInvalidLogin(false) // Clear the invalid login message
+      return
+    }
 
+    const response = await login({ username, password })
+
+    if (response.error) {
+      setInvalidLogin(true)
+    }
+  }
   useEffect(() => {
     if (loginSuccess) {
       dispatch(setUser(loginData))
-      navigate('/dashboard')
+      setSuccessMessage('Login successful! Redirecting...')
+      setTimeout(() => {
+        navigate('/dashboard')
+      }, 3000)
       window.location.reload()
     }
   }, [loginData, loginSuccess])
-
-  useEffect(() => {
-    if (loginSuccess) navigate('/dashboard')
-  }, [user, loginSuccess])
 
   return (
     <main className="bg-white relative flx flex-col items-start">
@@ -53,7 +67,7 @@ const Login = () => {
         <div className="flex flex-col items-center justify-center min-h-[100vh] h-full my-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row">
           <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
             <form
-              className="flex flex-col items-start justify-start min-h-[60vh] p-12 bg-white shadow-2xl rounded-xl gap-8 relative z-10"
+              className="flex flex-col items-center justify-start min-h-[60vh] p-12 bg-white shadow-2xl rounded-xl gap-8 relative z-10"
               onSubmit={handleSubmit(onSubmit)}
             >
               <Link
@@ -63,14 +77,31 @@ const Login = () => {
                 <img className="w-16 h-16" src={Logo} alt="logo" />
                 Imena Softek
               </Link>
-              <article className="w-full relative flex flex-col gap-8 h-fit">
-                <span className="flex flex-col gap-6">
+              {invalidLogin && (
+                <div className="flex justify-center items-center">
+                  <div
+                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
+                    role="alert"
+                  >
+                    <span className="block sm:inline text-red-500">
+                      Invalid login, please try again
+                    </span>
+                  </div>
+                </div>
+              )}
+              {successMessage && (
+                <span className="block sm:inline text-green-500">
+                  {successMessage}
+                </span>
+              )}
+              <article className="w-full relative flex flex-col gap-8 h-fit items-center justify-center">
+                <span className="flex flex-col w-full pl-6 gap-6">
                   <Controller
                     name="username"
                     control={control}
                     defaultValue=""
-                    render={({ field }) => {
-                      return (
+                    render={({ field }) => (
+                      <div>
                         <Input
                           placeholder="Agent"
                           label="Username"
@@ -79,16 +110,21 @@ const Login = () => {
                           onChange={field.onChange}
                           ref={field.ref}
                         />
-                      )
-                    }}
+                        {formErrors.username && (
+                          <span className="text-red-500">
+                            {formErrors.username}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   />
 
                   <Controller
                     name="password"
                     control={control}
                     defaultValue=""
-                    render={({ field }) => {
-                      return (
+                    render={({ field }) => (
+                      <div>
                         <Input
                           placeholder="*******"
                           label="Password"
@@ -97,24 +133,27 @@ const Login = () => {
                           onChange={field.onChange}
                           ref={field.ref}
                         />
-                      )
-                    }}
+                        {formErrors.password && (
+                          <span className="text-red-500">
+                            {formErrors.password}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   />
                 </span>
-                <span className="relative">
+                <span className="relative w-[90%]">
                   <Controller
                     name="submit"
                     control={control}
-                    render={({ field }) => {
-                      return (
-                        <Button
-                          submit
-                          value={loginLoading ? <Loading /> : 'Login'}
-                          className="w-full h-12 inline-block pt-2 mt-2 pr-5 pb-4 pl-5 text-xl font-medium text-center text-white bg-primary
-                  rounded-lg transition duration-200 hover:scale-[.99] ease-in-out"
-                        />
-                      )
-                    }}
+                    render={({ field }) => (
+                      <Button
+                        submit
+                        value={loginLoading ? <Loading /> : 'Login'}
+                        className="w-full h-[45px] inline-block py-[6px] px-4 text-xl font-medium text-center text-white bg-primary
+                        rounded-lg transition duration-200 hover:scale-[.99] ease-in-out"
+                      />
+                    )}
                   />
                 </span>
               </article>
@@ -309,4 +348,5 @@ const Login = () => {
     </main>
   )
 }
+
 export default Login

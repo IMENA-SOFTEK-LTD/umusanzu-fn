@@ -141,6 +141,7 @@ function Sidebar() {
           {data.map((group, index) => (
             <div key={index} className="pt-5">
               <motion.p
+                key={index}
                 animate={controlTitleText}
                 className="mb-2 ml-4 text-md uppercase font-bold text-black"
               >
@@ -148,13 +149,14 @@ function Sidebar() {
               </motion.p>
 
               {group.items.map((item, index2) => (
-                <Link to={item.path}>
+                <Link to={item.path} key={index2}>
                   <figure
                     key={index2}
                     className="flex px-4 py-1 cursor-pointer pt-3 pb-3 hover:bg-gray-800 "
                   >
                     <item.icon className="text-lg text-amber-600  transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700" />
                     <motion.p
+                      key={index2}
                       to={item.path}
                       animate={controlText}
                       className="ml-4 text-sm font-bold text-white"
