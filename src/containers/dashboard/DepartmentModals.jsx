@@ -41,6 +41,8 @@ export const DepartmentModals = () => {
             <CreateAgentModel />
             <CreateAdminModel />
           </article>
+
+          
         </main>
       )
       break
