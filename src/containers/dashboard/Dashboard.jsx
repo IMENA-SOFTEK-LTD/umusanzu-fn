@@ -1,5 +1,5 @@
 import DashboardCard from '../../components/DashboardCard'
-
+import ChartDashboard from './DashboardChart'
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'))
 
@@ -15,6 +15,7 @@ const Dashboard = () => {
         }
         return <DashboardCard key={i} props={props} />
       })}
+      <ChartDashboard />
     </main>
   )
 }

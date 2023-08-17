@@ -13,13 +13,22 @@ import {
   usePagination,
 } from 'react-table'
 import Loading from '../../components/Loading'
-import { setPage, setSize, setTotalPages } from '../../states/features/pagination/paginationSlice'
+import {
+  setPage,
+  setSize,
+  setTotalPages,
+} from '../../states/features/pagination/paginationSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { BsPersonFill, BsEyeFill } from 'react-icons/bs'
 import { Link } from 'react-router-dom'
-import { faAnglesLeft, faAnglesRight, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import {
+  faAnglesLeft,
+  faAnglesRight,
+  faChevronLeft,
+  faChevronRight,
+} from '@fortawesome/free-solid-svg-icons'
 
 const DepartmentsTable = ({ user }) => {
   const [data, setData] = useState([])
@@ -99,15 +108,17 @@ const DepartmentsTable = ({ user }) => {
       useEffect(() => {
         if (sectorVillagesIsSuccess) {
           dispatch(setTotalPages(sectorVillagesData?.data?.totalPages))
-          setData(sectorVillagesData?.data?.rows?.map((row, index) => {
-            return {
-              ...row,
-              name: row?.name,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
-              email: row?.email,
-            }
-          }))
+          setData(
+            sectorVillagesData?.data?.rows?.map((row, index) => {
+              return {
+                ...row,
+                name: row?.name,
+                phone1: row?.phone1,
+                phone2: row?.phone2,
+                email: row?.email,
+              }
+            })
+          )
         }
       }, [sectorVillagesData, sectorVillagesIsSuccess])
       break
@@ -141,12 +152,12 @@ const DepartmentsTable = ({ user }) => {
         Header: ' ',
         Cell: () => (
           <span>
-            <button       
-             className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-              type="button">
-                <BsEyeFill className="" />    
+            <button
+              className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
+              type="button"
+            >
+              <BsEyeFill className="" />
             </button>
-           
           </span>
         ),
       },
@@ -174,16 +185,15 @@ const DepartmentsTable = ({ user }) => {
         Header: 'Staff',
         Cell: () => (
           <span>
-            <button  
-            className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-            type="button">
+            <button
+              className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
+              type="button"
+            >
               <BsPersonFill className="" />
             </button>
-            
           </span>
         ),
       },
-      
     ],
     []
   )
@@ -219,9 +229,13 @@ const DepartmentsTable = ({ user }) => {
     setPageSize,
   } = TableInstance
 
-  if (sectorVillagesIsLoading || cellVillagesIsLoading || districtCellsLoading) {
+  if (
+    sectorVillagesIsLoading ||
+    cellVillagesIsLoading ||
+    districtCellsLoading
+  ) {
     return (
-      <main className='min-h-[80vh] flex items-center justify-center'>
+      <main className="min-h-[80vh] flex items-center justify-center">
         <Loading />
       </main>
     )
@@ -309,107 +323,107 @@ const DepartmentsTable = ({ user }) => {
         </div>
       </div>
       <div className="pagination w-[95%] mx-auto">
-          <div className="py-3 flex items-center justify-between">
-            <div className="flex-1 flex justify-between sm:hidden">
-              <Button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-                value="Previous"
-              >
-                Previous
-              </Button>
-              <Button
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-                value="Next"
-              >
-                Next
-              </Button>
-            </div>
-            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div className="flex gap-x-2">
-                <span className="text-sm text-gray-700 p-2">
-                  {' '}
-                  <span className="font-medium">{offset + 1}</span> of{' '}
-                  <span className="font-medium">{totalPages}</span>
-                </span>
-                <label>
-                  <span className="sr-only">Items Per Page</span>
-                  <select
-                    className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    value={state.pageSize}
-                    onChange={(e) => {
-                      setPageSize(Number(e.target.value))
-                      dispatch(setSize(Number(e.target.value)))
-                    }}
-                  >
-                    {[20, 50, 100].map((pageSize) => (
-                      <option key={pageSize} value={pageSize}>
-                        Show {pageSize}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div>
-                <nav
-                  className="relative z-0 gap-1 inline-flex rounded-md shadow-sm -space-x-px"
-                  aria-label="Pagination"
+        <div className="py-3 flex items-center justify-between">
+          <div className="flex-1 flex justify-between sm:hidden">
+            <Button
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage}
+              value="Previous"
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={() => nextPage()}
+              disabled={!canNextPage}
+              value="Next"
+            >
+              Next
+            </Button>
+          </div>
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div className="flex gap-x-2">
+              <span className="text-sm text-gray-700 p-2">
+                {' '}
+                <span className="font-medium">{offset + 1}</span> of{' '}
+                <span className="font-medium">{totalPages}</span>
+              </span>
+              <label>
+                <span className="sr-only">Items Per Page</span>
+                <select
+                  className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  value={state.pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value))
+                    dispatch(setSize(Number(e.target.value)))
+                  }}
                 >
-                  <PageButton
-                    className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
-                    onClick={() => gotoPage(0)}
-                    // disabled={!canPreviousPage}
-                  >
-                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
-                      First
-                    </span>
-                    <FontAwesomeIcon icon={faAnglesLeft} />
-                  </PageButton>
-                  <PageButton
-                    onClick={() => {
-                      previousPage()
-                      dispatch(setPage(offset > 0 ? offset - 1 : offset))
-                    }}
-                    // disabled={!canPreviousPage}
-                    className="px-4 cursor-pointer hover:scale-[1.02] p-2 shadow-md"
-                  >
-                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
-                      Previous
-                    </span>
-                    <FontAwesomeIcon icon={faChevronLeft} />
-                  </PageButton>
-                  <PageButton
-                    onClick={() => {
-                      nextPage()
-                      dispatch(setPage(offset + 1))
-                    }}
-                    // disabled={!canNextPage}
-                    className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
-                  >
-                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
-                      Next
-                    </span>
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </PageButton>
-                  <PageButton
-                    className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
-                    onClick={() => {
-                      gotoPage(offset - 1)
-                      dispatch(setPage(offset > 0 ? offset - 1 : offset))
-                    }}
-                    // disabled={!canNextPage}
-                  >
-                    <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
-                      Last
-                    </span>
-                    <FontAwesomeIcon icon={faAnglesRight} />
-                  </PageButton>
-                </nav>
-              </div>
+                  {[20, 50, 100].map((pageSize) => (
+                    <option key={pageSize} value={pageSize}>
+                      Show {pageSize}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div>
+              <nav
+                className="relative z-0 gap-1 inline-flex rounded-md shadow-sm -space-x-px"
+                aria-label="Pagination"
+              >
+                <PageButton
+                  className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
+                  onClick={() => gotoPage(0)}
+                  // disabled={!canPreviousPage}
+                >
+                  <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                    First
+                  </span>
+                  <FontAwesomeIcon icon={faAnglesLeft} />
+                </PageButton>
+                <PageButton
+                  onClick={() => {
+                    previousPage()
+                    dispatch(setPage(offset > 0 ? offset - 1 : offset))
+                  }}
+                  // disabled={!canPreviousPage}
+                  className="px-4 cursor-pointer hover:scale-[1.02] p-2 shadow-md"
+                >
+                  <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                    Previous
+                  </span>
+                  <FontAwesomeIcon icon={faChevronLeft} />
+                </PageButton>
+                <PageButton
+                  onClick={() => {
+                    nextPage()
+                    dispatch(setPage(offset + 1))
+                  }}
+                  // disabled={!canNextPage}
+                  className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
+                >
+                  <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                    Next
+                  </span>
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </PageButton>
+                <PageButton
+                  className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
+                  onClick={() => {
+                    gotoPage(offset - 1)
+                    dispatch(setPage(offset > 0 ? offset - 1 : offset))
+                  }}
+                  // disabled={!canNextPage}
+                >
+                  <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
+                    Last
+                  </span>
+                  <FontAwesomeIcon icon={faAnglesRight} />
+                </PageButton>
+              </nav>
             </div>
           </div>
         </div>
+      </div>
     </main>
   )
 }

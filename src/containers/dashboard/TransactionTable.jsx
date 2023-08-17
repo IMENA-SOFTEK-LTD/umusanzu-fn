@@ -55,7 +55,8 @@ const TransactionTable = ({ user }) => {
 
   const location = useLocation()
 
-  const queryRoute = queryString.parse(location.search).query || 'monthlyCollections'
+  const queryRoute =
+    queryString.parse(location.search).query || 'monthlyCollections'
 
   switch (user?.departments?.level_id) {
     case 1:
