@@ -1,19 +1,17 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit'
 
 export const dashboardCardSlice = createSlice({
-    name: "dashboardCard",
-    initialState: {
-        monthlyTarget: 0,
+  name: 'dashboardCard',
+  initialState: {
+    monthlyTarget: 0,
+  },
+  reducers: {
+    setMonthlyTarget: (state, action) => {
+      state.monthlyTarget = action.payload
     },
-    reducers: {
-        setMonthlyTarget: (state, action) => {
-            state.monthlyTarget = action.payload;
-        },
-    },
-});
+  },
+})
 
-export default dashboardCardSlice.reducer;
+export default dashboardCardSlice.reducer
 
-export const {
-    setMonthlyTarget,
-} = dashboardCardSlice.actions;
+export const { setMonthlyTarget } = dashboardCardSlice.actions

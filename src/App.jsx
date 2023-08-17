@@ -14,7 +14,6 @@ import CreateVillageModel from './components/models/CreateVillageModel'
 import Settings from './pages/Settings.jsx'
 import DepartmentsTable from './containers/dashboard/DepartmentsTable.jsx'
 
-
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
 
@@ -50,7 +49,10 @@ const App = () => {
             />
             <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/settings" element={<Settings user={user} />} />
-            <Route path="/departments" element={<DepartmentsTable user={user} />} />
+            <Route
+              path="/departments"
+              element={<DepartmentsTable user={user} />}
+            />
           </Routes>
         </section>
         <ToastContainer />
