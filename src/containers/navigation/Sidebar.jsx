@@ -25,7 +25,7 @@ const data = [
       {
         title: 'Households',
         icon: BsHousesFill,
-        path: '/houseDetails',
+        path: '/households',
       },
       {
         title: 'Departments',

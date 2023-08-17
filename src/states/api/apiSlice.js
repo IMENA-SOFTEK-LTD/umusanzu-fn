@@ -88,6 +88,11 @@ export const apiSlice = createApi({
           }&size=${size || 20}`,
         }),
       }),
+      getHouseholdsList : builder.query({
+        query: ({ department, departmentId, page, size }) => ({
+          url: `/${department}/households/?departmentId=${departmentId}&page=${page || 0}&size=${size || 20}`
+        }),
+      }),
       createHouseHold: builder.mutation({
         query: ({ name, ubudehe, nid, phone1, phone2, departmentId }) => ({
           url: `/households/?departmentId=${departmentId}`,
@@ -207,6 +212,7 @@ export const {
   useUpdateUserProfileMutation,
   useLazyGetUserProfileQuery,
   useLazyGetTransactionsListQuery,
+  useLazyGetHouseholdsListQuery,
   useCreateDepartmentMutation,
   useCreateHouseHoldMutation,
   useCreateCellMutation,
