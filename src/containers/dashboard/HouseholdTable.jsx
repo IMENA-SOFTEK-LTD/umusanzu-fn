@@ -75,24 +75,23 @@ const HouseholdTable = ({ user }) => {
       department = 'agent'
   }
 
- 
   const [data, setData] = useState(householdsListData?.data || [])
 
   useEffect(() => {
     if (householdsListIsSuccess) {
-      dispatch(setTotalPages(householdsListData?.data?.totalPages));
+      dispatch(setTotalPages(householdsListData?.data?.totalPages))
       setData(
         householdsListData?.data?.rows?.map((row, index) => ({
           id: index + 1,
           name: row?.name,
           phone1: row?.phone1,
           phone2: row?.phone2,
-          ubudehe: row?.ubudehe,          
+          ubudehe: row?.ubudehe,
           status: row?.status,
         })) || []
-      );
+      )
     }
-  }, [householdsListData, householdsListIsSuccess, dispatch]);
+  }, [householdsListData, householdsListIsSuccess, dispatch])
 
   useEffect(() => {
     getHouseholdsList({
@@ -104,21 +103,19 @@ const HouseholdTable = ({ user }) => {
     })
       .unwrap()
       .then((data) => {
-        dispatch(setTotalPages(data?.data?.totalPages));
+        dispatch(setTotalPages(data?.data?.totalPages))
         setData(
           data?.data?.rows?.map((row, index) => ({
             id: index + 1,
             name: row?.name,
             phone1: row?.phone1,
             phone2: row?.phone2,
-            ubudehe: row?.ubudehe,           
+            ubudehe: row?.ubudehe,
             status: row?.status,
           })) || []
-        );
-      });
-  }, [offset, size, department, user?.departments?.id, dispatch]);
-
- 
+        )
+      })
+  }, [offset, size, department, user?.departments?.id, dispatch])
 
   const columns = useMemo(
     () => [
@@ -132,7 +129,7 @@ const HouseholdTable = ({ user }) => {
         accessor: 'ubudehe',
         sortable: true,
         Filter: SelectColumnFilter,
-      },      
+      },
       {
         Header: 'status',
         accessor: 'status',
@@ -141,7 +138,9 @@ const HouseholdTable = ({ user }) => {
         Cell: ({ value }) => (
           <div
             className={`${
-              value === 'ACTIVE' ? 'bg-green-500 shadow-md rounded-sm shadow-200' : 'bg-purple-500 rounded-sm shadow-md shadow-200'
+              value === 'ACTIVE'
+                ? 'bg-green-500 shadow-md rounded-sm shadow-200'
+                : 'bg-purple-500 rounded-sm shadow-md shadow-200'
             } p-1 rounded-md text-white text-center`}
           >
             {value}
@@ -150,22 +149,21 @@ const HouseholdTable = ({ user }) => {
       },
       {
         Header: 'phone',
-        accessor: 'phone1',     
+        accessor: 'phone1',
       },
       {
         Header: ' ',
         Cell: () => (
           <span>
-            <button       
-             className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-              type="button">
-                <BsEyeFill className="text-white" />    
+            <button
+              className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
+              type="button"
+            >
+              <BsEyeFill className="text-white" />
             </button>
-           
           </span>
         ),
       },
-      
     ],
     []
   )
@@ -439,7 +437,6 @@ HouseholdTable.propTypes = {
   user: PropTypes.shape({}),
 }
 
-
 export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },
 }) {
@@ -507,8 +504,6 @@ function GlobalFilter({
       />
     </label>
   )
-
-
 }
 
 export default HouseholdTable

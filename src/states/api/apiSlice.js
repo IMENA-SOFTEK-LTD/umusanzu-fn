@@ -88,9 +88,11 @@ export const apiSlice = createApi({
           }&size=${size || 20}`,
         }),
       }),
-      getHouseholdsList : builder.query({
+      getHouseholdsList: builder.query({
         query: ({ department, departmentId, page, size }) => ({
-          url: `/${department}/households/?departmentId=${departmentId}&page=${page || 0}&size=${size || 20}`
+          url: `/${department}/households/?departmentId=${departmentId}&page=${
+            page || 0
+          }&size=${size || 20}`,
         }),
       }),
       createHouseHold: builder.mutation({

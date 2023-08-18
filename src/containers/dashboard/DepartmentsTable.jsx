@@ -22,7 +22,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { BsPersonFill, BsEyeFill } from 'react-icons/bs'
-import { faAnglesLeft, faAnglesRight, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import {
+  faAnglesLeft,
+  faAnglesRight,
+  faChevronLeft,
+  faChevronRight,
+} from '@fortawesome/free-solid-svg-icons'
 
 const DepartmentsTable = ({ user }) => {
   const [data, setData] = useState([])
@@ -137,10 +142,9 @@ const DepartmentsTable = ({ user }) => {
     default:
       department = 'agent'
   }
-  
 
   const columns = useMemo(
-    () => [      
+    () => [
       {
         Header: 'Name',
         accessor: 'name',
@@ -150,8 +154,8 @@ const DepartmentsTable = ({ user }) => {
         Header: 'Phone',
         accessor: 'phone1',
         sortable: true,
-      }, 
-      
+      },
+
       {
         Header: 'Details',
         Cell: () => (
@@ -169,9 +173,10 @@ const DepartmentsTable = ({ user }) => {
         Header: 'Staff',
         Cell: () => (
           <span>
-            <button  
-            className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
-            type="button">
+            <button
+              className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
+              type="button"
+            >
               <BsPersonFill className="" />
             </button>
           </span>
