@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import LineChart from '../../components/LineChart' // Make sure to import the LineChart component
-import { dailyData, monthlyData } from './Data'
+import LineChart from '../../components/LineChart'
+import { weeklyData, monthData, annualData } from './Data'
 
 const ChartDashboard = () => {
   const [viewMode, setViewMode] = useState('daily')
@@ -10,7 +10,13 @@ const ChartDashboard = () => {
   }
 
   const getChartData = () => {
-    return viewMode === 'daily' ? dailyData : monthlyData
+    if (viewMode === 'weekly') {
+      return weeklyData
+    } else if (viewMode === 'monthly') {
+      return monthData
+    } else {
+      return annualData
+    }
   }
 
   const chartData = getChartData()
@@ -20,11 +26,11 @@ const ChartDashboard = () => {
       <div className="space-x-4 mb-4">
         <button
           className={`px-4 py-2 rounded ${
-            viewMode === 'daily' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            viewMode === 'weekly' ? 'bg-blue-500 text-white' : 'bg-gray-200'
           }`}
-          onClick={() => handleViewModeChange('daily')}
+          onClick={() => handleViewModeChange('weekly')}
         >
-          View Daily Collections
+          View Weekly Collections
         </button>
         <button
           className={`px-4 py-2 rounded ${
@@ -34,10 +40,22 @@ const ChartDashboard = () => {
         >
           View Monthly Collections
         </button>
+        <button
+          className={`px-4 py-2 rounded ${
+            viewMode === 'annual' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          }`}
+          onClick={() => handleViewModeChange('annual')}
+        >
+          View Annual Collections
+        </button>
       </div>
       <div className="border rounded-lg shadow-md p-6 bg-white">
         <h2 className="text-xl font-semibold mb-4">
-          {viewMode === 'daily' ? 'Daily Collections' : 'Monthly Collections'}
+          {viewMode === 'daily'
+            ? 'Daily Collections'
+            : viewMode === 'monthly'
+            ? 'Monthly Collections'
+            : 'Annual Collections'}
         </h2>
         <div className="border rounded p-4">
           <LineChart data={chartData} />
