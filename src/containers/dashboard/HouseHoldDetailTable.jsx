@@ -11,8 +11,8 @@ const HouseHoldDetailTable = ({
     <div className="page-wrapper p-4 mt-8">
       <div className="page-content-wrapper">
         <div className="page-content">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="card bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
+          <div className="flex items-start gap-4 mx-auto">
+            <div className="max-w-[70%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
               <div className="card-body">
                 <h6 className="font-semibold mb-4 text-gray-800 px-3 mt-3">
                   <b>Transaction history</b>
