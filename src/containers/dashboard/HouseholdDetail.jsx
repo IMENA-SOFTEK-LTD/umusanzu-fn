@@ -1,5 +1,5 @@
 import HouseHoldDetailTable from './HouseHoldDetailTable' // Adjust the import path accordingly
-
+import RecordPaymentModel from '../../components/models/RecordPaymentModel'
 const HouseholdDetail = () => {
   const transactions = [
     {
@@ -70,14 +70,15 @@ const HouseholdDetail = () => {
 
   return (
     <div>
-      <div className=" relative">
+      {/* <div className=" relative">
         <button
           className="absolute top-4 right-6 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg shadow-md hover:scale-105 transform transition duration-300 ease-in-out"
           type="button"
         >
           Record Payment
         </button>
-      </div>
+      </div> */}
+      <RecordPaymentModel />
       <span>{'\u00A0'}</span>
       <HouseHoldDetailTable
         transactions={transactions}
