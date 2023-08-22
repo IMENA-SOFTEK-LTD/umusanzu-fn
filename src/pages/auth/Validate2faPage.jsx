@@ -1,12 +1,61 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { json, useNavigate } from 'react-router-dom'
+import {
+  useLoginMutation,
+  useVerifyOtpMutation,
+} from '../../states/api/apiSlice'
+import { setUser } from '../../states/features/auth/authSlice'
+
 const Validate2faPage = () => {
+  const user = JSON.parse(localStorage.getItem('user'))
+
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', ''])
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const { user: stateUser } = useSelector((state) => state.auth)
 
   const handleInputChange = (index, value) => {
     const newOtpValues = [...otpValues]
     newOtpValues[index] = value
     setOtpValues(newOtpValues)
   }
+
+  console.log(user)
+
+  const [
+    verifyOtp,
+    {
+      data: otpData,
+      isLoading: otpLoading,
+      isSuccess: otpIsSuccess,
+      isError: otpIsError,
+      error: otpError,
+    },
+  ] = useVerifyOtpMutation()
+
+  const handleOtpVerification = async () => {
+    try {
+      const otpCode = otpValues.join('')
+
+      verifyOtp({
+        username: user?.username,
+        code: otpCode,
+      })
+    } catch (error) {
+      console.error('Error verifying OTP:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (otpIsSuccess) {
+      dispatch(setUser(otpData))
+      navigate('/dashboard')
+      window.location.reload()
+    }
+  }, [otpData, otpIsSuccess])
+
   return (
     <>
       <div className="h-screen bg-gradient-to-r from-rose-100 to-teal-100 py-20 px-3">
@@ -75,8 +124,11 @@ const Validate2faPage = () => {
                 </div>
 
                 <div className="flex justify-center text-center mt-5">
-                  <a className="flex items-center text-tertiary hover:text-accent cursor-pointer">
-                    <span className="font-bold">Ongera usabe OTP</span>
+                  <a
+                    className="flex items-center text-tertiary hover:text-accent cursor-pointer"
+                    onClick={handleOtpVerification}
+                  >
+                    <span className="font-bold">Verify OTP</span>
                     <i className="bx bx-caret-right ml-1"></i>
                   </a>
                 </div>

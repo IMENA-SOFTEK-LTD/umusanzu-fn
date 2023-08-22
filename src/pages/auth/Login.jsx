@@ -26,10 +26,8 @@ const Login = () => {
     },
   ] = useLoginMutation()
 
-  // State to track form validation errors
   const [formErrors, setFormErrors] = useState({})
   const [successMessage, setSuccessMessage] = useState('')
-
   const { control, handleSubmit } = useForm()
 
   const onSubmit = async (data) => {
@@ -40,7 +38,7 @@ const Login = () => {
         username: !username ? 'Username is required' : '',
         password: !password ? 'Password is required' : '',
       })
-      setInvalidLogin(false) // Clear the invalid login message
+      setInvalidLogin(false)
       return
     }
 
@@ -50,13 +48,17 @@ const Login = () => {
       setInvalidLogin(true)
     }
   }
+
   useEffect(() => {
     if (loginSuccess) {
-      setSuccessMessage('Login successful! Redirecting...')
-      setTimeout(() => {
+      if (loginData.code) {
+        console.log(loginData)
+        localStorage.setItem('user', JSON.stringify(loginData?.data))
+        navigate('/validate2faPage')
+      } else {
         dispatch(setUser(loginData))
         navigate('/dashboard')
-      }, 1500)
+      }
     }
   }, [loginData, loginSuccess])
 

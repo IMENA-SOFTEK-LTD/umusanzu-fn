@@ -25,6 +25,12 @@ export const apiSlice = createApi({
           },
         }),
       }),
+      verifyOtp: builder.mutation({
+        query: ({ username, code }) => ({
+          url: `/auth/login/verify?code=${code}&username=${username}`,
+          method: 'POST',
+        }),
+      }),
       dashboardCard: builder.query({
         query: ({ department, departmentId, route }) => ({
           url: `/${department}/${route}/?departmentId=${departmentId}`,
@@ -209,6 +215,7 @@ export const apiSlice = createApi({
 
 export const {
   useLoginMutation,
+  useVerifyOtpMutation,
   useLazyDashboardCardQuery,
   useLazyGetTotalHouseholdPaysQuery,
   useUpdateUserProfileMutation,

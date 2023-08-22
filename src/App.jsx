@@ -22,7 +22,7 @@ const App = () => {
 
   const { isOpen } = useSelector((state) => state.sidebar)
 
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = localStorage.getItem('user')
 
   return (
     <Router>
