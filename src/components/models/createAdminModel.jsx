@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BsFillHouseAddFill, BsPerson, BsPersonAdd } from 'react-icons/bs'
+import { BsPersonAdd } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 
