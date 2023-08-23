@@ -9,10 +9,10 @@ import { toggleNavDropdown } from '../../states/features/navigation/navbarSlice'
 import { logOut } from '../../utils/user'
 import { FaMicrosoft } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
-function Navbar({ user }) {
-  const { pathname } = useLocation()
 
-  const { user: stateUser } = useSelector((state) => state.auth)
+function Navbar({ user }) {
+
+  const { pathname } = useLocation()
 
   const { navDropdown } = useSelector((state) => state.navbar)
 
@@ -42,7 +42,7 @@ function Navbar({ user }) {
           <Button
             value={
               <span className="flex items-center gap-4">
-                <p>{stateUser?.names || user?.names}</p>
+                <p>{user?.names}</p>
                 <FontAwesomeIcon
                   icon={navDropdown ? faCaretUp : faCaretDown}
                   className="hover:scale-[1.02] ease-in-out duration-500"
@@ -56,7 +56,7 @@ function Navbar({ user }) {
             }}
           />
           <p className="text-gray-400 uppercase">
-            {stateUser?.departments?.name || user?.departments?.name}
+            {user?.departments?.name}
           </p>
         </span>
         <figure className="ml-2 w-fit">

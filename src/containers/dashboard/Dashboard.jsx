@@ -4,7 +4,8 @@ const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user'))
 
   return (
-    <main className="w-full p-4 mx-auto flex items-center flex-wrap gap-4">
+    <main className='flex flex-col items-center gap-12 w-[95%] mx-auto'>
+      <section className="w-full p-4 mx-auto flex items-center flex-wrap gap-4">
       {Array.from({ length: 10 }, (_, i) => {
         const props = {
           index: i + 1,
@@ -15,7 +16,10 @@ const Dashboard = () => {
         }
         return <DashboardCard key={i} props={props} />
       })}
+      </section>
+      <section className='w-full mx-auto'>
       <ChartDashboard />
+      </section>
     </main>
   )
 }
