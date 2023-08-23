@@ -157,25 +157,41 @@ export const apiSlice = createApi({
         }),
       }),
       getSectorVillages: builder.query({
-        query: ({ id }) => {
+        query: ({ id, page, size }) => {
           return {
-            url: `/department/sector/${id}/villages/`,
+            url: `/department/sector/${id}/villages/?page=${
+              page || 0
+            }&size=${size || 20}`,
             method: 'GET',
           }
         },
       }),
       getCellVillages: builder.query({
-        query: ({ id }) => {
+        query: ({ id, size, page }) => {
           return {
-            url: `/department/cell/${id}/villages/`,
+            url: `/department/cell/${id}/villages/?page=${
+              page || 0
+            }&size=${size || 20}`,
             method: 'GET',
           }
         },
       }),
       getDistrictCells: builder.query({
-        query: ({ id }) => {
+        query: ({ id, page, size }) => {
           return {
-            url: `/department/district/${id}/cells/`,
+            url: `/department/district/${id}/cells/?page=${
+              page || 0
+            }&size=${size || 20}`,
+            method: 'GET',
+          }
+        },
+      }),
+      getCountryDistricts: builder.query({
+        query: ({ id, page, size }) => {
+          return {
+            url: `/department/country/${id}/districts/?page=${
+              page || 0
+            }&size=${size || 20}`,
             method: 'GET',
           }
         },
@@ -230,4 +246,5 @@ export const {
   useCreateAgentMutation,
   useLazyGetCellVillagesQuery,
   useLazyGetDistrictCellsQuery,
+  useLazyGetCountryDistrictsQuery,
 } = apiSlice
