@@ -17,6 +17,7 @@ import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseHoldDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
 import Department from './pages/dashboard/Department.jsx'
+import Admins from './containers/dashboard/Admins.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -57,8 +58,18 @@ const App = () => {
             />
             <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/householdDetail" element={<HouseholdDetail />} />
-            <Route path="/settings" element={<Settings user={user || stateUser} />} />
-            <Route path="/profile" element={<UserProfilePage user={user || stateUser} />} />
+            <Route
+              path="/settings"
+              element={<Settings user={user || stateUser} />}
+            />
+            <Route
+              path="/profile"
+              element={<UserProfilePage user={user || stateUser} />}
+            />
+            <Route
+              path="/admins"
+              element={<Admins user={user || stateUser} />}
+            />
 
             <Route
               path="/departments"

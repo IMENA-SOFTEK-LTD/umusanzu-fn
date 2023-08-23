@@ -7,7 +7,7 @@ function LineChart({ data }) {
         ticks: {
           font: {
             size: 14,
-            weight: 'semi-bold'
+            weight: 'semi-bold',
           },
           color: 'black',
         },
@@ -16,13 +16,13 @@ function LineChart({ data }) {
         ticks: {
           font: {
             size: 14,
-            weight: 'semi-bold'
+            weight: 'semi-bold',
           },
           color: 'black',
         },
       },
     },
-  };
+  }
   return <Line data={data} options={options} />
 }
 

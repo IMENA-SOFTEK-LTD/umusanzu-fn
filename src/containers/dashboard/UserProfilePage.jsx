@@ -41,7 +41,7 @@ const UserProfilePage = () => {
 
   return (
     <div className="flex items-start gap-4 mx-auto">
-      <div className="w-full max-w-[60%] bg-white shadow-md rounded-lg p-6 space-y-4">
+      <div className="w-full max-w-[60%] bg-white  p-6 space-y-4">
         <div className="flex justify-between items-center p-4 border rounded-lg shadow-md">
           <h1 className="text-[18px] font-semibold">{user.name}</h1>
           <div className="flex gap-4">
@@ -65,36 +65,93 @@ const UserProfilePage = () => {
             </button>
           </div>
         </div>
-        <div class="user-details bg-gray-100 border-gray-200 p-4">
-          <div class="user-section">
-            <div class="text-gray-900 font-bold">User Information</div>
-            <div class="text-gray-800">Username: {user.username}</div>
-            <div class="text-gray-800">Phone 1: {user.phone1}</div>
-            {user.phone2 && (
-              <div class="text-gray-800">Phone 2: {user.phone2}</div>
-            )}
-            {user.nationalId && (
-              <div class="text-gray-800">National ID: {user.nationalId}</div>
-            )}
-            {user.email && <div class="text-gray-800">Email: {user.email}</div>}
-            <div class="text-gray-800">Cell: {user.cell}</div>
-          </div>
-          <div class="user-section location-section">
-            <div class="text-gray-900 font-bold">Location</div>
-            <div class="flex flex-col">
-              <div class=" text-gray-800">Sector:</div> {user.sector}
-              <div class="text-gray-800">District:</div> {user.district}
-              <div class="text-gray-800">Province:</div> {user.province}
-            </div>
-          </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h6 className="mb-4 text-xl font-semibold text-gray-800">
+            Admin Information
+          </h6>
+          <table className="w-full">
+            <tbody>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  Username:
+                </td>
+                <td className="py-2 pl-4">{user.username}</td>
+              </tr>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  Phone 1:
+                </td>
+                <td className="py-2 pl-4">{user.phone1}</td>
+              </tr>
+              {user.phone2 && (
+                <tr className="border-t">
+                  <td className="py-2 pr-4 text-gray-800 font-semibold">
+                    Phone 2:
+                  </td>
+                  <td className="py-2 pl-4">{user.phone2}</td>
+                </tr>
+              )}
+              {user.nationalId && (
+                <tr className="border-t">
+                  <td className="py-2 pr-4 text-gray-800 font-semibold">
+                    National ID:
+                  </td>
+                  <td className="py-2 pl-4">{user.nationalId}</td>
+                </tr>
+              )}
+              {user.email && (
+                <tr className="border-t">
+                  <td className="py-2 pr-4 text-gray-800 font-semibold">
+                    Email:
+                  </td>
+                  <td className="py-2 pl-4">{user.email}</td>
+                </tr>
+              )}
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">Cell:</td>
+                <td className="py-2 pl-4">{user.cell}</td>
+              </tr>
+              <tr className="border-t">
+                <td
+                  colSpan="2"
+                  className="py-4 text-xl font-semibold text-gray-900"
+                >
+                  Location
+                </td>
+              </tr>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  Sector:
+                </td>
+                <td className="py-2 pl-4">{user.sector}</td>
+              </tr>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  District:
+                </td>
+                <td className="py-2 pl-4">{user.district}</td>
+              </tr>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  Province:
+                </td>
+                <td className="py-2 pl-4">{user.province}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div className="w-full max-w-[35%] bg-white shadow-md rounded-lg p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Recent Activities</h2>
+      <div className="w-full max-w-[35%] bg-white shadow-md rounded-lg p-6 space-y-4 mt-6">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Recent Activities
+        </h2>
         <ul className="space-y-2">
           {user.recentActivities.map((activity) => (
-            <li key={activity.id} className="flex justify-between">
-              <div>{activity.activity}</div>
+            <li
+              key={activity.id}
+              className="flex justify-between items-center border-b border-gray-200 py-2"
+            >
+              <div className="text-gray-800">{activity.activity}</div>
               <div className="text-gray-500">{activity.date}</div>
             </li>
           ))}

@@ -11,7 +11,6 @@ import { FaMicrosoft } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
 
 function Navbar({ user }) {
-
   const { pathname } = useLocation()
 
   const { navDropdown } = useSelector((state) => state.navbar)
@@ -55,9 +54,7 @@ function Navbar({ user }) {
               dispatch(toggleNavDropdown(!navDropdown))
             }}
           />
-          <p className="text-gray-400 uppercase">
-            {user?.departments?.name}
-          </p>
+          <p className="text-gray-400 uppercase">{user?.departments?.name}</p>
         </span>
         <figure className="ml-2 w-fit">
           <img
