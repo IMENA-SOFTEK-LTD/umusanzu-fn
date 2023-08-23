@@ -16,6 +16,7 @@ import DepartmentsTable from './containers/dashboard/DepartmentsTable.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseHoldDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
+import Department from './pages/dashboard/Department.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
