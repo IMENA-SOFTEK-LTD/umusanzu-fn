@@ -3,7 +3,7 @@ import { BsPersonAdd } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 
-function createAdminModel() {
+function CreateAdminModel() {
   const [showModal, setShowModal] = useState(false)
   const {
     control,
@@ -305,4 +305,4 @@ function createAdminModel() {
   )
 }
 
-export default createAdminModel
+export default CreateAdminModel

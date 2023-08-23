@@ -12,7 +12,7 @@ const HouseHoldDetailTable = ({
       <div className="page-content-wrapper">
         <div className="page-content">
           <div className="flex items-start gap-4 mx-auto">
-            <div className="max-w-[70%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
+            <div className="max-w-[65%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
               <div className="card-body">
                 <h6 className="font-semibold mb-4 text-gray-800 px-3 mt-3">
                   <b>Transaction history</b>
@@ -114,60 +114,60 @@ const HouseHoldDetailTable = ({
                 </div>
               </div>
             </div>
-            <div className="card bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
-              <div className="card-body">
-                <h6 className="font-semibold mb-4 text-gray-800 px-3 mt-4">
-                  <b>Household information</b>
+            <div className="bg-white rounded-lg shadow-lg ring-1 ring-gray-200 p-4">
+              <div className="p-3">
+                <h6 className="mb-4 text-xl font-semibold text-gray-800">
+                  Household Information
                 </h6>
                 <div className="table-responsive">
-                  <table className="min-w-full">
+                  <table className="w-full  text-sm">
                     <tbody>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Names</td>
-                        <td className="py-2 px-4">{member.name}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Names</td>
+                        <td className="py-2 pl-4">{member.name}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Phone 1</td>
-                        <td className="py-2 px-4">{member.phone1}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Phone 1</td>
+                        <td className="py-2 pl-4">{member.phone1}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">TIN Number</td>
-                        <td className="py-2 px-4">{member.phone2}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">TIN Number</td>
+                        <td className="py-2 pl-4">{member.phone2}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">National ID</td>
-                        <td className="py-2 px-4">{member.nid}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">National ID</td>
+                        <td className="py-2 pl-4">{member.nid}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Amount</td>
-                        <td className="py-2 px-4">
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Amount</td>
+                        <td className="py-2 pl-4">
                           {member.ubudehe} ({member.price} {member.currency})
                         </td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Village</td>
-                        <td className="py-2 px-4">{village.name}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Village</td>
+                        <td className="py-2 pl-4">{village.name}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Cell</td>
-                        <td className="py-2 px-4">{cell.name}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Cell</td>
+                        <td className="py-2 pl-4">{cell.name}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Sector</td>
-                        <td className="py-2 px-4">{sector.name}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Sector</td>
+                        <td className="py-2 pl-4">{sector.name}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">District</td>
-                        <td className="py-2 px-4">{district.name}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">District</td>
+                        <td className="py-2 pl-4">{district.name}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Province</td>
-                        <td className="py-2 px-4">{province.name}</td>
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Province</td>
+                        <td className="py-2 pl-4">{province.name}</td>
                       </tr>
-                      <tr>
-                        <td className="py-2 px-4 font-semibold">Status</td>
-                        <td className="py-2 px-4">
-                          <span className="badge badge-success">
+                      <tr className="border-b border-gray-300">
+                        <td className="py-2 pr-4 font-semibold">Status</td>
+                        <td className="py-2 pl-4">
+                          <span className="inline-block px-3 py-1 text-sm font-semibold text-white bg-green-500 ">
                             {member.status}
                           </span>
                         </td>

@@ -70,14 +70,6 @@ const HouseholdDetail = () => {
 
   return (
     <div>
-      {/* <div className=" relative">
-        <button
-          className="absolute top-4 right-6 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg shadow-md hover:scale-105 transform transition duration-300 ease-in-out"
-          type="button"
-        >
-          Record Payment
-        </button>
-      </div> */}
       <RecordPaymentModel />
       <span>{'\u00A0'}</span>
       <HouseHoldDetailTable

@@ -168,7 +168,7 @@ const DashboardCard = ({
       newProps = {
         ...props,
         period: 'month',
-        title: "Monthly Collections",
+        title: 'Monthly Collections',
         bg_color: 'bg-[#12a6bc80]',
         text_color: `text-black`,
         route: 'monthlyCollections',
@@ -368,9 +368,11 @@ const DashboardCard = ({
 
   return (
     <article
-      className={`${
-        isOpen ? 'w-[18%]' : 'w-[18%]'
-      } h-full ${newProps.bg_color} ${newProps.text_color} max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
+      className={`${isOpen ? 'w-[18%]' : 'w-[18%]'} h-full ${
+        newProps.bg_color
+      } ${
+        newProps.text_color
+      } max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
     >
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
@@ -434,9 +436,13 @@ const DashboardCard = ({
               ? `/transactions/?query=${newProps?.route}`
               : `/households/?query=${newProps?.route}`
           }
-          className={`${isOpen ? 'px-2 text-sm text-center ml-4' : 'px-2 text-[14px] text-center mr-2'} ${
-            newProps.viewMore ? 'flex' : 'invisible'
-          } p-2 ${newProps.period == 'day' ? 'ml-4' : 'ml-0'} rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black hover:bg-primary hover:text-white`}
+          className={`${
+            isOpen
+              ? 'px-2 text-sm text-center ml-4'
+              : 'px-2 text-[14px] text-center mr-2'
+          } ${newProps.viewMore ? 'flex' : 'invisible'} p-2 ${
+            newProps.period == 'day' ? 'ml-4' : 'ml-0'
+          } rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black hover:bg-primary hover:text-white`}
         />
       </section>
     </article>
