@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 import Loading from '../components/Loading'
 import UserProfileUpdateForm from '../components/UserProfileUpdateForm'
+import UpdatePasswordModel from '../components/models/updatePasswordModel'
 import { useLazyGetUserProfileQuery } from '../states/api/apiSlice'
 
 function Settings({ user }) {
@@ -88,6 +89,7 @@ function Settings({ user }) {
             user={user || stateUser}
             userProfile={userProfile}
           />
+          <UpdatePasswordModel />
         </div>
       </div>
     </div>
