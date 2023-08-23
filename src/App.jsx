@@ -22,12 +22,12 @@ const App = () => {
 
   const { isOpen } = useSelector((state) => state.sidebar)
 
-  const user = localStorage.getItem('user')
+  const user = JSON.parse(localStorage.getItem('user'))
 
   return (
     <Router>
       <main
-        className={`relative ${
+        className={`relative h-full ${
           isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[4vw,96vw]'
         }`}
       >
@@ -37,7 +37,7 @@ const App = () => {
             isOpen ? 'left-[280px]' : 'left-[55px]'
           } mx-auto`}
         >
-          <Navbar user={user} />
+          <Navbar user={user || stateUser} />
           <Routes>
             <Route element={<IsLoggedIn />}>
               <Route path="/" element={<Dashboard />} />
@@ -48,20 +48,20 @@ const App = () => {
             <Route path="/houseDetails" element={<HouseDetails />} />
             <Route
               path="/transactions"
-              element={<TransactionTable user={user} />}
+              element={<TransactionTable user={user || stateUser} />}
             />
             <Route
               path="/households"
-              element={<HouseholdTable user={user} />}
+              element={<HouseholdTable user={user || stateUser} />}
             />
             <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/householdDetail" element={<HouseholdDetail />} />
-            <Route path="/settings" element={<Settings user={user} />} />
-            <Route path="/profile" element={<UserProfilePage user={user} />} />
+            <Route path="/settings" element={<Settings user={user || stateUser} />} />
+            <Route path="/profile" element={<UserProfilePage user={user || stateUser} />} />
 
             <Route
               path="/departments"
-              element={<DepartmentsTable user={user} />}
+              element={<DepartmentsTable user={user || stateUser} />}
             />
           </Routes>
         </section>

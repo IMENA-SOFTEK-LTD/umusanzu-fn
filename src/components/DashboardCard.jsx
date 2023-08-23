@@ -12,6 +12,7 @@ import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Button from './Button'
 import { setMonthlyTarget } from '../states/features/dashboard/dashboardCardSlice'
+import { color } from 'framer-motion'
 
 const DashboardCard = ({
   props = {
@@ -26,6 +27,8 @@ const DashboardCard = ({
     route: '#',
     increaseValue: 2.15,
     user: {},
+    bg_color: 'black',
+    text_color: 'white',
   },
 }) => {
   const [
@@ -77,6 +80,8 @@ const DashboardCard = ({
         title: 'Monthly Target',
         period: 'month',
         viewMore: true,
+        bg_color: 'bg-[#013B47]',
+        text_color: 'text-white',
         progress:
           Math.round(
             (dashboardCardData?.data[0]?.monthlyTarget / monthlyTarget).toFixed(
@@ -99,13 +104,15 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 2:
+    case 3:
       newProps = {
         ...props,
         title: 'Total Collected',
         period: 'month',
+        bg_color: 'bg-[#94d2bd]',
+        text_color: `text-black`,
         route: 'monthlyCollections',
-        viewMore: false,
+        viewMore: true,
         progress:
           Math.round(
             (
@@ -127,11 +134,13 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 3:
+    case 4:
       newProps = {
         ...props,
-        title: 'Cleared Pending Payments',
+        title: 'Pending Paid',
         period: 'month',
+        bg_color: 'bg-[#CADEDE]',
+        text_color: `white`,
         route: 'amountPendingNotPaid',
         viewMore: true,
         funds: !dashboardCardIsLoading,
@@ -155,11 +164,13 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 4:
+    case 2:
       newProps = {
         ...props,
         period: 'month',
-        title: "Monthly's Collections",
+        title: "Monthly Collections",
+        bg_color: 'bg-[#12a6bc80]',
+        text_color: `text-black`,
         route: 'monthlyCollections',
         viewMore: true,
         funds: !dashboardCardIsLoading,
@@ -186,8 +197,10 @@ const DashboardCard = ({
     case 5:
       newProps = {
         ...props,
-        title: 'Pending Payments',
+        title: 'Pending',
         route: 'amountPendingNotPaid',
+        bg_color: 'bg-[#ae2012]',
+        text_color: `text-white`,
         period: 'month',
         viewMore: true,
         progress:
@@ -216,6 +229,8 @@ const DashboardCard = ({
         ...props,
         title: 'Advance Payments',
         period: 'month',
+        bg_color: 'bg-[#ee9b00]',
+        text_color: `white`,
         route: 'advancePayments',
         progress:
           Math.round(
@@ -244,6 +259,8 @@ const DashboardCard = ({
         ...props,
         period: 'day',
         title: "Today's Collections",
+        bg_color: 'bg-[#E9D8A6]',
+        text_color: `white`,
         route: 'todayCollections',
         progress:
           Math.round(
@@ -272,6 +289,8 @@ const DashboardCard = ({
         ...props,
         title: 'Total Households',
         period: 'month',
+        bg_color: 'bg-[#005F73]',
+        text_color: `text-white`,
         route: '',
         viewMore: true,
         funds: false,
@@ -294,6 +313,9 @@ const DashboardCard = ({
         ...props,
         title: 'Active Households',
         viewMore: true,
+        period: 'month',
+        bg_color: 'bg-[#CA6702]',
+        text_color: 'text-white',
         route: 'households/active',
         funds: false,
         amount: dashboardCardIsLoading ? (
@@ -315,6 +337,9 @@ const DashboardCard = ({
         ...props,
         title: 'Inactive Households',
         viewMore: true,
+        period: 'month',
+        bg_color: 'bg-[#9B2226]',
+        text_color: `text-white`,
         route: 'households/inactive',
         funds: false,
         amount: dashboardCardIsLoading ? (
@@ -344,18 +369,14 @@ const DashboardCard = ({
   return (
     <article
       className={`${
-        newProps.period === 'month' && newProps.target <= 20
-          ? 'bg-yellow-50'
-          : null
-      } ${
-        isOpen ? 'w-[18%]' : 'w-[23%]'
-      } h-full max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
+        isOpen ? 'w-[18%]' : 'w-[18%]'
+      } h-full ${newProps.bg_color} ${newProps.text_color} max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
     >
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
           <h3
-            className={`text-slate-700 ${
-              isOpen ? 'text-[14px]' : 'text-[1rem]'
+            className={`${newProps.text_color} ${
+              isOpen ? 'text-[14px]' : 'text-[15px]'
             } font-bold`}
           >
             {newProps.title}
@@ -387,7 +408,7 @@ const DashboardCard = ({
           />
         </figure>
       </section>
-      <section className="border-t-[1px] bg-slate-50 flex w-full h-full items-center justify-between py-2 px-4">
+      <section className="border-t-[1px] bg-slate-50 flex w-full h-full items-center justify-between py-[5px] px-4">
         <span className="flex items-center gap-1">
           <FontAwesomeIcon
             className={`${
@@ -413,9 +434,9 @@ const DashboardCard = ({
               ? `/transactions/?query=${newProps?.route}`
               : `/households/?query=${newProps?.route}`
           }
-          className={`${isOpen ? 'px-2 text-sm text-center ml-4' : 'px-4'} ${
+          className={`${isOpen ? 'px-2 text-sm text-center ml-4' : 'px-2 text-[14px] text-center mr-2'} ${
             newProps.viewMore ? 'flex' : 'invisible'
-          } p-2 rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black text-[15px] hover:bg-primary hover:text-white`}
+          } p-2 ${newProps.period == 'day' ? 'ml-4' : 'ml-0'} rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black hover:bg-primary hover:text-white`}
         />
       </section>
     </article>
@@ -429,6 +450,7 @@ DashboardCard.propTypes = {
     increase: PropTypes.bool,
     period: PropTypes.string,
     target: PropTypes.number,
+    color: PropTypes.string,
     route: PropTypes.string,
     title: PropTypes.string,
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

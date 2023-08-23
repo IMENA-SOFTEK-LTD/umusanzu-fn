@@ -52,7 +52,6 @@ const Login = () => {
   useEffect(() => {
     if (loginSuccess) {
       if (loginData.code) {
-        console.log(loginData)
         localStorage.setItem('user', JSON.stringify(loginData?.data))
         navigate('/validate2faPage')
       } else {

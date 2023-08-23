@@ -115,7 +115,7 @@ function Sidebar() {
   }
 
   return (
-    <div className="min-h-screen relative bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999]">
+    <div className="min-h-screen relative bg-cyan-800 left-0 top-0 bottom-0 h-full w-fit z-[999]">
       <motion.div
         animate={controls}
         className={`z-[999] w-full animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`}

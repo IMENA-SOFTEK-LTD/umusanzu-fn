@@ -39,7 +39,7 @@ export const annualData = {
       data: [
         1500, 1800, 1600, 1900, 2200, 2000, 2300, 2500, 2400, 2600, 2800, 2700,
       ],
-      borderColor: '#165F75',
+      borderColor: '#ED9C00',
       backgroundColor: 'rgba(219, 39, 119, 0.2)',
     },
   ],
@@ -86,7 +86,7 @@ export const monthData = {
         1500, 1800, 1600, 1900, 2200, 2000, 2300, 2500, 2400, 2600, 2800, 2700,
         1500, 1800, 1600, 1900, 2200, 2000, 2300,
       ],
-      borderColor: '#165F75',
+      borderColor: '#BB3E03',
       backgroundColor: 'rgba(219, 39, 119, 0.2)',
     },
   ],

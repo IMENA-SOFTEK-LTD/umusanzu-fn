@@ -22,8 +22,6 @@ const Validate2faPage = () => {
     setOtpValues(newOtpValues)
   }
 
-  console.log(user)
-
   const [
     verifyOtp,
     {
