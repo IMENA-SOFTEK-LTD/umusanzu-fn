@@ -31,6 +31,7 @@ export const apiSlice = createApi({
           method: 'POST',
         }),
       }),
+     
       dashboardCard: builder.query({
         query: ({ department, departmentId, route }) => ({
           url: `/${department}/${route}/?departmentId=${departmentId}`,
@@ -58,6 +59,15 @@ export const apiSlice = createApi({
           body: { names, email, phone1, phone2, username },
         }),
       }),
+
+      updatePassword: builder.mutation({
+        query: ({ id, departmentId, oldPassword, newPassword }) => ({
+          url: `/userProfile/password/${id}/?departmentId=${departmentId}`,
+          method: 'PUT',
+          body: { oldPassword, newPassword },
+        }),
+      }),
+
       getUserProfile: builder.query({
         query: ({ id, departmentId }) =>
           `userProfile/${id}?departmentId=${departmentId}`,
@@ -247,4 +257,5 @@ export const {
   useLazyGetCellVillagesQuery,
   useLazyGetDistrictCellsQuery,
   useLazyGetCountryDistrictsQuery,
+  useUpdatePasswordMutation,  
 } = apiSlice
