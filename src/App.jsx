@@ -16,7 +16,6 @@ import DepartmentsTable from './containers/dashboard/DepartmentsTable.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseHoldDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
-import Department from './pages/dashboard/Department.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
 
 const App = () => {
@@ -67,7 +66,7 @@ const App = () => {
               element={<UserProfilePage user={user || stateUser} />}
             />
             <Route
-              path="/admins"
+              path="/admins/:id"
               element={<Admins user={user || stateUser} />}
             />
 

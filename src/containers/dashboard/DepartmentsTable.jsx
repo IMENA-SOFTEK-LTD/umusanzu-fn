@@ -31,6 +31,7 @@ import {
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons'
 import Input from '../../components/Input'
+import { Link } from 'react-router-dom'
 
 const DepartmentsTable = ({ user }) => {
   const [data, setData] = useState([])
@@ -91,48 +92,17 @@ const DepartmentsTable = ({ user }) => {
   switch (user?.departments?.level_id) {
     case 1:
       department = 'province'
-     
-  useEffect(() => {
-  getCellVillages({ department, id: user?.departments?.id, size, page: offset })
-    .unwrap()
-    .then((data) => {
-      dispatch(setTotalPages(data?.data?.totalPages));
-      setData(
-        (data?.data?.rows || []).map((row, index) => ({
-          id: index + 1,
-          name: row?.name,
-          phone1: row?.phone1,
-          phone2: row?.phone2,
-          email: row?.email,
-        }))
-      );
-    });
-}, [offset, size, department, user?.departments?.id, dispatch]);
 
-useEffect(() => {
-  if (cellVillagesIsSuccess) {
-    dispatch(setTotalPages(cellVillagesData?.data?.totalPages))
-    setData(
-      cellVillagesData?.data?.rows?.map((row, index) => ({
-          id: index + 1,
-          name: row?.name,
-          phone1: row?.phone1,
-          phone2: row?.phone2,
-          email: row?.email,
-        
-      })) || []
-    )
-  }
-}, [cellVillagesData, cellVillagesIsSuccess, dispatch])
-
-      break
-    case 2:
-      department = 'district'
-        useEffect(() => {
-        getDistrictCells({ department, id: user?.departments?.id, size, page: offset })
+      useEffect(() => {
+        getCellVillages({
+          department,
+          id: user?.departments?.id,
+          size,
+          page: offset,
+        })
           .unwrap()
           .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages));
+            dispatch(setTotalPages(data?.data?.totalPages))
             setData(
               (data?.data?.rows || []).map((row, index) => ({
                 id: index + 1,
@@ -140,22 +110,65 @@ useEffect(() => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
+                ID: row?.id,
               }))
-            );
-          });
-      }, [offset, size, department, user?.departments?.id, dispatch]);
+            )
+          })
+      }, [offset, size, department, user?.departments?.id, dispatch])
+
+      useEffect(() => {
+        if (cellVillagesIsSuccess) {
+          dispatch(setTotalPages(cellVillagesData?.data?.totalPages))
+          setData(
+            cellVillagesData?.data?.rows?.map((row, index) => ({
+              id: index + 1,
+              name: row?.name,
+              phone1: row?.phone1,
+              phone2: row?.phone2,
+              email: row?.email,
+              ID: row?.id,
+            })) || []
+          )
+        }
+      }, [cellVillagesData, cellVillagesIsSuccess, dispatch])
+
+      break
+    case 2:
+      department = 'district'
+      useEffect(() => {
+        getDistrictCells({
+          department,
+          id: user?.departments?.id,
+          size,
+          page: offset,
+        })
+          .unwrap()
+          .then((data) => {
+            dispatch(setTotalPages(data?.data?.totalPages))
+            setData(
+              (data?.data?.rows || []).map((row, index) => ({
+                id: index + 1,
+                name: row?.name,
+                phone1: row?.phone1,
+                phone2: row?.phone2,
+                email: row?.email,
+                ID: row?.id,
+              }))
+            )
+          })
+      }, [offset, size, department, user?.departments?.id, dispatch])
 
       useEffect(() => {
         if (districtCellsIsSuccess) {
           dispatch(setTotalPages(districtCellsData?.data?.totalPages))
           setData(
             districtCellsData?.data?.rows?.map((row, index) => ({
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                email: row?.email,
-              
+              id: index + 1,
+              name: row?.name,
+              phone1: row?.phone1,
+              phone2: row?.phone2,
+              email: row?.email,
+              ID: row?.id,
             })) || []
           )
         }
@@ -163,11 +176,16 @@ useEffect(() => {
       break
     case 3:
       department = 'sector'
-       useEffect(() => {
-        getSectorVillages({ department, id: user?.departments?.id, size, page: offset })
+      useEffect(() => {
+        getSectorVillages({
+          department,
+          id: user?.departments?.id,
+          size,
+          page: offset,
+        })
           .unwrap()
           .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages));
+            dispatch(setTotalPages(data?.data?.totalPages))
             setData(
               (data?.data?.rows || []).map((row, index) => ({
                 id: index + 1,
@@ -175,70 +193,40 @@ useEffect(() => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
+                ID: row?.id,
               }))
-            );
-          });
-      }, [offset, size, department, user?.departments?.id, dispatch]);
+            )
+          })
+      }, [offset, size, department, user?.departments?.id, dispatch])
 
       useEffect(() => {
         if (sectorVillagesIsSuccess) {
           dispatch(setTotalPages(sectorVillagesData?.data?.totalPages))
           setData(
             sectorVillagesData?.data?.rows?.map((row, index) => ({
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                email: row?.email,
-              
+              id: index + 1,
+              name: row?.name,
+              phone1: row?.phone1,
+              phone2: row?.phone2,
+              email: row?.email,
+              ID: row?.id,
             })) || []
           )
         }
       }, [sectorVillagesData, sectorVillagesIsSuccess, dispatch])
       break
     case 4:
-      department = 'cell'      
-useEffect(() => {
-  getCellVillages({ department, id: user?.departments?.id, size, page: offset })
-    .unwrap()
-    .then((data) => {
-      dispatch(setTotalPages(data?.data?.totalPages));
-      setData(
-        (data?.data?.rows || []).map((row, index) => ({
-          id: index + 1,
-          name: row?.name,
-          phone1: row?.phone1,
-          phone2: row?.phone2,
-          email: row?.email,
-        }))
-      );
-    });
-}, [offset, size, department, user?.departments?.id, dispatch]);
-
-useEffect(() => {
-  if (cellVillagesIsSuccess) {
-    dispatch(setTotalPages(cellVillagesData?.data?.totalPages))
-    setData(
-      sectorVillagesData?.data?.rows?.map((row, index) => ({
-          id: index + 1,
-          name: row?.name,
-          phone1: row?.phone1,
-          phone2: row?.phone2,
-          email: row?.email,
-        
-      })) || []
-    )
-  }
-}, [cellVillagesData, cellVillagesIsSuccess, dispatch])
-      break
-    case 5:
-      department = 'country'
-      
+      department = 'cell'
       useEffect(() => {
-        getCountryDistricts({ department, id: user?.departments?.id, size, page: offset })
+        getCellVillages({
+          department,
+          id: user?.departments?.id,
+          size,
+          page: offset,
+        })
           .unwrap()
           .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages));
+            dispatch(setTotalPages(data?.data?.totalPages))
             setData(
               (data?.data?.rows || []).map((row, index) => ({
                 id: index + 1,
@@ -246,22 +234,65 @@ useEffect(() => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
+                ID: row?.id,
               }))
-            );
-          });
-      }, [offset, size, department, user?.departments?.id, dispatch]);
-      
+            )
+          })
+      }, [offset, size, department, user?.departments?.id, dispatch])
+
       useEffect(() => {
-        if (countryDistrictsIsSuccess) {
-          dispatch(setTotalPages(countryDistrictsData?.data?.totalPages))
+        if (cellVillagesIsSuccess) {
+          dispatch(setTotalPages(cellVillagesData?.data?.totalPages))
           setData(
-            countryDistrictsData?.data?.rows?.map((row, index) => ({
+            sectorVillagesData?.data?.rows?.map((row, index) => ({
+              id: index + 1,
+              name: row?.name,
+              phone1: row?.phone1,
+              phone2: row?.phone2,
+              email: row?.email,
+              ID: row?.id,
+            })) || []
+          )
+        }
+      }, [cellVillagesData, cellVillagesIsSuccess, dispatch])
+      break
+    case 5:
+      department = 'country'
+
+      useEffect(() => {
+        getCountryDistricts({
+          department,
+          id: user?.departments?.id,
+          size,
+          page: offset,
+        })
+          .unwrap()
+          .then((data) => {
+            dispatch(setTotalPages(data?.data?.totalPages))
+            setData(
+              (data?.data?.rows || []).map((row, index) => ({
                 id: index + 1,
                 name: row?.name,
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
-              
+                ID: row?.id,
+              }))
+            )
+          })
+      }, [offset, size, department, user?.departments?.id, dispatch])
+
+      useEffect(() => {
+        if (countryDistrictsIsSuccess) {
+          dispatch(setTotalPages(countryDistrictsData?.data?.totalPages))
+          setData(
+            countryDistrictsData?.data?.rows?.map((row, index) => ({
+              id: index + 1,
+              name: row?.name,
+              phone1: row?.phone1,
+              phone2: row?.phone2,
+              email: row?.email,
+              ID: row?.id,
             })) || []
           )
         }
@@ -300,19 +331,6 @@ useEffect(() => {
           </span>
         ),
       },
-      {
-        Header: 'Staff',
-        Cell: () => (
-          <span>
-            <button
-              className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
-              type="button"
-            >
-              <BsPersonFill className="" />
-            </button>
-          </span>
-        ),
-      },
     ],
     []
   )
@@ -327,6 +345,20 @@ useEffect(() => {
         sortable: true,
       },
       ...columns,
+      {
+        id: 'ID',
+        Header: 'Staff',
+        accessor: 'ID',
+        Cell: ({ row, index }) => (
+          <Link
+            to={`/admins/${row?.original?.ID}`}
+            className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
+          >
+            <BsPersonFill className="" />
+          </Link>
+        ),
+        sortable: true,
+      },
     ])
   }
 
@@ -562,18 +594,35 @@ useEffect(() => {
     )
   }
 
-if (sectorVillagesError ||cellVillagesError ||districtCellsError||countryDistrictsError) {
-  return (
-    <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
-      <h1 className="text-[25px] font-medium text-center">
-        Could not load department records
-      </h1>
-      <Button value="Go to dashboard" route="/dashboard" />
-    </main>
-  )  
+  if (
+    sectorVillagesError ||
+    cellVillagesError ||
+    districtCellsError ||
+    countryDistrictsError
+  ) {
+    return (
+      <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
+        <h1 className="text-[25px] font-medium text-center">
+          Could not load department records
+        </h1>
+        <Button value="Go to dashboard" route="/dashboard" />
+      </main>
+    )
   }
 
-if (sectorVillagesIsLoading || cellVillagesIsLoading || districtCellsLoading || countryDistrictsLoading) {
+  if (
+    sectorVillagesIsLoading ||
+    cellVillagesIsLoading ||
+    districtCellsLoading ||
+    countryDistrictsLoading
+  ) {
+    return (
+      <main className="w-full min-h-[80vh] flex items-center justify-center">
+        <Loading />
+      </main>
+    )
+  }
+
   return (
     <main className="w-full min-h-[80vh] flex items-center justify-center">
       <Loading />
@@ -581,85 +630,77 @@ if (sectorVillagesIsLoading || cellVillagesIsLoading || districtCellsLoading || 
   )
 }
 
-return (
-  <main className="w-full min-h-[80vh] flex items-center justify-center">
-    <Loading />
-  </main>
-)
-}
-
 DepartmentsTable.propTypes = {
-user: PropTypes.shape({}),
+  user: PropTypes.shape({}),
 }
 
 export function SelectColumnFilter({
-column: { filterValue, setFilter, preFilteredRows, id, render },
+  column: { filterValue, setFilter, preFilteredRows, id, render },
 }) {
-const options = useMemo(() => {
-  const options = new Set()
-  preFilteredRows.forEach((row) => {
-    options.add(row.values[id])
-  })
-  return [...options.values()]
-}, [id, preFilteredRows])
+  const options = useMemo(() => {
+    const options = new Set()
+    preFilteredRows.forEach((row) => {
+      options.add(row.values[id])
+    })
+    return [...options.values()]
+  }, [id, preFilteredRows])
 
-return (
-  <label className="flex gap-x-2 items-baseline">
-    <span className="text-gray-1000 text-[14px]">{render('Header')}: </span>
-    <select
-      className="rounded-sm bg-transparent outline-none border-none focus:border-none focus:outline-primary"
-      name={id}
-      id={id}
-      value={filterValue}
-      onChange={(e) => {
-        setFilter(e.target.value || undefined)
-      }}
-    >
-      <option className="text-[13px]" value="">
-        All
-      </option>
-      {options.map((option, i) => (
-        <option className="text-[13px]" key={i} value={option}>
-          {option}
+  return (
+    <label className="flex gap-x-2 items-baseline">
+      <span className="text-gray-1000 text-[14px]">{render('Header')}: </span>
+      <select
+        className="rounded-sm bg-transparent outline-none border-none focus:border-none focus:outline-primary"
+        name={id}
+        id={id}
+        value={filterValue}
+        onChange={(e) => {
+          setFilter(e.target.value || undefined)
+        }}
+      >
+        <option className="text-[13px]" value="">
+          All
         </option>
-      ))}
-    </select>
-  </label>
-)
+        {options.map((option, i) => (
+          <option className="text-[13px]" key={i} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
 }
 
 function GlobalFilter({
-preGlobalFilteredRows,
-globalFilter,
-setGlobalFilter,
+  preGlobalFilteredRows,
+  globalFilter,
+  setGlobalFilter,
 }) {
-const count = preGlobalFilteredRows.length
-const [value, setValue] = React.useState(globalFilter)
-const onChange = useAsyncDebounce((value) => {
-  setGlobalFilter(value || undefined)
-}, 200)
+  const count = preGlobalFilteredRows.length
+  const [value, setValue] = React.useState(globalFilter)
+  const onChange = useAsyncDebounce((value) => {
+    setGlobalFilter(value || undefined)
+  }, 200)
 
-return (
-  <label className="flex gap-2 items-center w-full mx-auto">
-    <Input
-      type="text"
-      className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
-      value={value || ''}
-      onChange={(e) => {
-        setValue(e.target.value)
-        onChange(e.target.value)
-      }}
-      placeholder={`${count} households...`}
-    />
-    <Button
-      value="Search"
-      onClick={() => {
-        setGlobalFilter(value || undefined)
-      }}
-    />
-  </label>
-)
+  return (
+    <label className="flex gap-2 items-center w-full mx-auto">
+      <Input
+        type="text"
+        className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
+        value={value || ''}
+        onChange={(e) => {
+          setValue(e.target.value)
+          onChange(e.target.value)
+        }}
+        placeholder={`${count} households...`}
+      />
+      <Button
+        value="Search"
+        onClick={() => {
+          setGlobalFilter(value || undefined)
+        }}
+      />
+    </label>
+  )
 }
-
 
 export default DepartmentsTable
