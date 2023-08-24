@@ -68,6 +68,13 @@ export const apiSlice = createApi({
         }),
       }),
 
+      createAdmin: builder.mutation({
+        query: ({ route , levelId , departmentId, names, username, password , phone1, email, phone2, nid , staff_role , department_id ,status }) => ({
+          url: `${route}/Admin/?departmentId=${departmentId}&levelId=${levelId}`,
+          method: 'POST',
+          body: { names, username, password , phone1, email, phone2, nid , staff_role , department_id ,status},
+        }),
+      }),
       getUserProfile: builder.query({
         query: ({ id, departmentId }) =>
           `userProfile/${id}?departmentId=${departmentId}`,
@@ -280,4 +287,5 @@ export const {
   useLazyGetStaffQuery,
   useLazyGetHouseHoldDetailsQuery,
   useLazyGetSingleStaffDetailsQuery,
+  useCreateAdminMutation,
 } = apiSlice

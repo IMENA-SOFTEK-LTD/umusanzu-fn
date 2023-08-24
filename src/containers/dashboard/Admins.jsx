@@ -57,7 +57,7 @@ const Admins = () => {
   return (
     <div className="w-[98%] mx-auto relative">
       <div>
-        <CreateAdminModel className="relative top-4" />
+        <CreateAdminModel  user={user} className="relative top-4" />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 absolute top-16">
