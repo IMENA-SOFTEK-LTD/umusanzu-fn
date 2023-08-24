@@ -89,12 +89,8 @@ function Settings({ user }) {
             user={user || stateUser}
             userProfile={userProfile}
           />
-     
-           <UpdatePasswordModel
-             user={user || stateUser}          
-           />
+          <UpdatePasswordModel user={user || stateUser} />
         </div>
-       
       </div>
     </div>
   )

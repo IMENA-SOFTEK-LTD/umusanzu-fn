@@ -1,4 +1,4 @@
-import {  useState } from 'react'
+import { useState } from 'react'
 import Button from '../Button'
 import { FaPenNib } from 'react-icons/fa'
 import { useUpdatePasswordMutation } from '../../states/api/apiSlice'
@@ -8,66 +8,60 @@ import { Controller, useForm } from 'react-hook-form'
 import PropTypes from 'prop-types'
 import Loading from '../Loading'
 
-function updatePasswordModel({user}) {
+function updatePasswordModel({ user }) {
+  const { user: stateUser } = useSelector((state) => state.auth)
+  const [isLoading, setIsLoading] = useState(false)
+  const [updatePassword] = useUpdatePasswordMutation()
 
-    const { user: stateUser } = useSelector((state) => state.auth)
-    const [isLoading, setIsLoading] = useState(false)
-    const [updatePassword] = useUpdatePasswordMutation()
+  const [showModal, setShowModal] = useState(false)
 
-    const [showModal, setShowModal] = useState(false)
+  const {
+    handleSubmit,
+    watch,
+    register,
+    control,
+    formState: { errors },
+  } = useForm()
 
-    const {
-        handleSubmit,
-        watch,
-        register,
-        control,
-        formState: { errors },
-    } = useForm()
-    
-    const openModal = () => {
-      setShowModal(true)
-    }
-  
-    const closeModal = () => {
-      setShowModal(false)
-    }  
+  const openModal = () => {
+    setShowModal(true)
+  }
 
-    const onSubmit = async (data) => {
-        setIsLoading(true)
+  const closeModal = () => {
+    setShowModal(false)
+  }
+
+  const onSubmit = async (data) => {
+    setIsLoading(true)
     try {
-
-        await updatePassword({
-            id: user?.id || stateUser?.id,
-            departmentId: user?.department_id || stateUser?.department_id,
-            oldPassword: data.oldPassword,
-            newPassword: data.newPassword,
-            retypePassword: data.retypePassword,
-        })
-
+      await updatePassword({
+        id: user?.id || stateUser?.id,
+        departmentId: user?.department_id || stateUser?.department_id,
+        oldPassword: data.oldPassword,
+        newPassword: data.newPassword,
+        retypePassword: data.retypePassword,
+      })
         .unwrap()
         .then(() => {
-        toast.success('Password updated successfully')       
+          toast.success('Password updated successfully')
         })
 
-    .catch ((error) => {
-        console.error(error)
-        if(error.data && error.data.message) {
+        .catch((error) => {
+          console.error(error)
+          if (error.data && error.data.message) {
             toast.error(error.data.message)
-        }else {
-        toast.error('Error updating password')
-        }
-    
-    })
+          } else {
+            toast.error('Error updating password')
+          }
+        })
 
-    .finally (() => {
-        setIsLoading(false)
-    })
+        .finally(() => {
+          setIsLoading(false)
+        })
     } catch (error) {
-        return error
+      return error
     }
-
-    }
-
+  }
 
   return (
     <div>
@@ -75,8 +69,8 @@ function updatePasswordModel({user}) {
         onClick={openModal}
         className="flex mb-3 items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-amber-600 rounded-lg shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 ml-4 "
         type="button"
-      >       
-      <FaPenNib className="mr-2 text-lg" />
+      >
+        <FaPenNib className="mr-2 text-lg" />
         Update Password
       </button>
 
@@ -113,8 +107,10 @@ function updatePasswordModel({user}) {
               <h3 className="mb-4 text-xl text-center font-medium text-black">
                 Update Your Passord
               </h3>
-              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 w-full min-w-[300px]">
-                
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-6 w-full min-w-[300px]"
+              >
                 <div>
                   <label
                     htmlFor="OldPassword"
@@ -123,19 +119,21 @@ function updatePasswordModel({user}) {
                     Old Password
                   </label>
                   <input
-                    type="password"                  
+                    type="password"
                     placeholder="Old password"
                     {...register('oldPassword', { required: true })}
                     className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                   />
                   {errors.oldPassword && (
-                    <span className="text-red-500">{errors.oldPassword.message}</span>
-                  )}                  
+                    <span className="text-red-500">
+                      {errors.oldPassword.message}
+                    </span>
+                  )}
                 </div>
 
                 <div>
                   <label
-                    htmlFor="NewPassword"                    
+                    htmlFor="NewPassword"
                     className="block mb-2 text-sm font-medium text-black"
                   >
                     New Password
@@ -151,7 +149,6 @@ function updatePasswordModel({user}) {
                       {errors.newPassword.message}
                     </span>
                   )}
-              
                 </div>
                 <div className="flex space-x-4">
                   <div className="flex-1">
@@ -180,16 +177,16 @@ function updatePasswordModel({user}) {
                       )}
                     />
                     {errors.retypePassword && (
-                    <span className="text-red-500">
-                   {errors.retypePassword.message}
+                      <span className="text-red-500">
+                        {errors.retypePassword.message}
                       </span>
                     )}
-                 </div>
-                 </div>                  
-                <Button 
+                  </div>
+                </div>
+                <Button
                   submit
                   name="Submit"
-                  value= {isLoading ? <Loading /> :'Update Password'}
+                  value={isLoading ? <Loading /> : 'Update Password'}
                 />
               </form>
             </div>
@@ -197,17 +194,15 @@ function updatePasswordModel({user}) {
         </div>
       )}
     </div>
-    )
+  )
 }
 
 updatePasswordModel.propTypes = {
-    user: PropTypes.shape({
-        password: PropTypes.string,
-        id: PropTypes.number,
-        department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    }),
+  user: PropTypes.shape({
+    password: PropTypes.string,
+    id: PropTypes.number,
+    department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
 }
-     
-
 
 export default updatePasswordModel

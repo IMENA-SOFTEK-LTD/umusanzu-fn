@@ -137,7 +137,7 @@ const TransactionTable = ({ user }) => {
           payment_method: row.payment_method.split('_').join(' '),
           agent: row?.agents?.names,
           status: row?.payments[0]?.status,
-          remain_amount: row?.payments[0]?.remain_amount,         
+          remain_amount: row?.payments[0]?.remain_amount,
           commission: Number(row?.amount) / 10,
           transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
         })) || []

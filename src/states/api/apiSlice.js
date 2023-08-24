@@ -31,7 +31,7 @@ export const apiSlice = createApi({
           method: 'POST',
         }),
       }),
-     
+
       dashboardCard: builder.query({
         query: ({ department, departmentId, route }) => ({
           url: `/${department}/${route}/?departmentId=${departmentId}`,
@@ -72,7 +72,6 @@ export const apiSlice = createApi({
         query: ({ id, departmentId }) =>
           `userProfile/${id}?departmentId=${departmentId}`,
       }),
-
       createDepartment: builder.mutation({
         query: ({
           name,
@@ -169,9 +168,9 @@ export const apiSlice = createApi({
       getSectorVillages: builder.query({
         query: ({ id, page, size }) => {
           return {
-            url: `/department/sector/${id}/villages/?page=${
-              page || 0
-            }&size=${size || 20}`,
+            url: `/department/sector/${id}/villages/?page=${page || 0}&size=${
+              size || 20
+            }`,
             method: 'GET',
           }
         },
@@ -179,9 +178,9 @@ export const apiSlice = createApi({
       getCellVillages: builder.query({
         query: ({ id, size, page }) => {
           return {
-            url: `/department/cell/${id}/villages/?page=${
-              page || 0
-            }&size=${size || 20}`,
+            url: `/department/cell/${id}/villages/?page=${page || 0}&size=${
+              size || 20
+            }`,
             method: 'GET',
           }
         },
@@ -189,9 +188,9 @@ export const apiSlice = createApi({
       getDistrictCells: builder.query({
         query: ({ id, page, size }) => {
           return {
-            url: `/department/district/${id}/cells/?page=${
-              page || 0
-            }&size=${size || 20}`,
+            url: `/department/district/${id}/cells/?page=${page || 0}&size=${
+              size || 20
+            }`,
             method: 'GET',
           }
         },
@@ -199,9 +198,9 @@ export const apiSlice = createApi({
       getCountryDistricts: builder.query({
         query: ({ id, page, size }) => {
           return {
-            url: `/department/country/${id}/districts/?page=${
-              page || 0
-            }&size=${size || 20}`,
+            url: `/department/country/${id}/districts/?page=${page || 0}&size=${
+              size || 20
+            }`,
             method: 'GET',
           }
         },
@@ -235,6 +234,14 @@ export const apiSlice = createApi({
           }
         },
       }),
+      getStaff: builder.query({
+        query: ({ department, departmentId, page, size }) => ({
+          url: `/staff/${department}/${departmentId}?page=${page || 0}&size=${
+            size || 20
+          }`,
+          method: 'GET',
+        }),
+      }),
     }
   },
 })
@@ -257,5 +264,6 @@ export const {
   useLazyGetCellVillagesQuery,
   useLazyGetDistrictCellsQuery,
   useLazyGetCountryDistrictsQuery,
-  useUpdatePasswordMutation,  
+  useUpdatePasswordMutation,
+  useLazyGetStaffQuery,
 } = apiSlice
