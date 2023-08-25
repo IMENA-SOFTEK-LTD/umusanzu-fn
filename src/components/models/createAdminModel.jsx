@@ -1,12 +1,45 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BsPersonAdd } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
+import Loading from '../Loading'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import PropTypes from 'prop-types'
+import { useCreateAdminMutation } from '../../states/api/apiSlice'
 
-function CreateAdminModel() {
+
+
+function CreateAdminModel({user}) {
+  const { user: stateUser } = useSelector((state) => state.auth)
+  const [isLoading, setIsLoading] = useState(false)
+  const [createAdmin] = useCreateAdminMutation()
+
+  let department = ''
+
+  switch (user?.departments?.level_id || stateUser?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'    
+    default:
+      department = 'sector'
+  }
+
   const [showModal, setShowModal] = useState(false)
   const {
     control,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm()
@@ -19,9 +52,51 @@ function CreateAdminModel() {
     setShowModal(false)
   }
 
-  const onSubmit = (data) => {
-    closeModal()
+  const onSubmit = async (data) => {
+    setIsLoading(true)
+
+    try{
+      await createAdmin({
+        route: department,
+        departmentId: user.department_id,
+        levelId: user.departments.level_id,
+        names: data.names,
+        username: data.username,
+        password: data.password,
+        phone1: data.phone1,
+        email: data.email,
+        phone2: data.phone2,
+        nid: data.nid,
+        staff_role: 1,
+        department_id: user.department_id,
+        status: 'ACTIVE'
+      })
+
+      .unwrap()
+      .then(() => {
+        toast.success('Admin created successfully')
+        closeModal()
+      })
+      .catch((error) => {
+        console.error(error)
+        if (error.data && error.data.message){
+          toast.error(error.data.message)
+        }else{
+          toast.error('Error while creating Admin')
+        }
+      })
+
+      .finally(()=> {
+        setIsLoading(false)
+      })
+
+      } catch (error) {       
+        return error
+    }
+
   }
+
+  console.log(user.department_id)
 
   return (
     <div className="relative">
@@ -77,7 +152,7 @@ function CreateAdminModel() {
                       admin Name
                     </label>
                     <Controller
-                      name="adminName"
+                      name="names"
                       control={control}
                       rules={{ required: 'admin Name is required' }}
                       render={({ field }) => (
@@ -103,7 +178,7 @@ function CreateAdminModel() {
                       Admin Username
                     </label>
                     <Controller
-                      name="adminUsername"
+                      name="username"
                       control={control}
                       rules={{ required: 'Admin Username is required' }}
                       render={({ field }) => (
@@ -289,12 +364,10 @@ function CreateAdminModel() {
                     )}
                   </div>
                 </div>
-                <Controller
-                  name="submit"
-                  control={control}
-                  render={({ field }) => {
-                    return <Button submit value="Add New Admin" />
-                  }}
+                <Button
+                  submit
+                  name="submit"                  
+                  value= { isLoading ? <Loading /> : 'Create Admin'}
                 />
               </form>
             </div>
@@ -304,5 +377,22 @@ function CreateAdminModel() {
     </div>
   )
 }
+
+CreateAdminModel.propTypes = {
+  user: PropTypes.shape({
+    names: PropTypes.string,
+    phone1: PropTypes.string,
+    phone2: PropTypes.string,
+    email: PropTypes.string,
+    department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    departmentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    status: PropTypes.string,
+    password: PropTypes.string,
+    nid: PropTypes.string,
+    staff_role: PropTypes.number,
+
+  })
+}
+
 
 export default CreateAdminModel
