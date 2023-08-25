@@ -2,8 +2,14 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useLazyGetSingleStaffDetailsQuery } from '../../states/api/apiSlice'
 import { useEffect } from 'react'
+import UpdateStaff from '../../components/models/UpdateStaff'
+import { useDispatch, useSelector } from 'react-redux'
+import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
+
 const UserProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false)
+  const dispatch = useDispatch()
+  const { updateStaff } = useSelector((state) => state.modals)
   const { id } = useParams()
   const [
     getSingleStaffDetails,
@@ -27,7 +33,6 @@ const UserProfilePage = () => {
   useEffect(() => {
     getSingleStaffDetails({ id })
   }, [getSingleStaffDetails, id])
-  console.log(data)
   const [user, setUser] = useState({
     name: data?.names,
     username: data?.username,
@@ -67,13 +72,16 @@ const UserProfilePage = () => {
 
   return (
     <div className="flex items-start gap-4 mx-auto">
+      <UpdateStaff toggleButton={false} />
       <div className="w-full max-w-[60%] bg-white  p-6 space-y-4">
         <div className="flex justify-between items-center p-4 border rounded-lg shadow-md">
           <h1 className="text-[18px] font-semibold">{data?.names}</h1>
           <div className="flex gap-4">
             <button
               className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-primary hover:scale-[0.98]"
-              onClick={handleEditToggle}
+              onClick={() => {
+                dispatch(toggleUpdateStaff(!updateStaff))
+              }}
             >
               Edit
             </button>
