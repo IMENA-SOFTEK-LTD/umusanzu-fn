@@ -56,7 +56,7 @@ const App = () => {
               element={<HouseholdTable user={user || stateUser} />}
             />
             <Route path="/createVillage" element={<CreateVillageModel />} />
-            <Route path="/householdDetail" element={<HouseholdDetail />} />
+            <Route path="/householdDetail/:id" element={<HouseholdDetail />} />
             <Route
               path="/settings"
               element={<Settings user={user || stateUser} />}
