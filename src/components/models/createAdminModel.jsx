@@ -8,9 +8,7 @@ import { toast } from 'react-toastify'
 import PropTypes from 'prop-types'
 import { useCreateAdminMutation } from '../../states/api/apiSlice'
 
-
-
-function CreateAdminModel({user}) {
+function CreateAdminModel({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [createAdmin] = useCreateAdminMutation()
@@ -31,7 +29,7 @@ function CreateAdminModel({user}) {
       department = 'cell'
       break
     case 5:
-      department = 'country'    
+      department = 'country'
     default:
       department = 'sector'
   }
@@ -55,7 +53,7 @@ function CreateAdminModel({user}) {
   const onSubmit = async (data) => {
     setIsLoading(true)
 
-    try{
+    try {
       await createAdmin({
         route: department,
         departmentId: user.department_id,
@@ -69,31 +67,28 @@ function CreateAdminModel({user}) {
         nid: data.nid,
         staff_role: 1,
         department_id: user.department_id,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
       })
+        .unwrap()
+        .then(() => {
+          toast.success('Admin created successfully')
+          closeModal()
+        })
+        .catch((error) => {
+          console.error(error)
+          if (error.data && error.data.message) {
+            toast.error(error.data.message)
+          } else {
+            toast.error('Error while creating Admin')
+          }
+        })
 
-      .unwrap()
-      .then(() => {
-        toast.success('Admin created successfully')
-        closeModal()
-      })
-      .catch((error) => {
-        console.error(error)
-        if (error.data && error.data.message){
-          toast.error(error.data.message)
-        }else{
-          toast.error('Error while creating Admin')
-        }
-      })
-
-      .finally(()=> {
-        setIsLoading(false)
-      })
-
-      } catch (error) {       
-        return error
+        .finally(() => {
+          setIsLoading(false)
+        })
+    } catch (error) {
+      return error
     }
-
   }
 
   console.log(user.department_id)
@@ -366,8 +361,8 @@ function CreateAdminModel({user}) {
                 </div>
                 <Button
                   submit
-                  name="submit"                  
-                  value= { isLoading ? <Loading /> : 'Create Admin'}
+                  name="submit"
+                  value={isLoading ? <Loading /> : 'Create Admin'}
                 />
               </form>
             </div>
@@ -390,9 +385,7 @@ CreateAdminModel.propTypes = {
     password: PropTypes.string,
     nid: PropTypes.string,
     staff_role: PropTypes.number,
-
-  })
+  }),
 }
-
 
 export default CreateAdminModel
