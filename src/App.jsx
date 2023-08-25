@@ -62,7 +62,7 @@ const App = () => {
               element={<Settings user={user || stateUser} />}
             />
             <Route
-              path="/profile"
+              path="/profile/:id"
               element={<UserProfilePage user={user || stateUser} />}
             />
             <Route

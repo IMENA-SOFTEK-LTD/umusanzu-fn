@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion'
 
-const AwesomeCard = ({ name, phone, nationalId, email }) => {
+const AwesomeCard = ({
+  name,
+  phone,
+  nationalId,
+  email,
+  onViewProfileClick,
+  onEditClick,
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.5 }}
@@ -22,10 +29,16 @@ const AwesomeCard = ({ name, phone, nationalId, email }) => {
         <p className="text-gray-600">{email}</p>
       </div>
       <div className="flex justify-start space-x-4">
-        <button className="bg-white shadow-md text-black px-4 py-[5px] rounded-sm hover:bg-primary hover:text-white transition-colors duration-300">
+        <button
+          onClick={onViewProfileClick}
+          className="bg-white shadow-md text-black px-4 py-[5px] rounded-sm hover:bg-primary hover:text-white transition-colors duration-300"
+        >
           View Profile
         </button>
-        <button className="bg-primary text-white px-4 py-[5px] rounded-sm transition-colors duration-300">
+        <button
+          onClick={onEditClick}
+          className="bg-primary text-white px-4 py-[5px] rounded-sm transition-colors duration-300"
+        >
           Edit
         </button>
       </div>

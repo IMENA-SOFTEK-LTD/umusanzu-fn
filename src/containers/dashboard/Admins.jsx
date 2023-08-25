@@ -4,9 +4,11 @@ import CreateAdminModel from '../../components/models/createAdminModel'
 import { useLazyGetStaffQuery } from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import Button from '../../components/Button'
+import { useNavigate } from 'react-router-dom'
 const Admins = () => {
   const user = JSON.parse(localStorage.getItem('user'))
   const { id } = useParams()
+  const navigate = useNavigate()
   const [
     getStaff,
     {
@@ -69,7 +71,7 @@ const Admins = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid gap-5 ">
             {data?.rows?.map((admin, index) => (
               <Card
                 key={index}
@@ -77,6 +79,9 @@ const Admins = () => {
                 phone={admin.phone1}
                 nationalId={admin.nid}
                 email={admin.email}
+                onViewProfileClick={() => {
+                  navigate(`/profile/${admin.id}`)
+                }}
               />
             ))}
           </div>
