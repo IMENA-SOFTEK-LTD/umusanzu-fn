@@ -1,71 +1,65 @@
 import HouseHoldDetailTable from './HouseHoldDetailTable' // Adjust the import path accordingly
 import RecordPaymentModel from '../../components/models/RecordPaymentModel'
+import { useLazyGetHouseHoldDetailsQuery } from '../../states/api/apiSlice'
+import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 const HouseholdDetail = () => {
-  const transactions = [
+  const { id } = useParams()
+  const [
+    GetHouseHoldDetails,
     {
-      id: 1,
-      month_paid: '2023-01-01',
-      amount: 1000,
-      remain_amount: 500,
-      status: 'PENDING',
-      updated_at: '2023-08-17',
-      guid: 'abc123',
-      transaction_id: '12345',
-      agent: 'Agent Name',
+      data: houseHoldDetailsData,
+      isLoading: houseHoldDetailsLoading,
+      isSuccess: houseHoldDetailsSuccess,
+      isError: houseHoldDetailsError,
+      error: houseHoldError,
     },
-    {
-      id: 2,
-      month_paid: '2023-02-01',
-      amount: 1000,
-      remain_amount: 500,
-      status: 'PARTIAL',
-      updated_at: '2023-09-16',
-      guid: 'abc123',
-      transaction_id: '12345',
-      agent: 'Agent Name',
-    },
-    {
-      id: 3,
-      month_paid: '2023-03-01',
-      amount: 1000,
-      remain_amount: 500,
-      status: 'PAID',
-      updated_at: '2023-10-15',
-      guid: 'abc123',
-      transaction_id: '12345',
-      agent: 'Agent Name',
-    },
-  ]
+  ] = useLazyGetHouseHoldDetailsQuery()
+  const [data, setData] = useState(houseHoldDetailsData?.data || [])
+  const [transactions, setTransactions] = useState(
+    houseHoldDetailsData?.data?.transactions || []
+  )
+  console.log(data)
+  useEffect(() => {
+    if (houseHoldDetailsSuccess) {
+      setData(houseHoldDetailsData?.data || [])
+      setTransactions(houseHoldDetailsData?.data?.transactions || [])
+      console.log(transactions)
+    }
+  }, [houseHoldDetailsSuccess, houseHoldDetailsData])
+
+  useEffect(() => {
+    GetHouseHoldDetails({ id })
+  }, [GetHouseHoldDetails])
 
   const member = {
-    name: 'John Doe',
-    phone1: '123-456-7890',
-    phone2: 'TIN123',
-    nid: 'ID123',
-    ubudehe: 'Ubudehe Status',
-    price: 200,
-    currency: 'USD',
-    status: 'Active',
+    name: data?.name,
+    phone1: data?.phone1,
+    phone2: data?.phone2,
+    nid: data?.nid,
+    ubudehe: data?.ubudehe,
+    currency: 'RWF',
+    status: data?.status,
   }
 
   const village = {
-    name: 'Sample Village',
+    name: data.village,
   }
 
   const cell = {
-    name: 'Sample Cell',
+    name: data.cell,
   }
 
   const sector = {
-    name: 'Sample Sector',
+    name: data.sector,
   }
 
   const district = {
-    name: 'Sample District',
+    name: data.district,
   }
 
   const province = {
-    name: 'Sample Province',
+    name: data.province,
   }
 
   return (

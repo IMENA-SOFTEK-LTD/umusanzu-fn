@@ -242,6 +242,12 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
+      getHouseHoldDetails: builder.query({
+        query: ({ id }) => ({
+          url: `/households/${id}`,
+          method: 'GET',
+        }),
+      }),
     }
   },
 })
@@ -266,4 +272,5 @@ export const {
   useLazyGetCountryDistrictsQuery,
   useUpdatePasswordMutation,
   useLazyGetStaffQuery,
+  useLazyGetHouseHoldDetailsQuery,
 } = apiSlice

@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 const HouseHoldDetailTable = ({
   transactions,
   member,
@@ -73,7 +75,7 @@ const HouseHoldDetailTable = ({
                               {transaction.amount} RWF
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
-                              {transaction.remain_amount} RWF
+                              {transaction.remain} RWF
                             </td>
                             <td
                               className={`py-3 px-4 ${payStatus} whitespace-nowrap`}
@@ -81,7 +83,9 @@ const HouseHoldDetailTable = ({
                               {transaction.status}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
-                              {transaction.updated_at}
+                              {moment(transaction.transaction_date).format(
+                                'YYYY-MM-DD HH:mm:ss'
+                              )}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
                               <a
@@ -104,7 +108,8 @@ const HouseHoldDetailTable = ({
                             </td>
 
                             <td className="py-3 px-4 whitespace-nowrap">
-                              {transaction.transaction_id}IMS{transaction.agent}
+                              {transaction.id}IMS
+                              {transaction?.agents?.names.split(' ')[0]}
                             </td>
                           </tr>
                         )
@@ -131,7 +136,7 @@ const HouseHoldDetailTable = ({
                         <td className="py-2 pl-4">{member.phone1}</td>
                       </tr>
                       <tr className="border-b border-gray-300">
-                        <td className="py-2 pr-4 font-semibold">TIN Number</td>
+                        <td className="py-2 pr-4 font-semibold">TIN number</td>
                         <td className="py-2 pl-4">{member.phone2}</td>
                       </tr>
                       <tr className="border-b border-gray-300">
@@ -141,7 +146,7 @@ const HouseHoldDetailTable = ({
                       <tr className="border-b border-gray-300">
                         <td className="py-2 pr-4 font-semibold">Amount</td>
                         <td className="py-2 pl-4">
-                          {member.ubudehe} ({member.price} {member.currency})
+                          {member.ubudehe} ({member.currency})
                         </td>
                       </tr>
                       <tr className="border-b border-gray-300">
