@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import CoatOFArms from '/CoatOFArms.png'
+import CoatOFArms from '../../../public/CoatOFArms.png'
 import PropTypes from 'prop-types'
 import Button from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -10,7 +10,7 @@ import { logOut } from '../../utils/user'
 import { FaMicrosoft } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
 
-function Navbar({ user }) {
+function Navbar ({ user }) {
   const { pathname } = useLocation()
 
   const { navDropdown } = useSelector((state) => state.navbar)
@@ -23,7 +23,7 @@ function Navbar({ user }) {
 
   return (
     <nav
-      className={`w-full bg-white drop-shadow-md z-20 py-4 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between`}
+      className={'w-full bg-white drop-shadow-md z-20 py-4 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between'}
     >
       <Link
         to="/dashboard"
@@ -92,8 +92,8 @@ function Navbar({ user }) {
 
 Navbar.propTypes = {
   user: PropTypes.shape({
-    names: PropTypes.string,
-  }),
+    names: PropTypes.string
+  })
 }
 
 export default Navbar

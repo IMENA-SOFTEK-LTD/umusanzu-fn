@@ -8,7 +8,7 @@ import { Controller, useForm } from 'react-hook-form'
 import PropTypes from 'prop-types'
 import Loading from '../Loading'
 
-function updatePasswordModel({ user }) {
+function updatePasswordModel ({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [updatePassword] = useUpdatePasswordMutation()
@@ -20,7 +20,7 @@ function updatePasswordModel({ user }) {
     watch,
     register,
     control,
-    formState: { errors },
+    formState: { errors }
   } = useForm()
 
   const openModal = () => {
@@ -39,7 +39,7 @@ function updatePasswordModel({ user }) {
         departmentId: user?.department_id || stateUser?.department_id,
         oldPassword: data.oldPassword,
         newPassword: data.newPassword,
-        retypePassword: data.retypePassword,
+        retypePassword: data.retypePassword
       })
         .unwrap()
         .then(() => {
@@ -165,7 +165,7 @@ function updatePasswordModel({ user }) {
                         required: 'Repeat entered password',
                         validate: (value) =>
                           value === watch('newPassword') ||
-                          'Passwords do not match',
+                          'Passwords do not match'
                       }}
                       render={({ field }) => (
                         <input
@@ -201,8 +201,8 @@ updatePasswordModel.propTypes = {
   user: PropTypes.shape({
     password: PropTypes.string,
     id: PropTypes.number,
-    department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  }),
+    department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  })
 }
 
 export default updatePasswordModel

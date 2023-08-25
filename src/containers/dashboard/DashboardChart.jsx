@@ -67,8 +67,8 @@ const ChartDashboard = () => {
           {viewMode === 'daily'
             ? 'Daily Collections'
             : viewMode === 'monthly'
-            ? 'Monthly Collections'
-            : 'Annual Collections'}
+              ? 'Monthly Collections'
+              : 'Annual Collections'}
         </h2>
         <div className="border rounded p-4 min-h-[500px] max-h-[500px] font-bold">
           <LineChart className="w-full" data={chartData} />

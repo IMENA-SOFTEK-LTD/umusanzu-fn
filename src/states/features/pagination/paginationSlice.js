@@ -5,7 +5,7 @@ export const paginationSlice = createSlice({
   initialState: {
     page: 0,
     size: 20,
-    totalPages: 0,
+    totalPages: 0
   },
   reducers: {
     setSize: (state, { payload }) => {
@@ -16,8 +16,8 @@ export const paginationSlice = createSlice({
     },
     setTotalPages: (state, { payload }) => {
       state.totalPages = payload
-    },
-  },
+    }
+  }
 })
 
 export default paginationSlice.reducer

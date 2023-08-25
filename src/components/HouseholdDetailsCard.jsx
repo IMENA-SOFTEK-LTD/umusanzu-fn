@@ -4,7 +4,7 @@ import {
   faArrowDown,
   faArrowUp,
   faHouse,
-  faMoneyBill,
+  faMoneyBill
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect } from 'react'
@@ -18,8 +18,8 @@ const HouseholdDetailsCard = ({
     numberofHouseholds: 189,
     istotalHouseholdsTarget: false,
     totalHouseholdsTarget: 1000000,
-    user: {},
-  },
+    user: {}
+  }
 }) => {
   let newProps = { ...props }
 
@@ -57,13 +57,13 @@ const HouseholdDetailsCard = ({
         ...props,
         amount: 5000,
         isHousehold: true,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
+        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 5000,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -72,13 +72,13 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 3000,
-        isHousehold: true,
+        isHousehold: true
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 3000,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -87,14 +87,14 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 2000,
-        isHousehold: true,
+        isHousehold: true
       }
 
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 2000,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -103,13 +103,13 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 15000,
-        isHousehold: true,
+        isHousehold: true
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 15000,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -118,13 +118,13 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 500,
-        isHousehold: true,
+        isHousehold: true
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 500,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -133,13 +133,13 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 0,
-        isHousehold: true,
+        isHousehold: true
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 0,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -148,13 +148,13 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 1000,
-        isHousehold: true,
+        isHousehold: true
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 1000,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -163,13 +163,13 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 4000,
-        isHousehold: true,
+        isHousehold: true
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 4000,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -178,13 +178,13 @@ const HouseholdDetailsCard = ({
         ...props,
         numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
         amount: 25000,
-        isHousehold: true,
+        isHousehold: true
       }
       useEffect(() => {
         getTotalHouseholdPays({
           departmentId: props?.user?.department_id,
           ubudehe: 500,
-          route: department,
+          route: department
         })
       }, [])
       break
@@ -194,7 +194,7 @@ const HouseholdDetailsCard = ({
 
   return (
     <article
-      className={`w-full max-w-[20rem] h-full max-h-[25rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-100 rounded-xl shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
+      className={'w-full max-w-[20rem] h-full max-h-[25rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-100 rounded-xl shadow-md ease-in-out duration-200 hover:scale-[1.01]'}
     >
       <section className="w-full flex items-start py-6 px-4 justify-start h-full min-h-[70%]">
         <div className="w-full flex flex-col items-start gap-4">
@@ -236,10 +236,10 @@ HouseholdDetailsCard.propTypes = {
       departments: PropTypes.shape({
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         name: PropTypes.string,
-        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      }),
-    }),
-  }),
+        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+      })
+    })
+  })
 }
 
 export default HouseholdDetailsCard

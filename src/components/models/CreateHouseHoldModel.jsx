@@ -1,13 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from '../Button'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import {
   useCreateHouseHoldMutation,
-  useLazyGetSectorVillagesQuery,
+  useLazyGetSectorVillagesQuery
 } from '../../states/api/apiSlice'
 import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css' // Import the CSS for styling
 
@@ -18,7 +17,7 @@ const CreateHouseHoldModel = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm()
 
   const openModal = () => {
@@ -39,8 +38,8 @@ const CreateHouseHoldModel = () => {
       isSuccess: houseHoldSuccess,
       isError: houseHoldError,
       data: houseHoldData,
-      error: houseHoldErrorMessage,
-    },
+      error: houseHoldErrorMessage
+    }
   ] = useCreateHouseHoldMutation()
 
   const onSubmit = (data) => {
@@ -50,7 +49,7 @@ const CreateHouseHoldModel = () => {
       nid: data.nid,
       phone1: data.phone1,
       phone2: data.phone2,
-      departmentId: user?.department_id || stateUser?.department_id,
+      departmentId: user?.department_id || stateUser?.department_id
     })
   }
 
@@ -249,7 +248,7 @@ const CreateHouseHoldModel = () => {
                 <Controller
                   name="submit"
                   control={control}
-                  render={({ field }) => {
+                  render={() => {
                     return (
                       <Button
                         submit

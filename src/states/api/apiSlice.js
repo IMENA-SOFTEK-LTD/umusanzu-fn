@@ -6,12 +6,13 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: LOCAL_API_URL,
     prepareHeaders: (headers) => {
+      // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
       if (token) {
         headers.set('authorization', token)
       }
       return headers
-    },
+    }
   }),
   endpoints: (builder) => {
     return {
@@ -21,27 +22,27 @@ export const apiSlice = createApi({
           method: 'POST',
           body: {
             username,
-            password,
-          },
-        }),
+            password
+          }
+        })
       }),
       verifyOtp: builder.mutation({
         query: ({ username, code }) => ({
           url: `/auth/login/verify?code=${code}&username=${username}`,
-          method: 'POST',
-        }),
+          method: 'POST'
+        })
       }),
 
       dashboardCard: builder.query({
         query: ({ department, departmentId, route }) => ({
-          url: `/${department}/${route}/?departmentId=${departmentId}`,
-        }),
+          url: `/${department}/${route}/?departmentId=${departmentId}`
+        })
       }),
       getTotalHouseholdPays: builder.query({
         query: ({ departmentId, ubudehe, route }) => ({
           url: `${route}/totalPays/?departmentId=${departmentId}&ubudehe=${ubudehe}`,
-          method: 'GET',
-        }),
+          method: 'GET'
+        })
       }),
       updateUserProfile: builder.mutation({
         query: ({
@@ -52,20 +53,20 @@ export const apiSlice = createApi({
           phone2,
           departmentId,
           route,
-          username,
+          username
         }) => ({
           url: `/userProfile/${route}/${id}/?departmentId=${departmentId}`,
           method: 'PUT',
-          body: { names, email, phone1, phone2, username },
-        }),
+          body: { names, email, phone1, phone2, username }
+        })
       }),
 
       updatePassword: builder.mutation({
         query: ({ id, departmentId, oldPassword, newPassword }) => ({
           url: `/userProfile/password/${id}/?departmentId=${departmentId}`,
           method: 'PUT',
-          body: { oldPassword, newPassword },
-        }),
+          body: { oldPassword, newPassword }
+        })
       }),
 
       createAdmin: builder.mutation({
@@ -82,7 +83,7 @@ export const apiSlice = createApi({
           nid,
           staff_role,
           department_id,
-          status,
+          status
         }) => ({
           url: `${route}/Admin/?departmentId=${departmentId}&levelId=${levelId}`,
           method: 'POST',
@@ -96,13 +97,13 @@ export const apiSlice = createApi({
             nid,
             staff_role,
             department_id,
-            status,
-          },
-        }),
+            status
+          }
+        })
       }),
       getUserProfile: builder.query({
         query: ({ id, departmentId }) =>
-          `userProfile/${id}?departmentId=${departmentId}`,
+          `userProfile/${id}?departmentId=${departmentId}`
       }),
       createDepartment: builder.mutation({
         query: ({
@@ -113,7 +114,7 @@ export const apiSlice = createApi({
           phone1,
           phone2,
           email,
-          department,
+          department
         }) => ({
           url: `/department/${department}`,
           method: 'POST',
@@ -124,23 +125,23 @@ export const apiSlice = createApi({
             level_id,
             phone1,
             phone2,
-            email,
-          },
-        }),
+            email
+          }
+        })
       }),
       getTransactionsList: builder.query({
         query: ({ department, departmentId, route, page, size }) => ({
           url: `/${department}/${route}/?departmentId=${departmentId}&page=${
             page || 0
-          }&size=${size || 20}`,
-        }),
+          }&size=${size || 20}`
+        })
       }),
       getHouseholdsList: builder.query({
         query: ({ department, departmentId, page, size }) => ({
           url: `/${department}/households/?departmentId=${departmentId}&page=${
             page || 0
-          }&size=${size || 20}`,
-        }),
+          }&size=${size || 20}`
+        })
       }),
       createHouseHold: builder.mutation({
         query: ({ name, ubudehe, nid, phone1, phone2, departmentId }) => ({
@@ -151,9 +152,9 @@ export const apiSlice = createApi({
             ubudehe,
             nid,
             phone1,
-            phone2,
-          },
-        }),
+            phone2
+          }
+        })
       }),
       createCell: builder.mutation({
         query: ({
@@ -163,7 +164,7 @@ export const apiSlice = createApi({
           phone1,
           phone2,
           email,
-          department,
+          department
         }) => ({
           url: `/department/${department}?departmentId=${department_id}`,
           method: 'POST',
@@ -172,9 +173,9 @@ export const apiSlice = createApi({
             level_id,
             phone1,
             phone2,
-            email,
-          },
-        }),
+            email
+          }
+        })
       }),
       createDistrict: builder.mutation({
         query: ({
@@ -184,7 +185,7 @@ export const apiSlice = createApi({
           phone1,
           phone2,
           email,
-          department,
+          department
         }) => ({
           url: `/department/${department}?departmentId=${departmentIid}`,
           method: 'POST',
@@ -193,9 +194,9 @@ export const apiSlice = createApi({
             level_id,
             phone1,
             phone2,
-            email,
-          },
-        }),
+            email
+          }
+        })
       }),
       getSectorVillages: builder.query({
         query: ({ id, page, size }) => {
@@ -203,9 +204,9 @@ export const apiSlice = createApi({
             url: `/department/sector/${id}/villages/?page=${page || 0}&size=${
               size || 20
             }`,
-            method: 'GET',
+            method: 'GET'
           }
-        },
+        }
       }),
       getCellVillages: builder.query({
         query: ({ id, size, page }) => {
@@ -213,9 +214,9 @@ export const apiSlice = createApi({
             url: `/department/cell/${id}/villages/?page=${page || 0}&size=${
               size || 20
             }`,
-            method: 'GET',
+            method: 'GET'
           }
-        },
+        }
       }),
       getDistrictCells: builder.query({
         query: ({ id, page, size }) => {
@@ -223,9 +224,9 @@ export const apiSlice = createApi({
             url: `/department/district/${id}/cells/?page=${page || 0}&size=${
               size || 20
             }`,
-            method: 'GET',
+            method: 'GET'
           }
-        },
+        }
       }),
       getCountryDistricts: builder.query({
         query: ({ id, page, size }) => {
@@ -233,9 +234,9 @@ export const apiSlice = createApi({
             url: `/department/country/${id}/districts/?page=${page || 0}&size=${
               size || 20
             }`,
-            method: 'GET',
+            method: 'GET'
           }
-        },
+        }
       }),
       createAgent: builder.mutation({
         query: ({
@@ -247,10 +248,10 @@ export const apiSlice = createApi({
           phone1,
           phone2,
           email,
-          password,
+          password
         }) => {
           return {
-            url: `department/agent`,
+            url: 'department/agent',
             method: 'POST',
             body: {
               names,
@@ -261,40 +262,46 @@ export const apiSlice = createApi({
               phone1,
               phone2,
               email,
-              password,
-            },
+              password
+            }
           }
-        },
+        }
       }),
       getStaff: builder.query({
         query: ({ department, departmentId, page, size }) => ({
           url: `/staff/${department}/${departmentId}?page=${page || 0}&size=${
             size || 20
           }`,
-          method: 'GET',
-        }),
+          method: 'GET'
+        })
       }),
       getHouseHoldDetails: builder.query({
         query: ({ id }) => ({
           url: `/households/${id}`,
-          method: 'GET',
-        }),
+          method: 'GET'
+        })
       }),
       getSingleStaffDetails: builder.query({
         query: ({ id }) => ({
           url: `/staff/${id}`,
-          method: 'GET',
-        }),
+          method: 'GET'
+        })
       }),
       updateStaffDetails: builder.mutation({
         query: ({ id, names, email, phone1, phone2, username }) => ({
           url: `/staff/${id}`,
           method: 'PATCH',
-          body: { names, email, phone1, phone2, username },
-        }),
+          body: { names, email, phone1, phone2, username }
+        })
       }),
+      getHouseholdDepartments: builder.query({
+        query: ({ id }) => ({
+          url: `/households/${id}/departments`,
+          method: 'GET'
+        })
+      })
     }
-  },
+  }
 })
 
 export const {
@@ -321,4 +328,5 @@ export const {
   useLazyGetSingleStaffDetailsQuery,
   useCreateAdminMutation,
   useUpdateStaffDetailsMutation,
+  useLazyGetHouseholdDepartmentsQuery
 } = apiSlice

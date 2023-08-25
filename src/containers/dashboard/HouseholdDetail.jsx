@@ -1,10 +1,21 @@
 import HouseHoldDetailTable from './HouseHoldDetailTable' // Adjust the import path accordingly
 import RecordPaymentModel from '../../components/models/RecordPaymentModel'
-import { useLazyGetHouseHoldDetailsQuery } from '../../states/api/apiSlice'
+import { useLazyGetHouseHoldDetailsQuery, useLazyGetHouseholdDepartmentsQuery } from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 const HouseholdDetail = () => {
   const { id } = useParams()
+
+  const [
+    getHouseholdDepartments,
+    {
+      data: householdDepartmentsData,
+      isLoading: householdDepartmentsIsLoading,
+      isError: householdDepartmentsIsError,
+      isSuccess: householdDepartmentsIsSuccess
+    }
+  ] = useLazyGetHouseholdDepartmentsQuery()
+
   const [
     GetHouseHoldDetails,
     {
@@ -12,25 +23,30 @@ const HouseholdDetail = () => {
       isLoading: houseHoldDetailsLoading,
       isSuccess: houseHoldDetailsSuccess,
       isError: houseHoldDetailsError,
-      error: houseHoldError,
-    },
+      error: houseHoldError
+    }
   ] = useLazyGetHouseHoldDetailsQuery()
   const [data, setData] = useState(houseHoldDetailsData?.data || [])
   const [transactions, setTransactions] = useState(
     houseHoldDetailsData?.data?.transactions || []
   )
-  console.log(data)
   useEffect(() => {
     if (houseHoldDetailsSuccess) {
       setData(houseHoldDetailsData?.data || [])
       setTransactions(houseHoldDetailsData?.data?.transactions || [])
-      console.log(transactions)
     }
   }, [houseHoldDetailsSuccess, houseHoldDetailsData])
 
   useEffect(() => {
     GetHouseHoldDetails({ id })
   }, [GetHouseHoldDetails])
+
+  useEffect(() => {
+    getHouseholdDepartments({ id })
+  }, [houseHoldDetailsData, houseHoldDetailsSuccess, id])
+
+  useEffect(() => {
+  }, [householdDepartmentsData, householdDepartmentsIsSuccess])
 
   const member = {
     name: data?.name,
@@ -39,27 +55,27 @@ const HouseholdDetail = () => {
     nid: data?.nid,
     ubudehe: data?.ubudehe,
     currency: 'RWF',
-    status: data?.status,
+    status: data?.status
   }
 
   const village = {
-    name: data.village,
+    name: householdDepartmentsData?.data[0]?.village
   }
 
   const cell = {
-    name: data.cell,
+    name: householdDepartmentsData?.data[0]?.cell
   }
 
   const sector = {
-    name: data.sector,
+    name: householdDepartmentsData?.data[0]?.sector
   }
 
   const district = {
-    name: data.district,
+    name: householdDepartmentsData?.data[0]?.district
   }
 
   const province = {
-    name: data.province,
+    name: householdDepartmentsData?.data[0]?.province
   }
 
   return (

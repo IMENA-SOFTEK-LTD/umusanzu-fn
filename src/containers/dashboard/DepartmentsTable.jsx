@@ -3,7 +3,7 @@ import {
   useLazyGetCellVillagesQuery,
   useLazyGetDistrictCellsQuery,
   useLazyGetSectorVillagesQuery,
-  useLazyGetCountryDistrictsQuery,
+  useLazyGetCountryDistrictsQuery
 } from '../../states/api/apiSlice'
 import PropTypes from 'prop-types'
 import {
@@ -12,13 +12,13 @@ import {
   useAsyncDebounce,
   useFilters,
   useSortBy,
-  usePagination,
+  usePagination
 } from 'react-table'
 import Loading from '../../components/Loading'
 import {
   setPage,
   setSize,
-  setTotalPages,
+  setTotalPages
 } from '../../states/features/pagination/paginationSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import Button, { PageButton } from '../../components/Button'
@@ -28,7 +28,7 @@ import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
-  faChevronRight,
+  faChevronRight
 } from '@fortawesome/free-solid-svg-icons'
 import Input from '../../components/Input'
 import { Link } from 'react-router-dom'
@@ -42,8 +42,8 @@ const DepartmentsTable = ({ user }) => {
       isLoading: sectorVillagesIsLoading,
       isSuccess: sectorVillagesIsSuccess,
       isError: sectorVillagesIsError,
-      error: sectorVillagesError,
-    },
+      error: sectorVillagesError
+    }
   ] = useLazyGetSectorVillagesQuery()
 
   const [
@@ -53,8 +53,8 @@ const DepartmentsTable = ({ user }) => {
       isSuccess: cellVillagesIsSuccess,
       isLoading: cellVillagesIsLoading,
       isError: cellVillagesIsError,
-      error: cellVillagesError,
-    },
+      error: cellVillagesError
+    }
   ] = useLazyGetCellVillagesQuery()
 
   const [
@@ -64,8 +64,8 @@ const DepartmentsTable = ({ user }) => {
       isLoading: districtCellsLoading,
       isSuccess: districtCellsIsSuccess,
       isError: districtCellsIsError,
-      error: districtCellsError,
-    },
+      error: districtCellsError
+    }
   ] = useLazyGetDistrictCellsQuery()
 
   const [
@@ -75,8 +75,8 @@ const DepartmentsTable = ({ user }) => {
       isLoading: countryDistrictsLoading,
       isSuccess: countryDistrictsIsSuccess,
       isError: countryDistrictsIsError,
-      error: countryDistrictsError,
-    },
+      error: countryDistrictsError
+    }
   ] = useLazyGetCountryDistrictsQuery()
 
   const dispatch = useDispatch()
@@ -84,7 +84,7 @@ const DepartmentsTable = ({ user }) => {
   const {
     page: offset,
     size,
-    totalPages,
+    totalPages
   } = useSelector((state) => state.pagination)
 
   let department = ''
@@ -98,7 +98,7 @@ const DepartmentsTable = ({ user }) => {
           department,
           id: user?.departments?.id,
           size,
-          page: offset,
+          page: offset
         })
           .unwrap()
           .then((data) => {
@@ -110,7 +110,7 @@ const DepartmentsTable = ({ user }) => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
-                ID: row?.id,
+                ID: row?.id
               }))
             )
           })
@@ -126,7 +126,7 @@ const DepartmentsTable = ({ user }) => {
               phone1: row?.phone1,
               phone2: row?.phone2,
               email: row?.email,
-              ID: row?.id,
+              ID: row?.id
             })) || []
           )
         }
@@ -140,7 +140,7 @@ const DepartmentsTable = ({ user }) => {
           department,
           id: user?.departments?.id,
           size,
-          page: offset,
+          page: offset
         })
           .unwrap()
           .then((data) => {
@@ -152,7 +152,7 @@ const DepartmentsTable = ({ user }) => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
-                ID: row?.id,
+                ID: row?.id
               }))
             )
           })
@@ -168,7 +168,7 @@ const DepartmentsTable = ({ user }) => {
               phone1: row?.phone1,
               phone2: row?.phone2,
               email: row?.email,
-              ID: row?.id,
+              ID: row?.id
             })) || []
           )
         }
@@ -181,7 +181,7 @@ const DepartmentsTable = ({ user }) => {
           department,
           id: user?.departments?.id,
           size,
-          page: offset,
+          page: offset
         })
           .unwrap()
           .then((data) => {
@@ -193,7 +193,7 @@ const DepartmentsTable = ({ user }) => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
-                ID: row?.id,
+                ID: row?.id
               }))
             )
           })
@@ -209,7 +209,7 @@ const DepartmentsTable = ({ user }) => {
               phone1: row?.phone1,
               phone2: row?.phone2,
               email: row?.email,
-              ID: row?.id,
+              ID: row?.id
             })) || []
           )
         }
@@ -222,7 +222,7 @@ const DepartmentsTable = ({ user }) => {
           department,
           id: user?.departments?.id,
           size,
-          page: offset,
+          page: offset
         })
           .unwrap()
           .then((data) => {
@@ -234,7 +234,7 @@ const DepartmentsTable = ({ user }) => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
-                ID: row?.id,
+                ID: row?.id
               }))
             )
           })
@@ -250,7 +250,7 @@ const DepartmentsTable = ({ user }) => {
               phone1: row?.phone1,
               phone2: row?.phone2,
               email: row?.email,
-              ID: row?.id,
+              ID: row?.id
             })) || []
           )
         }
@@ -264,7 +264,7 @@ const DepartmentsTable = ({ user }) => {
           department,
           id: user?.departments?.id,
           size,
-          page: offset,
+          page: offset
         })
           .unwrap()
           .then((data) => {
@@ -276,7 +276,7 @@ const DepartmentsTable = ({ user }) => {
                 phone1: row?.phone1,
                 phone2: row?.phone2,
                 email: row?.email,
-                ID: row?.id,
+                ID: row?.id
               }))
             )
           })
@@ -292,7 +292,7 @@ const DepartmentsTable = ({ user }) => {
               phone1: row?.phone1,
               phone2: row?.phone2,
               email: row?.email,
-              ID: row?.id,
+              ID: row?.id
             })) || []
           )
         }
@@ -310,13 +310,13 @@ const DepartmentsTable = ({ user }) => {
       {
         Header: 'Name',
         accessor: 'name',
-        sortable: true,
+        sortable: true
       },
       {
         Header: 'Phone',
         accessor: 'phone1',
-        sortable: true,
-      },
+        sortable: true
+      }
 
       // {
       //   Header: 'Details',
@@ -341,15 +341,15 @@ const DepartmentsTable = ({ user }) => {
         id: 'no',
         Header: 'No',
         accessor: 'id',
-        Cell: ({ row, index }) => <p>{row.index + 1}</p>,
-        sortable: true,
+        Cell: ({ row }) => <p>{row.index + 1}</p>,
+        sortable: true
       },
       ...columns,
       {
         id: 'ID',
         Header: 'Staff',
         accessor: 'ID',
-        Cell: ({ row, index }) => (
+        Cell: ({ row }) => (
           <Link
             to={`/admins/${row?.original?.ID}`}
             className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
@@ -357,15 +357,15 @@ const DepartmentsTable = ({ user }) => {
             <BsPersonFill className="" />
           </Link>
         ),
-        sortable: true,
-      },
+        sortable: true
+      }
     ])
   }
 
   const TableInstance = useTable(
     {
       columns,
-      data,
+      data
     },
     useFilters,
     tableHooks,
@@ -391,7 +391,7 @@ const DepartmentsTable = ({ user }) => {
     gotoPage,
     nextPage,
     previousPage,
-    setPageSize,
+    setPageSize
   } = TableInstance
 
   if (
@@ -414,7 +414,8 @@ const DepartmentsTable = ({ user }) => {
             <span className="w-full h-fit flex items-center gap-4">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
-                  column.Filter ? (
+                  column.Filter
+                    ? (
                     <div
                       key={column.id}
                       className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
@@ -422,7 +423,8 @@ const DepartmentsTable = ({ user }) => {
                       <label htmlFor={column.id}></label>
                       {column.render('Filter')}
                     </div>
-                  ) : null
+                      )
+                    : null
                 )
               )}
             </span>
@@ -464,7 +466,7 @@ const DepartmentsTable = ({ user }) => {
                       className="bg-white divide-y divide-gray-200"
                       {...getTableBodyProps()}
                     >
-                      {page.map((row, i) => {
+                      {page.map((row) => {
                         prepareRow(row)
                         return (
                           <tr {...row.getRowProps()}>
@@ -631,11 +633,11 @@ const DepartmentsTable = ({ user }) => {
 }
 
 DepartmentsTable.propTypes = {
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({})
 }
 
-export function SelectColumnFilter({
-  column: { filterValue, setFilter, preFilteredRows, id, render },
+export function SelectColumnFilter ({
+  column: { filterValue, setFilter, preFilteredRows, id, render }
 }) {
   const options = useMemo(() => {
     const options = new Set()
@@ -670,10 +672,10 @@ export function SelectColumnFilter({
   )
 }
 
-function GlobalFilter({
+function GlobalFilter ({
   preGlobalFilteredRows,
   globalFilter,
-  setGlobalFilter,
+  setGlobalFilter
 }) {
   const count = preGlobalFilteredRows.length
   const [value, setValue] = React.useState(globalFilter)

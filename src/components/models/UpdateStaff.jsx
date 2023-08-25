@@ -7,11 +7,10 @@ import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
 import { useParams } from 'react-router-dom'
-import { useLazyGetSingleStaffDetailsQuery } from '../../states/api/apiSlice'
-import { useUpdateStaffDetailsMutation } from '../../states/api/apiSlice'
+import { useLazyGetSingleStaffDetailsQuery, useUpdateStaffDetailsMutation } from '../../states/api/apiSlice'
 import Loading from '../Loading'
 
-function UpdateStaff({ toggleButton = true }) {
+function UpdateStaff ({ toggleButton = true }) {
   const [showModal, setShowModal] = useState(false)
   const { id } = useParams()
   const [
@@ -20,8 +19,8 @@ function UpdateStaff({ toggleButton = true }) {
       data: updateStaffDetailsData,
       isLoading: updateStaffDetailsLoading,
       isSuccess: updateStaffDetailsSuccess,
-      isError: updateStaffDetailsIsError,
-    },
+      isError: updateStaffDetailsIsError
+    }
   ] = useUpdateStaffDetailsMutation()
   const [
     getSingleStaffDetails,
@@ -30,15 +29,14 @@ function UpdateStaff({ toggleButton = true }) {
       isLoading: staffDetailsLoading,
       isSuccess: staffDetailsSuccess,
       isError: staffDetailsError,
-      error: staffError,
-    },
+      error: staffError
+    }
   ] = useLazyGetSingleStaffDetailsQuery()
   const [data, setData] = useState(staffDetailsData?.data || [])
 
   useEffect(() => {
     if (staffDetailsSuccess) {
       setData(staffDetailsData?.data || [])
-
     }
   }, [staffDetailsSuccess, staffDetailsData])
 
@@ -56,7 +54,7 @@ function UpdateStaff({ toggleButton = true }) {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm()
 
   const openModal = () => {
@@ -70,20 +68,20 @@ function UpdateStaff({ toggleButton = true }) {
   }
   useEffect(() => {
     if (updateStaffDetailsSuccess) {
-      toast.success('Update successful!');
+      toast.success('Update successful!')
     }
-  }, [updateStaffDetailsSuccess]);  
+  }, [updateStaffDetailsSuccess])
   useEffect(() => {
     if (updateStaffDetailsIsError) {
-      toast.error('An error occurred during update.'); 
+      toast.error('An error occurred during update.')
     }
-  }, [updateStaffDetailsIsError]);
+  }, [updateStaffDetailsIsError])
   useEffect(() => {
     if (staffDetailsError) {
-      toast.error('Error fetching staff details.');
+      toast.error('Error fetching staff details.')
     }
-  }, [staffDetailsError]);
-    
+  }, [staffDetailsError])
+
   const onSubmit = (formData) => {
     updateStaffDetails({
       names: formData.names,
@@ -91,7 +89,7 @@ function UpdateStaff({ toggleButton = true }) {
       email: formData.email,
       phone1: formData.phone1,
       phone2: formData.phone2,
-      id,
+      id
     })
   }
 
@@ -258,16 +256,18 @@ function UpdateStaff({ toggleButton = true }) {
                   <Controller
                     name="submit"
                     control={control}
-                    render={({ field }) => {
+                    render={() => {
                       return (
                         <Button
                           submit
                           value={
-                            updateStaffDetailsLoading ? (
+                            updateStaffDetailsLoading
+                              ? (
                               <Loading />
-                            ) : (
-                              'Save changes'
-                            )
+                                )
+                              : (
+                                  'Save changes'
+                                )
                           }
                         />
                       )
@@ -282,11 +282,12 @@ function UpdateStaff({ toggleButton = true }) {
   )
 }
 
-;(UpdateStaff.propTypes = {
-  toggleButton: PropTypes.bool,
-}),
-  (UpdateStaff.defaultProps = {
-    toggleButton: true,
-  })
+UpdateStaff.propTypes = {
+  toggleButton: PropTypes.bool
+}
+
+UpdateStaff.defaultProps = {
+  toggleButton: true
+}
 
 export default UpdateStaff

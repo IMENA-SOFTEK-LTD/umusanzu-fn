@@ -7,7 +7,7 @@ import Loading from '../Loading'
 import { toast } from 'react-toastify'
 import {
   useCreateAgentMutation,
-  useLazyGetSectorVillagesQuery,
+  useLazyGetSectorVillagesQuery
 } from '../../states/api/apiSlice'
 
 const CreateAgentModel = () => {
@@ -18,7 +18,7 @@ const CreateAgentModel = () => {
     handleSubmit,
     watch,
     formState: { errors },
-    setValue,
+    setValue
   } = useForm()
 
   const [
@@ -28,8 +28,8 @@ const CreateAgentModel = () => {
       isLoading: sectorVillagesLoading,
       isSuccess: sectorVillagesSuccess,
       isError: sectorVillagesIsError,
-      error: sectorVillagesError,
-    },
+      error: sectorVillagesError
+    }
   ] = useLazyGetSectorVillagesQuery()
 
   const [
@@ -38,8 +38,8 @@ const CreateAgentModel = () => {
       data: agentData,
       isLoading: agentLoading,
       isSuccess: agentSuccess,
-      isError: agentError,
-    },
+      isError: agentError
+    }
   ] = useCreateAgentMutation()
 
   const openModal = () => {
@@ -64,7 +64,7 @@ const CreateAgentModel = () => {
       department_id: data?.department_id,
       staff_role: data?.staff_role,
       phone1: data?.phone1,
-      phone2: data?.phone2,
+      phone2: data?.phone2
     })
   }
 
@@ -73,7 +73,7 @@ const CreateAgentModel = () => {
 
   useEffect(() => {
     getSectorVillages({
-      id: stateUser?.departments?.id || user?.departments?.id,
+      id: stateUser?.departments?.id || user?.departments?.id
     })
   }, [])
 
@@ -222,8 +222,8 @@ const CreateAgentModel = () => {
                       required: 'Email Address is required',
                       pattern: {
                         value: /^\S+@\S+$/i,
-                        message: 'Invalid email address',
-                      },
+                        message: 'Invalid email address'
+                      }
                     }}
                     render={({ field }) => (
                       <input
@@ -310,13 +310,17 @@ const CreateAgentModel = () => {
                             ? 'Loading...'
                             : 'Select your village'}
                         </option>
-                        {sectorVillagesLoading ? (
+                        {sectorVillagesLoading
+                          ? (
                           <option disabled>Loading...</option>
-                        ) : sectorVillagesIsError ? (
+                            )
+                          : sectorVillagesIsError
+                            ? (
                           <option disabled>Could not load villages</option>
-                        ) : (
-                          sectoVillages?.data?.map((village, index) => {
-                            return (
+                              )
+                            : (
+                                sectoVillages?.data?.map((village, index) => {
+                                  return (
                               <option
                                 selected={index === 0}
                                 key={village.id}
@@ -324,9 +328,9 @@ const CreateAgentModel = () => {
                               >
                                 {village.name}
                               </option>
-                            )
-                          })
-                        )}
+                                  )
+                                })
+                              )}
                       </select>
                     )}
                   />
@@ -377,7 +381,7 @@ const CreateAgentModel = () => {
                         required: 'Repeat entered password',
                         validate: (value) =>
                           value === watch('password') ||
-                          'Passwords do not match',
+                          'Passwords do not match'
                       }}
                       render={({ field }) => (
                         <input
@@ -398,7 +402,7 @@ const CreateAgentModel = () => {
                 <Controller
                   name="submit"
                   control={control}
-                  render={({ field }) => {
+                  render={() => {
                     return (
                       <Button
                         submit

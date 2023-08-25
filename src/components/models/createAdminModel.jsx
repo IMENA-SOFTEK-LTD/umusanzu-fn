@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 import PropTypes from 'prop-types'
 import { useCreateAdminMutation } from '../../states/api/apiSlice'
 
-function CreateAdminModel({ user }) {
+function CreateAdminModel ({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [createAdmin] = useCreateAdminMutation()
@@ -30,6 +30,7 @@ function CreateAdminModel({ user }) {
       break
     case 5:
       department = 'country'
+      break
     default:
       department = 'sector'
   }
@@ -39,7 +40,7 @@ function CreateAdminModel({ user }) {
     control,
     watch,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm()
 
   const openModal = () => {
@@ -67,7 +68,7 @@ function CreateAdminModel({ user }) {
         nid: data.nid,
         staff_role: 1,
         department_id: user.department_id,
-        status: 'ACTIVE',
+        status: 'ACTIVE'
       })
         .unwrap()
         .then(() => {
@@ -90,8 +91,6 @@ function CreateAdminModel({ user }) {
       return error
     }
   }
-
-  console.log(user.department_id)
 
   return (
     <div className="relative">
@@ -230,8 +229,8 @@ function CreateAdminModel({ user }) {
                       required: 'Email Address is required',
                       pattern: {
                         value: /^\S+@\S+$/i,
-                        message: 'Invalid email address',
-                      },
+                        message: 'Invalid email address'
+                      }
                     }}
                     render={({ field }) => (
                       <input
@@ -341,7 +340,7 @@ function CreateAdminModel({ user }) {
                         required: 'Confirm Password is required',
                         validate: (value) =>
                           value === watch('password') ||
-                          'Passwords do not match',
+                          'Passwords do not match'
                       }}
                       render={({ field }) => (
                         <input
@@ -384,8 +383,8 @@ CreateAdminModel.propTypes = {
     status: PropTypes.string,
     password: PropTypes.string,
     nid: PropTypes.string,
-    staff_role: PropTypes.number,
-  }),
+    staff_role: PropTypes.number
+  })
 }
 
 export default CreateAdminModel

@@ -25,7 +25,7 @@ const Loading = ({ color = 'primary', size = 6 }) => {
 
 Loading.propTypes = {
   color: PropTypes.string,
-  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 }
 
 export default Loading

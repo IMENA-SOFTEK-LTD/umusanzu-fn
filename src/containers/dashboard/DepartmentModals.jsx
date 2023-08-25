@@ -46,8 +46,10 @@ export const DepartmentModals = () => {
       break
     case 4:
       content = <CreateVillageModel />
+      break
     case 6:
       content = <CreateHouseHoldModel />
+      break
     default:
       break
   }

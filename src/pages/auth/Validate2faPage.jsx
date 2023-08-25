@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { json, useNavigate } from 'react-router-dom'
 import {
   useLoginMutation,
-  useVerifyOtpMutation,
+  useVerifyOtpMutation
 } from '../../states/api/apiSlice'
 import { setUser } from '../../states/features/auth/authSlice'
 
@@ -29,8 +29,8 @@ const Validate2faPage = () => {
       isLoading: otpLoading,
       isSuccess: otpIsSuccess,
       isError: otpIsError,
-      error: otpError,
-    },
+      error: otpError
+    }
   ] = useVerifyOtpMutation()
 
   const handleOtpVerification = async () => {
@@ -39,7 +39,7 @@ const Validate2faPage = () => {
 
       verifyOtp({
         username: user?.username,
-        code: otpCode,
+        code: otpCode
       })
     } catch (error) {
       console.error('Error verifying OTP:', error)

@@ -15,7 +15,7 @@ import Settings from './pages/Settings.jsx'
 import DepartmentsTable from './containers/dashboard/DepartmentsTable.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseHoldDetail.jsx'
-import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
+import UserProfilePage from './containers/dashboard/HouseholdProfilePage.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
 
 const App = () => {
@@ -23,6 +23,7 @@ const App = () => {
 
   const { isOpen } = useSelector((state) => state.sidebar)
 
+  // eslint-disable-next-line no-undef
   const user = JSON.parse(localStorage.getItem('user'))
 
   return (
@@ -56,7 +57,7 @@ const App = () => {
               element={<HouseholdTable user={user || stateUser} />}
             />
             <Route path="/createVillage" element={<CreateVillageModel />} />
-            <Route path="/householdDetail/:id" element={<HouseholdDetail />} />
+            <Route path="/households/:id" element={<HouseholdDetail />} />
             <Route
               path="/settings"
               element={<Settings user={user || stateUser} />}

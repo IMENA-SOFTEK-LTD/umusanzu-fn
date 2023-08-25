@@ -4,7 +4,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     token: null,
-    user: {},
+    user: {}
   },
   reducers: {
     setUser: (state, { payload }) => {
@@ -12,8 +12,8 @@ const authSlice = createSlice({
       localStorage.setItem('user', JSON.stringify(payload.data))
       state.token = payload.token
       state.user = payload.data
-    },
-  },
+    }
+  }
 })
 
 export const { setUser } = authSlice.actions

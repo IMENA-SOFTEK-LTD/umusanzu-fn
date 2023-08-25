@@ -6,7 +6,7 @@ const AwesomeCard = ({
   nationalId,
   email,
   onViewProfileClick,
-  onEditClick,
+  onEditClick
 }) => {
   return (
     <motion.div
