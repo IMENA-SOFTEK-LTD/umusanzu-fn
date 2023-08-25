@@ -3,7 +3,7 @@ import Card from '../../components/Card'
 import CreateAdminModel from '../../components/models/createAdminModel'
 import { useLazyGetStaffQuery } from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
-
+import Button from '../../components/Button'
 const Admins = () => {
   const user = JSON.parse(localStorage.getItem('user'))
   const { id } = useParams()
@@ -19,7 +19,7 @@ const Admins = () => {
   ] = useLazyGetStaffQuery()
 
   let department = ''
-  switch (user?.departments?.level_id) {
+  switch (user?.departments?.level_id + 1) {
     case 1:
       department = 'province'
       break
@@ -41,7 +41,6 @@ const Admins = () => {
     default:
       department = 'agent'
   }
-
   const [data, setData] = useState(staffData?.data || [])
   useEffect(() => {
     if (staffIsSuccess) {
@@ -51,7 +50,7 @@ const Admins = () => {
 
   useEffect(() => {
     getStaff({ department, departmentId: id })
-  }, [department, getStaff]) // Add getStaff as a dependency
+  }, [department, getStaff])
 
   return (
     <div className="w-[98%] mx-auto relative">
@@ -60,15 +59,28 @@ const Admins = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 absolute top-16">
-        {data?.rows?.map((admin, index) => (
-          <Card
-            key={index}
-            name={admin.names}
-            phone={admin.phone1}
-            nationalId={admin.nid}
-            email={admin.email}
-          />
-        ))}
+        {data?.rows?.length === 0 ? (
+          <div className="w-full h-screen flex items-center justify-center">
+            <div className="flex flex-col items-center gap-6">
+              <h1 className="text-2xl font-medium text-center">
+                There is no staff
+              </h1>
+              <Button value="Go to dashboard" route="/dashboard" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {data?.rows?.map((admin, index) => (
+              <Card
+                key={index}
+                name={admin.names}
+                phone={admin.phone1}
+                nationalId={admin.nid}
+                email={admin.email}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

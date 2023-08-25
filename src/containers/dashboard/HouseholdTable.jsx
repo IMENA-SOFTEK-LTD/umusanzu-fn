@@ -2,7 +2,7 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
-
+import { BsPersonFill } from 'react-icons/bs'
 import {
   faAnglesLeft,
   faAnglesRight,
@@ -29,6 +29,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import Input from '../../components/Input'
 import { BsEyeFill } from 'react-icons/bs'
+import { Link } from 'react-router-dom'
 
 const HouseholdTable = ({ user }) => {
   const [
@@ -88,6 +89,7 @@ const HouseholdTable = ({ user }) => {
           phone2: row?.phone2,
           ubudehe: row?.ubudehe,
           status: row?.status,
+          ID: row?.id,
         })) || []
       )
     }
@@ -112,6 +114,7 @@ const HouseholdTable = ({ user }) => {
             phone2: row?.phone2,
             ubudehe: row?.ubudehe,
             status: row?.status,
+            ID: row?.id,
           })) || []
         )
       })
@@ -152,16 +155,16 @@ const HouseholdTable = ({ user }) => {
         accessor: 'phone1',
       },
       {
-        Header: ' ',
-        Cell: () => (
-          <span>
-            <button
-              className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-              type="button"
-            >
-              <BsEyeFill className="text-white" />
-            </button>
-          </span>
+        id: 'ID',
+        Header: 'Action',
+        accessor: 'ID',
+        Cell: ({ row, index }) => (
+          <Link
+            to={`/householdDetail/${row?.original?.ID}`}
+            className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
+          >
+            <BsPersonFill className="" />
+          </Link>
         ),
       },
     ],
