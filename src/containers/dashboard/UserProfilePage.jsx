@@ -1,14 +1,40 @@
 import { useState } from 'react'
-
+import { useParams } from 'react-router-dom'
+import { useLazyGetSingleStaffDetailsQuery } from '../../states/api/apiSlice'
+import { useEffect } from 'react'
 const UserProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false)
+  const { id } = useParams()
+  const [
+    getSingleStaffDetails,
+    {
+      data: staffDetailsData,
+      isLoading: staffDetailsLoading,
+      isSuccess: staffDetailsSuccess,
+      isError: staffDetailsError,
+      error: staffError,
+    },
+  ] = useLazyGetSingleStaffDetailsQuery()
+
+  const [data, setData] = useState(staffDetailsData?.data || [])
+
+  useEffect(() => {
+    if (staffDetailsSuccess) {
+      setData(staffDetailsData?.data || [])
+    }
+  }, [staffDetailsSuccess, staffDetailsData])
+
+  useEffect(() => {
+    getSingleStaffDetails({ id })
+  }, [getSingleStaffDetails, id])
+  console.log(data)
   const [user, setUser] = useState({
-    name: 'Umuhire Ange Diane',
-    username: 'Diane',
-    phone1: '0781416668',
-    phone2: '',
-    nationalId: '',
-    email: '',
+    name: data?.names,
+    username: data?.username,
+    phone1: data?.phone1,
+    phone2: data?.phone2,
+    nationalId: data?.nid,
+    email: data?.email,
     cell: 'GACURIRO',
     sector: 'KINYINYA',
     district: 'GASABO',
@@ -43,7 +69,7 @@ const UserProfilePage = () => {
     <div className="flex items-start gap-4 mx-auto">
       <div className="w-full max-w-[60%] bg-white  p-6 space-y-4">
         <div className="flex justify-between items-center p-4 border rounded-lg shadow-md">
-          <h1 className="text-[18px] font-semibold">{user.name}</h1>
+          <h1 className="text-[18px] font-semibold">{data?.names}</h1>
           <div className="flex gap-4">
             <button
               className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-primary hover:scale-[0.98]"
@@ -75,38 +101,50 @@ const UserProfilePage = () => {
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Username:
                 </td>
-                <td className="py-2 pl-4">{user.username}</td>
+                <td className="py-2 pl-4">{data?.username}</td>
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Phone 1:
                 </td>
-                <td className="py-2 pl-4">{user.phone1}</td>
+                <td className="py-2 pl-4">{data?.phone1}</td>
               </tr>
-              {user.phone2 && (
+              {data?.phone2 && (
                 <tr className="border-t">
                   <td className="py-2 pr-4 text-gray-800 font-semibold">
                     Phone 2:
                   </td>
-                  <td className="py-2 pl-4">{user.phone2}</td>
+                  <td className="py-2 pl-4">{data?.phone2}</td>
                 </tr>
               )}
-              {user.nationalId && (
+              {data?.nationalId && (
                 <tr className="border-t">
                   <td className="py-2 pr-4 text-gray-800 font-semibold">
                     National ID:
                   </td>
-                  <td className="py-2 pl-4">{user.nationalId}</td>
+                  <td className="py-2 pl-4">{data?.nid}</td>
                 </tr>
               )}
-              {user.email && (
+              {data?.email && (
                 <tr className="border-t">
                   <td className="py-2 pr-4 text-gray-800 font-semibold">
                     Email:
                   </td>
-                  <td className="py-2 pl-4">{user.email}</td>
+                  <td className="py-2 pl-4">{data?.email}</td>
                 </tr>
               )}
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  Status:
+                </td>
+                <td className="py-2 pl-4">{data?.status}</td>
+              </tr>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  Village:
+                </td>
+                <td className="py-2 pl-4">{data?.village}</td>
+              </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">Cell:</td>
                 <td className="py-2 pl-4">{user.cell}</td>

@@ -248,6 +248,12 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
+      getSingleStaffDetails: builder.query({
+        query: ({ id }) => ({
+          url: `/staff/${id}`,
+          method: 'GET',
+        }),
+      }),
     }
   },
 })
@@ -273,4 +279,5 @@ export const {
   useUpdatePasswordMutation,
   useLazyGetStaffQuery,
   useLazyGetHouseHoldDetailsQuery,
+  useLazyGetSingleStaffDetailsQuery,
 } = apiSlice
