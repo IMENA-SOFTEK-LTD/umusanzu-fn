@@ -64,11 +64,6 @@ const HouseHoldDetailTable = ({
                               {index + 1}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
-                              {transaction.status !== 'PAID' && (
-                                <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 mr-2 rounded-sm transition duration-300">
-                                  Pay Now
-                                </button>
-                              )}
                               {paidMonth}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">

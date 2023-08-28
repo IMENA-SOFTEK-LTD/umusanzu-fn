@@ -318,19 +318,19 @@ const DepartmentsTable = ({ user }) => {
         sortable: true,
       },
 
-      {
-        Header: 'Details',
-        Cell: () => (
-          <span>
-            <button
-              className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-              type="button"
-            >
-              <BsEyeFill className="" />
-            </button>
-          </span>
-        ),
-      },
+      // {
+      //   Header: 'Details',
+      //   Cell: () => (
+      //     <span>
+      //       <button
+      //         className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
+      //         type="button"
+      //       >
+      //         <BsEyeFill className="" />
+      //       </button>
+      //     </span>
+      //   ),
+      // },
     ],
     []
   )
