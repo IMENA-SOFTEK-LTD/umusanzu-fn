@@ -432,6 +432,7 @@ const DashboardCard = ({
         </figure>
       </section>
       <section className="border-t-[1px] bg-slate-50 flex w-full h-full items-center justify-between py-[5px] px-4">
+        <small className='flex flex-col items-start'>
         <span className="flex items-center gap-1">
           <FontAwesomeIcon
             className={`${
@@ -446,10 +447,11 @@ const DashboardCard = ({
           >
             {newProps.increaseValue}%
           </p>
-          <p className="text-[13px] text-center ml-2 text-slate-500">
+          </span>
+          <p className="text-[13px] block text-slate-500">
             Last {newProps.period}
           </p>
-        </span>
+        </small>
         <Button
           value="View more"
           route={
@@ -459,11 +461,11 @@ const DashboardCard = ({
           }
           className={`${
             isOpen
-              ? 'px-2 text-sm text-center ml-4'
-              : 'px-2 text-[14px] text-center mr-2'
+              ? 'px-[5px] py-[5px] text-[12px] text-center ml-4'
+              : 'px-[8px] py-[7px] text-[12px] text-center'
           } ${newProps.viewMore ? 'flex' : 'invisible'} p-2 ${
             newProps.period === 'day' ? 'ml-4' : 'ml-0'
-          } rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black hover:bg-primary hover:text-white`}
+          } w-fit`}
         />
       </section>
     </article>

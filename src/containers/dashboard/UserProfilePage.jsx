@@ -33,9 +33,6 @@ const UserProfilePage = () => {
   }, [staffDetailsSuccess, staffDetailsData])
 
   useEffect(() => {
-  }, [staffDetailsData, staffDetailsSuccess])
-
-  useEffect(() => {
     getSingleStaffDetails({ id })
   }, [getSingleStaffDetails, id])
   const [user, setUser] = useState({
