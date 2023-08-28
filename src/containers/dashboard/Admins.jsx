@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react' // Import React and necessary hooks
 import Card from '../../components/Card'
 import CreateAdminModel from '../../components/models/createAdminModel'
 import { useLazyGetStaffQuery } from '../../states/api/apiSlice'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button'
-import { useNavigate } from 'react-router-dom'
 const Admins = () => {
   const user = JSON.parse(localStorage.getItem('user'))
   const { id } = useParams()
@@ -16,8 +15,8 @@ const Admins = () => {
       isLoading: staffIsLoading,
       isSuccess: staffIsSuccess,
       isError: staffIsError,
-      error: staffError,
-    },
+      error: staffError
+    }
   ] = useLazyGetStaffQuery()
 
   let department = ''
@@ -61,7 +60,8 @@ const Admins = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 absolute top-16">
-        {data?.rows?.length === 0 ? (
+        {data?.rows?.length === 0
+          ? (
           <div className="w-full h-screen flex items-center justify-center">
             <div className="flex flex-col items-center gap-6">
               <h1 className="text-2xl font-medium text-center">
@@ -70,7 +70,8 @@ const Admins = () => {
               <Button value="Go to dashboard" route="/dashboard" />
             </div>
           </div>
-        ) : (
+            )
+          : (
           <div className="grid gap-5 ">
             {data?.rows?.map((admin, index) => (
               <Card
@@ -85,7 +86,7 @@ const Admins = () => {
               />
             ))}
           </div>
-        )}
+            )}
       </div>
     </div>
   )

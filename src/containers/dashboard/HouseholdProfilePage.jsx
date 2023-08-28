@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useLazyGetSingleStaffDetailsQuery } from '../../states/api/apiSlice'
-import { useEffect } from 'react'
 import UpdateStaff from '../../components/models/UpdateStaff'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
@@ -11,6 +10,7 @@ const UserProfilePage = () => {
   const dispatch = useDispatch()
   const { updateStaff } = useSelector((state) => state.modals)
   const { id } = useParams()
+
   const [
     getSingleStaffDetails,
     {
@@ -18,8 +18,8 @@ const UserProfilePage = () => {
       isLoading: staffDetailsLoading,
       isSuccess: staffDetailsSuccess,
       isError: staffDetailsError,
-      error: staffError,
-    },
+      error: staffError
+    }
   ] = useLazyGetSingleStaffDetailsQuery()
 
   const [data, setData] = useState(staffDetailsData?.data || [])
@@ -29,6 +29,9 @@ const UserProfilePage = () => {
       setData(staffDetailsData?.data || [])
     }
   }, [staffDetailsSuccess, staffDetailsData])
+
+  useEffect(() => {
+  }, [householdDepartmentsData, householdDepartmentsIsSuccess])
 
   useEffect(() => {
     getSingleStaffDetails({ id })
@@ -53,8 +56,8 @@ const UserProfilePage = () => {
       { id: 2, activity: 'Updated profile information', date: '2023-08-17' },
       { id: 2, activity: 'Updated profile information', date: '2023-08-17' },
       { id: 2, activity: 'Updated profile information', date: '2023-08-17' },
-      { id: 2, activity: 'Updated profile information', date: '2023-08-17' },
-    ],
+      { id: 2, activity: 'Updated profile information', date: '2023-08-17' }
+    ]
   })
 
   const handleEditToggle = () => {

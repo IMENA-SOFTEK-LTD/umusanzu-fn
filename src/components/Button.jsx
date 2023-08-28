@@ -33,26 +33,26 @@ Button.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.element,
-    PropTypes.shape({}),
+    PropTypes.shape({})
   ]).isRequired,
   type: PropTypes.string,
   className: PropTypes.string,
   route: PropTypes.string,
   submit: PropTypes.bool,
-  onClick: PropTypes.func,
+  onClick: PropTypes.func
 }
 
 Button.defaultProps = {
-  type: 'submit',
+  type: 'submit'
 }
 
-export function PageButton({ children, className, ...rest }) {
+export function PageButton ({ children, className, ...rest }) {
   return (
     <button
       type="button"
       className={
         className ||
-        `relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50`
+        'relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
       }
       {...rest}
     >

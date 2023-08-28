@@ -6,21 +6,21 @@ import UserProfileUpdateForm from '../components/UserProfileUpdateForm'
 import UpdatePasswordModel from '../components/models/UpdatePasswordModel'
 import { useLazyGetUserProfileQuery } from '../states/api/apiSlice'
 
-function Settings({ user }) {
+function Settings ({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const [userProfile, setUserProfile] = useState([])
 
   const [
     getUserProfile,
-    { data: userProfileData, isLoading, isError, isSuccess },
+    { data: userProfileData, isLoading, isError, isSuccess }
   ] = useLazyGetUserProfileQuery()
 
   useEffect(() => {
     if (user || stateUser) {
       getUserProfile({
         id: user?.id || stateUser?.id,
-        departmentId: user?.department_id || stateUser?.department_id,
+        departmentId: user?.department_id || stateUser?.department_id
       })
     }
   }, [user, stateUser, getUserProfile])
@@ -104,8 +104,8 @@ Settings.propTypes = {
     email: PropTypes.string,
     password: PropTypes.string,
     department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    username: PropTypes.string,
-  }),
+    username: PropTypes.string
+  })
 }
 
 export default Settings

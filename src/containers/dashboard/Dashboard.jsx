@@ -12,7 +12,7 @@ const Dashboard = () => {
             progress: Math.floor(Math.random() * 100),
             amount: '897,399',
             increaseValue: (Math.random() * 10).toFixed(2),
-            user,
+            user
           }
           return <DashboardCard key={i} props={props} />
         })}

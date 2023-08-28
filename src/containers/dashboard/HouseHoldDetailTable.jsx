@@ -7,7 +7,7 @@ const HouseHoldDetailTable = ({
   cell,
   sector,
   district,
-  province,
+  province
 }) => {
   return (
     <div className="page-wrapper p-4 mt-8">
@@ -46,7 +46,7 @@ const HouseHoldDetailTable = ({
                           transaction.month_paid
                         ).toLocaleString('default', {
                           month: 'long',
-                          year: 'numeric',
+                          year: 'numeric'
                         })
 
                         let payStatus = ''

@@ -6,16 +6,16 @@ export const weeklyData = {
     'Thursday',
     'Friday',
     'Saturday',
-    'Sunday',
+    'Sunday'
   ],
   datasets: [
     {
       label: 'Weekly Collections',
       data: [100, 150, 120, 180, 200, 160, 220],
       borderColor: '#165F75',
-      backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    },
-  ],
+      backgroundColor: 'rgba(59, 130, 246, 0.2)'
+    }
+  ]
 }
 
 export const annualData = {
@@ -31,18 +31,18 @@ export const annualData = {
     'Sep',
     'Oct',
     'Nov',
-    'Dec',
+    'Dec'
   ],
   datasets: [
     {
       label: 'Annual Collections',
       data: [
-        1500, 1800, 1600, 1900, 2200, 2000, 2300, 2500, 2400, 2600, 2800, 2700,
+        1500, 1800, 1600, 1900, 2200, 2000, 2300, 2500, 2400, 2600, 2800, 2700
       ],
       borderColor: '#ED9C00',
-      backgroundColor: 'rgba(219, 39, 119, 0.2)',
-    },
-  ],
+      backgroundColor: 'rgba(219, 39, 119, 0.2)'
+    }
+  ]
 }
 export const monthData = {
   labels: [
@@ -76,7 +76,7 @@ export const monthData = {
     '28',
     '29',
     '30',
-    '31',
+    '31'
   ],
   datasets: [
     {
@@ -84,10 +84,10 @@ export const monthData = {
       data: [
         1500, 1800, 1600, 1900, 2200, 2000, 2300, 2500, 2400, 2600, 2800, 2700,
         1500, 1800, 1600, 1900, 2200, 2000, 2300, 2500, 2400, 2600, 2800, 2700,
-        1500, 1800, 1600, 1900, 2200, 2000, 2300,
+        1500, 1800, 1600, 1900, 2200, 2000, 2300
       ],
       borderColor: '#BB3E03',
-      backgroundColor: 'rgba(219, 39, 119, 0.2)',
-    },
-  ],
+      backgroundColor: 'rgba(219, 39, 119, 0.2)'
+    }
+  ]
 }

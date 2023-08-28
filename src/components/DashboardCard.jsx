@@ -3,7 +3,7 @@ import {
   faArrowDown,
   faArrowUp,
   faHouse,
-  faMoneyBill,
+  faMoneyBill
 } from '@fortawesome/free-solid-svg-icons'
 import Loading from './Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -28,8 +28,8 @@ const DashboardCard = ({
     increaseValue: 2.15,
     user: {},
     bg_color: 'black',
-    text_color: 'white',
-  },
+    text_color: 'white'
+  }
 }) => {
   const [
     dashboardCard,
@@ -38,8 +38,8 @@ const DashboardCard = ({
       isLoading: dashboardCardIsLoading,
       isSuccess: dashboardCardIsSuccess,
       isError: dashboardCardIsError,
-      error: dashboardCardError,
-    },
+      error: dashboardCardError
+    }
   ] = useLazyDashboardCardQuery()
 
   const dispatch = useDispatch()
@@ -90,17 +90,19 @@ const DashboardCard = ({
           ) || 0,
         route: 'monthlyCollections',
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.monthlyTarget || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.monthlyTarget || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'monthlyTarget',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -110,7 +112,7 @@ const DashboardCard = ({
         title: 'Total Collected',
         period: 'month',
         bg_color: 'bg-[#94d2bd]',
-        text_color: `text-black`,
+        text_color: 'text-black',
         route: 'monthlyCollections',
         viewMore: true,
         progress:
@@ -120,17 +122,19 @@ const DashboardCard = ({
             ).toFixed(2) * 100
           ) || 0,
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.totalCollected || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.totalCollected || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'totalCollections',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -140,7 +144,7 @@ const DashboardCard = ({
         title: 'Pending Paid',
         period: 'month',
         bg_color: 'bg-[#CADEDE]',
-        text_color: `white`,
+        text_color: 'white',
         route: 'amountPendingNotPaid',
         viewMore: true,
         funds: !dashboardCardIsLoading,
@@ -150,17 +154,19 @@ const DashboardCard = ({
               dashboardCardData?.data[0]?.amountPendingPaid / monthlyTarget
             ).toFixed(2) * 100
           ) || 0,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.amountPendingPaid || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.amountPendingPaid || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'amountPendingPaid',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -170,7 +176,7 @@ const DashboardCard = ({
         period: 'month',
         title: 'Monthly Collections',
         bg_color: 'bg-[#12a6bc80]',
-        text_color: `text-black`,
+        text_color: 'text-black',
         route: 'monthlyCollections',
         viewMore: true,
         funds: !dashboardCardIsLoading,
@@ -180,17 +186,19 @@ const DashboardCard = ({
               dashboardCardData?.data[0]?.monthlyCollections / monthlyTarget
             ).toFixed(2) * 100
           ) || 0,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.monthlyCollections || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.monthlyCollections || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'monthlyCollections',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -200,7 +208,7 @@ const DashboardCard = ({
         title: 'Pending',
         route: 'amountPendingNotPaid',
         bg_color: 'bg-[#ae2012]',
-        text_color: `text-white`,
+        text_color: 'text-white',
         period: 'month',
         viewMore: true,
         progress:
@@ -210,17 +218,19 @@ const DashboardCard = ({
             ).toFixed(2) * 100
           ) || 0,
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.amountPendingNotPaid || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.amountPendingNotPaid || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'amountPendingNotPaid',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -230,7 +240,7 @@ const DashboardCard = ({
         title: 'Advance Payments',
         period: 'month',
         bg_color: 'bg-[#ee9b00]',
-        text_color: `white`,
+        text_color: 'white',
         route: 'advancePayments',
         progress:
           Math.round(
@@ -240,17 +250,19 @@ const DashboardCard = ({
           ) || 0,
         viewMore: true,
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.advancePayments || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.advancePayments || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'advancePayments',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -260,7 +272,7 @@ const DashboardCard = ({
         period: 'day',
         title: "Today's Collections",
         bg_color: 'bg-[#E9D8A6]',
-        text_color: `white`,
+        text_color: 'white',
         route: 'todayCollections',
         progress:
           Math.round(
@@ -270,17 +282,19 @@ const DashboardCard = ({
           ) || 0,
         viewMore: true,
         funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.todayCollections || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.todayCollections || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'todayCollections',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -290,21 +304,23 @@ const DashboardCard = ({
         title: 'Total Households',
         period: 'month',
         bg_color: 'bg-[#005F73]',
-        text_color: `text-white`,
+        text_color: 'text-white',
         route: '',
         viewMore: true,
         funds: false,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.totalHouseholds || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.totalHouseholds || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'totalHouseholds',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -318,17 +334,19 @@ const DashboardCard = ({
         text_color: 'text-white',
         route: 'households/active',
         funds: false,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.activeHouseholds || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.activeHouseholds || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'activeHouseholds',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -339,20 +357,22 @@ const DashboardCard = ({
         viewMore: true,
         period: 'month',
         bg_color: 'bg-[#9B2226]',
-        text_color: `text-white`,
+        text_color: 'text-white',
         route: 'households/inactive',
         funds: false,
-        amount: dashboardCardIsLoading ? (
+        amount: dashboardCardIsLoading
+          ? (
           <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.inactiveHouseholds || 0
-        ),
+            )
+          : (
+              dashboardCardData?.data[0]?.inactiveHouseholds || 0
+            )
       }
       useEffect(() => {
         dashboardCard({
           department,
           route: 'inactiveHouseholds',
-          departmentId: props?.user?.department_id,
+          departmentId: props?.user?.department_id
         })
       }, [])
       break
@@ -441,7 +461,7 @@ const DashboardCard = ({
               ? 'px-2 text-sm text-center ml-4'
               : 'px-2 text-[14px] text-center mr-2'
           } ${newProps.viewMore ? 'flex' : 'invisible'} p-2 ${
-            newProps.period == 'day' ? 'ml-4' : 'ml-0'
+            newProps.period === 'day' ? 'ml-4' : 'ml-0'
           } rounded-sm shadow-sm ease-in-out duration-300 bg-slate-00 text-black hover:bg-primary hover:text-white`}
         />
       </section>
@@ -467,17 +487,17 @@ DashboardCard.propTypes = {
       departments: PropTypes.shape({
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         name: PropTypes.string,
-        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      }),
-    }),
-  }),
+        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+      })
+    })
+  })
 }
 
 DashboardCard.defaultProps = {
   props: {
     increaseValue: (Math.random() * 10).toFixed(2),
-    progress: Math.floor(Math.random() * 100),
-  },
+    progress: Math.floor(Math.random() * 100)
+  }
 }
 
 export default DashboardCard

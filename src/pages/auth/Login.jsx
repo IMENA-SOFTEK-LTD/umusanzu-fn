@@ -6,7 +6,7 @@ import { useLoginMutation } from '../../states/api/apiSlice'
 import Button from '../../components/Button'
 import Loading from '../../components/Loading'
 import Input from '../../components/Input'
-import Logo from '/logo.png'
+import Logo from '../../../public/logo.png'
 import { setUser } from '../../states/features/auth/authSlice'
 
 const Login = () => {
@@ -22,8 +22,8 @@ const Login = () => {
       isLoading: loginLoading,
       isSuccess: loginSuccess,
       isError: loginError,
-      error: loginErrorMessage,
-    },
+      error: loginErrorMessage
+    }
   ] = useLoginMutation()
 
   const [formErrors, setFormErrors] = useState({})
@@ -36,7 +36,7 @@ const Login = () => {
     if (!username || !password) {
       setFormErrors({
         username: !username ? 'Username is required' : '',
-        password: !password ? 'Password is required' : '',
+        password: !password ? 'Password is required' : ''
       })
       setInvalidLogin(false)
       return
@@ -153,7 +153,7 @@ const Login = () => {
                   <Controller
                     name="submit"
                     control={control}
-                    render={({ field }) => (
+                    render={() => (
                       <Button
                         submit
                         value={loginLoading ? <Loading /> : 'Login'}

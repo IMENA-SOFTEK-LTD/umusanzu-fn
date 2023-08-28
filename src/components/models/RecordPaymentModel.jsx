@@ -3,12 +3,12 @@ import { AiFillPlusCircle } from 'react-icons/ai'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 
-function RecordPaymentModel() {
+function RecordPaymentModel () {
   const [showModal, setShowModal] = useState(false)
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm()
 
   const openModal = () => {
@@ -21,6 +21,7 @@ function RecordPaymentModel() {
 
   const onSubmit = (data) => {
     closeModal()
+    return data
   }
 
   return (
@@ -165,7 +166,7 @@ function RecordPaymentModel() {
                     name="payment"
                     control={control}
                     rules={{
-                      required: 'Payment option is required',
+                      required: 'Payment option is required'
                     }}
                     render={({ field }) => (
                       <select
@@ -223,7 +224,7 @@ function RecordPaymentModel() {
                     name="SMS"
                     control={control}
                     rules={{
-                      required: 'Payment option is required',
+                      required: 'Payment option is required'
                     }}
                     render={({ field }) => (
                       <select
@@ -243,7 +244,7 @@ function RecordPaymentModel() {
                 <Controller
                   name="submit"
                   control={control}
-                  render={({ field }) => {
+                  render={() => {
                     return <Button submit value="Pay now" />
                   }}
                 />

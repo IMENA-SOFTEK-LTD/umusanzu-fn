@@ -8,7 +8,7 @@ import { useUpdateUserProfileMutation } from '../states/api/apiSlice'
 import Loading from './Loading'
 import { toast } from 'react-toastify'
 
-function UserProfileUpdateForm({ user, userProfile }) {
+function UserProfileUpdateForm ({ user, userProfile }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [updateUserProfile] = useUpdateUserProfileMutation()
@@ -42,15 +42,15 @@ function UserProfileUpdateForm({ user, userProfile }) {
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors }
   } = useForm({
     defaultValues: {
       names: userProfile.names,
       username: userProfile.username,
       phone1: userProfile.phone1,
       phone2: userProfile.phone2,
-      email: userProfile.email,
-    },
+      email: userProfile.email
+    }
   })
 
   const openModal = () => {
@@ -73,7 +73,7 @@ function UserProfileUpdateForm({ user, userProfile }) {
         email: values.email,
         phone1: values.phone1,
         phone2: values.phone2,
-        username: values.username,
+        username: values.username
       })
         .unwrap()
         .then(() => {
@@ -263,8 +263,8 @@ UserProfileUpdateForm.propTypes = {
     phone1: PropTypes.string,
     phone2: PropTypes.string,
     email: PropTypes.string,
-    department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  }),
+    department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  })
 }
 
 export default UserProfileUpdateForm

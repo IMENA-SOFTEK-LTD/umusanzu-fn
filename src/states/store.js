@@ -17,11 +17,11 @@ const store = configureStore({
     pagination: paginationSlice,
     userProfile: userProfileSlice,
     dashboardCard: dashboardCardSlice,
-    modals: modalSlice,
+    modals: modalSlice
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware)
-  },
+  }
 })
 
 export { store }

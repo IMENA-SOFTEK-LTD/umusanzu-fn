@@ -8,7 +8,7 @@ import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
-  faChevronRight,
+  faChevronRight
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -16,13 +16,13 @@ import {
   useAsyncDebounce,
   useFilters,
   useSortBy,
-  usePagination,
+  usePagination
 } from 'react-table'
 import { useLocation } from 'react-router-dom'
 import {
   setPage,
   setSize,
-  setTotalPages,
+  setTotalPages
 } from '../../states/features/pagination/paginationSlice'
 import { useLazyGetTransactionsListQuery } from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
@@ -39,14 +39,14 @@ const TransactionTable = ({ user }) => {
       isLoading: transactionsListIsLoading,
       isSuccess: transactionsListIsSuccess,
       isError: transactionsListIsError,
-      error: transactionsListError,
-    },
+      error: transactionsListError
+    }
   ] = useLazyGetTransactionsListQuery()
 
   const {
     page: offset,
     size,
-    totalPages,
+    totalPages
   } = useSelector((state) => state.pagination)
 
   const dispatch = useDispatch()
@@ -88,7 +88,7 @@ const TransactionTable = ({ user }) => {
       department,
       departmentId: user?.departments?.id,
       route: `${queryRoute}/list`,
-      id: user?.departments?.id,
+      id: user?.departments?.id
     })
   }, [])
 
@@ -99,7 +99,7 @@ const TransactionTable = ({ user }) => {
       route: `${queryRoute}/list`,
       id: user?.departments?.id,
       size,
-      page: offset,
+      page: offset
     })
       .unwrap()
       .then((data) => {
@@ -118,7 +118,7 @@ const TransactionTable = ({ user }) => {
             commission: Number(row?.amount) / 10,
             transaction_date: moment(row?.transaction_date).format(
               'DD-MM-YYYY'
-            ),
+            )
           })) || []
         )
       })
@@ -139,7 +139,7 @@ const TransactionTable = ({ user }) => {
           status: row?.payments[0]?.status,
           remain_amount: row?.payments[0]?.remain_amount,
           commission: Number(row?.amount) / 10,
-          transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
+          transaction_date: moment(row.created_at).format('DD-MM-YYYY')
         })) || []
       )
     }
@@ -150,58 +150,58 @@ const TransactionTable = ({ user }) => {
       {
         Header: 'Names',
         accessor: 'name',
-        sortable: true,
+        sortable: true
       },
       {
         Header: 'Village',
         accessor: 'department',
         sortable: true,
-        Filter: SelectColumnFilter,
+        Filter: SelectColumnFilter
       },
       {
         Header: 'Amount',
         accessor: 'amount',
         sortable: true,
-        Filter: SelectColumnFilter,
+        Filter: SelectColumnFilter
       },
       {
         Header: 'Month Paid',
         accessor: 'month_paid',
         sortable: true,
-        Filter: SelectColumnFilter,
+        Filter: SelectColumnFilter
       },
       {
         Header: 'Status',
         accessor: 'status',
         sortable: true,
-        Filter: SelectColumnFilter,
+        Filter: SelectColumnFilter
       },
       {
         Header: 'Remaining Amount',
         accessor: 'remain_amount',
-        sortable: true,
+        sortable: true
       },
       {
         Header: 'Payment Method',
         accessor: 'payment_method',
         sortable: true,
-        Filter: SelectColumnFilter,
+        Filter: SelectColumnFilter
       },
       {
         Header: 'Agent',
         accessor: 'agent',
-        sortable: true,
+        sortable: true
       },
       {
         Header: 'Commission',
         accessor: 'commission',
-        sortable: true,
+        sortable: true
       },
       {
         Header: 'Date',
         accessor: 'transaction_date',
-        sortable: true,
-      },
+        sortable: true
+      }
     ],
     []
   )
@@ -212,10 +212,10 @@ const TransactionTable = ({ user }) => {
         id: 'no',
         Header: 'No',
         accessor: 'id',
-        Cell: ({ row, index }) => <p>{row.index + 1}</p>,
-        sortable: true,
+        Cell: ({ row }) => <p>{row.index + 1}</p>,
+        sortable: true
       },
-      ...columns,
+      ...columns
     ])
   }
 
@@ -224,8 +224,8 @@ const TransactionTable = ({ user }) => {
       columns,
       data,
       filterTypes: {
-        dateRange: dateRangeFilter,
-      },
+        dateRange: dateRangeFilter
+      }
     },
     useFilters,
     tableHooks,
@@ -251,7 +251,7 @@ const TransactionTable = ({ user }) => {
     gotoPage,
     nextPage,
     previousPage,
-    setPageSize,
+    setPageSize
   } = TableInstance
 
   if (transactionsListIsSuccess) {
@@ -269,7 +269,8 @@ const TransactionTable = ({ user }) => {
             <span className="w-full h-fit flex items-center gap-4">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
-                  column.Filter ? (
+                  column.Filter
+                    ? (
                     <div
                       key={column.id}
                       className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
@@ -277,7 +278,8 @@ const TransactionTable = ({ user }) => {
                       <label htmlFor={column.id}></label>
                       {column.render('Filter')}
                     </div>
-                  ) : null
+                      )
+                    : null
                 )
               )}
             </span>
@@ -319,7 +321,7 @@ const TransactionTable = ({ user }) => {
                       className="bg-white divide-y divide-gray-200"
                       {...getTableBodyProps()}
                     >
-                      {page.map((row, i) => {
+                      {page.map((row) => {
                         prepareRow(row)
                         return (
                           <tr {...row.getRowProps()}>
@@ -475,10 +477,10 @@ const TransactionTable = ({ user }) => {
 }
 
 TransactionTable.propTypes = {
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({})
 }
 
-function dateRangeFilter(rows, columnIds, filterValue) {
+function dateRangeFilter (rows, columnIds, filterValue) {
   const { startDate, endDate } = filterValue
   if (!startDate || !endDate) {
     return rows
@@ -490,8 +492,8 @@ function dateRangeFilter(rows, columnIds, filterValue) {
   })
 }
 
-export function SelectColumnFilter({
-  column: { filterValue, setFilter, preFilteredRows, id, render },
+export function SelectColumnFilter ({
+  column: { filterValue, setFilter, preFilteredRows, id, render }
 }) {
   const options = useMemo(() => {
     const options = new Set()
@@ -526,10 +528,10 @@ export function SelectColumnFilter({
   )
 }
 
-function GlobalFilter({
+function GlobalFilter ({
   preGlobalFilteredRows,
   globalFilter,
-  setGlobalFilter,
+  setGlobalFilter
 }) {
   const count = preGlobalFilteredRows.length
   const [value, setValue] = React.useState(globalFilter)

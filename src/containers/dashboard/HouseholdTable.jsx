@@ -2,12 +2,12 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { BsPersonFill } from 'react-icons/bs'
+import { BsPersonFill, BsEyeFill } from 'react-icons/bs'
 import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
-  faChevronRight,
+  faChevronRight
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -15,12 +15,12 @@ import {
   useAsyncDebounce,
   useFilters,
   useSortBy,
-  usePagination,
+  usePagination
 } from 'react-table'
 import {
   setPage,
   setSize,
-  setTotalPages,
+  setTotalPages
 } from '../../states/features/pagination/paginationSlice'
 import { useLazyGetHouseholdsListQuery } from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
@@ -28,7 +28,6 @@ import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import Input from '../../components/Input'
-import { BsEyeFill } from 'react-icons/bs'
 import { Link } from 'react-router-dom'
 
 const HouseholdTable = ({ user }) => {
@@ -39,14 +38,14 @@ const HouseholdTable = ({ user }) => {
       isLoading: householdsListIsLoading,
       isSuccess: householdsListIsSuccess,
       isError: householdsListIsError,
-      error: householdsListError,
-    },
+      error: householdsListError
+    }
   ] = useLazyGetHouseholdsListQuery()
 
   const {
     page: offset,
     size,
-    totalPages,
+    totalPages
   } = useSelector((state) => state.pagination)
 
   const dispatch = useDispatch()
@@ -89,7 +88,7 @@ const HouseholdTable = ({ user }) => {
           phone2: row?.phone2,
           ubudehe: row?.ubudehe,
           status: row?.status,
-          ID: row?.id,
+          ID: row?.id
         })) || []
       )
     }
@@ -101,7 +100,7 @@ const HouseholdTable = ({ user }) => {
       departmentId: user?.departments?.id,
       id: user?.departments?.id,
       size,
-      page: offset,
+      page: offset
     })
       .unwrap()
       .then((data) => {
@@ -114,7 +113,7 @@ const HouseholdTable = ({ user }) => {
             phone2: row?.phone2,
             ubudehe: row?.ubudehe,
             status: row?.status,
-            ID: row?.id,
+            ID: row?.id
           })) || []
         )
       })
@@ -125,13 +124,13 @@ const HouseholdTable = ({ user }) => {
       {
         Header: 'Names',
         accessor: 'name',
-        sortable: true,
+        sortable: true
       },
       {
         Header: 'Ubudehe',
         accessor: 'ubudehe',
         sortable: true,
-        Filter: SelectColumnFilter,
+        Filter: SelectColumnFilter
       },
       {
         Header: 'status',
@@ -148,25 +147,25 @@ const HouseholdTable = ({ user }) => {
           >
             {value}
           </div>
-        ),
+        )
       },
       {
         Header: 'phone',
-        accessor: 'phone1',
+        accessor: 'phone1'
       },
       {
         id: 'ID',
         Header: 'Action',
         accessor: 'ID',
-        Cell: ({ row, index }) => (
+        Cell: ({ row }) => (
           <Link
-            to={`/householdDetail/${row?.original?.ID}`}
+            to={`/households/${row?.original?.ID}`}
             className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
           >
             <BsPersonFill className="" />
           </Link>
-        ),
-      },
+        )
+      }
     ],
     []
   )
@@ -177,17 +176,17 @@ const HouseholdTable = ({ user }) => {
         id: 'no',
         Header: 'No',
         accessor: 'id',
-        Cell: ({ row, index }) => <p>{row.index + 1}</p>,
-        sortable: true,
+        Cell: ({ row }) => <p>{row.index + 1}</p>,
+        sortable: true
       },
-      ...columns,
+      ...columns
     ])
   }
 
   const TableInstance = useTable(
     {
       columns,
-      data,
+      data
     },
     useFilters,
     tableHooks,
@@ -213,7 +212,7 @@ const HouseholdTable = ({ user }) => {
     gotoPage,
     nextPage,
     previousPage,
-    setPageSize,
+    setPageSize
   } = TableInstance
 
   if (householdsListIsSuccess) {
@@ -231,7 +230,8 @@ const HouseholdTable = ({ user }) => {
             <span className="w-full h-fit flex items-center gap-4">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
-                  column.Filter ? (
+                  column.Filter
+                    ? (
                     <div
                       key={column.id}
                       className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
@@ -239,7 +239,8 @@ const HouseholdTable = ({ user }) => {
                       <label htmlFor={column.id}></label>
                       {column.render('Filter')}
                     </div>
-                  ) : null
+                      )
+                    : null
                 )
               )}
             </span>
@@ -281,7 +282,7 @@ const HouseholdTable = ({ user }) => {
                       className="bg-white divide-y divide-gray-200"
                       {...getTableBodyProps()}
                     >
-                      {page.map((row, i) => {
+                      {page.map((row) => {
                         prepareRow(row)
                         return (
                           <tr {...row.getRowProps()}>
@@ -437,11 +438,11 @@ const HouseholdTable = ({ user }) => {
 }
 
 HouseholdTable.propTypes = {
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({})
 }
 
-export function SelectColumnFilter({
-  column: { filterValue, setFilter, preFilteredRows, id, render },
+export function SelectColumnFilter ({
+  column: { filterValue, setFilter, preFilteredRows, id, render }
 }) {
   const options = useMemo(() => {
     const options = new Set()
@@ -476,13 +477,13 @@ export function SelectColumnFilter({
   )
 }
 
-function GlobalFilter({
+function GlobalFilter ({
   preGlobalFilteredRows,
   globalFilter,
-  setGlobalFilter,
+  setGlobalFilter
 }) {
   const count = preGlobalFilteredRows.length
-  const [value, setValue] = React.useState(globalFilter)
+  const [value, setValue] = useState(globalFilter)
   const onChange = useAsyncDebounce((value) => {
     setGlobalFilter(value || undefined)
   }, 200)

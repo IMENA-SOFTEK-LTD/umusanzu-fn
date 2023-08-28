@@ -13,7 +13,7 @@ const Input = forwardRef(
       required = false,
       color,
       placeholder,
-      labelClassName,
+      labelClassName
     },
     ref
   ) => {
@@ -55,7 +55,7 @@ Input.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.string,
   name: PropTypes.string,
-  required: PropTypes.bool,
+  required: PropTypes.bool
 }
 
 export default Input

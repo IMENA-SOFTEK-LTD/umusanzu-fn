@@ -12,7 +12,7 @@ const CreateVillageModel = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm()
 
   const openModal = () => {
@@ -29,8 +29,8 @@ const CreateVillageModel = () => {
       isLoading: departmentLoading,
       isSuccess: departmentSuccess,
       isError: departmentError,
-      data: departmentData,
-    },
+      data: departmentData
+    }
   ] = useCreateDepartmentMutation()
 
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -43,7 +43,7 @@ const CreateVillageModel = () => {
       phone1: data.phone1,
       phone2: data.phone2,
       email: data.email,
-      department: 'village',
+      department: 'village'
     })
   }
 
@@ -195,8 +195,8 @@ const CreateVillageModel = () => {
                       required: 'Email Address is required',
                       pattern: {
                         value: /^\S+@\S+$/i,
-                        message: 'Invalid email address',
-                      },
+                        message: 'Invalid email address'
+                      }
                     }}
                     render={({ field }) => (
                       <input
@@ -214,7 +214,7 @@ const CreateVillageModel = () => {
                 <Controller
                   name="submit"
                   control={control}
-                  render={({ field }) => {
+                  render={() => {
                     return (
                       <Button
                         submit

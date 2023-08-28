@@ -12,7 +12,7 @@ const HouseDetails = () => {
           index: i + 1,
           amount: '12,300',
           increaseValue: (Math.random() * 10).toFixed(2),
-          user,
+          user
         }
         return <HouseholdDetailsCard key={i} props={props} />
       })}

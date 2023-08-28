@@ -15,7 +15,7 @@ const CreateCellModel = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm()
 
   const openModal = () => {
@@ -33,8 +33,8 @@ const CreateCellModel = () => {
       isSuccess: celSuccess,
       isError: celError,
       data: celData,
-      error: celErrorMessage,
-    },
+      error: celErrorMessage
+    }
   ] = useCreateCellMutation()
   const { user: stateUser } = useSelector((state) => state.auth)
   const user = JSON.parse(localStorage.getItem('user'))
@@ -47,7 +47,7 @@ const CreateCellModel = () => {
       phone1: data.phone1,
       phone2: data.phone2,
       email: data.email,
-      department: 'cell',
+      department: 'cell'
     })
   }
 
@@ -205,8 +205,8 @@ const CreateCellModel = () => {
                       required: 'Email Address is required',
                       pattern: {
                         value: /^\S+@\S+$/i,
-                        message: 'Invalid email address',
-                      },
+                        message: 'Invalid email address'
+                      }
                     }}
                     render={({ field }) => (
                       <input
@@ -227,7 +227,7 @@ const CreateCellModel = () => {
                 <Controller
                   name="submit"
                   control={control}
-                  render={({ field }) => {
+                  render={() => {
                     return (
                       <Button
                         submit

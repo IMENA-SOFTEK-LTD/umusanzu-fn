@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const navbarSlice = createSlice({
   name: 'navbar',
   initialState: {
-    navDropdown: false,
+    navDropdown: false
   },
   reducers: {
     toggleNavDropdown: (state, { payload }) => {
@@ -12,9 +12,9 @@ const navbarSlice = createSlice({
     reducers: {
       toggleNavDropdown: (state, { payload }) => {
         state.navDropdown = payload
-      },
-    },
-  },
+      }
+    }
+  }
 })
 
 export default navbarSlice.reducer
