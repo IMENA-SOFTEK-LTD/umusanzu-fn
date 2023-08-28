@@ -3,6 +3,7 @@ import { AiFillPlusCircle } from 'react-icons/ai'
 import PropTypes from 'prop-types'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
+import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
 import { useParams } from 'react-router-dom'
@@ -37,6 +38,7 @@ function UpdateStaff({ toggleButton = true }) {
   useEffect(() => {
     if (staffDetailsSuccess) {
       setData(staffDetailsData?.data || [])
+
     }
   }, [staffDetailsSuccess, staffDetailsData])
 
@@ -66,7 +68,22 @@ function UpdateStaff({ toggleButton = true }) {
     setShowModal(false)
     dispatch(toggleUpdateStaff(false))
   }
-
+  useEffect(() => {
+    if (updateStaffDetailsSuccess) {
+      toast.success('Update successful!');
+    }
+  }, [updateStaffDetailsSuccess]);  
+  useEffect(() => {
+    if (updateStaffDetailsIsError) {
+      toast.error('An error occurred during update.'); 
+    }
+  }, [updateStaffDetailsIsError]);
+  useEffect(() => {
+    if (staffDetailsError) {
+      toast.error('Error fetching staff details.');
+    }
+  }, [staffDetailsError]);
+    
   const onSubmit = (formData) => {
     updateStaffDetails({
       names: formData.names,
