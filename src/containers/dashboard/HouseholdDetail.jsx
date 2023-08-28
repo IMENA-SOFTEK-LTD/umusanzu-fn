@@ -1,11 +1,15 @@
 import HouseHoldDetailTable from './HouseHoldDetailTable' // Adjust the import path accordingly
 import RecordPaymentModel from '../../components/models/RecordPaymentModel'
+import CreateOfflinePaymentModel from '../../components/models/CreateOfflinePaymentModel'
 import { useLazyGetHouseHoldDetailsQuery, useLazyGetHouseholdDepartmentsQuery } from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import Button from '../../components/Button'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAdd, faX } from '@fortawesome/free-solid-svg-icons'
 const HouseholdDetail = () => {
   const { id } = useParams()
-
+  const [showModals, setShowModals] = useState(false)
   const [
     getHouseholdDepartments,
     {
@@ -80,7 +84,24 @@ const HouseholdDetail = () => {
 
   return (
     <div>
-      <RecordPaymentModel />
+
+      <main className="flex flex-col gap-16 relative">
+          <Button
+            className="py-2 px-3 bg-primary text-white rounded-[50%] w-fit absolute right-6 top-6"
+            value={<FontAwesomeIcon icon={showModals ? faX : faAdd} />}
+            onClick={() => {
+              setShowModals(!showModals)
+            }}
+          />
+          <article
+            className={`${
+              showModals ? 'flex ease-in-out duration-100' : 'hidden'
+            } ease-in-out duration-100 absolute top-12 right-6 w-full h-full flex flex-col gap-12`}
+          >
+            <CreateOfflinePaymentModel />
+            <RecordPaymentModel />
+          </article>
+        </main>
       <span>{'\u00A0'}</span>
       <HouseHoldDetailTable
         transactions={transactions}
