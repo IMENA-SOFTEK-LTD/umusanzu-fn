@@ -61,6 +61,14 @@ export const apiSlice = createApi({
         })
       }),
 
+      updateAdminStatus: builder.mutation({
+        query: ({ id, status, route }) => ({
+          url: `/${route}/status/${id}`,
+          method: 'PUT',
+          body: { status }
+        })
+      }),
+
       updatePassword: builder.mutation({
         query: ({ id, departmentId, oldPassword, newPassword }) => ({
           url: `/userProfile/password/${id}/?departmentId=${departmentId}`,
@@ -328,5 +336,6 @@ export const {
   useLazyGetSingleStaffDetailsQuery,
   useCreateAdminMutation,
   useUpdateStaffDetailsMutation,
-  useLazyGetHouseholdDepartmentsQuery
+  useLazyGetHouseholdDepartmentsQuery,
+  useUpdateAdminStatusMutation
 } = apiSlice
