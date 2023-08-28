@@ -15,8 +15,9 @@ import Settings from './pages/Settings.jsx'
 import DepartmentsTable from './containers/dashboard/DepartmentsTable.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseHoldDetail.jsx'
-import UserProfilePage from './containers/dashboard/HouseholdProfilePage.jsx'
+import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
+import Department from './pages/dashboard/Department.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -73,7 +74,7 @@ const App = () => {
 
             <Route
               path="/departments"
-              element={<DepartmentsTable user={user || stateUser} />}
+              element={<Department user={user || stateUser} />}
             />
           </Routes>
         </section>

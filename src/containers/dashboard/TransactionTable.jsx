@@ -2,6 +2,8 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import moment from 'moment'
+import { saveAs } from 'file-saver'
+import * as XLSX from 'xlsx'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
 import {
@@ -254,6 +256,33 @@ const TransactionTable = ({ user }) => {
     setPageSize
   } = TableInstance
 
+  const exportToExcel = () => {
+    try {
+      const excelData = page.map((row) =>
+        columns.map((column) => row.values[column.id])
+      )
+
+      const worksheet = XLSX.utils.aoa_to_sheet([
+        columns.map((column) => column.Header),
+        ...excelData
+      ])
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+      const workbookData = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array'
+      })
+      const blob = new Blob([workbookData], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+
+      saveAs(blob, 'transactions.xlsx')
+    } catch (error) {
+      console.error('Error creating Blob:', error)
+    }
+  }
+
   if (transactionsListIsSuccess) {
     return (
       <main className="my-12 w-full">
@@ -288,6 +317,7 @@ const TransactionTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                  <Button value="Export to Excel" onClick={exportToExcel} />
                   <table
                     {...getTableProps()}
                     border="1"

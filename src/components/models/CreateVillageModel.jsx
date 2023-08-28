@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import Button from '../Button'
 import { useCreateDepartmentMutation } from '../../states/api/apiSlice'
 import Loading from '../Loading'
-const CreateVillageModel = () => {
+const CreateVillageModel = ({ user }) => {
   const [showModal, setShowModal] = useState(false)
   const {
     control,

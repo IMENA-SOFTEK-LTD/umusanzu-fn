@@ -31,7 +31,7 @@ const UserProfilePage = () => {
   }, [staffDetailsSuccess, staffDetailsData])
 
   useEffect(() => {
-  }, [householdDepartmentsData, householdDepartmentsIsSuccess])
+  }, [staffDetailsData, staffDetailsSuccess])
 
   useEffect(() => {
     getSingleStaffDetails({ id })
