@@ -4,8 +4,10 @@ import { useLazyGetSingleStaffDetailsQuery } from '../../states/api/apiSlice'
 import UpdateStaff from '../../components/models/UpdateStaff'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
+import UpdateAdminStatusModel from '../../components/models/UpdateAdminStatusModel'
 
 const UserProfilePage = () => {
+  const localStorageUser = JSON.parse(localStorage.getItem('user'))
   const [isEditing, setIsEditing] = useState(false)
   const dispatch = useDispatch()
   const { updateStaff } = useSelector((state) => state.modals)
@@ -94,12 +96,14 @@ const UserProfilePage = () => {
             >
               Change Status
             </button>
-            <button
+             {/* <button
               className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-red-600 hover:scale-[0.98]"
               onClick={handleDelete}
             >
               Delete
-            </button>
+            </button> */}
+            <UpdateAdminStatusModel user={localStorageUser} />
+
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6">
