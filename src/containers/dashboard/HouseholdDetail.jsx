@@ -49,9 +49,6 @@ const HouseholdDetail = () => {
     getHouseholdDepartments({ id })
   }, [houseHoldDetailsData, houseHoldDetailsSuccess, id])
 
-  useEffect(() => {
-  }, [householdDepartmentsData, householdDepartmentsIsSuccess])
-
   const member = {
     name: data?.name,
     phone1: data?.phone1,
@@ -96,7 +93,7 @@ const HouseholdDetail = () => {
           <article
             className={`${
               showModals ? 'flex ease-in-out duration-100' : 'hidden'
-            } ease-in-out duration-100 absolute top-12 right-6 w-full h-full flex flex-col gap-12`}
+            } ease-in-out duration-100 absolute top-12 right-6  h-full flex flex-col gap-12 bg-white w-full`}
           >
             <CreateOfflinePaymentModel />
             <RecordPaymentModel />

@@ -307,6 +307,19 @@ export const apiSlice = createApi({
           url: `/households/${id}/departments`,
           method: 'GET'
         })
+      }),
+      recordOfflinePayment: builder.mutation({
+        query: ({ service, amount, month_paid, agent, household }) => ({
+          url: '/transactions',
+          method: 'POST',
+          body: {
+            service,
+            amount,
+            month_paid,
+            agent,
+            household
+          }
+        })
       })
     }
   }
@@ -337,5 +350,7 @@ export const {
   useCreateAdminMutation,
   useUpdateStaffDetailsMutation,
   useLazyGetHouseholdDepartmentsQuery,
-  useUpdateAdminStatusMutation
+  useUpdateAdminStatusMutation,
+  useRecordOfflinePaymentMutation
+
 } = apiSlice
