@@ -130,11 +130,19 @@ const UpdateAdminStatusModel = ({ user }) => {
               </svg>
               <span className="sr-only">Close modal</span>
             </button>
-            <div className="px-6 py-6 lg:px-8">
+            <div className="px-24 py-24 lg:px-42">
               <h3 className="mb-4 text-xl text-center font-medium text-black">
-                Admin Status
+                Delete Admin
               </h3>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+
+              <div className="flex justify-center items-center">
+  <div className="w-[300px] text-center text-md">
+    <p>
+      Dear<span> {user?.names},</span> before you delete Admin consider disabling their account instead
+    </p>
+  </div>
+</div>
 
               <div className="flex-1">
                     <label
@@ -152,7 +160,7 @@ const UpdateAdminStatusModel = ({ user }) => {
                         render={({ field }) => (
                             <select
                             {...field}
-                            className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-3 px-4"
+                            className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-3 py-4 px-28"
                           >
 
                             <option value="ACTIVE">ACTIVE</option>
@@ -167,34 +175,34 @@ const UpdateAdminStatusModel = ({ user }) => {
                       </span>
                     )}
                   </div>
-                <Controller
-                  name="submit"
-                  control={control}
-                  render={() => {
-                    return (
-                      <Button
-                        submit
-                        className={'w-full p-2 py-3 px-4 flex items-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-                        value={isLoading ? <Loading /> : 'Update Status'}
-                      />
-                    )
-                  }}
-                />
-                <Controller
-                  name="submit"
-                  control={control}
-                  render={() => {
-                    return (
-                      <Button
-                        className={'w-full p-2 py-3 px-4 flex items-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-                        submit
-                        value={
-                          'Or delete Admin'
-                        }
-                      />
-                    )
-                  }}
-                />
+                  <div className="flex justify-between space-x-4">
+  <Controller
+    name="submit"
+    control={control}
+    render={() => {
+      return (
+        <Button
+          submit
+          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
+          value={isLoading ? <Loading /> : 'Update Status'}
+        />
+      )
+    }}
+  />
+  <Controller
+    name="submit"
+    control={control}
+    render={() => {
+      return (
+        <Button
+          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
+          submit
+          value={'Or delete Admin'}
+        />
+      )
+    }}
+  />
+</div>
               </form>
             </div>
           </div>
