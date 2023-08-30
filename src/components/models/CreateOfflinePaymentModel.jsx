@@ -7,77 +7,77 @@ import Loading from '../Loading'
 import { useLazyGetHouseHoldDetailsQuery, useRecordOfflinePaymentMutation } from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 const CreateOfflinePaymentModel = () => {
-    const { id } = useParams()
-    const [showModal, setShowModal] = useState(false)
-    const [
-        GetHouseHoldDetails,
-        {
-            data: houseHoldDetailsData,
-            isLoading: houseHoldDetailsLoading,
-            isSuccess: houseHoldDetailsSuccess,
-            isError: houseHoldDetailsError,
-            error: houseHoldError
-        }
-    ] = useLazyGetHouseHoldDetailsQuery()
-    const [
-        recordOfflinePayment,
-        {
-            isLoading: recordOfflinePaymentLoading,
-            isSuccess: recordOfflinePaymentSuccess,
-            isError: recordOfflinePaymentError,
-            error: recordOfflinePaymentEror,
-            data: recordOfflinePaymentData
-        }
-    ] = useRecordOfflinePaymentMutation()
-
-    const [data, setData] = useState(houseHoldDetailsData?.data || [])
-    const {
-        control,
-        handleSubmit,
-        formState: { errors }
-    } = useForm()
-
-    const openModal = () => {
-        setShowModal(true)
+  const { id } = useParams()
+  const [showModal, setShowModal] = useState(false)
+  const [
+    GetHouseHoldDetails,
+    {
+      data: houseHoldDetailsData,
+      isLoading: houseHoldDetailsLoading,
+      isSuccess: houseHoldDetailsSuccess,
+      isError: houseHoldDetailsError,
+      error: houseHoldError
     }
-
-    const closeModal = () => {
-        setShowModal(false)
+  ] = useLazyGetHouseHoldDetailsQuery()
+  const [
+    recordOfflinePayment,
+    {
+      isLoading: recordOfflinePaymentLoading,
+      isSuccess: recordOfflinePaymentSuccess,
+      isError: recordOfflinePaymentError,
+      error: recordOfflinePaymentEror,
+      data: recordOfflinePaymentData
     }
-    useEffect(() => {
-        if (houseHoldDetailsSuccess) {
-            setData(houseHoldDetailsData?.data || [])
-        }
-    }, [houseHoldDetailsSuccess, houseHoldDetailsData])
+  ] = useRecordOfflinePaymentMutation()
 
-    useEffect(() => {
-        GetHouseHoldDetails({ id })
-    }, [GetHouseHoldDetails])
-    const onSubmit = (formData) => {
-        recordOfflinePayment({
-            service: formData.service,
-            amount: formData.amount,
-            month_paid: formData.month_paid,
-            agent: data?.transactions[0]?.agents?.id,
-            household: {
-                guid: data.guid,
-                ubudehe: data.ubudehe,
-                phone1: data.phone1
-            }
-        })
+  const [data, setData] = useState(houseHoldDetailsData?.data || [])
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm()
+
+  const openModal = () => {
+    setShowModal(true)
+  }
+
+  const closeModal = () => {
+    setShowModal(false)
+  }
+  useEffect(() => {
+    if (houseHoldDetailsSuccess) {
+      setData(houseHoldDetailsData?.data || [])
     }
-    useEffect(() => {
-        if (recordOfflinePaymentSuccess) {
-            closeModal()
-            toast.success('Village created successfully')
-        }
-        if (recordOfflinePaymentEror) {
-            toast.error('An error occurred while creating the village')
-            console.log(recordOfflinePaymentEror)
-        }
-    }, [recordOfflinePaymentData, recordOfflinePaymentSuccess, recordOfflinePaymentEror])
+  }, [houseHoldDetailsSuccess, houseHoldDetailsData])
 
-    return (
+  useEffect(() => {
+    GetHouseHoldDetails({ id })
+  }, [GetHouseHoldDetails])
+  const onSubmit = (formData) => {
+    recordOfflinePayment({
+      service: formData.service,
+      amount: formData.amount,
+      month_paid: formData.month_paid,
+      agent: data?.transactions[0]?.agents?.id,
+      household: {
+        guid: data.guid,
+        ubudehe: data.ubudehe,
+        phone1: data.phone1
+      }
+    })
+  }
+  useEffect(() => {
+    if (recordOfflinePaymentSuccess) {
+      closeModal()
+      toast.success('Village created successfully')
+    }
+    if (recordOfflinePaymentEror) {
+      toast.error('An error occurred while creating the village')
+      console.log(recordOfflinePaymentEror)
+    }
+  }, [recordOfflinePaymentData, recordOfflinePaymentSuccess, recordOfflinePaymentEror])
+
+  return (
         <div className="relative">
             <button
                 onClick={openModal}
@@ -216,7 +216,7 @@ const CreateOfflinePaymentModel = () => {
                                     name="submit"
                                     control={control}
                                     render={() => {
-                                        return (
+                                      return (
                                             <Button
                                                 submit
 
@@ -225,8 +225,7 @@ const CreateOfflinePaymentModel = () => {
                                                 }
                                             />
 
-
-                                        )
+                                      )
                                     }}
                                 />
                             </form>
@@ -235,7 +234,7 @@ const CreateOfflinePaymentModel = () => {
                 </div>
             )}
         </div>
-    )
+  )
 }
 
 export default CreateOfflinePaymentModel

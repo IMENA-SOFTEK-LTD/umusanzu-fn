@@ -321,7 +321,7 @@ const TransactionTable = ({ user }) => {
                   <Button value="Export to Excel" onClick={exportToExcel} />
                   <Button value="Export to Pdf" onClick={exportToExcel} />
                   </div>
-                  
+
                   <table
                     {...getTableProps()}
                     border="1"
