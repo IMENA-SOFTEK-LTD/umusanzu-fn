@@ -1,26 +1,20 @@
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { json, useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import Loading from '../../components/Loading'
 import {
-  useLoginMutation,
   useVerifyOtpMutation
-} from '../../states/api/apiSlice'
-import { setUser } from '../../states/features/auth/authSlice'
+} from '../../states/api/apiSlice';
+import { setUser } from '../../states/features/auth/authSlice';
 
 const Validate2faPage = () => {
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(localStorage.getItem('user'));
 
-  const [otpValues, setOtpValues] = useState(['', '', '', '', '', ''])
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const { user: stateUser } = useSelector((state) => state.auth)
-
-  const handleInputChange = (index, value) => {
-    const newOtpValues = [...otpValues]
-    newOtpValues[index] = value
-    setOtpValues(newOtpValues)
-  }
+  const { user: stateUser } = useSelector((state) => state.auth);
 
   const [
     verifyOtp,
@@ -31,32 +25,72 @@ const Validate2faPage = () => {
       isError: otpIsError,
       error: otpError
     }
-  ] = useVerifyOtpMutation()
+  ] = useVerifyOtpMutation();
+
+  const inputRefs = useRef([]);
+
+  const handleInputChange = (index, value) => {
+    const newOtpValues = [...otpValues];
+    newOtpValues[index] = value;
+    setOtpValues(newOtpValues);
+
+    if (value && index < otpValues.length - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    const pasteData = e.clipboardData.getData('text');
+    const cleanedData = pasteData.replace(/\D/g, '').slice(0, 6);
+
+    const newOtpValues = [...otpValues];
+    cleanedData.split('').forEach((char, index) => {
+      if (index < otpValues.length) {
+        newOtpValues[index] = char;
+      }
+    });
+
+    setOtpValues(newOtpValues);
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace') {
+      const newOtpValues = [...otpValues];
+      newOtpValues[index] = '';
+
+      if (index > 0) {
+        setOtpValues(newOtpValues);
+        inputRefs.current[index - 1].focus();
+      } else {
+        setOtpValues(newOtpValues);
+      }
+    }
+  };
 
   const handleOtpVerification = async () => {
     try {
-      const otpCode = otpValues.join('')
+      const otpCode = otpValues.join('');
 
       verifyOtp({
         username: user?.username,
         code: otpCode
-      })
+      });
     } catch (error) {
-      console.error('Error verifying OTP:', error)
+      console.error('Error verifying OTP:', error);
     }
-  }
+  };
 
   useEffect(() => {
     if (otpIsSuccess) {
-      dispatch(setUser(otpData))
-      navigate('/dashboard')
-      window.location.reload()
+      dispatch(setUser(otpData));
+      navigate('/dashboard');
+      window.location.reload();
     }
-  }, [otpData, otpIsSuccess])
+  }, [otpData, otpIsSuccess]);
 
   return (
     <>
-      <div className="h-screen bg-gradient-to-r from-rose-100 to-teal-100 py-20 px-3">
+      <div className="h-screen bg-slate-50 py-20 px-3">
         <div className="container mx-auto">
           <div className="max-w-sm mx-auto md:max-w-lg">
             <div className="w-full">
@@ -70,55 +104,20 @@ const Validate2faPage = () => {
                 <div
                   id="otp"
                   className="flex flex-row justify-center text-center px-2 mt-5"
+                  onPaste={handlePaste}
                 >
-                  <input
-                    className="m-2 border h-10 w-10 text-center form-control rounded"
-                    type="text"
-                    id="first"
-                    value={otpValues[0]}
-                    onChange={(e) => handleInputChange(0, e.target.value)}
-                    maxLength="1"
-                  />
-                  <input
-                    className="m-2 border h-10 w-10 text-center form-control rounded"
-                    type="text"
-                    id="second"
-                    value={otpValues[1]}
-                    onChange={(e) => handleInputChange(1, e.target.value)}
-                    maxLength="1"
-                  />
-                  <input
-                    className="m-2 border h-10 w-10 text-center form-control rounded"
-                    type="text"
-                    id="third"
-                    value={otpValues[2]}
-                    onChange={(e) => handleInputChange(2, e.target.value)}
-                    maxLength="1"
-                  />
-                  <input
-                    className="m-2 border h-10 w-10 text-center form-control rounded"
-                    type="text"
-                    id="fourth"
-                    value={otpValues[3]}
-                    onChange={(e) => handleInputChange(3, e.target.value)}
-                    maxLength="1"
-                  />
-                  <input
-                    className="m-2 border h-10 w-10 text-center form-control rounded"
-                    type="text"
-                    id="fifth"
-                    value={otpValues[4]}
-                    onChange={(e) => handleInputChange(4, e.target.value)}
-                    maxLength="1"
-                  />
-                  <input
-                    className="m-2 border h-10 w-10 text-center form-control rounded"
-                    type="text"
-                    id="sixth"
-                    value={otpValues[5]}
-                    onChange={(e) => handleInputChange(5, e.target.value)}
-                    maxLength="1"
-                  />
+                  {otpValues.map((value, index) => (
+                    <input
+                      key={index}
+                      ref={(ref) => (inputRefs.current[index] = ref)}
+                      className="m-2 border h-10 w-10 text-center form-control rounded"
+                      type="text"
+                      value={value}
+                      onChange={(e) => handleInputChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, index)}
+                      maxLength="1"
+                    />
+                  ))}
                 </div>
 
                 <div className="flex justify-center text-center mt-5">
@@ -126,7 +125,9 @@ const Validate2faPage = () => {
                     className="flex items-center text-tertiary hover:text-accent cursor-pointer"
                     onClick={handleOtpVerification}
                   >
-                    <span className="font-bold">Verify OTP</span>
+                    <span className="font-bold">
+                      {otpLoading ? <Loading /> : 'Emeza'}
+                    </span>
                     <i className="bx bx-caret-right ml-1"></i>
                   </a>
                 </div>
@@ -136,7 +137,7 @@ const Validate2faPage = () => {
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export default Validate2faPage
+export default Validate2faPage;

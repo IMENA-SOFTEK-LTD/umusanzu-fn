@@ -99,7 +99,8 @@ const HouseHoldDetailTable = ({
                             </td>
 
                             <td className="py-3 px-4 whitespace-nowrap">
-                              {transaction.status === 'PAID' ? (
+                              {transaction.status === 'PAID'
+                                ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
                                   href={`receipt/${transaction.guid}`}
@@ -107,7 +108,9 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-download"></i>
                                   Receipt
                                 </a>
-                              ) : transaction.status === 'PENDING' ? (
+                                  )
+                                : transaction.status === 'PENDING'
+                                  ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-sm hover:bg-red-600 transition duration-300"
                                   href={`invoice/${transaction.guid}`}
@@ -115,7 +118,9 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-file"></i>
                                   Invoice
                                 </a>
-                              ) : transaction.status === 'PARTIAL' ? (
+                                    )
+                                  : transaction.status === 'PARTIAL'
+                                    ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300"
                                   href={`partial-receipt/${transaction.guid}`}
@@ -123,7 +128,8 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-download"></i>
                                   Partial Receipt
                                 </a>
-                              ) : (
+                                      )
+                                    : (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
                                   href={`receipt/${transaction.guid}`}
@@ -131,7 +137,7 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-download"></i>
                                   Receipt
                                 </a>
-                              )}
+                                      )}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.id}IMS
