@@ -1,29 +1,83 @@
-import { useState } from 'react'
 import { AiFillPlusCircle } from 'react-icons/ai'
 import { useForm, Controller } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 import Button from '../Button'
-
+import Loading from '../Loading'
+import { useLazyGetHouseHoldDetailsQuery, useRecordOfflinePaymentMutation } from '../../states/api/apiSlice'
+import { useParams } from 'react-router-dom'
 const CreateOfflinePaymentModel = () => {
-  const [showModal, setShowModal] = useState(false)
-  const {
-    control,
-    handleSubmit,
-    formState: { errors }
-  } = useForm()
+    const { id } = useParams()
+    const [showModal, setShowModal] = useState(false)
+    const [
+        GetHouseHoldDetails,
+        {
+            data: houseHoldDetailsData,
+            isLoading: houseHoldDetailsLoading,
+            isSuccess: houseHoldDetailsSuccess,
+            isError: houseHoldDetailsError,
+            error: houseHoldError
+        }
+    ] = useLazyGetHouseHoldDetailsQuery()
+    const [
+        recordOfflinePayment,
+        {
+            isLoading: recordOfflinePaymentLoading,
+            isSuccess: recordOfflinePaymentSuccess,
+            isError: recordOfflinePaymentError,
+            error: recordOfflinePaymentEror,
+            data: recordOfflinePaymentData
+        }
+    ] = useRecordOfflinePaymentMutation()
 
-  const openModal = () => {
-    setShowModal(true)
-  }
+    const [data, setData] = useState(houseHoldDetailsData?.data || [])
+    const {
+        control,
+        handleSubmit,
+        formState: { errors }
+    } = useForm()
 
-  const closeModal = () => {
-    setShowModal(false)
-  }
+    const openModal = () => {
+        setShowModal(true)
+    }
 
-  const onSubmit = (data) => {
-    closeModal()
-    return data
-  }
-  return (
+    const closeModal = () => {
+        setShowModal(false)
+    }
+    useEffect(() => {
+        if (houseHoldDetailsSuccess) {
+            setData(houseHoldDetailsData?.data || [])
+        }
+    }, [houseHoldDetailsSuccess, houseHoldDetailsData])
+
+    useEffect(() => {
+        GetHouseHoldDetails({ id })
+    }, [GetHouseHoldDetails])
+    const onSubmit = (formData) => {
+        recordOfflinePayment({
+            service: formData.service,
+            amount: formData.amount,
+            month_paid: formData.month_paid,
+            agent: data?.transactions[0]?.agents?.id,
+            household: {
+                guid: data.guid,
+                ubudehe: data.ubudehe,
+                phone1: data.phone1
+            }
+        })
+    }
+    useEffect(() => {
+        if (recordOfflinePaymentSuccess) {
+            closeModal()
+            toast.success('Village created successfully')
+        }
+        if (recordOfflinePaymentEror) {
+            toast.error('An error occurred while creating the village')
+            console.log(recordOfflinePaymentEror)
+        }
+    }, [recordOfflinePaymentData, recordOfflinePaymentSuccess, recordOfflinePaymentEror])
+
+    return (
         <div className="relative">
             <button
                 onClick={openModal}
@@ -40,7 +94,7 @@ const CreateOfflinePaymentModel = () => {
                     aria-hidden="true"
                     className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
                 >
-                    <div className="relative bg-white rounded-lg shadow max-w-[600px]">
+                    <div className="relative bg-white rounded-lg shadow">
                         <div className="bg-primary rounded-t-lg p-3">
                             <button
                                 onClick={closeModal}
@@ -71,27 +125,52 @@ const CreateOfflinePaymentModel = () => {
                         <div className="px-6 py-6 lg:px-8">
                             <form
                                 onSubmit={handleSubmit(onSubmit)}
-                                className="space-y-6 max-w-md mx-auto"
+                                className="space-y-6"
                             >
-                                <div>
-                                    <label
-                                        htmlFor="service"
-                                        className="block mb-2 text-sm font-medium text-black"
-                                    >
-                                        Service
-                                    </label>
-                                    <Controller
-                                        name="service"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <input
-                                                {...field}
-                                                type="text"
-                                                className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                                            />
-                                        )}
-                                    />
+                                <div className="flex space-x-4">
+                                    <div className="flex-1">
+                                        <label
+                                            htmlFor="service"
+                                            className="block mb-2 text-sm font-medium text-black"
+                                        >
+                                            Service
+                                        </label>
+                                        <Controller
+                                            name="service"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <select
+                                                    {...field}
+                                                    className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                                                >
+                                                    <option value={1}>Option 1</option>
+                                                    <option value={2}>Option 2</option>
+                                                    <option value={3}>Option 3</option>
+                                                </select>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label
+                                            htmlFor="month_paid"
+                                            className="block mb-2 text-sm font-medium text-black"
+                                        >
+                                            Month_paid
+                                        </label>
+                                        <Controller
+                                            name="month_paid"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <input
+                                                    {...field}
+                                                    type="date"
+                                                    className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                                                />
+                                            )}
+                                        />
+                                    </div>
                                 </div>
+
                                 <div>
                                     <label
                                         htmlFor="amount"
@@ -102,30 +181,33 @@ const CreateOfflinePaymentModel = () => {
                                     <Controller
                                         name="amount"
                                         control={control}
+                                        defaultValue={'100'}
                                         render={({ field }) => (
                                             <input
                                                 {...field}
-                                                type="text"
-                                                className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                                                type="number"
+                                                className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                                             />
                                         )}
                                     />
                                 </div>
+
                                 <div>
                                     <label
-                                        htmlFor="month_paid"
+                                        htmlFor="phone"
                                         className="block mb-2 text-sm font-medium text-black"
                                     >
-                                        Month_paid
+                                        Phone Number
                                     </label>
                                     <Controller
-                                        name="month_paid"
+                                        name="phone"
                                         control={control}
                                         render={({ field }) => (
                                             <input
                                                 {...field}
-                                                type="text"
-                                                className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                                                type="tel"
+                                                placeholder='0785767647'
+                                                className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                                             />
                                         )}
                                     />
@@ -134,13 +216,17 @@ const CreateOfflinePaymentModel = () => {
                                     name="submit"
                                     control={control}
                                     render={() => {
-                                      return (
+                                        return (
                                             <Button
                                                 submit
-                                                value='Pay now'
 
+                                                value={
+                                                    recordOfflinePaymentLoading ? <Loading /> : 'Pay now'
+                                                }
                                             />
-                                      )
+
+
+                                        )
                                     }}
                                 />
                             </form>
@@ -149,7 +235,7 @@ const CreateOfflinePaymentModel = () => {
                 </div>
             )}
         </div>
-  )
+    )
 }
 
 export default CreateOfflinePaymentModel

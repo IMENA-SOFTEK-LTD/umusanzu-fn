@@ -114,7 +114,7 @@ const HouseHoldDetailTable = ({
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow-lg ring-1 ring-gray-200 p-4">
+            <div className="bg-white rounded-lg shadow-lg ring-1 ring-gray-200 p-4 w-[80%] mx-auto">
               <div className="p-3">
                 <h6 className="mb-4 text-xl font-semibold text-gray-800">
                   Household Information
