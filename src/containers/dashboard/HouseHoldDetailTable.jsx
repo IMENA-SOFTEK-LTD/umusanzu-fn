@@ -54,16 +54,22 @@ const HouseHoldDetailTable = ({
                           payStatus = 'bg-red-500 text-white'
                         } else if (transaction.status === 'PARTIAL') {
                           payStatus = 'bg-blue-500 text-white'
-                        } else {
+                        } else if (transaction.status === 'PAID') {
                           payStatus = 'bg-green-500 text-white'
+                        } else {
+                          payStatus = 'bg-yellow-500 text-white'
                         }
-
                         return (
                           <tr key={transaction.id} className="border-b">
                             <td className="py-3 px-4 whitespace-nowrap">
                               {index + 1}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
+                              {transaction.status !== 'PAID' && (
+                                <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 mr-2 rounded-sm transition duration-300">
+                                  Pay Now
+                                </button>
+                              )}
                               {paidMonth}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
@@ -93,15 +99,40 @@ const HouseHoldDetailTable = ({
                             </td>
 
                             <td className="py-3 px-4 whitespace-nowrap">
-                              <a
-                                className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
-                                href={`receipt/${transaction.guid}`}
-                              >
-                                <i className="mr-2 text-lg bx bx-download"></i>
-                                Receipt
-                              </a>
+                              {transaction.status === 'PAID' ? (
+                                <a
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
+                                  href={`receipt/${transaction.guid}`}
+                                >
+                                  <i className="mr-2 text-lg bx bx-download"></i>
+                                  Receipt
+                                </a>
+                              ) : transaction.status === 'PENDING' ? (
+                                <a
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-sm hover:bg-red-600 transition duration-300"
+                                  href={`invoice/${transaction.guid}`}
+                                >
+                                  <i className="mr-2 text-lg bx bx-file"></i>
+                                  Invoice
+                                </a>
+                              ) : transaction.status === 'PARTIAL' ? (
+                                <a
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300"
+                                  href={`partial-receipt/${transaction.guid}`}
+                                >
+                                  <i className="mr-2 text-lg bx bx-download"></i>
+                                  Partial Receipt
+                                </a>
+                              ) : (
+                                <a
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
+                                  href={`receipt/${transaction.guid}`}
+                                >
+                                  <i className="mr-2 text-lg bx bx-download"></i>
+                                  Receipt
+                                </a>
+                              )}
                             </td>
-
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.id}IMS
                               {transaction?.agents?.names.split(' ')[0]}
