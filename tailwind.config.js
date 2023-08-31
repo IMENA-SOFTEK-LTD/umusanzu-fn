@@ -8,10 +8,6 @@ export default {
         secondary: '#E4B7A0',
         tertiary: '#A45C40',
       },
-      fontFamily: {
-        primary: "'Montserrat', sans-serif",
-        secondary: "'Playfair Display', serif",
-      },
     },
   },
   plugins: [],

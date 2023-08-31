@@ -40,7 +40,7 @@ Button.defaultProps = {
   type: 'submit',
 }
 
-export function PageButton ({ children, className, ...rest }) {
+export function PageButton({ children, className, ...rest }) {
   return (
     <button
       type="button"
