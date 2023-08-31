@@ -6,7 +6,7 @@ import Button from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons'
 import { toggleNavDropdown } from '../../states/features/navigation/navbarSlice'
-import { logOut } from '../../utils/user'
+import { logOut } from '../../utils/User'
 import { FaMicrosoft } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
 

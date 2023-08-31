@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react' // Import React and necessary hooks
 import Card from '../../components/Card'
-import CreateAdminModel from '../../components/models/createAdminModel'
+import CreateAdminModel from '../../components/models/CreateAdminModel'
 import { useLazyGetStaffQuery } from '../../states/api/apiSlice'
 import { useParams, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button'
