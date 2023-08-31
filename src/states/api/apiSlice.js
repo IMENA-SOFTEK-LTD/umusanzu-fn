@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { LOCAL_API_URL } from '../../constants'
+import { API_URL, LOCAL_API_URL } from '../../constants'
 
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: LOCAL_API_URL,
+    baseUrl: LOCAL_API_URL || API_URL,
     prepareHeaders: (headers) => {
       // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
