@@ -1,20 +1,18 @@
-import { useEffect, useState, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import Loading from '../../components/Loading'
-import {
-  useVerifyOtpMutation
-} from '../../states/api/apiSlice';
-import { setUser } from '../../states/features/auth/authSlice';
+import { useVerifyOtpMutation } from '../../states/api/apiSlice'
+import { setUser } from '../../states/features/auth/authSlice'
 
 const Validate2faPage = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem('user'))
 
-  const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const [otpValues, setOtpValues] = useState(['', '', '', '', '', ''])
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
-  const { user: stateUser } = useSelector((state) => state.auth);
+  const { user: stateUser } = useSelector((state) => state.auth)
 
   const [
     verifyOtp,
@@ -23,70 +21,70 @@ const Validate2faPage = () => {
       isLoading: otpLoading,
       isSuccess: otpIsSuccess,
       isError: otpIsError,
-      error: otpError
-    }
-  ] = useVerifyOtpMutation();
+      error: otpError,
+    },
+  ] = useVerifyOtpMutation()
 
-  const inputRefs = useRef([]);
+  const inputRefs = useRef([])
 
   const handleInputChange = (index, value) => {
-    const newOtpValues = [...otpValues];
-    newOtpValues[index] = value;
-    setOtpValues(newOtpValues);
+    const newOtpValues = [...otpValues]
+    newOtpValues[index] = value
+    setOtpValues(newOtpValues)
 
     if (value && index < otpValues.length - 1) {
-      inputRefs.current[index + 1].focus();
+      inputRefs.current[index + 1].focus()
     }
-  };
+  }
 
   const handlePaste = (e) => {
-    const pasteData = e.clipboardData.getData('text');
-    const cleanedData = pasteData.replace(/\D/g, '').slice(0, 6);
+    const pasteData = e.clipboardData.getData('text')
+    const cleanedData = pasteData.replace(/\D/g, '').slice(0, 6)
 
-    const newOtpValues = [...otpValues];
+    const newOtpValues = [...otpValues]
     cleanedData.split('').forEach((char, index) => {
       if (index < otpValues.length) {
-        newOtpValues[index] = char;
+        newOtpValues[index] = char
       }
-    });
+    })
 
-    setOtpValues(newOtpValues);
-  };
+    setOtpValues(newOtpValues)
+  }
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace') {
-      const newOtpValues = [...otpValues];
-      newOtpValues[index] = '';
+      const newOtpValues = [...otpValues]
+      newOtpValues[index] = ''
 
       if (index > 0) {
-        setOtpValues(newOtpValues);
-        inputRefs.current[index - 1].focus();
+        setOtpValues(newOtpValues)
+        inputRefs.current[index - 1].focus()
       } else {
-        setOtpValues(newOtpValues);
+        setOtpValues(newOtpValues)
       }
     }
-  };
+  }
 
   const handleOtpVerification = async () => {
     try {
-      const otpCode = otpValues.join('');
+      const otpCode = otpValues.join('')
 
       verifyOtp({
         username: user?.username,
-        code: otpCode
-      });
+        code: otpCode,
+      })
     } catch (error) {
-      console.error('Error verifying OTP:', error);
+      console.error('Error verifying OTP:', error)
     }
-  };
+  }
 
   useEffect(() => {
     if (otpIsSuccess) {
-      dispatch(setUser(otpData));
-      navigate('/dashboard');
-      window.location.reload();
+      dispatch(setUser(otpData))
+      navigate('/dashboard')
+      window.location.reload()
     }
-  }, [otpData, otpIsSuccess]);
+  }, [otpData, otpIsSuccess])
 
   return (
     <>
@@ -137,7 +135,7 @@ const Validate2faPage = () => {
         </div>
       </div>
     </>
-  );
+  )
 }
 
-export default Validate2faPage;
+export default Validate2faPage

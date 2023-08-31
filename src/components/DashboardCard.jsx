@@ -13,6 +13,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import Button from './Button'
 import { setMonthlyTarget } from '../states/features/dashboard/dashboardCardSlice'
 import { color } from 'framer-motion'
+import getMonthName from '../utils/Dates'
 
 const DashboardCard = ({
   props = {
@@ -77,7 +78,7 @@ const DashboardCard = ({
     case 1:
       newProps = {
         ...props,
-        title: 'Monthly Target',
+        title: `${getMonthName()}'s Target`,
         period: 'month',
         viewMore: true,
         bg_color: 'bg-[#013B47]',
@@ -88,7 +89,7 @@ const DashboardCard = ({
               2
             ) * 100
           ) || 0,
-        route: 'monthlyCollections',
+        route: 'active',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading
           ? (
@@ -106,7 +107,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 3:
+    case 6:
       newProps = {
         ...props,
         title: 'Total Collected',
@@ -138,7 +139,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 4:
+    case 3:
       newProps = {
         ...props,
         title: 'Pending Paid',
@@ -174,7 +175,7 @@ const DashboardCard = ({
       newProps = {
         ...props,
         period: 'month',
-        title: 'Monthly Collections',
+        title: `${getMonthName()}'s Collections`,
         bg_color: 'bg-[#12a6bc80]',
         text_color: 'text-black',
         route: 'monthlyCollections',
@@ -202,7 +203,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 5:
+    case 7:
       newProps = {
         ...props,
         title: 'Pending',
@@ -234,7 +235,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 6:
+    case 4:
       newProps = {
         ...props,
         title: 'Advance Payments',
@@ -266,7 +267,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 7:
+    case 5:
       newProps = {
         ...props,
         period: 'day',
@@ -332,7 +333,7 @@ const DashboardCard = ({
         period: 'month',
         bg_color: 'bg-[#CA6702]',
         text_color: 'text-white',
-        route: 'households/active',
+        route: 'active',
         funds: false,
         amount: dashboardCardIsLoading
           ? (
@@ -358,7 +359,7 @@ const DashboardCard = ({
         period: 'month',
         bg_color: 'bg-[#9B2226]',
         text_color: 'text-white',
-        route: 'households/inactive',
+        route: 'inactive',
         funds: false,
         amount: dashboardCardIsLoading
           ? (
@@ -452,9 +453,9 @@ const DashboardCard = ({
         <Button
           value="View more"
           route={
-            newProps.funds
+            newProps.funds && newProps.title !== `${getMonthName()}'s Target`
               ? `/transactions/?query=${newProps?.route}`
-              : `/households/?query=${newProps?.route}`
+              : newProps.title == `${getMonthName()}'s Target` ? `/households/?query=${newProps?.route}` : `/households/?query=${newProps?.route}`
           }
           className={`${
             isOpen

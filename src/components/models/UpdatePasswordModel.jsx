@@ -8,7 +8,7 @@ import { Controller, useForm } from 'react-hook-form'
 import PropTypes from 'prop-types'
 import Loading from '../Loading'
 
-function updatePasswordModel ({ user }) {
+function UpdatePasswordModel ({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [updatePassword] = useUpdatePasswordMutation()
@@ -197,7 +197,7 @@ function updatePasswordModel ({ user }) {
   )
 }
 
-updatePasswordModel.propTypes = {
+UpdatePasswordModel.propTypes = {
   user: PropTypes.shape({
     password: PropTypes.string,
     id: PropTypes.number,
@@ -205,4 +205,4 @@ updatePasswordModel.propTypes = {
   })
 }
 
-export default updatePasswordModel
+export default UpdatePasswordModel
