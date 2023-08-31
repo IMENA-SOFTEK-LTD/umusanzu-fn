@@ -109,7 +109,7 @@ function Sidebar () {
     showMore()
   }, [])
 
-  if (pathname === '/login') {
+  if (pathname === '/login' || pathname === '/two-fa-authentication') {
     dispatch(toggleSidebar(false))
     return <div>{''}</div>
   }

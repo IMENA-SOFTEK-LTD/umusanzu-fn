@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import Loading from '../../components/Loading'
 import { useVerifyOtpMutation } from '../../states/api/apiSlice'
 import { setUser } from '../../states/features/auth/authSlice'
+import Button from '../../components/Button'
 
 const Validate2faPage = () => {
   const user = JSON.parse(localStorage.getItem('user'))
@@ -11,8 +12,6 @@ const Validate2faPage = () => {
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', ''])
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
-  const { user: stateUser } = useSelector((state) => state.auth)
 
   const [
     verifyOtp,
@@ -88,18 +87,19 @@ const Validate2faPage = () => {
 
   return (
     <>
-      <div className="h-screen bg-slate-50 py-20 px-3">
-        <div className="container mx-auto">
-          <div className="max-w-sm mx-auto md:max-w-lg">
+        <div className="container mx-auto w-full h-full min-h-[74vh] bg-slate-50 flex items-center justify-center">
             <div className="w-full">
-              <div className="bg-white h-64 py-3 rounded text-center shadow-2xl">
-                <h1 className="text-2xl font-bold">Kugenzura OTP</h1>
-                <div className="flex flex-col mt-4">
-                  <span>Injiza OTP wakiriye kuri</span>
-                  <span className="font-bold">+250 7******876</span>
-                </div>
-
-                <div
+              <form className="flex flex-col items-center gap-6 p-8 bg-white shadow-lg w-full max-w-[50%] mx-auto">
+                <h1 className="text-[25px] uppercase font-bold">OTP Confirmation</h1>
+                <span className='w-full max-w-[80%] mx-auto flex flex-col items-center gap-4'>
+                <p className='text-center'>
+                Please enter a One-Time Password (OTP) you received on your phone number below.
+                </p>
+                <p className='text-center text-[1.5rem] font-bold'>
+                  +250 ******{user?.phone1.slice(-3)}
+                </p>
+                </span>
+                <article
                   id="otp"
                   className="flex flex-row justify-center text-center px-2 mt-5"
                   onPaste={handlePaste}
@@ -108,7 +108,7 @@ const Validate2faPage = () => {
                     <input
                       key={index}
                       ref={(ref) => (inputRefs.current[index] = ref)}
-                      className="m-2 border h-10 w-10 text-center form-control rounded"
+                      className="m-2 border h-10 w-10 text-center form-control rounded focus:border-none outline-none focus:outline-primary"
                       type="text"
                       value={value}
                       onChange={(e) => handleInputChange(index, e.target.value)}
@@ -116,24 +116,16 @@ const Validate2faPage = () => {
                       maxLength="1"
                     />
                   ))}
-                </div>
+                </article>
 
-                <div className="flex justify-center text-center mt-5">
-                  <a
-                    className="flex items-center text-tertiary hover:text-accent cursor-pointer"
-                    onClick={handleOtpVerification}
-                  >
-                    <span className="font-bold">
-                      {otpLoading ? <Loading /> : 'Emeza'}
-                    </span>
-                    <i className="bx bx-caret-right ml-1"></i>
-                  </a>
-                </div>
-              </div>
+                <Button
+                value={otpLoading ? <Loading /> : 'Confirm OTP'}
+                onClick={handleOtpVerification}
+                className='mx-auto w-full max-w-[50%]'
+                />
+              </form>
             </div>
           </div>
-        </div>
-      </div>
     </>
   )
 }

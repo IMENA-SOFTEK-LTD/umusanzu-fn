@@ -37,18 +37,18 @@ function Navbar ({ user }) {
         </span>
       </Link>
       <div className="flex relative items-center gap-2 content-start w-fit px-8 divide-x-2 divide-gray-200">
-        <span>
+        <span className='flex flex-col items-center'>
           <Button
             value={
               <span className="flex items-center gap-4">
-                <p>{user?.names}</p>
+                <p className='text-black text-[18px]'>{user?.names}</p>
                 <FontAwesomeIcon
                   icon={navDropdown ? faCaretUp : faCaretDown}
-                  className="hover:scale-[1.02] ease-in-out duration-500"
+                  className="hover:scale-[1.02] ease-in-out duration-500 text-black"
                 />
               </span>
             }
-            className="bg-transparent hover:scale-[1.01] ease-in-out duration-300"
+            className="bg-transparent hover:scale-[1.01] ease-in-out duration-300 text-black"
             onClick={(e) => {
               e.preventDefault()
               dispatch(toggleNavDropdown(!navDropdown))

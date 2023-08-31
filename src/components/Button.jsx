@@ -6,10 +6,7 @@ const Button = ({ value, submit = false, type, className, route, onClick }) => {
     return (
       <button
         type={type || 'submit'}
-        className={
-          className ||
-          'w-full py-2 px-6 flex items-center justify-center rounded-md bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99]'
-        }
+        className={`w-full py-2 px-6 flex items-center justify-center rounded-md bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99] ${className}`}
       >
         {value}
       </button>
@@ -19,10 +16,7 @@ const Button = ({ value, submit = false, type, className, route, onClick }) => {
     <Link
       to={route}
       onClick={onClick}
-      className={
-        className ||
-        'w-fit py-2 px-6 flex items-center justify-center bg-primary cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'
-      }
+      className={`w-fit py-2 px-6 flex items-center justify-center bg-primary cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98] ${className}`}
     >
       {value}
     </Link>
@@ -33,17 +27,17 @@ Button.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.element,
-    PropTypes.shape({})
+    PropTypes.shape({}),
   ]).isRequired,
   type: PropTypes.string,
   className: PropTypes.string,
   route: PropTypes.string,
   submit: PropTypes.bool,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
 }
 
 Button.defaultProps = {
-  type: 'submit'
+  type: 'submit',
 }
 
 export function PageButton ({ children, className, ...rest }) {

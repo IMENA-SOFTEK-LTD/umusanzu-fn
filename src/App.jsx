@@ -12,7 +12,6 @@ import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useSelector } from 'react-redux'
 import CreateVillageModel from './components/models/CreateVillageModel'
 import Settings from './pages/Settings.jsx'
-import DepartmentsTable from './containers/dashboard/DepartmentsTable.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseholdDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
@@ -47,7 +46,10 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
             <Route path="/login" element={<Login />} />
-            <Route path="/validate2faPage" element={<Validate2faPage />} />
+            <Route
+              path="/two-fa-authentication"
+              element={<Validate2faPage />}
+            />
             <Route path="/houseDetails" element={<HouseDetails />} />
             <Route
               path="/transactions"

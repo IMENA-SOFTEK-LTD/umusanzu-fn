@@ -53,7 +53,7 @@ const Login = () => {
     if (loginSuccess) {
       if (loginData.code) {
         localStorage.setItem('user', JSON.stringify(loginData?.data))
-        navigate('/validate2faPage')
+        navigate('/two-fa-authentication')
       } else {
         dispatch(setUser(loginData))
         navigate('/dashboard')
