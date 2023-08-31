@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - staging
+permissions:
+  checks: write
+env:
+  API_URL: ${{ secrets.API_URL }}
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -15,7 +19,3 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_UMUSANZU_DIGITAL_UD }}
           channelId: live
           projectId: umusanzu-digital-ud
-      - env:
-          API_URL: ${{ secrets.API_URL }}
-permissions:
-  checks: write
