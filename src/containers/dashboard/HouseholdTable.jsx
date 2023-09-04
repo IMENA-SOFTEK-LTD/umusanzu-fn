@@ -1,4 +1,8 @@
 import 'core-js/stable'
+import 'jspdf-autotable'
+import logo from '../../assets/LOGO.png'
+import jsPDF from 'jspdf'
+import * as XLSX from 'xlsx'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
@@ -119,6 +123,103 @@ const HouseholdTable = ({ user }) => {
       })
   }, [offset, size, department, user?.departments?.id, dispatch])
 
+  const handleExportToPdf = async () => {
+    const doc = new jsPDF('landscape')
+    const logoResponse = await fetch(logo)
+    const logoData = await logoResponse.blob()
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      const logoBase64 = reader.result.split(',')[1]
+      doc.setFontSize(16)
+      doc.setFillColor(255, 166, 1)
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
+      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
+      doc.setTextColor(0)
+      doc.text('Households List', 50, 25)
+
+      doc.setFontSize(10)
+
+      const columnHeader = ['NO', 'Name', 'Phone 1', 'Phone 2', 'Ubudehe', 'Status']
+      const headerRow = columnHeader.map(header => ({ content: header, styles: { halign: 'center' } }))
+      doc.autoTable({
+        startY: 50,
+        head: [headerRow],
+        theme: 'grid',
+        styles: {
+          cellPadding: { top: 5, right: 5, bottom: 5, left: 5 }
+        },
+        columnStyles: {}
+      })
+
+      const filteredData = data.map(({ ID, ...rest }) => rest)
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 5,
+        head: false,
+        body: filteredData,
+        theme: 'grid',
+        styles: {},
+        columnStyles: {}
+      })
+
+      doc.save('households.pdf')
+    }
+
+    reader.readAsDataURL(logoData)
+  }
+
+  const handleExportToExcel = () => {
+    const filteredData = data.map(({ name, phone1, phone2, ubudehe, status }) => ({
+      Name: name,
+      'Phone 1': phone1,
+      'Phone 2': phone2,
+      Ubudehe: ubudehe,
+      Status: status
+    }))
+
+    const ws = XLSX.utils.json_to_sheet(filteredData)
+
+    const headerStyle = {
+      font: { bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '000000' } }
+    }
+
+    Object.keys(ws).forEach(key => {
+      if (key.startsWith('A1') && ws[key].t === 's') {
+        ws[key].s = headerStyle
+      }
+    })
+
+    const colWidths = []
+    for (const col in ws) {
+      if (col !== '!ref' && col !== '!rows' && col !== '!cols') {
+        const cellValue = ws[col].v ? ws[col].v.toString() : ''
+        const cellWidth = cellValue.length + 2
+        colWidths.push({ wch: cellWidth })
+      }
+    }
+    ws['!cols'] = colWidths
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Households')
+    const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+
+    const buf = new ArrayBuffer(wbBinary.length)
+    const view = new Uint8Array(buf)
+    for (let i = 0; i < wbBinary.length; i++) {
+      view[i] = wbBinary.charCodeAt(i) & 0xff
+    }
+
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+    const blobUrl = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = 'households.xlsx'
+    link.click()
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -139,11 +240,10 @@ const HouseholdTable = ({ user }) => {
         Filter: SelectColumnFilter,
         Cell: ({ value }) => (
           <div
-            className={`${
-              value === 'ACTIVE'
-                ? 'bg-green-500 shadow-md rounded-sm shadow-200'
-                : 'bg-purple-500 rounded-sm shadow-md shadow-200'
-            } p-1 rounded-md text-white text-center`}
+            className={`${value === 'ACTIVE'
+              ? 'bg-green-500 shadow-md rounded-sm shadow-200'
+              : 'bg-purple-500 rounded-sm shadow-md shadow-200'
+              } p-1 rounded-md text-white text-center`}
           >
             {value}
           </div>
@@ -232,13 +332,13 @@ const HouseholdTable = ({ user }) => {
                 headerGroup.headers.map((column) =>
                   column.Filter
                     ? (
-                    <div
-                      key={column.id}
-                      className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
-                    >
-                      <label htmlFor={column.id}></label>
-                      {column.render('Filter')}
-                    </div>
+                      <div
+                        key={column.id}
+                        className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
+                      >
+                        <label htmlFor={column.id}></label>
+                        {column.render('Filter')}
+                      </div>
                       )
                     : null
                 )
@@ -249,9 +349,9 @@ const HouseholdTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                <div className='flex gap-2'>
-                  <Button value="Export to Excel" />
-                  <Button value="Export to Pdf" />
+                  <div className='flex gap-2'>
+                    <Button value="Export to Excel" onClick={handleExportToExcel} />
+                    <Button value="Export to Pdf" onClick={handleExportToPdf} />
                   </div>
                   <table
                     {...getTableProps()}
@@ -282,10 +382,7 @@ const HouseholdTable = ({ user }) => {
                         </tr>
                       ))}
                     </thead>
-                    <tbody
-                      className="bg-white divide-y divide-gray-200"
-                      {...getTableBodyProps()}
-                    >
+                    <tbody className="bg-white divide-y divide-gray-200" {...getTableBodyProps()}>
                       {page.map((row) => {
                         prepareRow(row)
                         return (
@@ -304,6 +401,7 @@ const HouseholdTable = ({ user }) => {
                         )
                       })}
                     </tbody>
+
                   </table>
                 </div>
               </div>
@@ -361,7 +459,7 @@ const HouseholdTable = ({ user }) => {
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
                     onClick={() => gotoPage(0)}
-                    // disabled={!canPreviousPage}
+                  // disabled={!canPreviousPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       First
@@ -400,7 +498,7 @@ const HouseholdTable = ({ user }) => {
                       gotoPage(offset - 1)
                       dispatch(setPage(offset > 0 ? offset - 1 : offset))
                     }}
-                    // disabled={!canNextPage}
+                  // disabled={!canNextPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       Last
