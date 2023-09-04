@@ -2,7 +2,7 @@ import 'core-js/stable'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
-import * as XLSX from 'xlsx'
+import ExcelJS from "exceljs"
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import moment from 'moment'
@@ -52,9 +52,10 @@ const TransactionTable = ({ user }) => {
     size,
     totalPages
   } = useSelector((state) => state.pagination)
-
+  const [totalCommission, setTotalCommission] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalRemaining, setTotalRemaining] = useState(0);
   const dispatch = useDispatch()
-
   let department = ''
 
   const location = useLocation()
@@ -127,12 +128,24 @@ const TransactionTable = ({ user }) => {
         )
       })
   }, [offset, size, queryRoute])
-
+  
   useEffect(() => {
     if (transactionsListIsSuccess) {
-      dispatch(setTotalPages(data?.data?.totalPages))
-      setData(
-        transactionsListData?.data?.rows?.map((row, index) => ({
+      dispatch(setTotalPages(data?.data?.totalPages));
+
+      let totalCommission = 0;
+      let totalPaidAmount = 0;
+      let totalRemainingAmount = 0;
+
+      const mappedData = transactionsListData?.data?.rows?.map((row, index) => {
+        const paidAmount = Number(row?.amount) || 0;
+        const remainingAmount = Number(row?.payments[0]?.remain_amount) || 0;
+      
+        totalCommission += Number(row?.amount) / 10;
+        totalPaidAmount += paidAmount;
+        totalRemainingAmount += remainingAmount;
+        console.log("totalPaidAmount:", totalPaidAmount);
+        return {
           id: index + 1,
           name: row.households.name,
           department: row?.agents?.departments?.name,
@@ -143,11 +156,17 @@ const TransactionTable = ({ user }) => {
           status: row?.payments[0]?.status,
           remain_amount: row?.payments[0]?.remain_amount,
           commission: Number(row?.amount) / 10,
-          transaction_date: moment(row.created_at).format('DD-MM-YYYY')
-        })) || []
-      )
+          transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
+        };
+      });
+ 
+      setTotalCommission(totalCommission);
+      setTotalAmount(totalPaidAmount);
+      setTotalRemaining(totalRemainingAmount);
+      setData(mappedData);
+      
     }
-  }, [transactionsListIsSuccess, transactionsListIsError, queryRoute])
+  }, [transactionsListIsSuccess, transactionsListIsError, queryRoute]);
 
   const handleExportToPdf = async () => {
     const doc = new jsPDF('landscape')
@@ -195,75 +214,119 @@ const TransactionTable = ({ user }) => {
 
     reader.readAsDataURL(logoData)
   }
-
   const handleExportToExcel = () => {
-    const filteredData = data.map(({
-      id,
-      name,
-      department,
-      amount,
-      month_paid,
-      payment_method,
-      status,
-      remain_amount,
-      agent,
-      commission,
-      transaction_date
-    }) => ({
-      No: id,
-      Names: name,
-      Department: department,
-      Amount: amount,
-      'Month Paid': month_paid ? moment(`${month_paid}`).format('MMM YYYY') : '',
-      'Payment Method': payment_method,
-      Status: status ? 'Paid' : 'Un-Paid',
-      'Remaining Amount': remain_amount,
-      Agent: agent,
-      Commission: commission,
-      Date: transaction_date ? moment(`${transaction_date}`).format('DD MMM YYYY') : ''
-    }))
-    const ws = XLSX.utils.json_to_sheet(filteredData)
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Transaction");
+    sheet.properties.defaultRowHeight = 80;
 
-    const headerStyle = {
-      font: { bold: true, color: { rgb: 'FFFFFF' } },
-      fill: { fgColor: { rgb: '000000' } }
-    }
+    sheet.getRow(1).border = {
+      top: { style: "thick",  },
+      left: { style: "thick",  },
+      bottom: { style: "thick",  },
+      right: { style: "thick",  },
+    };
 
-    Object.keys(ws).forEach(key => {
-      if (key.startsWith('A1') && ws[key].t === 's') {
-        ws[key].s = headerStyle
-      }
-    })
-    const colWidths = []
-    for (const col in ws) {
-      if (col !== '!ref' && col !== '!rows' && col !== '!cols') {
-        const cellValue = ws[col].v ? ws[col].v.toString() : ''
-        const cellWidth = cellValue.length + 2
-        colWidths.push({ wch: cellWidth })
-      }
-    }
-    ws['!cols'] = colWidths
+    sheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "darkVertical",
+      fgColor: { argb: "FFFF00" },
+    };
 
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Households')
-    const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+    sheet.getRow(1).font = {
+      name: "",
+      family: 4,
+      size: 12,
+      bold: true,
+    };
 
-    const buf = new ArrayBuffer(wbBinary.length)
-    const view = new Uint8Array(buf)
-    for (let i = 0; i < wbBinary.length; i++) {
-      view[i] = wbBinary.charCodeAt(i) & 0xff
-    }
+    sheet.columns = [
+      {
+        header: "Id",
+        key: "id",
+        width: 5,
+      },
+      { header: "Name", key: "name", width: 20 },
+      {
+        header: "Department",
+        key: "department",
+        width: 20,
+      },
+      {
+        header: "Amount",
+        key: "amount",
+        width: 10,
+      },
+      {
+        header: "Month paid",
+        key: "month_paid",
+        width: 15,
+      },
+      {
+        header: "Payment method",
+        key: "payment_method",
+        width: 15,
+      },
+      {
+        header: "Status",
+        key: "status",
+        width: 10,
+      },
+      {
+        header: "Remain amount",
+        key: "remain_amount",
+        width: 10,
+      },
+      {
+        header: "Agent",
+        key: "agent",
+        width: 20,
+      },
+      {
+        header: "Commission",
+        key: "commission",
+        width: 10,
+      },
+      {
+        header: "Transaction date",
+        key: "transaction_date",
+        width: 20,
+      },
+    ];
 
-    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const promise = Promise.all(
+      data?.map(async (transaction, index) => {
+        sheet.addRow({
+          id: transaction?.id,
+          name: transaction?.name,
+          department: transaction?.department,
+          amount: transaction?.amount,
+          month_paid: transaction?.month_paid,
+          payment_method: transaction?.payment_method,
+          status: transaction?.status,
+          remain_amount: transaction?.remain_amount,
+          agent: transaction?.agent,
+          commission: transaction?.commission,
+          transaction_date: transaction?.transaction_date,
+        });
+      })
+    );
 
-    const blobUrl = URL.createObjectURL(blob)
+    promise.then(() => {
 
-    const link = document.createElement('a')
-    link.href = blobUrl
-    link.download = 'households.xlsx'
-    link.click()
-  }
-
+      workbook.xlsx.writeBuffer().then(function (data) {
+        const blob = new Blob([data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "download.xlsx";
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+      });
+    });
+  };
+  
   const columns = useMemo(
     () => [
       {
@@ -469,6 +532,18 @@ const TransactionTable = ({ user }) => {
             </div>
           </div>
         </div>
+        <table
+          className="w-[95%] mx-auto my-6 divide-y divide-gray-200"
+        >
+          <tr className="bg-gray-100 ">
+            <td className="px-6 py-4 text-gray-800 font-semibold">Total Amout:</td>
+            <td className="px-6 py-4 text-gray-800 font-semibold">{totalAmount} RWF</td>
+            <td className="px-6 py-4 text-gray-800 font-semibold">Total Commission:</td>
+            <td className="px-6 py-4 text-gray-800 font-semibold">{totalCommission} RWF</td>
+            <td className="px-6 py-4 text-gray-800 font-semibold">Total Remaining:</td>
+            <td className="px-6 py-4 text-gray-800 font-semibold">{totalRemaining} RWF</td>
+          </tr>
+        </table>
         <div className="pagination w-[95%] mx-auto">
           <div className="py-3 flex items-center justify-between">
             <div className="flex-1 flex justify-between sm:hidden">

@@ -2,7 +2,7 @@ import 'core-js/stable'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
-import * as XLSX from 'xlsx'
+import ExcelJS from "exceljs"
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
@@ -169,57 +169,81 @@ const HouseholdTable = ({ user }) => {
   }
 
   const handleExportToExcel = () => {
-    const filteredData = data.map(({ name, phone1, phone2, ubudehe, status }) => ({
-      Name: name,
-      'Phone 1': phone1,
-      'Phone 2': phone2,
-      Ubudehe: ubudehe,
-      Status: status
-    }))
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("HouseHold Lists");
+    sheet.properties.defaultRowHeight = 80;
 
-    const ws = XLSX.utils.json_to_sheet(filteredData)
+    sheet.getRow(1).border = {
+      top: { style: "thick", },
+      left: { style: "thick", },
+      bottom: { style: "thick", },
+      right: { style: "thick", },
+    };
 
-    const headerStyle = {
-      font: { bold: true, color: { rgb: 'FFFFFF' } },
-      fill: { fgColor: { rgb: '000000' } }
-    }
+    sheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "darkVertical",
+      fgColor: { argb: "FFFF00" },
+    };
 
-    Object.keys(ws).forEach(key => {
-      if (key.startsWith('A1') && ws[key].t === 's') {
-        ws[key].s = headerStyle
-      }
-    })
+    sheet.getRow(1).font = {
+      name: "",
+      family: 4,
+      size: 12,
+      bold: true,
+    };
 
-    const colWidths = []
-    for (const col in ws) {
-      if (col !== '!ref' && col !== '!rows' && col !== '!cols') {
-        const cellValue = ws[col].v ? ws[col].v.toString() : ''
-        const cellWidth = cellValue.length + 2
-        colWidths.push({ wch: cellWidth })
-      }
-    }
-    ws['!cols'] = colWidths
+    sheet.columns = [
+      { header: "Name", key: "name", width: 20 },
+      {
+        header: "Phone No",
+        key: "phone1",
+        width: 20,
+      },
+      {
+        header: "Phone No 2",
+        key: "phone2",
+        width: 10,
+      },
+      {
+        header: "Ubudehe",
+        key: "ubudehe",
+        width: 15,
+      },
+      {
+        header: "Status",
+        key: "status",
+        width: 10,
+      },
+    ];
 
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Households')
-    const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+    const promise = Promise.all(
+      data?.map(async (household, index) => {
+        sheet.addRow({
+          name: household?.name,
+          phone1: household?.phone1,
+          phone2: household?.phone2,
+          ubudehe: household?.ubudehe,
+          status: household?.status,
+        });
+      })
+    );
 
-    const buf = new ArrayBuffer(wbBinary.length)
-    const view = new Uint8Array(buf)
-    for (let i = 0; i < wbBinary.length; i++) {
-      view[i] = wbBinary.charCodeAt(i) & 0xff
-    }
+    promise.then(() => {
 
-    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-
-    const blobUrl = URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = blobUrl
-    link.download = 'households.xlsx'
-    link.click()
-  }
-
+      workbook.xlsx.writeBuffer().then(function (data) {
+        const blob = new Blob([data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "download.xlsx";
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+      });
+    });
+  };
   const columns = useMemo(
     () => [
       {
