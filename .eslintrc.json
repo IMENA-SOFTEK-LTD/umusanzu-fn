@@ -1,5 +1,5 @@
 {
-  "extends": ["standard", "pretter"],
+  "extends": ["standard", "prettier"],
   "rules": {
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",

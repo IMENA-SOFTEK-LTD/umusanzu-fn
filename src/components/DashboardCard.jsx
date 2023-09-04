@@ -457,11 +457,11 @@ const DashboardCard = ({
           route={
             newProps.funds && newProps.title !== `${getMonthName()}'s Target`
               ? `/transactions/?query=${newProps?.route}`
-              : newProps.title == `${getMonthName()}'s Target` ? `/households/?query=${newProps?.route}` : `/households/?query=${newProps?.route}`
+              : newProps.title === `${getMonthName()}'s Target` ? `/households/?query=${newProps?.route}` : `/households/?query=${newProps?.route}`
           }
           className={`${
             isOpen
-              ? 'px-[5px] py-[5px] text-[12px] text-center ml-4'
+              ? 'px-[3px] py-[3px] text-[12px] text-center ml-4'
               : 'px-[8px] py-[7px] text-[12px] text-center'
           } ${newProps.viewMore ? 'flex' : 'invisible'} p-2 ${
             newProps.period === 'day' ? 'ml-4' : 'ml-0'
