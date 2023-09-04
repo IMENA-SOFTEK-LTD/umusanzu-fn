@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import 'jspdf-autotable'
+import logo from '../../assets/LOGO.png'
+import jsPDF from 'jspdf'
+import * as XLSX from 'xlsx'
 import {
   useLazyGetCellVillagesQuery,
   useLazyGetDistrictCellsQuery,
@@ -305,6 +309,120 @@ const DepartmentsTable = ({ user }) => {
       department = 'cell'
   }
 
+  const handleExportToPdf = async () => {
+    const doc = new jsPDF('landscape')
+    const logoResponse = await fetch(logo)
+    const logoData = await logoResponse.blob()
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      const logoBase64 = reader.result.split(',')[1]
+      doc.setFontSize(16)
+      doc.setFillColor(255, 166, 1)
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
+      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
+      doc.setTextColor(0)
+      doc.text('Departments List', 50, 25)
+
+      doc.setFontSize(10)
+
+      const columnHeader = ['NO', 'Name', 'Phone 1', 'Phone 2', ' Email']
+      const headerRow = columnHeader.map(header => ({ content: header, styles: { halign: 'center' } }))
+      doc.autoTable({
+        startY: 50,
+        head: [headerRow],
+        theme: 'grid',
+        styles: {
+          cellPadding: { top: 5, right: 5, bottom: 5, left: 5 }
+        },
+        columnStyles: {
+
+        }
+      })
+
+      const filteredData = data.map(({ ID, ...rest }) => rest)
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 5,
+        head: false,
+        body: filteredData,
+        theme: 'grid',
+        styles: {},
+        columnStyles: {
+        }
+      })
+      doc.save('households.pdf')
+    }
+
+    reader.readAsDataURL(logoData)
+  }
+
+  const handleExportToExcel = () => {
+    const filteredData = data.map(({
+      id,
+      name,
+      phone1,
+      phone2,
+      email
+    }) => ({
+      NO: id,
+      Name: name,
+      'Phone 1': phone1,
+      'Phone 2': phone2,
+      Email: email
+
+    }))
+
+    const ws = XLSX.utils.json_to_sheet(filteredData)
+
+    // Style for header cells
+    const headerStyle = {
+      font: { bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '000000' } } // Black background
+    }
+
+    // Apply header style to header cells
+    Object.keys(ws).forEach(key => {
+      if (key.startsWith('A1') && ws[key].t === 's') {
+        ws[key].s = headerStyle
+      }
+    })
+
+    // Auto-size columns to fit content
+    const colWidths = []
+    for (const col in ws) {
+      if (col !== '!ref' && col !== '!rows' && col !== '!cols') {
+        const cellValue = ws[col].v ? ws[col].v.toString() : ''
+        const cellWidth = cellValue.length + 2 // Adjust for padding
+        colWidths.push({ wch: cellWidth })
+      }
+    }
+    ws['!cols'] = colWidths
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Households')
+
+    // Write the workbook to a binary string
+    const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+
+    // Convert binary string to ArrayBuffer
+    const buf = new ArrayBuffer(wbBinary.length)
+    const view = new Uint8Array(buf)
+    for (let i = 0; i < wbBinary.length; i++) {
+      view[i] = wbBinary.charCodeAt(i) & 0xff
+    }
+
+    // Create a Blob from the ArrayBuffer
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+    // Create a URL for the Blob
+    const blobUrl = URL.createObjectURL(blob)
+
+    // Create a link and click it to trigger the download
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = 'households.xlsx'
+    link.click()
+  }
   const columns = useMemo(
     () => [
       {
@@ -416,13 +534,13 @@ const DepartmentsTable = ({ user }) => {
                 headerGroup.headers.map((column) =>
                   column.Filter
                     ? (
-                    <div
-                      key={column.id}
-                      className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
-                    >
-                      <label htmlFor={column.id}></label>
-                      {column.render('Filter')}
-                    </div>
+                      <div
+                        key={column.id}
+                        className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
+                      >
+                        <label htmlFor={column.id}></label>
+                        {column.render('Filter')}
+                      </div>
                       )
                     : null
                 )
@@ -433,9 +551,9 @@ const DepartmentsTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                <div className='flex gap-2'>
-                  <Button value="Export to Excel" />
-                  <Button value="Export to Pdf" />
+                  <div className='flex gap-2'>
+                    <Button value="Export to Excel" onClick={handleExportToExcel} />
+                    <Button value="Export to Pdf" onClick={handleExportToPdf} />
                   </div>
                   <table
                     {...getTableProps()}
@@ -545,7 +663,7 @@ const DepartmentsTable = ({ user }) => {
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
                     onClick={() => gotoPage(0)}
-                    // disabled={!canPreviousPage}
+                  // disabled={!canPreviousPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       First
@@ -584,7 +702,7 @@ const DepartmentsTable = ({ user }) => {
                       gotoPage(offset - 1)
                       dispatch(setPage(offset > 0 ? offset - 1 : offset))
                     }}
-                    // disabled={!canNextPage}
+                  // disabled={!canNextPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       Last

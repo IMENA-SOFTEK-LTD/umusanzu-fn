@@ -1,9 +1,11 @@
 import 'core-js/stable'
+import 'jspdf-autotable'
+import logo from '../../assets/LOGO.png'
+import jsPDF from 'jspdf'
+import * as XLSX from 'xlsx'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import moment from 'moment'
-import { saveAs } from 'file-saver'
-import * as XLSX from 'xlsx'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
 import {
@@ -147,6 +149,121 @@ const TransactionTable = ({ user }) => {
     }
   }, [transactionsListIsSuccess, transactionsListIsError, queryRoute])
 
+  const handleExportToPdf = async () => {
+    const doc = new jsPDF('landscape')
+    const logoResponse = await fetch(logo)
+    const logoData = await logoResponse.blob()
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      const logoBase64 = reader.result.split(',')[1]
+      doc.setFontSize(12)
+      doc.setFillColor(255, 166, 1)
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
+      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
+      doc.setTextColor(0)
+      doc.text('Transaction Report', 50, 25)
+
+      doc.setFontSize(8)
+      const columnHeader = ['NO', 'NAMES', 'VILLAGE', 'AMOUNT', 'MONTH PAID', 'STATUS', 'REMAINING', 'PAYMENT', 'METHOD', 'AGENT', 'COMMISSION', 'DATE']
+      const headerRow = columnHeader.map(header => ({ content: header }))
+      doc.autoTable({
+        startY: 50,
+        head: [headerRow],
+        theme: 'grid',
+        styles: {
+          cellPadding: { top: 5, right: 5, bottom: 5, left: 5 },
+          fontSize: 8
+        },
+        columnStyles: {}
+      })
+
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 5,
+        head: false,
+        body: data,
+        theme: 'grid',
+        styles: {
+          fontSize: 8
+        },
+        columnStyles: {}
+      })
+
+      // Save the PDF
+      doc.save('households.pdf')
+    }
+
+    reader.readAsDataURL(logoData)
+  }
+
+  const handleExportToExcel = () => {
+    const filteredData = data.map(({
+      id,
+      name,
+      department,
+      amount,
+      month_paid,
+      payment_method,
+      status,
+      remain_amount,
+      agent,
+      commission,
+      transaction_date
+    }) => ({
+      No: id,
+      Names: name,
+      Department: department,
+      Amount: amount,
+      'Month Paid': month_paid ? moment(`${month_paid}`).format('MMM YYYY') : '',
+      'Payment Method': payment_method,
+      Status: status ? 'Paid' : 'Un-Paid',
+      'Remaining Amount': remain_amount,
+      Agent: agent,
+      Commission: commission,
+      Date: transaction_date ? moment(`${transaction_date}`).format('DD MMM YYYY') : ''
+    }))
+    const ws = XLSX.utils.json_to_sheet(filteredData)
+
+    const headerStyle = {
+      font: { bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '000000' } }
+    }
+
+    Object.keys(ws).forEach(key => {
+      if (key.startsWith('A1') && ws[key].t === 's') {
+        ws[key].s = headerStyle
+      }
+    })
+    const colWidths = []
+    for (const col in ws) {
+      if (col !== '!ref' && col !== '!rows' && col !== '!cols') {
+        const cellValue = ws[col].v ? ws[col].v.toString() : ''
+        const cellWidth = cellValue.length + 2
+        colWidths.push({ wch: cellWidth })
+      }
+    }
+    ws['!cols'] = colWidths
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Households')
+    const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+
+    const buf = new ArrayBuffer(wbBinary.length)
+    const view = new Uint8Array(buf)
+    for (let i = 0; i < wbBinary.length; i++) {
+      view[i] = wbBinary.charCodeAt(i) & 0xff
+    }
+
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+
+    const blobUrl = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = 'households.xlsx'
+    link.click()
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -256,33 +373,6 @@ const TransactionTable = ({ user }) => {
     setPageSize
   } = TableInstance
 
-  const exportToExcel = () => {
-    try {
-      const excelData = page.map((row) =>
-        columns.map((column) => row.values[column.id])
-      )
-
-      const worksheet = XLSX.utils.aoa_to_sheet([
-        columns.map((column) => column.Header),
-        ...excelData
-      ])
-      const workbook = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-
-      const workbookData = XLSX.write(workbook, {
-        bookType: 'xlsx',
-        type: 'array'
-      })
-      const blob = new Blob([workbookData], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      })
-
-      saveAs(blob, 'transactions.xlsx')
-    } catch (error) {
-      console.error('Error creating Blob:', error)
-    }
-  }
-
   if (transactionsListIsSuccess) {
     return (
       <main className="my-12 w-full">
@@ -300,13 +390,13 @@ const TransactionTable = ({ user }) => {
                 headerGroup.headers.map((column) =>
                   column.Filter
                     ? (
-                    <div
-                      key={column.id}
-                      className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
-                    >
-                      <label htmlFor={column.id}></label>
-                      {column.render('Filter')}
-                    </div>
+                      <div
+                        key={column.id}
+                        className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
+                      >
+                        <label htmlFor={column.id}></label>
+                        {column.render('Filter')}
+                      </div>
                       )
                     : null
                 )
@@ -318,8 +408,8 @@ const TransactionTable = ({ user }) => {
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                   <div className='flex gap-2'>
-                  <Button value="Export to Excel" onClick={exportToExcel} />
-                  <Button value="Export to Pdf" onClick={exportToExcel} />
+                    <Button value="Export to Excel" onClick={handleExportToExcel} />
+                    <Button value="Export to Pdf" onClick={handleExportToPdf} />
                   </div>
 
                   <table
@@ -430,7 +520,7 @@ const TransactionTable = ({ user }) => {
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
                     onClick={() => gotoPage(0)}
-                    // disabled={!canPreviousPage}
+                  // disabled={!canPreviousPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       First
@@ -469,7 +559,7 @@ const TransactionTable = ({ user }) => {
                       gotoPage(offset - 1)
                       dispatch(setPage(offset > 0 ? offset - 1 : offset))
                     }}
-                    // disabled={!canNextPage}
+                  // disabled={!canNextPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       Last
