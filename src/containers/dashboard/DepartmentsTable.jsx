@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
-import * as XLSX from 'xlsx'
+import ExcelJS from "exceljs"
 import {
   useLazyGetCellVillagesQuery,
   useLazyGetDistrictCellsQuery,
@@ -355,74 +355,78 @@ const DepartmentsTable = ({ user }) => {
 
     reader.readAsDataURL(logoData)
   }
-
   const handleExportToExcel = () => {
-    const filteredData = data.map(({
-      id,
-      name,
-      phone1,
-      phone2,
-      email
-    }) => ({
-      NO: id,
-      Name: name,
-      'Phone 1': phone1,
-      'Phone 2': phone2,
-      Email: email
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("HouseHold Lists");
+    sheet.properties.defaultRowHeight = 80;
 
-    }))
+    sheet.getRow(1).border = {
+      top: { style: "thick", },
+      left: { style: "thick", },
+      bottom: { style: "thick", },
+      right: { style: "thick", },
+    };
 
-    const ws = XLSX.utils.json_to_sheet(filteredData)
+    sheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "darkVertical",
+      fgColor: { argb: "FFFF00" },
+    };
 
-    // Style for header cells
-    const headerStyle = {
-      font: { bold: true, color: { rgb: 'FFFFFF' } },
-      fill: { fgColor: { rgb: '000000' } } // Black background
-    }
+    sheet.getRow(1).font = {
+      name: "",
+      family: 4,
+      size: 12,
+      bold: true,
+    };
 
-    // Apply header style to header cells
-    Object.keys(ws).forEach(key => {
-      if (key.startsWith('A1') && ws[key].t === 's') {
-        ws[key].s = headerStyle
-      }
-    })
+    sheet.columns = [
+    { header:'ID', key:"id"},
+      { header: "Name", key: "name", width: 20 },
+      {
+        header: "Phone No",
+        key: "phone1",
+        width: 20,
+      },
+      {
+        header: "Phone No 2",
+        key: "phone2",
+        width: 10,
+      },
+      {
+        header: "Email",
+        key: "email",
+        width: 15,
+      },
+    ];
 
-    // Auto-size columns to fit content
-    const colWidths = []
-    for (const col in ws) {
-      if (col !== '!ref' && col !== '!rows' && col !== '!cols') {
-        const cellValue = ws[col].v ? ws[col].v.toString() : ''
-        const cellWidth = cellValue.length + 2 // Adjust for padding
-        colWidths.push({ wch: cellWidth })
-      }
-    }
-    ws['!cols'] = colWidths
+    const promise = Promise.all(
+      data?.map(async (department, index) => {
+        sheet.addRow({
+          id: index + 1,
+          name: department?.name,
+          phone1: department?.phone1,
+          phone2: department?.phone2,
+          email: department?.email,
+        });
+      })
+    );
 
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Households')
+    promise.then(() => {
 
-    // Write the workbook to a binary string
-    const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
-
-    // Convert binary string to ArrayBuffer
-    const buf = new ArrayBuffer(wbBinary.length)
-    const view = new Uint8Array(buf)
-    for (let i = 0; i < wbBinary.length; i++) {
-      view[i] = wbBinary.charCodeAt(i) & 0xff
-    }
-
-    // Create a Blob from the ArrayBuffer
-    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-
-    // Create a URL for the Blob
-    const blobUrl = URL.createObjectURL(blob)
-
-    // Create a link and click it to trigger the download
-    const link = document.createElement('a')
-    link.href = blobUrl
-    link.download = 'households.xlsx'
-    link.click()
-  }
+      workbook.xlsx.writeBuffer().then(function (data) {
+        const blob = new Blob([data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "download.xlsx";
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+      });
+    });
+  };
   const columns = useMemo(
     () => [
       {
@@ -435,20 +439,6 @@ const DepartmentsTable = ({ user }) => {
         accessor: 'phone1',
         sortable: true
       }
-
-      // {
-      //   Header: 'Details',
-      //   Cell: () => (
-      //     <span>
-      //       <button
-      //         className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-      //         type="button"
-      //       >
-      //         <BsEyeFill className="" />
-      //       </button>
-      //     </span>
-      //   ),
-      // },
     ],
     []
   )
