@@ -15,7 +15,7 @@ import Settings from './pages/Settings.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseholdDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
-import Report from './containers/dashboard/report.jsx'
+import Report from './containers/dashboard/Report.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
 import Department from './pages/dashboard/Department.jsx'
 
