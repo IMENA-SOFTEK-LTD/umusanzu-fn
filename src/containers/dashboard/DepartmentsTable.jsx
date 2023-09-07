@@ -10,6 +10,7 @@ import {
   useLazyGetCountryDistrictsQuery
 } from '../../states/api/apiSlice'
 import PropTypes from 'prop-types'
+import { FaEye } from 'react-icons/fa'
 import {
   useGlobalFilter,
   useTable,
@@ -27,12 +28,13 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { BsPersonFill, BsEyeFill } from 'react-icons/bs'
 import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faFileExcel,
+  faFilePdf
 } from '@fortawesome/free-solid-svg-icons'
 import Input from '../../components/Input'
 import { Link } from 'react-router-dom'
@@ -310,6 +312,7 @@ const DepartmentsTable = ({ user }) => {
   }
 
   const handleExportToPdf = async () => {
+    /* eslint-ignore-next-line */
     const doc = new jsPDF('landscape')
     const logoResponse = await fetch(logo)
     const logoData = await logoResponse.blob()
@@ -356,29 +359,29 @@ const DepartmentsTable = ({ user }) => {
     reader.readAsDataURL(logoData)
   }
   const handleExportToExcel = () => {
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet("HouseHold Lists");
-    sheet.properties.defaultRowHeight = 80;
+    const workbook = new ExcelJS.Workbook()
+    const sheet = workbook.addWorksheet("HouseHold Lists")
+    sheet.properties.defaultRowHeight = 80
 
     sheet.getRow(1).border = {
-      top: { style: "thick", },
-      left: { style: "thick", },
-      bottom: { style: "thick", },
-      right: { style: "thick", },
-    };
+      top: { style: "thick" },
+      left: { style: "thick" },
+      bottom: { style: "thick" },
+      right: { style: "thick" }
+    }
 
     sheet.getRow(1).fill = {
       type: "pattern",
       pattern: "darkVertical",
-      fgColor: { argb: "FFFF00" },
-    };
+      fgColor: { argb: "FFFF00" }
+    }
 
     sheet.getRow(1).font = {
       name: "",
       family: 4,
       size: 12,
-      bold: true,
-    };
+      bold: true
+    }
 
     sheet.columns = [
     { header:'ID', key:"id"},
@@ -386,19 +389,19 @@ const DepartmentsTable = ({ user }) => {
       {
         header: "Phone No",
         key: "phone1",
-        width: 20,
+        width: 20
       },
       {
         header: "Phone No 2",
         key: "phone2",
-        width: 10,
+        width: 10
       },
       {
         header: "Email",
         key: "email",
-        width: 15,
-      },
-    ];
+        width: 15
+      }
+    ]
 
     const promise = Promise.all(
       data?.map(async (department, index) => {
@@ -407,26 +410,26 @@ const DepartmentsTable = ({ user }) => {
           name: department?.name,
           phone1: department?.phone1,
           phone2: department?.phone2,
-          email: department?.email,
-        });
+          email: department?.email
+        })
       })
-    );
+    )
 
     promise.then(() => {
 
       workbook.xlsx.writeBuffer().then(function (data) {
         const blob = new Blob([data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        });
-        const url = window.URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = "download.xlsx";
-        anchor.click();
-        window.URL.revokeObjectURL(url);
-      });
-    });
-  };
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        })
+        const url = window.URL.createObjectURL(blob)
+        const anchor = document.createElement("a")
+        anchor.href = url
+        anchor.download = "download.xlsx"
+        anchor.click()
+        window.URL.revokeObjectURL(url)
+      })
+    })
+  }
   const columns = useMemo(
     () => [
       {
@@ -460,9 +463,9 @@ const DepartmentsTable = ({ user }) => {
         Cell: ({ row }) => (
           <Link
             to={`/admins/${row?.original?.ID}`}
-            className="flex items-center justify-center h-8 w-14 text-white bg-purple-500 rounded-sm shadow-md"
+            className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
           >
-            <BsPersonFill className="" />
+            <FaEye className="" />
           </Link>
         ),
         sortable: true
@@ -541,9 +544,26 @@ const DepartmentsTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                  <div className='flex gap-2'>
-                    <Button value="Export to Excel" onClick={handleExportToExcel} />
-                    <Button value="Export to Pdf" onClick={handleExportToPdf} />
+                  <div className="flex gap-2">
+
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export PDF
+                          <FontAwesomeIcon icon={faFilePdf} />
+                        </span>
+                      }
+                      onClick={handleExportToPdf}
+                    />
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export Excel
+                          <FontAwesomeIcon icon={faFileExcel} />
+                        </span>
+                      }
+                      onClick={handleExportToExcel}
+                    />
                   </div>
                   <table
                     {...getTableProps()}

@@ -12,7 +12,9 @@ import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faFileExcel,
+  faFilePdf
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -52,9 +54,9 @@ const TransactionTable = ({ user }) => {
     size,
     totalPages
   } = useSelector((state) => state.pagination)
-  const [totalCommission, setTotalCommission] = useState(0);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [totalRemaining, setTotalRemaining] = useState(0);
+  const [totalCommission, setTotalCommission] = useState(0)
+  const [totalAmount, setTotalAmount] = useState(0)
+  const [totalRemaining, setTotalRemaining] = useState(0)
   const dispatch = useDispatch()
   let department = ''
 
@@ -131,20 +133,20 @@ const TransactionTable = ({ user }) => {
   
   useEffect(() => {
     if (transactionsListIsSuccess) {
-      dispatch(setTotalPages(data?.data?.totalPages));
+      dispatch(setTotalPages(data?.data?.totalPages))
 
-      let totalCommission = 0;
-      let totalPaidAmount = 0;
-      let totalRemainingAmount = 0;
+      let totalCommission = 0
+      let totalPaidAmount = 0
+      let totalRemainingAmount = 0
 
       const mappedData = transactionsListData?.data?.rows?.map((row, index) => {
-        const paidAmount = Number(row?.amount) || 0;
-        const remainingAmount = Number(row?.payments[0]?.remain_amount) || 0;
+        const paidAmount = Number(row?.amount) || 0
+        const remainingAmount = Number(row?.payments[0]?.remain_amount) || 0
       
-        totalCommission += Number(row?.amount) / 10;
-        totalPaidAmount += paidAmount;
-        totalRemainingAmount += remainingAmount;
-        console.log("totalPaidAmount:", totalPaidAmount);
+        totalCommission += Number(row?.amount) / 10
+        totalPaidAmount += paidAmount
+        totalRemainingAmount += remainingAmount
+        console.log("totalPaidAmount:", totalPaidAmount)
         return {
           id: index + 1,
           name: row.households.name,
@@ -156,17 +158,17 @@ const TransactionTable = ({ user }) => {
           status: row?.payments[0]?.status,
           remain_amount: row?.payments[0]?.remain_amount,
           commission: Number(row?.amount) / 10,
-          transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
-        };
-      });
+          transaction_date: moment(row.created_at).format('DD-MM-YYYY')
+        }
+      })
  
-      setTotalCommission(totalCommission);
-      setTotalAmount(totalPaidAmount);
-      setTotalRemaining(totalRemainingAmount);
-      setData(mappedData);
+      setTotalCommission(totalCommission)
+      setTotalAmount(totalPaidAmount)
+      setTotalRemaining(totalRemainingAmount)
+      setData(mappedData)
       
     }
-  }, [transactionsListIsSuccess, transactionsListIsError, queryRoute]);
+  }, [transactionsListIsSuccess, transactionsListIsError, queryRoute])
 
   const handleExportToPdf = async () => {
     const doc = new jsPDF('landscape')
@@ -215,83 +217,83 @@ const TransactionTable = ({ user }) => {
     reader.readAsDataURL(logoData)
   }
   const handleExportToExcel = () => {
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet("Transaction");
-    sheet.properties.defaultRowHeight = 80;
+    const workbook = new ExcelJS.Workbook()
+    const sheet = workbook.addWorksheet("Transaction")
+    sheet.properties.defaultRowHeight = 80
 
     sheet.getRow(1).border = {
-      top: { style: "thick",  },
-      left: { style: "thick",  },
-      bottom: { style: "thick",  },
-      right: { style: "thick",  },
-    };
+      top: { style: "thick"  },
+      left: { style: "thick"  },
+      bottom: { style: "thick"  },
+      right: { style: "thick"  }
+    }
 
     sheet.getRow(1).fill = {
       type: "pattern",
       pattern: "darkVertical",
-      fgColor: { argb: "FFFF00" },
-    };
+      fgColor: { argb: "FFFF00" }
+    }
 
     sheet.getRow(1).font = {
       name: "",
       family: 4,
       size: 12,
-      bold: true,
-    };
+      bold: true
+    }
 
     sheet.columns = [
       {
         header: "Id",
         key: "id",
-        width: 5,
+        width: 5
       },
       { header: "Name", key: "name", width: 20 },
       {
         header: "Department",
         key: "department",
-        width: 20,
+        width: 20
       },
       {
         header: "Amount",
         key: "amount",
-        width: 10,
+        width: 10
       },
       {
         header: "Month paid",
         key: "month_paid",
-        width: 15,
+        width: 15
       },
       {
         header: "Payment method",
         key: "payment_method",
-        width: 15,
+        width: 15
       },
       {
         header: "Status",
         key: "status",
-        width: 10,
+        width: 10
       },
       {
         header: "Remain amount",
         key: "remain_amount",
-        width: 10,
+        width: 10
       },
       {
         header: "Agent",
         key: "agent",
-        width: 20,
+        width: 20
       },
       {
         header: "Commission",
         key: "commission",
-        width: 10,
+        width: 10
       },
       {
         header: "Transaction date",
         key: "transaction_date",
-        width: 20,
-      },
-    ];
+        width: 20
+      }
+    ]
 
     const promise = Promise.all(
       data?.map(async (transaction, index) => {
@@ -306,26 +308,26 @@ const TransactionTable = ({ user }) => {
           remain_amount: transaction?.remain_amount,
           agent: transaction?.agent,
           commission: transaction?.commission,
-          transaction_date: transaction?.transaction_date,
-        });
+          transaction_date: transaction?.transaction_date
+        })
       })
-    );
+    )
 
     promise.then(() => {
 
       workbook.xlsx.writeBuffer().then(function (data) {
         const blob = new Blob([data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        });
-        const url = window.URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = "download.xlsx";
-        anchor.click();
-        window.URL.revokeObjectURL(url);
-      });
-    });
-  };
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        })
+        const url = window.URL.createObjectURL(blob)
+        const anchor = document.createElement("a")
+        anchor.href = url
+        anchor.download = "download.xlsx"
+        anchor.click()
+        window.URL.revokeObjectURL(url)
+      })
+    })
+  }
   
   const columns = useMemo(
     () => [
@@ -470,9 +472,26 @@ const TransactionTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                  <div className='flex gap-2'>
-                    <Button value="Export to Excel" onClick={handleExportToExcel} />
-                    <Button value="Export to Pdf" onClick={handleExportToPdf} />
+                  <div className="flex gap-2">
+
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export PDF
+                          <FontAwesomeIcon icon={faFilePdf} />
+                        </span>
+                      }
+                      onClick={handleExportToPdf}
+                    />
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export Excel
+                          <FontAwesomeIcon icon={faFileExcel} />
+                        </span>
+                      }
+                      onClick={handleExportToExcel}
+                    />
                   </div>
 
                   <table
@@ -535,6 +554,7 @@ const TransactionTable = ({ user }) => {
         <table
           className="w-[95%] mx-auto my-6 divide-y divide-gray-200"
         >
+          <tbody>
           <tr className="bg-gray-100 ">
             <td className="px-6 py-4 text-gray-800 font-semibold">Total Amout:</td>
             <td className="px-6 py-4 text-gray-800 font-semibold">{totalAmount} RWF</td>
@@ -542,7 +562,8 @@ const TransactionTable = ({ user }) => {
             <td className="px-6 py-4 text-gray-800 font-semibold">{totalCommission} RWF</td>
             <td className="px-6 py-4 text-gray-800 font-semibold">Total Remaining:</td>
             <td className="px-6 py-4 text-gray-800 font-semibold">{totalRemaining} RWF</td>
-          </tr>
+            </tr>
+          </tbody>
         </table>
         <div className="pagination w-[95%] mx-auto">
           <div className="py-3 flex items-center justify-between">

@@ -27,17 +27,17 @@ Button.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.element,
-    PropTypes.shape({}),
+    PropTypes.shape({})
   ]).isRequired,
   type: PropTypes.string,
   className: PropTypes.string,
   route: PropTypes.string,
   submit: PropTypes.bool,
-  onClick: PropTypes.func,
+  onClick: PropTypes.func
 }
 
 Button.defaultProps = {
-  type: 'submit',
+  type: 'submit'
 }
 
 export function PageButton({ children, className, ...rest }) {

@@ -1,4 +1,9 @@
-import moment from 'moment'
+import { useEffect, useState } from 'react';
+import moment from 'moment';
+import {
+  useLazyGetHouseholdTransactionsByMonthPaidQuery
+} from '../../states/api/apiSlice';
+import { useParams } from 'react-router';
 
 const HouseHoldDetailTable = ({
   transactions,
@@ -9,6 +14,38 @@ const HouseHoldDetailTable = ({
   district,
   province
 }) => {
+  const [data, setData] = useState(null);
+  const { id } = useParams();
+  const [monthPaid, setMonthPaid] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+
+  const [getHouseholdTransactionsByMonthPaid, {
+    data: transactionsData,
+    isSuccess: transactionsSuccess,
+    isError: transactionsError,
+    error: transactionsErrorRes
+  }] = useLazyGetHouseholdTransactionsByMonthPaidQuery();
+
+  useEffect(() => {
+    getHouseholdTransactionsByMonthPaid({
+      departmentId: id,
+      month: monthPaid
+    });
+  }, [id, monthPaid]);
+  useEffect(() => {
+    if (transactionsSuccess) {
+      setData(transactionsData?.data || []);
+    }
+  }, [transactionsSuccess, transactionsData]);
+
+  const openModal = (month_paid) => {
+    setMonthPaid(month_paid);
+    setIsModalOpen(true); 
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false); 
+  };
   return (
     <div className="page-wrapper p-4 mt-8">
       <div className="page-content-wrapper">
@@ -49,15 +86,15 @@ const HouseHoldDetailTable = ({
                           year: 'numeric'
                         })
 
-                        let payStatus = ''
+                        let payStatus = '';
                         if (transaction.status === 'PENDING') {
-                          payStatus = 'bg-red-500 text-white'
+                          payStatus = 'bg-red-500 text-white';
                         } else if (transaction.status === 'PARTIAL') {
-                          payStatus = 'bg-blue-500 text-white'
+                          payStatus = 'bg-blue-500 text-white';
                         } else if (transaction.status === 'PAID') {
-                          payStatus = 'bg-green-500 text-white'
+                          payStatus = 'bg-green-500 text-white';
                         } else {
-                          payStatus = 'bg-yellow-500 text-white'
+                          payStatus = 'bg-yellow-500 text-white';
                         }
                         return (
                           <tr key={transaction.id} className="border-b">
@@ -91,7 +128,7 @@ const HouseHoldDetailTable = ({
                             <td className="py-3 px-4 whitespace-nowrap">
                               <a
                                 className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300"
-                                href={`viewHistory/${transaction.id}/${paidMonth}/${transaction.amount}/${transaction.remain_amount}`}
+                                onClick={() => openModal(transaction.month_paid)}
                               >
                                 <i className="mr-2 text-lg bx bx-eyes"></i>
                                 View History
@@ -99,8 +136,7 @@ const HouseHoldDetailTable = ({
                             </td>
 
                             <td className="py-3 px-4 whitespace-nowrap">
-                              {transaction.status === 'PAID'
-                                ? (
+                              {transaction.status === 'PAID' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
                                   href={`receipt/${transaction.guid}`}
@@ -108,9 +144,7 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-download"></i>
                                   Receipt
                                 </a>
-                                  )
-                                : transaction.status === 'PENDING'
-                                  ? (
+                              ) : transaction.status === 'PENDING' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-sm hover:bg-red-600 transition duration-300"
                                   href={`invoice/${transaction.guid}`}
@@ -118,9 +152,7 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-file"></i>
                                   Invoice
                                 </a>
-                                    )
-                                  : transaction.status === 'PARTIAL'
-                                    ? (
+                              ) : transaction.status === 'PARTIAL' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300"
                                   href={`partial-receipt/${transaction.guid}`}
@@ -128,8 +160,7 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-download"></i>
                                   Partial Receipt
                                 </a>
-                                      )
-                                    : (
+                              ) : (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
                                   href={`receipt/${transaction.guid}`}
@@ -137,14 +168,14 @@ const HouseHoldDetailTable = ({
                                   <i className="mr-2 text-lg bx bx-download"></i>
                                   Receipt
                                 </a>
-                                      )}
+                              )}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.id}IMS
                               {transaction?.agents?.names.split(' ')[0]}
                             </td>
                           </tr>
-                        )
+                        );
                       })}
                     </tbody>
                   </table>
@@ -217,8 +248,55 @@ const HouseHoldDetailTable = ({
           </div>
         </div>
       </div>
-    </div>
-  )
-}
+  
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="modal-overlay fixed inset-0 bg-black opacity-50"></div>
 
-export default HouseHoldDetailTable
+          <div className="modal-container h-[50vh] w-[50vw] bg-white mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            <div className="modal-content py-4 text-left px-6">
+              <div className="flex justify-between items-center pb-3">
+                <p className="text-2xl font-bold">Transaction History</p>
+                <button onClick={closeModal} className="modal-close cursor-pointer z-50">
+                  &times;
+                </button>
+              </div>
+              <p className="mb-4">Month: {monthPaid}</p>
+              <p className="mb-4">Amount Paid: {data[0]?.ubudehe} RWF</p>
+              <p className="mb-4">Remaining Amount: {data[0]?.ubudehe - data[0]?.totalAmount} RWF</p>
+              <p className="mb-4">Total: {data[0]?.totalAmount} RWF</p>
+              <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="py-2 px-4 border whitespace-nowrap">ID</th>
+                      <th className="py-2 px-4 border whitespace-nowrap">Amount Paid</th>
+                      <th className="py-2 px-4 border whitespace-nowrap">Paid At</th>
+                      <th className="py-2 px-4 border whitespace-nowrap">Created At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data[0]?.transactions.map((transaction, index) => (
+                      <tr key={index}>
+                        <td className="py-2 px-4 border whitespace-nowrap">{index + 1}</td>
+                        <td className="py-2 px-4 border whitespace-nowrap">{transaction.amount} RWF</td>
+                        <td className="py-2 px-4 border whitespace-nowrap">
+                          {moment(transaction.transaction_date).format('YYYY-MM-DD HH:mm:ss')}
+                        </td>
+                        <td className="py-2 px-4 border whitespace-nowrap">
+                          {moment(transaction.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default HouseHoldDetailTable;

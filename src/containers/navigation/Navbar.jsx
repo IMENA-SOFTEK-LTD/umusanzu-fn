@@ -74,16 +74,18 @@ function Navbar ({ user }) {
           >
             Settings
           </Link>
-          <Button
+          <Link
             className="bg-white text-[15px] w-full py-4 px-8 flex items-center z-[999] justify-center hover:scale-[1.01] hover:bg-cyan-800 hover:text-white"
-            value="Logout"
+            
             onClick={(e) => {
               e.preventDefault()
               logOut()
               dispatch(toggleNavDropdown(!navDropdown))
               navigate('/login')
             }}
-          />
+          >
+            Logout
+          </Link>
         </article>
       </div>
     </nav>

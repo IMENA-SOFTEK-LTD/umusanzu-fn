@@ -11,11 +11,11 @@ const getMonthName = () => {
     'September',
     'October',
     'November',
-    'December',
+    'December'
   ]
 
   const d = new Date()
   return monthNames[d.getMonth()]
 }
 
-export default getMonthName;
+export default getMonthName

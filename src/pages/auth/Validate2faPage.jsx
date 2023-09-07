@@ -20,8 +20,8 @@ const Validate2faPage = () => {
       isLoading: otpLoading,
       isSuccess: otpIsSuccess,
       isError: otpIsError,
-      error: otpError,
-    },
+      error: otpError
+    }
   ] = useVerifyOtpMutation()
 
   const inputRefs = useRef([])
@@ -70,7 +70,7 @@ const Validate2faPage = () => {
 
       verifyOtp({
         username: user?.username,
-        code: otpCode,
+        code: otpCode
       })
     } catch (error) {
       console.error('Error verifying OTP:', error)
