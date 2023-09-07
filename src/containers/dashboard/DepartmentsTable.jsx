@@ -28,12 +28,13 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { BsPersonFill, BsEyeFill } from 'react-icons/bs'
 import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faFileExcel,
+  faFilePdf
 } from '@fortawesome/free-solid-svg-icons'
 import Input from '../../components/Input'
 import { Link } from 'react-router-dom'
@@ -543,9 +544,26 @@ const DepartmentsTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                  <div className='flex gap-2'>
-                    <Button value="Export to Excel" onClick={handleExportToExcel} />
-                    <Button value="Export to Pdf" onClick={handleExportToPdf} />
+                  <div className="flex gap-2">
+
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export PDF
+                          <FontAwesomeIcon icon={faFilePdf} />
+                        </span>
+                      }
+                      onClick={handleExportToPdf}
+                    />
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export Excel
+                          <FontAwesomeIcon icon={faFileExcel} />
+                        </span>
+                      }
+                      onClick={handleExportToExcel}
+                    />
                   </div>
                   <table
                     {...getTableProps()}

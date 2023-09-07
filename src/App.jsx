@@ -15,6 +15,7 @@ import Settings from './pages/Settings.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseholdDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
+import Report from './containers/dashboard/report.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
 import Department from './pages/dashboard/Department.jsx'
 
@@ -59,6 +60,7 @@ const App = () => {
               path="/households"
               element={<HouseholdTable user={user || stateUser} />}
             />
+            <Route path="/dashboard/report" element={<Report user={user || stateUser} />} />
             <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/households/:id" element={<HouseholdDetail />} />
             <Route

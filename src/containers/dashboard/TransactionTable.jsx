@@ -12,7 +12,9 @@ import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
-  faChevronRight
+  faChevronRight,
+  faFileExcel,
+  faFilePdf
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -470,9 +472,26 @@ const TransactionTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                  <div className='flex gap-2'>
-                    <Button value="Export to Excel" onClick={handleExportToExcel} />
-                    <Button value="Export to Pdf" onClick={handleExportToPdf} />
+                  <div className="flex gap-2">
+
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export PDF
+                          <FontAwesomeIcon icon={faFilePdf} />
+                        </span>
+                      }
+                      onClick={handleExportToPdf}
+                    />
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export Excel
+                          <FontAwesomeIcon icon={faFileExcel} />
+                        </span>
+                      }
+                      onClick={handleExportToExcel}
+                    />
                   </div>
 
                   <table
@@ -535,6 +554,7 @@ const TransactionTable = ({ user }) => {
         <table
           className="w-[95%] mx-auto my-6 divide-y divide-gray-200"
         >
+          <tbody>
           <tr className="bg-gray-100 ">
             <td className="px-6 py-4 text-gray-800 font-semibold">Total Amout:</td>
             <td className="px-6 py-4 text-gray-800 font-semibold">{totalAmount} RWF</td>
@@ -542,7 +562,8 @@ const TransactionTable = ({ user }) => {
             <td className="px-6 py-4 text-gray-800 font-semibold">{totalCommission} RWF</td>
             <td className="px-6 py-4 text-gray-800 font-semibold">Total Remaining:</td>
             <td className="px-6 py-4 text-gray-800 font-semibold">{totalRemaining} RWF</td>
-          </tr>
+            </tr>
+          </tbody>
         </table>
         <div className="pagination w-[95%] mx-auto">
           <div className="py-3 flex items-center justify-between">
