@@ -2,12 +2,11 @@ import 'core-js/stable'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
-import ExcelJS from "exceljs"
+import * as XLSX from 'xlsx';
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { FaEye } from 'react-icons/fa'
-import { BsPersonFill, BsEyeFill } from 'react-icons/bs'
 import queryString from 'query-string'
 import {
   faAnglesLeft,
@@ -173,19 +172,40 @@ const HouseholdTable = ({ user }) => {
         head: [headerRow],
         theme: 'grid',
         styles: {
-          cellPadding: { top: 5, right: 5, bottom: 5, left: 5 }
+          fillColor: '#EDEDED',
+          textColor: '#000000',
+          fontStyle: 'bold',
+          halign: 'center',
+          valign: 'middle',
+          fontSize: 8,
         },
         columnStyles: {}
       })
-
-      const filteredData = data.map(({ ID, ...rest }) => rest)
+      const filteredAndSortedData = TableInstance.rows.map((row) => [
+        row.index + 1, 
+        row.original?.name,
+        row.original?.phone1,
+        row.original?.phone2,
+        row.original?.ubudehe,
+        row.original?.status,
+      ]);
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
-        body: filteredData,
+        body: filteredAndSortedData.map(row => Object.values(row)),
         theme: 'grid',
-        styles: {},
-        columnStyles: {}
+        styles: {
+          halign: 'center',
+        },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 50 },
+          2: { cellWidth: 50 },
+          3: { cellWidth: 50 },
+          4: { cellWidth: 50 },
+          5: { cellWidth: 39 },
+
+        },
       })
 
       doc.save('households.pdf')
@@ -193,83 +213,85 @@ const HouseholdTable = ({ user }) => {
 
     reader.readAsDataURL(logoData)
   }
-
   const handleExportToExcel = () => {
-    const workbook = new ExcelJS.Workbook()
-    const sheet = workbook.addWorksheet("HouseHold Lists")
-    sheet.properties.defaultRowHeight = 80
+    if (TableInstance) {
+      const filteredAndSortedData = TableInstance.rows.map((row) => row.original);
+  
+      const ws = XLSX.utils.json_to_sheet(filteredAndSortedData);
 
-    sheet.getRow(1).border = {
-      top: { style: "thick" },
-      left: { style: "thick" },
-      bottom: { style: "thick" },
-      right: { style: "thick" }
-    }
+      const headerStyle = {
+        font: { bold: true, color: { rgb: 'FFFFFF' } },
+        fill: { fgColor: { rgb: '000000' } },
+      };
+      const range = XLSX.utils.decode_range(ws['!ref']);
 
-    sheet.getRow(1).fill = {
-      type: "pattern",
-      pattern: "darkVertical",
-      fgColor: { argb: "FFFF00" }
-    }
-
-    sheet.getRow(1).font = {
-      name: "",
-      family: 4,
-      size: 12,
-      bold: true
-    }
-
-    sheet.columns = [
-      { header: "Name", key: "name", width: 20 },
-      {
-        header: "Phone No",
-        key: "phone1",
-        width: 20
-      },
-      {
-        header: "Phone No 2",
-        key: "phone2",
-        width: 10
-      },
-      {
-        header: "Ubudehe",
-        key: "ubudehe",
-        width: 15
-      },
-      {
-        header: "Status",
-        key: "status",
-        width: 10
+      for (let i = range.s.c; i <= range.e.c; i++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: i });
+        ws[cellAddress].s = headerStyle;
       }
-    ]
+      const columnStyles = [
+        {
+          column: 'A', style: {
+            fontSize: 8,
+          }
+        },
+        { column: 'B', style: { fontSize: 8 } },
+        { column: 'C', style: { fontSize: 8 } },
+        { column: 'D', style: { fontSize: 8 } },
+        { column: 'E', style: { fontSize: 8 } },
+        { column: 'F', style: { fontSize: 8 } },
+      ];
 
-    const promise = Promise.all(
-      data?.map(async (household) => {
-        sheet.addRow({
-          name: household?.name,
-          phone1: household?.phone1,
-          phone2: household?.phone2,
-          ubudehe: household?.ubudehe,
-          status: household?.status
-        })
-      })
-    )
 
-    promise.then(() => {
+      columnStyles.forEach((colStyle) => {
+        for (let i = range.s.r + 1; i <= range.e.r; i++) {
+          const cellAddress = XLSX.utils.encode_cell({ r: i, c: XLSX.utils.decode_col(colStyle.column) });
+          ws[cellAddress].s = colStyle.style;
+        }
+      });
+      ws['!autofilter'] = { ref: ws['!ref'] }; 
+      ws['!cols'] = [
+        { width: 5 },
+        { width: 25 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
 
-      workbook.xlsx.writeBuffer().then(function (data) {
-        const blob = new Blob([data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        })
-        const url = window.URL.createObjectURL(blob)
-        const anchor = document.createElement("a")
-        anchor.href = url
-        anchor.download = "download.xlsx"
-        anchor.click()
-        window.URL.revokeObjectURL(url)
-      })
-    })
-  }
+
+      ];
+      ws['!rows'] = [
+      ];
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        'REPORTS '
+      );
+      const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+      const buf = new ArrayBuffer(wbBinary.length);
+      const view = new Uint8Array(buf);
+      for (let i = 0; i < wbBinary.length; i++) {
+        view[i] = wbBinary.charCodeAt(i) & 0xff;
+      }
+
+      const blob = new Blob([buf], {
+        type:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'HouseHoldLists.xlsx';
+      link.click();
+    }
+  };
   const columns = useMemo(
     () => [
       {
