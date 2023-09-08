@@ -9,6 +9,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect } from 'react'
 import Loading from './Loading'
+import Button from './Button'
 
 const HouseholdDetailsCard = ({
   props = {
@@ -216,9 +217,10 @@ const HouseholdDetailsCard = ({
         </figure>
       </section>
       <section className="border-t-[1px] bg-slate-200 flex w-full items-center justify-between p-2 px-4 ">
-        <button className="p-2 px-4 rounded-sm shadow-2xl ease-in-out duration-300 bg-slate-00 text-white text-[15px] hover:bg-accent hover:text-white bg-amber-600">
-          View more
-        </button>
+        <Button
+        value="View more"
+        route={`/households/?query=ubudehe&ubudehe=${newProps.amount}`}
+        />
       </section>
     </article>
   )

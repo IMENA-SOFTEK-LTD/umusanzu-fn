@@ -1,5 +1,4 @@
 import 'core-js/stable';
-import 'regenerator-runtime/runtime';
 import { useState, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import 'jspdf-autotable';

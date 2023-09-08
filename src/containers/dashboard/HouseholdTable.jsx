@@ -7,6 +7,8 @@ import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { FaEye } from 'react-icons/fa'
+import { BsPersonFill, BsEyeFill } from 'react-icons/bs'
+import queryString from 'query-string'
 import {
   faAnglesLeft,
   faAnglesRight,
@@ -56,6 +58,14 @@ const HouseholdTable = ({ user }) => {
 
   const dispatch = useDispatch()
 
+  const queryRoute = queryString.parse(location.search);
+
+  useEffect(() => {
+    if (householdsListIsSuccess) setTimeout(() => {
+      dispatch(setSize(1000000000))
+    }, 3000);
+}, [householdsListData, householdsListIsSuccess])
+
   let department = ''
 
   switch (user?.departments?.level_id) {
@@ -84,6 +94,18 @@ const HouseholdTable = ({ user }) => {
   const [data, setData] = useState(householdsListData?.data || [])
 
   useEffect(() => {
+    getHouseholdsList({
+      department,
+      departmentId: user?.departments?.id,
+      id: user?.departments?.id,
+      size,
+      route: queryRoute?.query || '',
+      page: offset,
+      ubudehe: queryRoute?.ubudehe,
+    })
+  }, [])
+
+  useEffect(() => {
     if (householdsListIsSuccess) {
       dispatch(setTotalPages(householdsListData?.data?.totalPages))
       setData(
@@ -98,7 +120,7 @@ const HouseholdTable = ({ user }) => {
         })) || []
       )
     }
-  }, [householdsListData, householdsListIsSuccess, dispatch])
+  }, [householdsListData, householdsListIsSuccess])
 
   useEffect(() => {
     getHouseholdsList({
@@ -106,7 +128,9 @@ const HouseholdTable = ({ user }) => {
       departmentId: user?.departments?.id,
       id: user?.departments?.id,
       size,
-      page: offset
+      page: offset,
+      ubudehe: queryRoute?.ubudehe,
+      route: queryRoute?.query || '',
     })
       .unwrap()
       .then((data) => {
@@ -123,7 +147,7 @@ const HouseholdTable = ({ user }) => {
           })) || []
         )
       })
-  }, [offset, size, department, user?.departments?.id, dispatch])
+  }, [offset, size])
 
   const handleExportToPdf = async () => {
     const doc = new jsPDF('landscape')
@@ -220,7 +244,7 @@ const HouseholdTable = ({ user }) => {
     ]
 
     const promise = Promise.all(
-      data?.map(async (household, index) => {
+      data?.map(async (household) => {
         sheet.addRow({
           name: household?.name,
           phone1: household?.phone1,

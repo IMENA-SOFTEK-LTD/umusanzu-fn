@@ -145,11 +145,29 @@ export const apiSlice = createApi({
         }),
       }),
       getHouseholdsList: builder.query({
-        query: ({ department, departmentId, page, size }) => ({
-          url: `/${department}/households/?departmentId=${departmentId}&page=${
-            page || 0
-          }&size=${size || 20}`,
-        }),
+        query: ({ department, departmentId, page, size, route, ubudehe }) => {
+          if (route === '') {
+            return {
+              url: `/${department}/households/?departmentId=${departmentId}&page=${
+                page || 0
+              }&size=${size || 20}`
+            }
+          }
+          else if (route === 'ubudehe') {
+            return {
+              url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${
+                page || 0
+              }&size=${size || 20}&ubudehe=${ubudehe}`
+            }
+          }
+          else {
+            return {
+              url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${
+                page || 0
+              }&size=${size || 20}&ubudehe=${ubudehe}`
+            }
+          }
+        }
       }),
       createHouseHold: builder.mutation({
         query: ({ name, ubudehe, nid, phone1, phone2, departmentId }) => ({

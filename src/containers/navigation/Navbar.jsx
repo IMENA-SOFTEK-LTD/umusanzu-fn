@@ -54,7 +54,7 @@ function Navbar ({ user }) {
               dispatch(toggleNavDropdown(!navDropdown))
             }}
           />
-          <p className="text-gray-400 uppercase">{user?.departments?.name}</p>
+          <p className="text-gray-400 uppercase">{user?.departments?.name || user?.department}</p>
         </span>
         <figure className="ml-2 w-fit">
           <img
@@ -66,7 +66,7 @@ function Navbar ({ user }) {
         <article
           className={`${
             !navDropdown ? 'translate-y-[-200%]' : 'translate-y-0'
-          } ease-in-out duration-500 absolute top-14 right-20 rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[15rem]`}
+          } ease-in-out duration-500 absolute top-20 right-20 rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[15rem]`}
         >
           <Link
             to="/settings"
