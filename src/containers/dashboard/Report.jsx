@@ -88,92 +88,132 @@ const Report = ({ user }) => {
         ];
         const headerRow = columnHeader.map((header) => ({
             content: header,
-            styles: { halign: 'center', fontSize: 8 },
+            styles: {
+                fillColor: '#EDEDED',
+                textColor: '#000000',
+                fontStyle: 'bold',
+                halign: 'center',
+                valign: 'middle',
+                fontSize: 8,    
+            },
         }));
 
         doc.autoTable({
             startY: 10,
             head: [headerRow],
             theme: 'grid',
-            columnStyles: {
-                0: { cellWidth: 10 },
-                1: { cellWidth: 20 },
-                2: { cellWidth: 30 },
-                3: { cellWidth: 20 },
-                4: { cellWidth: 20 },
-                5: { cellWidth: 20 },
-                6: { cellWidth: 20 },
-                7: { cellWidth: 20 },
-                8: { cellWidth: 20 },
-                9: { cellWidth: 20 },
-                10: { cellWidth: 20 },
-                11: { cellWidth: 20 },
-                12: { cellWidth: 20 },
-                13: { cellWidth: 20 },
-            },
         });
 
         doc.autoTable({
             startY: doc.lastAutoTable.finalY + 5,
             head: false,
-            body: data,
+            body: TableInstance.rows.map((row) => row.original),
             theme: 'grid',
-            styles: {},
-            columnStyles: {},
+            styles: {
+                fontSize: 8,
+
+            },
+            columnStyles: {
+                0: { cellWidth: 10 },
+                1: { cellWidth: 40 },
+                2: { cellWidth: 20 },
+                3: { cellWidth: 30 },
+                4: { cellWidth: 26 },
+                5: { cellWidth: 45 },
+                6: { cellWidth: 50 },
+
+            },
         });
         doc.save('KACYIRU SECTOR  TRANSACTIONS AUGUST 2023.pdf');
     };
 
     const handleExportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(data);
+        if (TableInstance) {
+            const filteredAndSortedData = TableInstance.rows.map((row) => row.original);
 
-        const headerStyle = {
-            font: { bold: true, color: { rgb: 'FFFFFF' } },
-            fill: { fgColor: { rgb: '000000' } },
-        };
+            const ws = XLSX.utils.json_to_sheet(filteredAndSortedData);
 
-        Object.keys(ws).forEach((key) => {
-            if (key.startsWith('A1') && ws[key].t === 's') {
-                ws[key].s = headerStyle;
+            const headerStyle = {
+                font: { bold: true, color: { rgb: 'FFFFFF' } },
+                fill: { fgColor: { rgb: '000000' } },
+            };
+
+            // Calculate the range of the worksheet based on data.
+            const range = XLSX.utils.decode_range(ws['!ref']);
+
+            // Apply header style to the first row (assuming headers are in the first row).
+            for (let i = range.s.c; i <= range.e.c; i++) {
+                const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: i });
+                ws[cellAddress].s = headerStyle;
             }
-        });
 
-        const colWidths = [];
-        for (const col in ws) {
-            if (
-                col !== '!ref' &&
-                col !== '!rows' &&
-                col !== '!cols' &&
-                ws[col] &&
-                ws[col].v
-            ) {
-                const cellValue = ws[col].v.toString();
-                const cellWidth = cellValue.length + 2;
-                colWidths.push({ wch: cellWidth });
+            // Define column styles (adjust cell references and styles as needed).
+            const columnStyles = [
+                {
+                    column: 'A', style: {
+                        fontSize: 8,
+                    }
+                },
+                { column: 'B', style: { fontSize: 8 } },
+                { column: 'C', style: { fontSize: 8 } },
+                { column: 'D', style: { fontSize: 8 } },
+                { column: 'E', style: { fontSize: 8 } },
+                { column: 'F', style: { fontSize: 8 } },
+                { column: 'G', style: { fontSize: 8 } },
+                { column: 'H', style: { fontSize: 8 } },
+            ];
+
+            // Apply column styles.
+            columnStyles.forEach((colStyle) => {
+                for (let i = range.s.r + 1; i <= range.e.r; i++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: i, c: XLSX.utils.decode_col(colStyle.column) });
+                    ws[cellAddress].s = colStyle.style;
+                }
+            });
+
+            // Set column widths to auto-fit content for the body of the sheet.
+            ws['!autofilter'] = { ref: ws['!ref'] }; // Enable autofilter for headers
+            ws['!cols'] = [
+                { width: 5 },
+                { width: 25 },
+                { width: 15 },
+                { width: 15 },
+                { width: 15 },
+                { width: 15 },
+                { width: 15 },
+                { width: 15 },
+
+
+            ];
+            ws['!rows'] = [
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(
+                wb,
+                ws,
+                'REPORTS '
+            );
+            const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+            const buf = new ArrayBuffer(wbBinary.length);
+            const view = new Uint8Array(buf);
+            for (let i = 0; i < wbBinary.length; i++) {
+                view[i] = wbBinary.charCodeAt(i) & 0xff;
             }
+
+            const blob = new Blob([buf], {
+                type:
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            const blobUrl = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'KACYIRU SECTOR  TRANSACTIONS AUGUST 2023.xlsx';
+            link.click();
         }
-        ws['!cols'] = colWidths;
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'KACYIRU SECTOR  TRANSACTIONS AUGUST 2023');
-        const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-
-        const buf = new ArrayBuffer(wbBinary.length);
-        const view = new Uint8Array(buf);
-        for (let i = 0; i < wbBinary.length; i++) {
-            view[i] = wbBinary.charCodeAt(i) & 0xff;
-        }
-
-        const blob = new Blob([buf], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        });
-
-        const blobUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = 'KACYIRU SECTOR  TRANSACTIONS AUGUST 2023.xlsx';
-        link.click();
     };
 
     const columns = useMemo(

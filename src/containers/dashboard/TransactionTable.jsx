@@ -196,44 +196,50 @@ const TransactionTable = ({ user }) => {
       doc.text('Transaction Report', 50, 25)
 
       doc.setFontSize(8)
+
       const columnHeader = [
         'NO',
         'NAMES',
         'VILLAGE',
+        'CELL',
+        'SECTOR',
+        'DISTRICT',
         'AMOUNT',
         'MONTH PAID',
         'STATUS',
-        'REMAINING',
-        'PAYMENT',
-        'METHOD',
+        'REMAINING AMOUNT',
+        'PAYMENT METHOD',
         'AGENT',
         'COMMISSION',
         'DATE',
       ]
-      const headerRow = columnHeader.map((header) => ({ content: header }))
+      const headerRow = columnHeader.map((header) => ({
+        content: header
+      }))
       doc.autoTable({
         startY: 50,
         head: [headerRow],
         theme: 'grid',
         styles: {
-          cellPadding: { top: 5, right: 5, bottom: 5, left: 5 },
+          fillColor: '#EDEDED',
+          textColor: '#000000',
+          fontStyle: 'bold',
+          halign: 'center',
+          valign: 'middle',
           fontSize: 8,
+
         },
-        columnStyles: {},
       })
 
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
-        body: data,
+        body: TableInstance.rows.map((row) => row.original),
         theme: 'grid',
         styles: {
           fontSize: 8,
         },
-        columnStyles: {},
       })
-
-      // Save the PDF
       doc.save('households.pdf')
     }
 
@@ -319,20 +325,20 @@ const TransactionTable = ({ user }) => {
     ]
 
     const promise = Promise.all(
-      data?.map(async (transaction) => {
+      TableInstance.rows.map(async (row) => {
         sheet.addRow({
-          id: transaction?.id,
-          name: transaction?.name,
-          department: transaction?.department,
-          amount: transaction?.amount,
-          month_paid: transaction?.month_paid,
-          payment_method: transaction?.payment_method,
-          status: transaction?.status,
-          remain_amount: transaction?.remain_amount,
-          agent: transaction?.agent,
-          commission: transaction?.commission,
-          transaction_date: transaction?.transaction_date,
-        })
+          id: row.original?.id,
+          name: row.original?.name,
+          department: row.original?.department,
+          amount: row.original?.amount,
+          month_paid: row.original?.month_paid,
+          payment_method: row.original?.payment_method,
+          status: row.original?.status,
+          remain_amount: row.original?.remain_amount,
+          agent: row.original?.agent,
+          commission: row.original?.commission,
+          transaction_date: row.original?.transaction_date,
+        });
       })
     )
 
