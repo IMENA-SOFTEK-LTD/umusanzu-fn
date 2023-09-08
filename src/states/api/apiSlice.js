@@ -353,6 +353,36 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
+      getCountryChildren: builder.query({
+        query: ({ departmentId }) => ({
+          url: `/department/country/${departmentId}/children`,
+          method: 'GET',
+        }),
+      }),
+      getProvinceChildren: builder.query({
+        query: ({ departmentId }) => ({
+          url: `/department/province/${departmentId}/children`,
+          method: 'GET',
+        }),
+      }),
+      getDistrictChildren: builder.query({
+        query: ({ departmentId }) => ({
+          url: `/department/district/${departmentId}/children`,
+          method: 'GET',
+        }),
+      }),
+      getSectorChildren: builder.query({
+        query: ({ departmentId }) => ({
+          url: `/department/sector/${departmentId}/children`,
+          method: 'GET',
+        }),
+      }),
+      getCellChildren: builder.query({
+        query: ({ departmentId }) => ({
+          url: `/department/cell/${departmentId}/children`,
+          method: 'GET',
+        }),
+      }),
     }
   }
 })
@@ -385,8 +415,10 @@ export const {
   useUpdateStaffDetailsMutation,
   useLazyGetHouseholdDepartmentsQuery,
   useUpdateAdminStatusMutation,
-  useRecordOfflinePaymentMutation
-
-
-
+  useRecordOfflinePaymentMutation,
+  useLazyGetProvinceChildrenQuery,
+  useLazyGetDistrictChildrenQuery,
+  useLazyGetSectorChildrenQuery,
+  useLazyGetCellChildrenQuery,
+  useLazyGetCountryChildrenQuery,
 } = apiSlice

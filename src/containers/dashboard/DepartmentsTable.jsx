@@ -7,7 +7,12 @@ import {
   useLazyGetCellVillagesQuery,
   useLazyGetDistrictCellsQuery,
   useLazyGetSectorVillagesQuery,
-  useLazyGetCountryDistrictsQuery
+  useLazyGetCountryDistrictsQuery,
+  useLazyGetProvinceChildrenQuery,
+  useLazyGetDistrictChildrenQuery,
+  useLazyGetSectorChildrenQuery,
+  useLazyGetCellChildrenQuery,
+  useLazyGetCountryChildrenQuery
 } from '../../states/api/apiSlice'
 import PropTypes from 'prop-types'
 import { FaEye } from 'react-icons/fa'
@@ -41,16 +46,6 @@ import { Link } from 'react-router-dom'
 
 const DepartmentsTable = ({ user }) => {
   const [data, setData] = useState([])
-  const [
-    getSectorVillages,
-    {
-      data: sectorVillagesData,
-      isLoading: sectorVillagesIsLoading,
-      isSuccess: sectorVillagesIsSuccess,
-      isError: sectorVillagesIsError,
-      error: sectorVillagesError
-    }
-  ] = useLazyGetSectorVillagesQuery()
 
   const [
     getCellVillages,
@@ -63,27 +58,41 @@ const DepartmentsTable = ({ user }) => {
     }
   ] = useLazyGetCellVillagesQuery()
 
-  const [
-    getDistrictCells,
-    {
-      data: districtCellsData,
-      isLoading: districtCellsLoading,
-      isSuccess: districtCellsIsSuccess,
-      isError: districtCellsIsError,
-      error: districtCellsError
-    }
-  ] = useLazyGetDistrictCellsQuery()
 
-  const [
-    getCountryDistricts,
-    {
-      data: countryDistrictsData,
-      isLoading: countryDistrictsLoading,
-      isSuccess: countryDistrictsIsSuccess,
-      isError: countryDistrictsIsError,
-      error: countryDistrictsError
-    }
-  ] = useLazyGetCountryDistrictsQuery()
+  const [getProvinceChildren, {
+    data: provinceChildrenData,
+    isLoading: provinceChildrenLoading,
+    isSuccess: provinceChildrenIsSuccess,
+    isError: provinceChildrenIsError,
+  }] = useLazyGetProvinceChildrenQuery()
+
+  const [getDistrictChildren, {
+    data: districtChildrenData,
+    isLoading: districtChildrenLoading,
+    isSuccess: districtChildrenIsSuccess,
+    isError: districtChildrenIsError,
+  }] = useLazyGetDistrictChildrenQuery()
+
+  const [getSectorChildren, {
+    data: sectorChildrenData,
+    isLoading: sectorChildrenLoading,
+    isSuccess: sectorChildrenIsSuccess,
+    isError: sectorChildrenIsError,
+  }] = useLazyGetSectorChildrenQuery()
+
+  const [getCellChildren, {
+    data: cellChildrenData,
+    isLoading: cellChildrenLoading,
+    isSuccess: cellChildrenIsSuccess,
+    isError: cellChildrenIsError,
+  }] = useLazyGetCellChildrenQuery()
+
+  const [getCountryChildren, {
+    data: countryChildrenData,
+    isLoading: countryChildrenLoading,
+    isSuccess: countryChildrenIsSuccess,
+    isError: countryChildrenIsError,
+  }] = useLazyGetCountryChildrenQuery()
 
   const dispatch = useDispatch()
 
@@ -98,211 +107,135 @@ const DepartmentsTable = ({ user }) => {
   switch (user?.departments?.level_id) {
     case 1:
       department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
+  }
+
+  switch (user?.departments?.level_id) {
+    case 1:
+      department = 'province'
 
       useEffect(() => {
-        getCellVillages({
-          department,
-          id: user?.departments?.id,
-          size,
-          page: offset
+        getProvinceChildren({
+          departmentId: user?.departments?.id,
         })
-          .unwrap()
-          .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages))
-            setData(
-              (data?.data?.rows || []).map((row, index) => ({
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                email: row?.email,
-                ID: row?.id
-              }))
-            )
-          })
-      }, [offset, size, department, user?.departments?.id, dispatch])
+      }, [])
 
       useEffect(() => {
-        if (cellVillagesIsSuccess) {
-          dispatch(setTotalPages(cellVillagesData?.data?.totalPages))
-          setData(
-            cellVillagesData?.data?.rows?.map((row, index) => ({
-              id: index + 1,
-              name: row?.name,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
-              email: row?.email,
-              ID: row?.id
-            })) || []
-          )
+        if (provinceChildrenIsSuccess) {
+          console.log(provinceChildrenData)
+          setData(provinceChildrenData?.data?.map((row, index) => ({
+            sector: row?.name,
+            district: row?.parent?.name,
+            merchantCode: row?.merchant_code,
+            ID: row?.id,
+            phone: row?.phone1,
+          })) || [])
         }
-      }, [cellVillagesData, cellVillagesIsSuccess, dispatch])
+      }, [provinceChildrenIsSuccess])
 
       break
     case 2:
       department = 'district'
       useEffect(() => {
-        getDistrictCells({
-          department,
-          id: user?.departments?.id,
-          size,
-          page: offset
+        getDistrictChildren({
+          departmentId: user?.departments?.id,
         })
-          .unwrap()
-          .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages))
-            setData(
-              (data?.data?.rows || []).map((row, index) => ({
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                email: row?.email,
-                ID: row?.id
-              }))
-            )
-          })
-      }, [offset, size, department, user?.departments?.id, dispatch])
+      }, [])
 
       useEffect(() => {
-        if (districtCellsIsSuccess) {
-          dispatch(setTotalPages(districtCellsData?.data?.totalPages))
-          setData(
-            districtCellsData?.data?.rows?.map((row, index) => ({
-              id: index + 1,
-              name: row?.name,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
-              email: row?.email,
-              ID: row?.id
-            })) || []
-          )
+        if (districtChildrenIsSuccess) {
+          setData(districtChildrenData?.data?.map((row, index) => ({
+            cell: row?.name,
+            sector: row?.parent?.name,
+            district: row?.parent?.parent?.name,
+            merchantCode: row?.parent?.merchant_code,
+            phone: row?.phone1,
+            ID: row?.id,
+          })) || [])
         }
-      }, [districtCellsData, districtCellsIsSuccess, dispatch])
+      }, [districtChildrenIsSuccess])
       break
     case 3:
       department = 'sector'
       useEffect(() => {
-        getSectorVillages({
-          department,
-          id: user?.departments?.id,
-          size,
-          page: offset
+        getSectorChildren({
+          departmentId: user?.departments?.id,
         })
-          .unwrap()
-          .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages))
-            setData(
-              (data?.data?.rows || []).map((row, index) => ({
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                email: row?.email,
-                ID: row?.id
-              }))
-            )
-          })
-      }, [offset, size, department, user?.departments?.id, dispatch])
-
+      }, [])
       useEffect(() => {
-        if (sectorVillagesIsSuccess) {
-          dispatch(setTotalPages(sectorVillagesData?.data?.totalPages))
-          setData(
-            sectorVillagesData?.data?.rows?.map((row, index) => ({
-              id: index + 1,
-              name: row?.name,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
-              email: row?.email,
-              ID: row?.id
-            })) || []
-          )
+        if (sectorChildrenIsSuccess) {
+          console.log(sectorChildrenData)
+          setData(sectorChildrenData?.data?.map((row, index) => ({
+            village: row?.name,
+            cell: row?.parent?.name,
+            sector: row?.parent?.parent?.name,
+            phone: row?.phone1,
+            ID: row?.id,
+          })) || [])
         }
-      }, [sectorVillagesData, sectorVillagesIsSuccess, dispatch])
+      }, [sectorChildrenIsSuccess])
       break
     case 4:
       department = 'cell'
       useEffect(() => {
-        getCellVillages({
-          department,
-          id: user?.departments?.id,
-          size,
-          page: offset
+        getCellChildren({
+          departmentId: user?.departments?.id,
         })
-          .unwrap()
-          .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages))
-            setData(
-              (data?.data?.rows || []).map((row, index) => ({
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                email: row?.email,
-                ID: row?.id
-              }))
-            )
-          })
-      }, [offset, size, department, user?.departments?.id, dispatch])
+      }, [])
 
       useEffect(() => {
-        if (cellVillagesIsSuccess) {
-          dispatch(setTotalPages(cellVillagesData?.data?.totalPages))
-          setData(
-            sectorVillagesData?.data?.rows?.map((row, index) => ({
-              id: index + 1,
-              name: row?.name,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
-              email: row?.email,
-              ID: row?.id
-            })) || []
-          )
+        if (cellChildrenIsSuccess) {
+          console.log(cellChildrenData)
+          setData(cellChildrenData?.data?.map((row, index) => ({
+            village: row?.name,
+            cell: row?.parent?.name,
+            sector: row?.parent?.parent?.name,
+            phone: row?.staff[0]?.phone1,
+            ID: row?.id,
+            merchantCode: row?.parent?.parent?.merchant_code,
+            agent: row?.staff[0]?.names
+          })) || [])
         }
-      }, [cellVillagesData, cellVillagesIsSuccess, dispatch])
+      }, [cellChildrenIsSuccess])
       break
     case 5:
       department = 'country'
-
       useEffect(() => {
-        getCountryDistricts({
-          department,
-          id: user?.departments?.id,
-          size,
-          page: offset
+        getCountryChildren({
+          departmentId: user?.departments?.id,
         })
-          .unwrap()
-          .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages))
-            setData(
-              (data?.data?.rows || []).map((row, index) => ({
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                email: row?.email,
-                ID: row?.id
-              }))
-            )
-          })
-      }, [offset, size, department, user?.departments?.id, dispatch])
+      }, [])
 
       useEffect(() => {
-        if (countryDistrictsIsSuccess) {
-          dispatch(setTotalPages(countryDistrictsData?.data?.totalPages))
-          setData(
-            countryDistrictsData?.data?.rows?.map((row, index) => ({
-              id: index + 1,
-              name: row?.name,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
-              email: row?.email,
-              ID: row?.id
-            })) || []
-          )
+        if (countryChildrenIsSuccess) {
+          console.log(countryChildrenData)
+          setData(countryChildrenData?.data?.map((row, index) => ({
+            sector: row?.name,
+            district: row?.parent?.name,
+            province: row?.parent?.parent?.name,
+            phone: row?.phone1,
+            ID: row?.id,
+            merchantCode: row?.merchant_code,
+          })) || [])
         }
-      }, [countryDistrictsData, countryDistrictsIsSuccess, dispatch])
+      }, [countryChildrenIsSuccess])
       break
     case 6:
       department = 'agent'
@@ -430,21 +363,56 @@ const DepartmentsTable = ({ user }) => {
       })
     })
   }
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'Name',
-        accessor: 'name',
-        sortable: true
-      },
-      {
-        Header: 'Phone',
-        accessor: 'phone1',
-        sortable: true
-      }
-    ],
-    []
-  )
+
+  console.log(data)
+
+  const columns = useMemo(() => [
+    {
+      id: 'village',
+      Header: 'Village',
+      accessor: 'village',
+      sortable: true,
+      Filter: SelectColumnFilter,
+    },
+    {
+      id: 'cell',
+      Header: 'Cell',
+      accessor: 'cell',
+      sortable: true,
+      Filter: SelectColumnFilter,
+    },
+    {
+      id: 'sector',
+      Header: 'Sector',
+      accessor: 'sector',
+      sortable: true,
+      Filter: SelectColumnFilter,
+    },
+    {
+      id: 'district',
+      Header: 'District',
+      accessor: 'district',
+      sortable: true,
+      Filter: SelectColumnFilter,
+    },
+    {
+      Header: 'Merchant Code',
+      accessor: 'merchantCode',
+      sortable: true,
+    },
+    {
+      id: 'agent',
+      Header: 'Agent',
+      accessor: 'agent',
+      sortable: true,
+    },
+    {
+      Header: 'Phone',
+      accessor: 'phone',
+      sortable: true,
+    },
+  ], [])
+
 
   const tableHooks = (hooks) => {
     hooks.visibleColumns.push((columns) => [
@@ -453,7 +421,7 @@ const DepartmentsTable = ({ user }) => {
         Header: 'No',
         accessor: 'id',
         Cell: ({ row }) => <p>{row.index + 1}</p>,
-        sortable: true
+        sortable: true,
       },
       ...columns,
       {
@@ -506,10 +474,11 @@ const DepartmentsTable = ({ user }) => {
   } = TableInstance
 
   if (
-    sectorVillagesIsSuccess ||
-    cellVillagesIsSuccess ||
-    districtCellsIsSuccess ||
-    countryDistrictsIsSuccess
+    provinceChildrenIsSuccess ||
+    districtChildrenIsSuccess ||
+    sectorChildrenIsSuccess || 
+    cellChildrenIsSuccess || 
+    countryChildrenIsSuccess
   ) {
     return (
       <main className="my-12 w-full">
@@ -522,20 +491,19 @@ const DepartmentsTable = ({ user }) => {
                 setGlobalFilter={setGlobalFilter}
               />
             </span>
-            <span className="w-full h-fit flex items-center gap-4">
+            <span className="w-[100%] mx-auto h-fit flex items-center flex-wrap gap-4">
+             
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
-                  column.Filter
-                    ? (
-                      <div
-                        key={column.id}
-                        className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
-                      >
-                        <label htmlFor={column.id}></label>
-                        {column.render('Filter')}
-                      </div>
-                      )
-                    : null
+                  column.Filter ? (
+                    <div
+                      key={column.id}
+                      className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
+                    >
+                      <label htmlFor={column.id}></label>
+                      {column.render('Filter')}
+                    </div>
+                  ) : null
                 )
               )}
             </span>
@@ -543,7 +511,7 @@ const DepartmentsTable = ({ user }) => {
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                <div className="shadow flex flex-col gap-4 overflow-hidden border-b border-gray-200 sm:rounded-lg">
                   <div className="flex gap-2">
 
                     <Button
@@ -729,10 +697,7 @@ const DepartmentsTable = ({ user }) => {
   }
 
   if (
-    sectorVillagesError ||
-    cellVillagesError ||
-    districtCellsError ||
-    countryDistrictsError
+    provinceChildrenIsError
   ) {
     return (
       <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
@@ -745,10 +710,7 @@ const DepartmentsTable = ({ user }) => {
   }
 
   if (
-    sectorVillagesIsLoading ||
-    cellVillagesIsLoading ||
-    districtCellsLoading ||
-    countryDistrictsLoading
+    provinceChildrenLoading
   ) {
     return (
       <main className="w-full min-h-[80vh] flex items-center justify-center">
@@ -825,7 +787,7 @@ function GlobalFilter ({
           setValue(e.target.value)
           onChange(e.target.value)
         }}
-        placeholder={`${count} households...`}
+        placeholder={`${count} departments...`}
       />
       <Button
         value="Search"
