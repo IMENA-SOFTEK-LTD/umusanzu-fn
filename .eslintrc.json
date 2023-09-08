@@ -38,6 +38,6 @@
       }
     ],
     "semi": ["off", "never"],
-    "new-cap": "warn",
+    "new-cap": "warn"
   }
 }
