@@ -37,10 +37,7 @@ const Input = forwardRef(
           placeholder={placeholder}
           onChange={onChange}
           ref={ref}
-          className={
-            className ||
-            'border placeholder-gray-400 focus:outline-none focus:border-gray-300 w-full h-[45px] pt-[14px] pr-[14px] pb-[14px] pl-[14px] mt-2 mr-0 mb-0 ml-0 text-[15px] text-base block bg-white border-gray-300 rounded-md'
-          }
+          className={`text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 ${className}`}
         />
       </article>
     )

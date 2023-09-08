@@ -139,7 +139,6 @@ const DepartmentsTable = ({ user }) => {
 
       useEffect(() => {
         if (provinceChildrenIsSuccess) {
-          console.log(provinceChildrenData)
           setData(provinceChildrenData?.data?.map((row, index) => ({
             sector: row?.name,
             district: row?.parent?.name,
@@ -181,7 +180,6 @@ const DepartmentsTable = ({ user }) => {
       }, [])
       useEffect(() => {
         if (sectorChildrenIsSuccess) {
-          console.log(sectorChildrenData)
           setData(sectorChildrenData?.data?.map((row, index) => ({
             village: row?.name,
             cell: row?.parent?.name,
@@ -202,7 +200,6 @@ const DepartmentsTable = ({ user }) => {
 
       useEffect(() => {
         if (cellChildrenIsSuccess) {
-          console.log(cellChildrenData)
           setData(cellChildrenData?.data?.map((row, index) => ({
             village: row?.name,
             cell: row?.parent?.name,
@@ -225,7 +222,6 @@ const DepartmentsTable = ({ user }) => {
 
       useEffect(() => {
         if (countryChildrenIsSuccess) {
-          console.log(countryChildrenData)
           setData(countryChildrenData?.data?.map((row, index) => ({
             sector: row?.name,
             district: row?.parent?.name,
@@ -363,8 +359,6 @@ const DepartmentsTable = ({ user }) => {
       })
     })
   }
-
-  console.log(data)
 
   const columns = useMemo(() => [
     {

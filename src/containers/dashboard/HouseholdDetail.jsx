@@ -40,7 +40,6 @@ const HouseholdDetail = () => {
       setTransactions(houseHoldDetailsData?.data?.transactions || [])
     }
   }, [houseHoldDetailsSuccess, houseHoldDetailsData])
-console.log(transactions)
   useEffect(() => {
     GetHouseHoldDetails({ id })
   }, [GetHouseHoldDetails])

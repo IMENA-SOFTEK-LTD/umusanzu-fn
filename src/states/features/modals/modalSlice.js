@@ -7,7 +7,6 @@ const modalSlice = createSlice({
   },
   reducers: {
     toggleUpdateStaff: (state, { payload }) => {
-      console.log(payload)
       state.updateStaff = payload
     }
   }

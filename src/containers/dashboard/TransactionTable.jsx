@@ -36,6 +36,7 @@ import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import Input from '../../components/Input'
+import formatFunds from '../../utils/Funds'
 
 const TransactionTable = ({ user }) => {
   const [
@@ -48,6 +49,12 @@ const TransactionTable = ({ user }) => {
       error: transactionsListError,
     },
   ] = useLazyGetTransactionsListQuery()
+
+  const [totals, setTotals] = useState({
+    totalCommission: 0,
+    totalAmount: 0,
+    remainingAmount: 0,
+  })
 
   const {
     page: offset,
@@ -100,9 +107,10 @@ const TransactionTable = ({ user }) => {
   }, [])
 
   useEffect(() => {
-      if (transactionsListIsSuccess) setTimeout(() => {
+    if (transactionsListIsSuccess)
+      setTimeout(() => {
         dispatch(setSize(1000000000))
-      }, 3000);
+      }, 3000)
   }, [transactionsListData, transactionsListIsSuccess])
 
   useEffect(() => {
@@ -117,14 +125,33 @@ const TransactionTable = ({ user }) => {
       .unwrap()
       .then((data) => {
         dispatch(setTotalPages(data?.data?.totalPages))
+        let totalCommission = 0
+        let totalPaidAmount = 0
+        let totalRemainingAmount = 0
+
+        // eslint-disable-next-line array-callback-return
+        transactionsListData?.data?.rows?.map((row, index) => {
+          const paidAmount = Number(row?.amount) || 0
+          const remainingAmount = Number(row?.payments[0]?.remain_amount) || 0
+          totalCommission += Number(row?.amount) / 10
+          totalPaidAmount += paidAmount
+          totalRemainingAmount = totalPaidAmount - totalCommission
+        })
+
+        setTotals({
+          totalCommission,
+          remainingAmount: totalRemainingAmount,
+          totalAmount: totalPaidAmount,
+        })
+
         setData(
           data?.data?.rows?.map((row, index) => ({
             id: index + 1,
             name: row?.households?.name,
             village: row?.households?.villages[0]?.name,
-          cell: row?.households?.cells[0]?.name,
-          sector: row?.households?.sectors[0]?.name,
-          district: row?.households?.districts[0]?.name,
+            cell: row?.households?.cells[0]?.name,
+            sector: row?.households?.sectors[0]?.name,
+            district: row?.households?.districts[0]?.name,
             amount: row?.amount,
             month_paid: moment(row.month_paid).format('MM-YYYY'),
             payment_method: row?.payment_method?.split('_').join(' '),
@@ -150,10 +177,16 @@ const TransactionTable = ({ user }) => {
       const mappedData = transactionsListData?.data?.rows?.map((row, index) => {
         const paidAmount = Number(row?.amount) || 0
         const remainingAmount = Number(row?.payments[0]?.remain_amount) || 0
-
         totalCommission += Number(row?.amount) / 10
         totalPaidAmount += paidAmount
         totalRemainingAmount = totalPaidAmount - totalCommission
+
+        setTotals({
+          totalCommission,
+          remainingAmount: totalRemainingAmount,
+          totalAmount: totalPaidAmount,
+        })
+
         return {
           id: index + 1,
           name: row.households.name,
@@ -168,15 +201,14 @@ const TransactionTable = ({ user }) => {
           status: row?.payments[0]?.status,
           remain_amount: row?.payments[0]?.remain_amount,
           commission: Number(row?.amount) / 10,
-          transaction_date: moment(row.created_at).format('DD-MM-YYYY')
+          transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
         }
       })
- 
+
       setTotalCommission(totalCommission)
       setTotalAmount(totalPaidAmount)
       setTotalRemaining(totalRemainingAmount)
       setData(mappedData)
-      
     }
   }, [transactionsListIsSuccess, transactionsListIsError, queryRoute])
 
@@ -214,7 +246,7 @@ const TransactionTable = ({ user }) => {
         'DATE',
       ]
       const headerRow = columnHeader.map((header) => ({
-        content: header
+        content: header,
       }))
       doc.autoTable({
         startY: 50,
@@ -227,14 +259,18 @@ const TransactionTable = ({ user }) => {
           halign: 'center',
           valign: 'middle',
           fontSize: 8,
-
         },
       })
 
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
-        body: TableInstance.rows.map((row) => row.original),
+        body: TableInstance.rows.map((row, index) => {
+          return {
+            no: index + 1,
+            ...row.original,
+          }
+        }),
         theme: 'grid',
         styles: {
           fontSize: 8,
@@ -247,27 +283,27 @@ const TransactionTable = ({ user }) => {
   }
   const handleExportToExcel = () => {
     const workbook = new ExcelJS.Workbook()
-    const sheet = workbook.addWorksheet("Transaction")
+    const sheet = workbook.addWorksheet('Transaction')
     sheet.properties.defaultRowHeight = 80
 
     sheet.getRow(1).border = {
-      top: { style: "thick"  },
-      left: { style: "thick"  },
-      bottom: { style: "thick"  },
-      right: { style: "thick"  }
+      top: { style: 'thick' },
+      left: { style: 'thick' },
+      bottom: { style: 'thick' },
+      right: { style: 'thick' },
     }
 
     sheet.getRow(1).fill = {
-      type: "pattern",
-      pattern: "darkVertical",
-      fgColor: { argb: "FFFF00" }
+      type: 'pattern',
+      pattern: 'darkVertical',
+      fgColor: { argb: 'FFFF00' },
     }
 
     sheet.getRow(1).font = {
       name: '',
       family: 4,
       size: 12,
-      bold: true
+      bold: true,
     }
 
     sheet.columns = [
@@ -338,7 +374,7 @@ const TransactionTable = ({ user }) => {
           agent: row.original?.agent,
           commission: row.original?.commission,
           transaction_date: row.original?.transaction_date,
-        });
+        })
       })
     )
 
@@ -356,7 +392,7 @@ const TransactionTable = ({ user }) => {
       })
     })
   }
-  
+
   const columns = useMemo(
     () => [
       {
@@ -497,7 +533,6 @@ const TransactionTable = ({ user }) => {
               />
             </span>
             <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4">
-             
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
                   column.Filter ? (
@@ -516,89 +551,87 @@ const TransactionTable = ({ user }) => {
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-              <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
-                
-                <div className="flex gap-2">
-                
-                  <Button
-                    value={
-                      <span className="flex items-center gap-2">
-                        Export PDF
-                        <FontAwesomeIcon icon={faFilePdf} />
-                      </span>
-                    }
-                    onClick={handleExportToPdf}
-                  />
-                  <Button
-                    value={
-                      <span className="flex items-center gap-2">
-                        Export Excel
-                        <FontAwesomeIcon icon={faFileExcel} />
-                      </span>
-                    }
-                    onClick={handleExportToExcel}
-                  />                                  
-                </div>
+                <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
+                  <div className="flex gap-2">
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export PDF
+                          <FontAwesomeIcon icon={faFilePdf} />
+                        </span>
+                      }
+                      onClick={handleExportToPdf}
+                    />
+                    <Button
+                      value={
+                        <span className="flex items-center gap-2">
+                          Export Excel
+                          <FontAwesomeIcon icon={faFileExcel} />
+                        </span>
+                      }
+                      onClick={handleExportToExcel}
+                    />
+                  </div>
 
-                <table
-                  {...getTableProps()}
-                  border="1"
-                  className="min-w-full divide-y divide-gray-200"
-                >
-                  <thead className="bg-gray-50">
-                    {headerGroups.map((headerGroup) => (
-                      <tr {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map((column) => (
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            {...column.getHeaderProps(
-                              column.getSortByToggleProps()
-                            )}
-                          >
-                            {column.render('Header')}
-                            <span>
-                              {column.isSorted
-                                ? column.isSortedDesc
-                                  ? ' ▼'
-                                  : ' ▲'
-                                : ''}
-                            </span>
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  {transactionsListIsLoading ? (
-                    <span className="w-full flex items-center justify-center my-6 mx-auto">
-                      <Loading size={4} />
-                    </span>
-                  ) : (
-                    <tbody
-                      className="bg-white divide-y divide-gray-200"
-                      {...getTableBodyProps()}
-                    >
-                      {page.map((row) => {
-                        prepareRow(row);
-                        return (
-                          <tr {...row.getRowProps()}>
-                            {row.cells.map((cell) => {
-                              return (
-                                <td
-                                  {...cell.getCellProps()}
-                                  className="px-6 py-4 whitespace-nowrap"
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  )}
-                </table>
-              </div>
+                  <table
+                    {...getTableProps()}
+                    border="1"
+                    className="min-w-full divide-y divide-gray-200"
+                  >
+                    <thead className="bg-gray-50">
+                      {headerGroups.map((headerGroup) => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                          {headerGroup.headers.map((column) => (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              {...column.getHeaderProps(
+                                column.getSortByToggleProps()
+                              )}
+                            >
+                              {column.render('Header')}
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? ' ▼'
+                                    : ' ▲'
+                                  : ''}
+                              </span>
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    {transactionsListIsLoading ? (
+                      <span className="w-full flex items-center justify-center my-6 mx-auto">
+                        <Loading size={4} />
+                      </span>
+                    ) : (
+                      <tbody
+                        className="bg-white divide-y divide-gray-200"
+                        {...getTableBodyProps()}
+                      >
+                        {page.map((row) => {
+                          prepareRow(row)
+                          return (
+                            <tr {...row.getRowProps()}>
+                              {row.cells.map((cell) => {
+                                return (
+                                  <td
+                                    {...cell.getCellProps()}
+                                    className="px-6 py-4 whitespace-nowrap"
+                                  >
+                                    {cell.render('Cell')}
+                                  </td>
+                                )
+                              })}
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    )}
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -609,19 +642,23 @@ const TransactionTable = ({ user }) => {
               Total Amout:
             </td>
             <td className="px-6 py-4 text-gray-800 font-semibold">
-              {totalAmount} RWF
+              {formatFunds(totals?.totalAmount) || formatFunds(totalAmount)} RWF
             </td>
             <td className="px-6 py-4 text-gray-800 font-semibold">
               Total Commission:
             </td>
             <td className="px-6 py-4 text-gray-800 font-semibold">
-              {totalCommission} RWF
+              {formatFunds(totals?.totalCommission) ||
+                formatFunds(totalCommission)}{' '}
+              RWF
             </td>
             <td className="px-6 py-4 text-gray-800 font-semibold">
               Total Remaining:
             </td>
             <td className="px-6 py-4 text-gray-800 font-semibold">
-              {totalRemaining} RWF
+              {formatFunds(totals?.remainingAmount) ||
+                formatFunds(totalRemaining)}{' '}
+              RWF
             </td>
           </tr>
         </table>
@@ -829,7 +866,7 @@ function GlobalFilter({
           setValue(e.target.value)
           onChange(e.target.value)
         }}
-        placeholder={`${count} households...`}
+        placeholder={`${count} transactions...`}
       />
       <Button
         value="Search"

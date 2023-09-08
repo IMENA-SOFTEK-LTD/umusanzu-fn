@@ -170,8 +170,8 @@ export const apiSlice = createApi({
         }
       }),
       createHouseHold: builder.mutation({
-        query: ({ name, ubudehe, nid, phone1, phone2, departmentId }) => ({
-          url: `/households/?departmentId=${departmentId}`,
+        query: ({ name, ubudehe, nid, phone1, phone2, province, district, sector, cell, village }) => ({
+          url: `/households`,
           method: 'POST',
           body: {
             name,
@@ -179,6 +179,11 @@ export const apiSlice = createApi({
             nid,
             phone1,
             phone2,
+            province,
+            district,
+            sector,
+            cell,
+            village,
           },
         }),
       }),
@@ -354,8 +359,8 @@ export const apiSlice = createApi({
         }),
       }),
       getCountryChildren: builder.query({
-        query: ({ departmentId }) => ({
-          url: `/department/country/${departmentId}/children`,
+        query: () => ({
+          url: `/department/country/children`,
           method: 'GET',
         }),
       }),
@@ -381,6 +386,58 @@ export const apiSlice = createApi({
         query: ({ departmentId }) => ({
           url: `/department/cell/${departmentId}/children`,
           method: 'GET',
+        }),
+      }),
+      getDistrictSectors: builder.query({
+        query: ({ id, page, size }) => ({
+          url: `/department/district/${id}/sectors/?page=${page || 0}&size=${
+            size || 20
+          }`,
+          method: 'GET',
+        }),
+      }),
+      getSectorCells: builder.query({
+        query: ({ id, page, size }) => ({
+          url: `/department/sector/${id}/cells/?page=${page || 0}&size=${
+            size || 20
+          }`,
+          method: 'GET',
+        }),
+      }),
+      moveHousehold: builder.mutation({
+        query: ({ name, ubudehe, nid, phone1, phone2, province, district, sector, cell, village, existingHouseholdId }) => ({
+          url: `/households/${existingHouseholdId}/move`,
+          method: 'PATCH',
+          body: {
+            name,
+            ubudehe,
+            nid,
+            phone1,
+            phone2,
+            province,
+            district,
+            sector,
+            cell,
+            village,
+          },
+        }),
+      }),
+      createDuplicateHouseHold: builder.mutation({
+        query: ({ name, ubudehe, nid, phone1, phone2, province, district, sector, cell, village }) => ({
+          url: `/households/create/duplicate`,
+          method: 'POST',
+          body: {
+            name,
+            ubudehe,
+            nid,
+            phone1,
+            phone2,
+            province,
+            district,
+            sector,
+            cell,
+            village,
+          },
         }),
       }),
     }
@@ -421,4 +478,8 @@ export const {
   useLazyGetSectorChildrenQuery,
   useLazyGetCellChildrenQuery,
   useLazyGetCountryChildrenQuery,
+  useLazyGetDistrictSectorsQuery,
+  useLazyGetSectorCellsQuery,
+  useMoveHouseholdMutation,
+  useCreateDuplicateHouseHoldMutation
 } = apiSlice

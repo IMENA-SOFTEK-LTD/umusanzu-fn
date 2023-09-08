@@ -2,7 +2,7 @@ import 'core-js/stable'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
@@ -14,7 +14,8 @@ import {
   faChevronLeft,
   faChevronRight,
   faFileExcel,
-  faFilePdf
+  faFilePdf,
+  faHouse,
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -22,12 +23,12 @@ import {
   useAsyncDebounce,
   useFilters,
   useSortBy,
-  usePagination
+  usePagination,
 } from 'react-table'
 import {
   setPage,
   setSize,
-  setTotalPages
+  setTotalPages,
 } from '../../states/features/pagination/paginationSlice'
 import { useLazyGetHouseholdsListQuery } from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
@@ -45,25 +46,26 @@ const HouseholdTable = ({ user }) => {
       isLoading: householdsListIsLoading,
       isSuccess: householdsListIsSuccess,
       isError: householdsListIsError,
-      error: householdsListError
-    }
+      error: householdsListError,
+    },
   ] = useLazyGetHouseholdsListQuery()
 
   const {
     page: offset,
     size,
-    totalPages
+    totalPages,
   } = useSelector((state) => state.pagination)
 
   const dispatch = useDispatch()
 
-  const queryRoute = queryString.parse(location.search);
+  const queryRoute = queryString.parse(location.search)
 
   useEffect(() => {
-    if (householdsListIsSuccess) setTimeout(() => {
-      dispatch(setSize(1000000000))
-    }, 3000);
-}, [householdsListData, householdsListIsSuccess])
+    if (householdsListIsSuccess)
+      setTimeout(() => {
+        dispatch(setSize(1000000000))
+      }, 3000)
+  }, [householdsListData, householdsListIsSuccess])
 
   let department = ''
 
@@ -85,6 +87,7 @@ const HouseholdTable = ({ user }) => {
       break
     case 6:
       department = 'agent'
+      useEffect(() => {}, [])
       break
     default:
       department = 'agent'
@@ -115,7 +118,7 @@ const HouseholdTable = ({ user }) => {
           phone2: row?.phone2,
           ubudehe: row?.ubudehe,
           status: row?.status,
-          ID: row?.id
+          ID: row?.id,
         })) || []
       )
     }
@@ -142,7 +145,7 @@ const HouseholdTable = ({ user }) => {
             phone2: row?.phone2,
             ubudehe: row?.ubudehe,
             status: row?.status,
-            ID: row?.id
+            ID: row?.id,
           })) || []
         )
       })
@@ -165,8 +168,18 @@ const HouseholdTable = ({ user }) => {
 
       doc.setFontSize(10)
 
-      const columnHeader = ['NO', 'Name', 'Phone 1', 'Phone 2', 'Ubudehe', 'Status']
-      const headerRow = columnHeader.map(header => ({ content: header, styles: { halign: 'center' } }))
+      const columnHeader = [
+        'NO',
+        'Name',
+        'Phone 1',
+        'Phone 2',
+        'Ubudehe',
+        'Status',
+      ]
+      const headerRow = columnHeader.map((header) => ({
+        content: header,
+        styles: { halign: 'center' },
+      }))
       doc.autoTable({
         startY: 50,
         head: [headerRow],
@@ -179,20 +192,20 @@ const HouseholdTable = ({ user }) => {
           valign: 'middle',
           fontSize: 8,
         },
-        columnStyles: {}
+        columnStyles: {},
       })
       const filteredAndSortedData = TableInstance.rows.map((row) => [
-        row.index + 1, 
+        row.index + 1,
         row.original?.name,
         row.original?.phone1,
         row.original?.phone2,
         row.original?.ubudehe,
         row.original?.status,
-      ]);
+      ])
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
-        body: filteredAndSortedData.map(row => Object.values(row)),
+        body: filteredAndSortedData.map((row) => Object.values(row)),
         theme: 'grid',
         styles: {
           halign: 'center',
@@ -204,7 +217,6 @@ const HouseholdTable = ({ user }) => {
           3: { cellWidth: 50 },
           4: { cellWidth: 50 },
           5: { cellWidth: 39 },
-
         },
       })
 
@@ -215,41 +227,46 @@ const HouseholdTable = ({ user }) => {
   }
   const handleExportToExcel = () => {
     if (TableInstance) {
-      const filteredAndSortedData = TableInstance.rows.map((row) => row.original);
-  
-      const ws = XLSX.utils.json_to_sheet(filteredAndSortedData);
+      const filteredAndSortedData = TableInstance.rows.map(
+        (row) => row.original
+      )
+
+      const ws = XLSX.utils.json_to_sheet(filteredAndSortedData)
 
       const headerStyle = {
         font: { bold: true, color: { rgb: 'FFFFFF' } },
         fill: { fgColor: { rgb: '000000' } },
-      };
-      const range = XLSX.utils.decode_range(ws['!ref']);
+      }
+      const range = XLSX.utils.decode_range(ws['!ref'])
 
       for (let i = range.s.c; i <= range.e.c; i++) {
-        const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: i });
-        ws[cellAddress].s = headerStyle;
+        const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: i })
+        ws[cellAddress].s = headerStyle
       }
       const columnStyles = [
         {
-          column: 'A', style: {
+          column: 'A',
+          style: {
             fontSize: 8,
-          }
+          },
         },
         { column: 'B', style: { fontSize: 8 } },
         { column: 'C', style: { fontSize: 8 } },
         { column: 'D', style: { fontSize: 8 } },
         { column: 'E', style: { fontSize: 8 } },
         { column: 'F', style: { fontSize: 8 } },
-      ];
-
+      ]
 
       columnStyles.forEach((colStyle) => {
         for (let i = range.s.r + 1; i <= range.e.r; i++) {
-          const cellAddress = XLSX.utils.encode_cell({ r: i, c: XLSX.utils.decode_col(colStyle.column) });
-          ws[cellAddress].s = colStyle.style;
+          const cellAddress = XLSX.utils.encode_cell({
+            r: i,
+            c: XLSX.utils.decode_col(colStyle.column),
+          })
+          ws[cellAddress].s = colStyle.style
         }
-      });
-      ws['!autofilter'] = { ref: ws['!ref'] }; 
+      })
+      ws['!autofilter'] = { ref: ws['!ref'] }
       ws['!cols'] = [
         { width: 5 },
         { width: 25 },
@@ -259,51 +276,43 @@ const HouseholdTable = ({ user }) => {
         { width: 15 },
         { width: 15 },
         { width: 15 },
+      ]
+      ws['!rows'] = []
 
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'REPORTS ')
+      const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
 
-      ];
-      ws['!rows'] = [
-      ];
-
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(
-        wb,
-        ws,
-        'REPORTS '
-      );
-      const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-
-      const buf = new ArrayBuffer(wbBinary.length);
-      const view = new Uint8Array(buf);
+      const buf = new ArrayBuffer(wbBinary.length)
+      const view = new Uint8Array(buf)
       for (let i = 0; i < wbBinary.length; i++) {
-        view[i] = wbBinary.charCodeAt(i) & 0xff;
+        view[i] = wbBinary.charCodeAt(i) & 0xff
       }
 
       const blob = new Blob([buf], {
-        type:
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
 
-      const blobUrl = URL.createObjectURL(blob);
+      const blobUrl = URL.createObjectURL(blob)
 
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = 'HouseHoldLists.xlsx';
-      link.click();
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = 'HouseHoldLists.xlsx'
+      link.click()
     }
-  };
+  }
   const columns = useMemo(
     () => [
       {
         Header: 'Names',
         accessor: 'name',
-        sortable: true
+        sortable: true,
       },
       {
         Header: 'Ubudehe',
         accessor: 'ubudehe',
         sortable: true,
-        Filter: SelectColumnFilter
+        Filter: SelectColumnFilter,
       },
       {
         Header: 'status',
@@ -312,18 +321,19 @@ const HouseholdTable = ({ user }) => {
         Filter: SelectColumnFilter,
         Cell: ({ value }) => (
           <div
-            className={`${value === 'ACTIVE'
-              ? 'bg-green-500 shadow-md rounded-sm shadow-200'
-              : 'bg-red-500 rounded-sm shadow-md shadow-200'
-              } p-1 rounded-md text-white text-center`}
+            className={`${
+              value === 'ACTIVE'
+                ? 'bg-green-600 shadow-md rounded-sm shadow-200'
+                : 'bg-red-600 rounded-sm shadow-md shadow-200'
+            } p-1 rounded-md text-white text-center`}
           >
             {value}
           </div>
-        )
+        ),
       },
       {
         Header: 'phone',
-        accessor: 'phone1'
+        accessor: 'phone1',
       },
       {
         id: 'ID',
@@ -336,8 +346,8 @@ const HouseholdTable = ({ user }) => {
           >
             <FaEye className="" />
           </Link>
-        )
-      }
+        ),
+      },
     ],
     []
   )
@@ -349,16 +359,16 @@ const HouseholdTable = ({ user }) => {
         Header: 'No',
         accessor: 'id',
         Cell: ({ row }) => <p>{row.index + 1}</p>,
-        sortable: true
+        sortable: true,
       },
-      ...columns
+      ...columns,
     ])
   }
 
   const TableInstance = useTable(
     {
       columns,
-      data
+      data,
     },
     useFilters,
     tableHooks,
@@ -384,14 +394,22 @@ const HouseholdTable = ({ user }) => {
     gotoPage,
     nextPage,
     previousPage,
-    setPageSize
+    setPageSize,
   } = TableInstance
 
   if (householdsListIsSuccess) {
     return (
-      <main className="my-12 w-full">
-        <div className="flex flex-col items-center gap-6">
-          <div className="search-filter flex flex-col items-center gap-6">
+      <main className="my-12">
+        <div className="flex my-8 flex-col w-full items-center gap-6 relative">
+          <Button
+            className="absolute right-6 top-0"
+            value={<span className='flex items-center gap-2'>
+              <FontAwesomeIcon icon={faHouse} />
+              <p>Add new household</p>
+            </span>}
+            route='/households/create'
+          />
+          <div className="search-filter flex flex-col w-full items-center gap-6">
             <span className="w-fit min-w-[30rem] flex flex-col items-end justify-center">
               <GlobalFilter
                 preGlobalFilteredRows={preGlobalFilteredRows}
@@ -399,20 +417,18 @@ const HouseholdTable = ({ user }) => {
                 setGlobalFilter={setGlobalFilter}
               />
             </span>
-            <span className="w-full h-fit flex items-center gap-4">
+            <span className="w-fit h-fit flex items-center gap-4">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
-                  column.Filter
-                    ? (
-                      <div
-                        key={column.id}
-                        className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
-                      >
-                        <label htmlFor={column.id}></label>
-                        {column.render('Filter')}
-                      </div>
-                      )
-                    : null
+                  column.Filter ? (
+                    <div
+                      key={column.id}
+                      className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
+                    >
+                      <label htmlFor={column.id}></label>
+                      {column.render('Filter')}
+                    </div>
+                  ) : null
                 )
               )}
             </span>
@@ -422,7 +438,6 @@ const HouseholdTable = ({ user }) => {
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                   <div className="flex gap-2">
-
                     <Button
                       value={
                         <span className="flex items-center gap-2">
@@ -471,7 +486,10 @@ const HouseholdTable = ({ user }) => {
                         </tr>
                       ))}
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200" {...getTableBodyProps()}>
+                    <tbody
+                      className="bg-white divide-y divide-gray-200"
+                      {...getTableBodyProps()}
+                    >
                       {page.map((row) => {
                         prepareRow(row)
                         return (
@@ -490,7 +508,6 @@ const HouseholdTable = ({ user }) => {
                         )
                       })}
                     </tbody>
-
                   </table>
                 </div>
               </div>
@@ -520,7 +537,7 @@ const HouseholdTable = ({ user }) => {
                 <span className="text-sm text-gray-700 p-2">
                   {' '}
                   <span className="font-medium">{offset + 1}</span> of{' '}
-                  <span className="font-medium">{totalPages}</span>
+                  <span className="font-medium">{pageCount}</span>
                 </span>
                 <label>
                   <span className="sr-only">Items Per Page</span>
@@ -548,7 +565,7 @@ const HouseholdTable = ({ user }) => {
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
                     onClick={() => gotoPage(0)}
-                  // disabled={!canPreviousPage}
+                    // disabled={!canPreviousPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       First
@@ -558,7 +575,6 @@ const HouseholdTable = ({ user }) => {
                   <PageButton
                     onClick={() => {
                       previousPage()
-                      dispatch(setPage(offset > 0 ? offset - 1 : offset))
                     }}
                     // disabled={!canPreviousPage}
                     className="px-4 cursor-pointer hover:scale-[1.02] p-2 shadow-md"
@@ -571,7 +587,6 @@ const HouseholdTable = ({ user }) => {
                   <PageButton
                     onClick={() => {
                       nextPage()
-                      dispatch(setPage(offset + 1))
                     }}
                     // disabled={!canNextPage}
                     className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
@@ -584,10 +599,9 @@ const HouseholdTable = ({ user }) => {
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
                     onClick={() => {
-                      gotoPage(offset - 1)
-                      dispatch(setPage(offset > 0 ? offset - 1 : offset))
+                      gotoPage(page - 1)
                     }}
-                  // disabled={!canNextPage}
+                    // disabled={!canNextPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       Last
@@ -629,11 +643,11 @@ const HouseholdTable = ({ user }) => {
 }
 
 HouseholdTable.propTypes = {
-  user: PropTypes.shape({})
+  user: PropTypes.shape({}),
 }
 
-export function SelectColumnFilter ({
-  column: { filterValue, setFilter, preFilteredRows, id, render }
+export function SelectColumnFilter({
+  column: { filterValue, setFilter, preFilteredRows, id, render },
 }) {
   const options = useMemo(() => {
     const options = new Set()
@@ -668,10 +682,10 @@ export function SelectColumnFilter ({
   )
 }
 
-function GlobalFilter ({
+function GlobalFilter({
   preGlobalFilteredRows,
   globalFilter,
-  setGlobalFilter
+  setGlobalFilter,
 }) {
   const count = preGlobalFilteredRows.length
   const [value, setValue] = useState(globalFilter)

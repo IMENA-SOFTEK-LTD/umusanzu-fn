@@ -73,7 +73,6 @@ const CreateOfflinePaymentModel = () => {
     }
     if (recordOfflinePaymentEror) {
       toast.error('An error occurred while creating the village')
-      console.log(recordOfflinePaymentEror)
     }
   }, [recordOfflinePaymentData, recordOfflinePaymentSuccess, recordOfflinePaymentEror])
 
@@ -143,9 +142,7 @@ const CreateOfflinePaymentModel = () => {
                                                     {...field}
                                                     className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                                                 >
-                                                    <option value={1}>Option 1</option>
-                                                    <option value={2}>Option 2</option>
-                                                    <option value={3}>Option 3</option>
+                                                    <option value={1}>Umutekano</option>
                                                 </select>
                                             )}
                                         />
@@ -155,7 +152,7 @@ const CreateOfflinePaymentModel = () => {
                                             htmlFor="month_paid"
                                             className="block mb-2 text-sm font-medium text-black"
                                         >
-                                            Month_paid
+                                            Month Paid
                                         </label>
                                         <Controller
                                             name="month_paid"
@@ -181,7 +178,7 @@ const CreateOfflinePaymentModel = () => {
                                     <Controller
                                         name="amount"
                                         control={control}
-                                        defaultValue={'100'}
+                                        defaultValue={houseHoldDetailsData?.data?.ubudehe}
                                         render={({ field }) => (
                                             <input
                                                 {...field}
@@ -202,6 +199,7 @@ const CreateOfflinePaymentModel = () => {
                                     <Controller
                                         name="phone"
                                         control={control}
+                                        defaultValue={houseHoldDetailsData?.data?.phone1}
                                         render={({ field }) => (
                                             <input
                                                 {...field}
