@@ -2,6 +2,8 @@ import 'core-js/stable'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
+import cachet from "../../assets/cachet.png"
+import signature from "../../assets/signature.png"
 import ExcelJS from 'exceljs'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
@@ -13,6 +15,8 @@ import {
   faAnglesRight,
   faChevronLeft,
   faChevronRight,
+  faClose,
+  faFile,
   faFileExcel,
   faFilePdf,
 } from '@fortawesome/free-solid-svg-icons'
@@ -64,6 +68,16 @@ const TransactionTable = ({ user }) => {
   const [totalCommission, setTotalCommission] = useState(0)
   const [totalAmount, setTotalAmount] = useState(0)
   const [totalRemaining, setTotalRemaining] = useState(0)
+  const [showExportPopup, setShowExportPopup] = useState(false);
+  const [reportName, setReportName] = useState('');
+
+  const openExportPopup = () => {
+    setShowExportPopup(true);
+  };
+
+  const closeExportPopup = () => {
+    setShowExportPopup(false);
+  };
   const dispatch = useDispatch()
   let department = ''
 
@@ -176,7 +190,6 @@ const TransactionTable = ({ user }) => {
 
       const mappedData = transactionsListData?.data?.rows?.map((row, index) => {
         const paidAmount = Number(row?.amount) || 0
-        const remainingAmount = Number(row?.payments[0]?.remain_amount) || 0
         totalCommission += Number(row?.amount) / 10
         totalPaidAmount += paidAmount
         totalRemainingAmount = totalPaidAmount - totalCommission
@@ -213,21 +226,21 @@ const TransactionTable = ({ user }) => {
   }, [transactionsListIsSuccess, transactionsListIsError, queryRoute])
 
   const handleExportToPdf = async () => {
-    const doc = new jsPDF('landscape')
-    const logoResponse = await fetch(logo)
-    const logoData = await logoResponse.blob()
-    const reader = new FileReader()
+    const doc = new jsPDF('landscape');
+    const logoResponse = await fetch(logo);
+    const logoData = await logoResponse.blob();
+    const reader = new FileReader();
 
-    reader.onload = () => {
-      const logoBase64 = reader.result.split(',')[1]
-      doc.setFontSize(12)
-      doc.setFillColor(255, 166, 1)
-      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
-      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
-      doc.setTextColor(0)
-      doc.text('Transaction Report', 50, 25)
+    reader.onload = async () => {
+      const logoBase64 = reader.result.split(',')[1];
+      doc.setFontSize(12);
+      doc.setFillColor(255, 166, 1);
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F');
+      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30);
+      doc.setTextColor(0);
+      doc.text(`${reportName}`, 50, 25);
 
-      doc.setFontSize(8)
+      doc.setFontSize(8);
 
       const columnHeader = [
         'NO',
@@ -244,10 +257,10 @@ const TransactionTable = ({ user }) => {
         'AGENT',
         'COMMISSION',
         'DATE',
-      ]
+      ];
       const headerRow = columnHeader.map((header) => ({
         content: header,
-      }))
+      }));
       doc.autoTable({
         startY: 50,
         head: [headerRow],
@@ -260,30 +273,94 @@ const TransactionTable = ({ user }) => {
           valign: 'middle',
           fontSize: 8,
         },
-      })
+      });
 
+      // Create a separate array for "NO" values starting from 1
+      const noValues = Array.from({ length: TableInstance.rows.length }, (_, index) => index + 1);
+
+      // Combine the "NO" values with your existing data, excluding the ID
+      const exportData = TableInstance.rows.map((row, index) => {
+        const { id, ...rest } = row.original;
+        return {
+          NO: noValues[index],
+          ...rest,
+        };
+      });
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
-        body: TableInstance.rows.map((row, index) => {
-          return {
-            no: index + 1,
-            ...row.original,
-          }
-        }),
+        body: exportData,
         theme: 'grid',
         styles: {
           fontSize: 8,
         },
-      })
-      doc.save('households.pdf')
-    }
+      });
 
-    reader.readAsDataURL(logoData)
-  }
+      // Add your custom content here
+      const customContent = [
+        ['BITEGUWE NA:', 'BYEMEJWE NA:'],
+        ['', ''],
+        ['TETA TAMARA', 'NDAGIJIMANA Gedeon'],
+        ['DATA MANAGEMENT', 'CEO IMENA SOFTEK LTD'],
+        ['IMENA SOFTEK LTD', ''],
+      ];
+
+      // Define custom styles for the custom content (no lines and normal font weight)
+      const customContentStyles = {
+        theme: 'plain', // Use plain theme to remove table lines
+        styles: {
+          fontSize: 8,
+          fontStyle: 'normal', // Use normal font weight
+        },
+        columnStyles: {
+          0: { cellWidth: 150 },
+          1: { cellWidth: 100 },
+        },
+      };
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 20,
+        head: false,
+        body: customContent,
+        ...customContentStyles,
+      });
+
+      // Add the cachet image here
+      const cachetResponse = await fetch(cachet);
+      const cachetData = await cachetResponse.blob();
+      const cachetBase64 = await convertBlobToBase64(cachetData);
+
+      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+
+      // Add the signature image here
+      const signatureResponse = await fetch(signature);
+      const signatureData = await signatureResponse.blob();
+      const signatureBase64 = await convertBlobToBase64(signatureData);
+      const date = new Date();
+      const dateNow = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
+
+      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      doc.text(`Date: ${dateNow}`, 20, doc.lastAutoTable.finalY + 2);
+
+      doc.save(`${reportName}.pdf`);
+    };
+
+    reader.readAsDataURL(logoData);
+  };
+
+  // Helper function to convert Blob to Base64
+  const convertBlobToBase64 = (blob) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result.split(',')[1]);
+      };
+      reader.readAsDataURL(blob);
+    });
+  };
+
   const handleExportToExcel = () => {
     const workbook = new ExcelJS.Workbook()
-    const sheet = workbook.addWorksheet('Transaction')
+    const sheet = workbook.addWorksheet(`${reportName}`)
     sheet.properties.defaultRowHeight = 80
 
     sheet.getRow(1).border = {
@@ -551,87 +628,123 @@ const TransactionTable = ({ user }) => {
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
+              <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
+                
                   <div className="flex gap-2">
                     <Button
                       value={
                         <span className="flex items-center gap-2">
-                          Export PDF
-                          <FontAwesomeIcon icon={faFilePdf} />
+                          Export Report
+                          <FontAwesomeIcon icon={faFile} />
                         </span>
                       }
-                      onClick={handleExportToPdf}
-                    />
-                    <Button
-                      value={
-                        <span className="flex items-center gap-2">
-                          Export Excel
-                          <FontAwesomeIcon icon={faFileExcel} />
-                        </span>
-                      }
-                      onClick={handleExportToExcel}
+                      onClick={openExportPopup}
                     />
                   </div>
-
-                  <table
-                    {...getTableProps()}
-                    border="1"
-                    className="min-w-full divide-y divide-gray-200"
-                  >
-                    <thead className="bg-gray-50">
-                      {headerGroups.map((headerGroup) => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
-                          {headerGroup.headers.map((column) => (
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                              {...column.getHeaderProps(
-                                column.getSortByToggleProps()
-                              )}
-                            >
-                              {column.render('Header')}
-                              <span>
-                                {column.isSorted
-                                  ? column.isSortedDesc
-                                    ? ' ▼'
-                                    : ' ▲'
-                                  : ''}
+                  {/* Export Popup/Modal */}
+                  {showExportPopup && (
+                    <div className="fixed inset-0 flex items-center justify-center z-10">
+                      <div className="bg-white p-4 rounded-lg shadow-lg">
+                        <h2 className="text-xl font-semibold mb-4">Export Report</h2>
+                        <input
+                          type="text"
+                          placeholder="Enter report name"
+                          value={reportName}
+                          onChange={(e) => setReportName(e.target.value)}
+                          className="border p-2 rounded-md w-full mb-4"
+                        />
+                        <div className="flex gap-3">
+                          <Button
+                            value={
+                              <span className="flex items-center gap-2">
+                                Export PDF
+                                <FontAwesomeIcon icon={faFilePdf} />
                               </span>
-                            </th>
-                          ))}
-                        </tr>
-                      ))}
-                    </thead>
-                    {transactionsListIsLoading ? (
-                      <span className="w-full flex items-center justify-center my-6 mx-auto">
-                        <Loading size={4} />
-                      </span>
-                    ) : (
-                      <tbody
-                        className="bg-white divide-y divide-gray-200"
-                        {...getTableBodyProps()}
-                      >
-                        {page.map((row) => {
-                          prepareRow(row)
-                          return (
-                            <tr {...row.getRowProps()}>
-                              {row.cells.map((cell) => {
-                                return (
-                                  <td
-                                    {...cell.getCellProps()}
-                                    className="px-6 py-4 whitespace-nowrap"
-                                  >
-                                    {cell.render('Cell')}
-                                  </td>
-                                )
-                              })}
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    )}
-                  </table>
-                </div>
+                            }
+                            onClick={handleExportToPdf}
+
+                          />
+                          <Button
+                            value={
+                              <span className="flex items-center gap-2">
+                                Export Excel
+                                <FontAwesomeIcon icon={faFileExcel} />
+                              </span>
+                            }
+                            onClick={handleExportToExcel}
+
+                          />
+                          <Button
+                            value={
+                              <span className="flex items-center gap-2">
+                                Close
+                                <FontAwesomeIcon icon={faClose} />
+                              </span>
+                            }
+                            onClick={closeExportPopup} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                <table
+                  {...getTableProps()}
+                  border="1"
+                  className="min-w-full divide-y divide-gray-200"
+                >
+                  <thead className="bg-gray-50">
+                    {headerGroups.map((headerGroup) => (
+                      <tr {...headerGroup.getHeaderGroupProps()}>
+                        {headerGroup.headers.map((column) => (
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            {...column.getHeaderProps(
+                              column.getSortByToggleProps()
+                            )}
+                          >
+                            {column.render('Header')}
+                            <span>
+                              {column.isSorted
+                                ? column.isSortedDesc
+                                  ? ' ▼'
+                                  : ' ▲'
+                                : ''}
+                            </span>
+                          </th>
+                        ))}
+                      </tr>
+                    ))}
+                  </thead>
+                  {transactionsListIsLoading ? (
+                    <span className="w-full flex items-center justify-center my-6 mx-auto">
+                      <Loading size={4} />
+                    </span>
+                  ) : (
+                    <tbody
+                      className="bg-white divide-y divide-gray-200"
+                      {...getTableBodyProps()}
+                    >
+                      {page.map((row) => {
+                        prepareRow(row);
+                        return (
+                          <tr {...row.getRowProps()}>
+                            {row.cells.map((cell) => {
+                              return (
+                                <td
+                                  {...cell.getCellProps()}
+                                  className="px-6 py-4 whitespace-nowrap"
+                                >
+                                  {cell.render('Cell')}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  )}
+                </table>
+              </div>
               </div>
             </div>
           </div>

@@ -2,7 +2,9 @@ import 'core-js/stable'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
-import * as XLSX from 'xlsx'
+import cachet from "../../assets/cachet.png"
+import signature from "../../assets/signature.png"
+import * as XLSX from 'xlsx';
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
@@ -13,6 +15,8 @@ import {
   faAnglesRight,
   faChevronLeft,
   faChevronRight,
+  faClose,
+  faFile,
   faFileExcel,
   faFilePdf,
   faHouse,
@@ -39,6 +43,17 @@ import Input from '../../components/Input'
 import { Link } from 'react-router-dom'
 
 const HouseholdTable = ({ user }) => {
+
+  const [showExportPopup, setShowExportPopup] = useState(false);
+  const [reportName, setReportName] = useState('');
+
+  const openExportPopup = () => {
+    setShowExportPopup(true);
+  };
+
+  const closeExportPopup = () => {
+    setShowExportPopup(false);
+  };
   const [
     getHouseholdsList,
     {
@@ -157,14 +172,14 @@ const HouseholdTable = ({ user }) => {
     const logoData = await logoResponse.blob()
     const reader = new FileReader()
 
-    reader.onload = () => {
+    reader.onload = async () => {
       const logoBase64 = reader.result.split(',')[1]
       doc.setFontSize(16)
       doc.setFillColor(255, 166, 1)
       doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
       doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
       doc.setTextColor(0)
-      doc.text('Households List', 50, 25)
+      doc.text(`${reportName}`, 50, 25)
 
       doc.setFontSize(10)
 
@@ -220,11 +235,69 @@ const HouseholdTable = ({ user }) => {
         },
       })
 
-      doc.save('households.pdf')
-    }
+
+      // Add your custom content here
+      const customContent = [
+        ['BITEGUWE NA:', 'BYEMEJWE NA:'],
+        ['', ''],
+        ['TETA TAMARA', 'NDAGIJIMANA Gedeon'],
+        ['DATA MANAGEMENT', 'CEO IMENA SOFTEK LTD'],
+        ['IMENA SOFTEK LTD', ''],
+      ];
+
+      // Define custom styles for the custom content (no lines and normal font weight)
+      const customContentStyles = {
+        theme: 'plain', // Use plain theme to remove table lines
+        styles: {
+          fontSize: 8,
+          fontStyle: 'normal', // Use normal font weight
+        },
+        columnStyles: {
+          0: { cellWidth: 150 },
+          1: { cellWidth: 100 },
+        },
+      };
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 20,
+        head: false,
+        body: customContent,
+        ...customContentStyles,
+      });
+
+      // Add the cachet image here
+      const cachetResponse = await fetch(cachet);
+      const cachetData = await cachetResponse.blob();
+      const cachetBase64 = await convertBlobToBase64(cachetData);
+
+      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+
+      // Add the signature image here
+      const signatureResponse = await fetch(signature);
+      const signatureData = await signatureResponse.blob();
+      const signatureBase64 = await convertBlobToBase64(signatureData);
+      const date = new Date();
+      const dateNow = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
+
+      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      doc.text(`Date: ${dateNow}`, 15, doc.lastAutoTable.finalY + 3);
+
+      doc.save(`${reportName}.pdf`);
+    };
 
     reader.readAsDataURL(logoData)
-  }
+  };
+
+  // Helper function to convert Blob to Base64
+  const convertBlobToBase64 = (blob) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result.split(',')[1]);
+      };
+      reader.readAsDataURL(blob);
+    });
+  };
+
   const handleExportToExcel = () => {
     if (TableInstance) {
       const filteredAndSortedData = TableInstance.rows.map(
@@ -283,8 +356,14 @@ const HouseholdTable = ({ user }) => {
       XLSX.utils.book_append_sheet(wb, ws, 'REPORTS ')
       const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
 
-      const buf = new ArrayBuffer(wbBinary.length)
-      const view = new Uint8Array(buf)
+      XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        `${reportName}`
+      );
+
+      const buf = new ArrayBuffer(wbBinary.length);
+      const view = new Uint8Array(buf);
       for (let i = 0; i < wbBinary.length; i++) {
         view[i] = wbBinary.charCodeAt(i) & 0xff
       }
@@ -295,12 +374,13 @@ const HouseholdTable = ({ user }) => {
 
       const blobUrl = URL.createObjectURL(blob)
 
-      const link = document.createElement('a')
-      link.href = blobUrl
-      link.download = 'HouseHoldLists.xlsx'
-      link.click()
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${reportName}.xlsx`;
+      link.click();
     }
-  }
+  };
+
   const columns = useMemo(
     () => [
       {
@@ -441,22 +521,59 @@ const HouseholdTable = ({ user }) => {
                     <Button
                       value={
                         <span className="flex items-center gap-2">
-                          Export PDF
-                          <FontAwesomeIcon icon={faFilePdf} />
+                          Export Report
+                          <FontAwesomeIcon icon={faFile} />
                         </span>
                       }
-                      onClick={handleExportToPdf}
-                    />
-                    <Button
-                      value={
-                        <span className="flex items-center gap-2">
-                          Export Excel
-                          <FontAwesomeIcon icon={faFileExcel} />
-                        </span>
-                      }
-                      onClick={handleExportToExcel}
+                      onClick={openExportPopup}
                     />
                   </div>
+                  {/* Export Popup/Modal */}
+                  {showExportPopup && (
+                    <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
+                      <div className="bg-white p-4 rounded-lg shadow-lg">
+                        <h2 className="text-xl font-semibold mb-4">Export Report</h2>
+                        <input
+                          type="text"
+                          placeholder="Enter report name"
+                          value={reportName}
+                          onChange={(e) => setReportName(e.target.value)}
+                          className="border p-2 rounded-md w-full mb-4"
+                        />
+                        <div className="flex gap-3">
+                          <Button
+                            value={
+                              <span className="flex items-center gap-2">
+                                Export PDF
+                                <FontAwesomeIcon icon={faFilePdf} />
+                              </span>
+                            }
+                            onClick={handleExportToPdf}
+
+                          />
+                          <Button
+                            value={
+                              <span className="flex items-center gap-2">
+                                Export Excel
+                                <FontAwesomeIcon icon={faFileExcel} />
+                              </span>
+                            }
+                            onClick={handleExportToExcel}
+
+                          />
+                          <Button
+                            value={
+                              <span className="flex items-center gap-2">
+                                Close
+                                <FontAwesomeIcon icon={faClose} />
+                              </span>
+                            }
+                            onClick={closeExportPopup} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <table
                     {...getTableProps()}
                     border="1"
