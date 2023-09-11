@@ -15,9 +15,10 @@ import Settings from './pages/Settings.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseholdDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
-import Report from './containers/dashboard/report.jsx'
+import Report from './containers/dashboard/Report.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
 import Department from './pages/dashboard/Department.jsx'
+import CreateHousehold from './pages/households/CreateHousehold.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -31,10 +32,10 @@ const App = () => {
     <Router>
       <main
         className={`relative h-full ${
-          isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[4vw,96vw]'
+          isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[4vw,100vw]'
         }`}
       >
-        <Sidebar />
+        <Sidebar user={user} />
         <section
           className={`w-full ${
             isOpen ? 'left-[280px]' : 'left-[55px]'
@@ -45,6 +46,25 @@ const App = () => {
             <Route element={<IsLoggedIn />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/households"
+                element={<HouseholdTable user={user || stateUser} />}
+              />
+              <Route
+                path="/dashboard/report"
+                element={<Report user={user || stateUser} />}
+              />
+              <Route path="/createVillage" element={<CreateVillageModel />} />
+              <Route path="/households/:id" element={<HouseholdDetail />} />
+              <Route path="/households/create" element={<CreateHousehold />} />
+              <Route
+                path="/settings"
+                element={<Settings user={user || stateUser} />}
+              />
+              <Route
+                path="/transactions"
+                element={<TransactionTable user={user || stateUser} />}
+              />
             </Route>
             <Route path="/login" element={<Login />} />
             <Route
@@ -52,21 +72,6 @@ const App = () => {
               element={<Validate2faPage />}
             />
             <Route path="/houseDetails" element={<HouseDetails />} />
-            <Route
-              path="/transactions"
-              element={<TransactionTable user={user || stateUser} />}
-            />
-            <Route
-              path="/households"
-              element={<HouseholdTable user={user || stateUser} />}
-            />
-            <Route path="/dashboard/report" element={<Report user={user || stateUser} />} />
-            <Route path="/createVillage" element={<CreateVillageModel />} />
-            <Route path="/households/:id" element={<HouseholdDetail />} />
-            <Route
-              path="/settings"
-              element={<Settings user={user || stateUser} />}
-            />
             <Route
               path="/profile/:id"
               element={<UserProfilePage user={user || stateUser} />}

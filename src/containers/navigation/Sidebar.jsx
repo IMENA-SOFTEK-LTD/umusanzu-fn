@@ -4,6 +4,7 @@ import {
   BsFillArrowLeftSquareFill,
   BsFillArrowRightSquareFill
 } from 'react-icons/bs'
+import PropTypes from 'prop-types'
 import { AiOutlineTransaction } from 'react-icons/ai'
 import { FaListAlt, FaMicrosoft, FaBorderAll } from 'react-icons/fa'
 import { MdOutlineSettingsSuggest } from 'react-icons/md'
@@ -56,13 +57,40 @@ const data = [
   }
 ]
 
-function Sidebar () {
+function Sidebar ({ user }) {
   const [active, setActive] = useState(false)
   const controls = useAnimation()
   const controlText = useAnimation()
   const controlTitleText = useAnimation()
 
   const { pathname } = useLocation()
+
+  const { user: stateUser } = useSelector((state) => state.auth)
+
+  let department = ''
+
+  switch (user?.departments?.level_id || stateUser?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
+  }
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -102,8 +130,6 @@ function Sidebar () {
 
     setActive(false)
   }
-
-  const { user: stateUser } = useSelector((state) => state.auth)
 
   useEffect(() => {
     showMore()
@@ -150,31 +176,39 @@ function Sidebar () {
                 {group.name}
               </motion.p>
 
-              {group.items.map((item, index2) => (
+              {group.items.map((item, index2) => {
+                if (item.title === 'Departments' && department === 'agent') {
+                  return null
+                }
+                return (
                 <Link to={item.path} key={index2}>
                   <figure
                     key={index2}
-                    className="flex px-4 py-1 cursor-pointer pt-3 pb-3 hover:bg-gray-800 "
+                    className={`flex px-4 py-1 cursor-pointer pt-3 pb-3 hover:bg-gray-800`}
                   >
                     <item.icon className="text-lg text-amber-600  transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700" />
                     <motion.p
                       key={index2}
                       to={item.path}
                       animate={controlText}
-                      className="ml-4 text-sm font-bold text-white"
+                      className={`ml-4 text-sm font-bold text-white`}
                     >
                       {' '}
                       {item.title}
                     </motion.p>
                   </figure>
                 </Link>
-              ))}
+              )})}
             </div>
           ))}
         </div>
       </motion.div>
     </div>
   )
+}
+
+Sidebar.propTypes = {
+  user: PropTypes.shape({})
 }
 
 export default Sidebar

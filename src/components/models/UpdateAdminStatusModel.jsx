@@ -57,7 +57,6 @@ const UpdateAdminStatusModel = ({ user }) => {
   }
 
   const onSubmit = async (values) => {
-    console.log(values, department)
     setIsLoading(true)
 
     try {

@@ -7,6 +7,7 @@ import paginationSlice from './features/pagination/paginationSlice'
 import userProfileSlice from './features/userProfileSlice'
 import dashboardCardSlice from './features/dashboard/dashboardCardSlice'
 import modalSlice from './features/modals/modalSlice'
+import householdSlice from './features/modals/householdSlice'
 
 const store = configureStore({
   reducer: {
@@ -17,7 +18,8 @@ const store = configureStore({
     pagination: paginationSlice,
     userProfile: userProfileSlice,
     dashboardCard: dashboardCardSlice,
-    modals: modalSlice
+    modals: modalSlice,
+    household: householdSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware)

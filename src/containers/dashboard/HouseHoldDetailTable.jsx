@@ -77,7 +77,7 @@ const HouseHoldDetailTable = ({
                         <th className="py-2 px-4">Reference</th>
                       </tr>
                     </thead>
-                    <tbody>
+                      <tbody className='w-full'>
                       {transactions.map((transaction, index) => {
                         const paidMonth = new Date(
                           transaction.month_paid
@@ -85,7 +85,6 @@ const HouseHoldDetailTable = ({
                           month: 'long',
                           year: 'numeric'
                         })
-
                         let payStatus = '';
                         if (transaction.status === 'PENDING') {
                           payStatus = 'bg-red-500 text-white';

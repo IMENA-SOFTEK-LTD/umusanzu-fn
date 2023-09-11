@@ -14,6 +14,7 @@ import Button from './Button'
 import { setMonthlyTarget } from '../states/features/dashboard/dashboardCardSlice'
 import { color } from 'framer-motion'
 import getMonthName from '../utils/Dates'
+import formatFunds from '../utils/Funds'
 
 const DashboardCard = ({
   props = {
@@ -409,7 +410,7 @@ const DashboardCard = ({
               isOpen ? 'text-[14px]' : 'text-[16px]'
             }  w-full flex items-center gap-2 font-black`}
           >
-            <p>{newProps.amount}</p>
+            <p>{formatFunds(newProps.amount)}</p>
             <p className={`${newProps.funds ? 'flex' : 'hidden'}`}>RWF</p>
           </span>
           <p

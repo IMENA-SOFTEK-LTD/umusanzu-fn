@@ -69,7 +69,7 @@ const Login = () => {
   }, [user])
 
   return (
-    <main className="bg-white relative flx flex-col items-start">
+    <main className="bg-primary relative flx flex-col items-start">
       <div className="max-w-7xl flex flex-col items-start h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
         <div className="flex flex-col items-center justify-center min-h-[100vh] h-full my-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row">
           <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
@@ -78,11 +78,16 @@ const Login = () => {
               onSubmit={handleSubmit(onSubmit)}
             >
               <Link
-                to="/"
-                className="flex items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 "
+                to="#"
+                className="flex flex-col items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 "
               >
-                <img className="w-16 h-16" src={Logo} alt="logo" />
+                <h3 className='uppercase text-primary font-bold'>
                 Imena Softek
+                </h3>
+                <img className="w-32 h-32" src={Logo} alt="logo" />
+                <h3 className='uppercase text-[20px] text-primary font-bold'>
+                Umusanzu Digital
+                </h3>
               </Link>
               {invalidLogin && (
                 <div className="flex justify-center items-center">
