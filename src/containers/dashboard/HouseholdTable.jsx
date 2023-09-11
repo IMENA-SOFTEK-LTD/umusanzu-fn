@@ -125,7 +125,6 @@ const HouseholdTable = ({ user }) => {
   useEffect(() => {
     if (householdsListIsSuccess) {
       dispatch(setTotalPages(householdsListData?.data?.totalPages))
-      console.log(householdsListData)
       setData(
         householdsListData?.data?.rows?.map((row, index) => ({
           id: index + 1,
@@ -417,7 +416,6 @@ const HouseholdTable = ({ user }) => {
         Header: 'phone',
         accessor: 'phone1',
         sortable: true,
-        Filter: SelectColumnFilter,
       },
       {
         Header: 'Village',
@@ -451,7 +449,7 @@ const HouseholdTable = ({ user }) => {
       },
       {
         id: 'ID',
-        Header: 'Action',
+        Header: 'Details',
         accessor: 'ID',
         Cell: ({ row }) => (
           <Link
@@ -531,7 +529,7 @@ const HouseholdTable = ({ user }) => {
                 setGlobalFilter={setGlobalFilter}
               />
             </span>
-            <span className="w-fit h-fit flex items-center gap-4">
+            <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
                   column.Filter ? (

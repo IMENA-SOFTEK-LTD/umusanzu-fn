@@ -32,7 +32,7 @@ const App = () => {
     <Router>
       <main
         className={`relative h-full ${
-          isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[4vw,100vw]'
+          isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[4vw,96vw]'
         }`}
       >
         <Sidebar user={user} />

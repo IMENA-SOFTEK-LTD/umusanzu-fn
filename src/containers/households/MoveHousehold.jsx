@@ -143,7 +143,7 @@ const MoveHousehold = ({ isOpen, className }) => {
             </p>
             <Controller
               control={control}
-              defaultValue={householdData.name}
+              defaultValue={householdData?.name}
               rules={{ required: "Please add the head's full names" }}
               name="name"
               render={({ field }) => {
@@ -440,7 +440,7 @@ const MoveHousehold = ({ isOpen, className }) => {
             <p className="text-center max-w-[50%]">
               Are you sure you want to move this household to this village. This
               will remove {householdData?.name} from their existing location and
-              mark them as INACTIVE.
+              mark them as MOVED.
             </p>
             <section
               className={`${
