@@ -110,6 +110,7 @@ const HouseholdTable = ({ user }) => {
   useEffect(() => {
     if (householdsListIsSuccess) {
       dispatch(setTotalPages(householdsListData?.data?.totalPages))
+      console.log(householdsListData)
       setData(
         householdsListData?.data?.rows?.map((row, index) => ({
           id: index + 1,
@@ -117,8 +118,13 @@ const HouseholdTable = ({ user }) => {
           phone1: row?.phone1,
           phone2: row?.phone2,
           ubudehe: row?.ubudehe,
-          status: row?.status,
-          ID: row?.id,
+          status: row?.status, 
+          village: row?.villages[0]?.name,
+          cell: row?.cells[0]?.name,
+          sector: row?.sectors[0]?.name,
+          district: row?.districts[0]?.name,
+          province: row?.provinces[0]?.name,         
+          ID: row?.id
         })) || []
       )
     }
@@ -145,11 +151,17 @@ const HouseholdTable = ({ user }) => {
             phone2: row?.phone2,
             ubudehe: row?.ubudehe,
             status: row?.status,
-            ID: row?.id,
+            village: row?.villages[0]?.name,
+            cell: row?.cells[0]?.name,
+            sector: row?.sectors[0]?.name,
+            district: row?.districts[0]?.name,
+            province: row?.provinces[0]?.name,
+            ID: row?.id
           })) || []
         )
       })
   }, [offset, size])
+
 
   const handleExportToPdf = async () => {
     const doc = new jsPDF('landscape')
@@ -168,18 +180,8 @@ const HouseholdTable = ({ user }) => {
 
       doc.setFontSize(10)
 
-      const columnHeader = [
-        'NO',
-        'Name',
-        'Phone 1',
-        'Phone 2',
-        'Ubudehe',
-        'Status',
-      ]
-      const headerRow = columnHeader.map((header) => ({
-        content: header,
-        styles: { halign: 'center' },
-      }))
+      const columnHeader = ['NO', 'Name', 'Phone 1', 'Phone 2', 'Ubudehe', 'Status' ]
+      const headerRow = columnHeader.map(header => ({ content: header, styles: { halign: 'center' } }))
       doc.autoTable({
         startY: 50,
         head: [headerRow],
@@ -334,6 +336,38 @@ const HouseholdTable = ({ user }) => {
       {
         Header: 'phone',
         accessor: 'phone1',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Village',
+        accessor: 'village',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Cell',
+        accessor: 'cell',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Sector',
+        accessor: 'sector',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'District',
+        accessor: 'district',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Province',
+        accessor: 'province',
+        sortable: true,
+        Filter: SelectColumnFilter,
       },
       {
         id: 'ID',
