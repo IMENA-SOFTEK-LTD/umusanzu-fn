@@ -69,6 +69,13 @@ export const apiSlice = createApi({
         }),
       }),
 
+      deleteAdmin: builder.mutation({
+        query: ({ id, route }) => ({
+          url: `/${route}/admin/is_deleted/${id}`,
+          method: 'PUT',
+        }),
+      }),
+
       updatePassword: builder.mutation({
         query: ({ id, departmentId, oldPassword, newPassword }) => ({
           url: `/userProfile/password/${id}/?departmentId=${departmentId}`,
@@ -472,6 +479,7 @@ export const {
   useUpdateStaffDetailsMutation,
   useLazyGetHouseholdDepartmentsQuery,
   useUpdateAdminStatusMutation,
+  useDeleteAdminMutation,
   useRecordOfflinePaymentMutation,
   useLazyGetProvinceChildrenQuery,
   useLazyGetDistrictChildrenQuery,
