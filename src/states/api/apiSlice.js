@@ -333,7 +333,7 @@ export const apiSlice = createApi({
       }),
       recordOfflinePayment: builder.mutation({
         query: ({ service, amount, month_paid, agent, household }) => ({
-          url: '/transactions',
+          url: '/transactions/offline',
           method: 'POST',
           body: {
             service,

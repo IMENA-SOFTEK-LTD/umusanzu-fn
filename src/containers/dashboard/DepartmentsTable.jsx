@@ -140,9 +140,11 @@ const DepartmentsTable = ({ user }) => {
       useEffect(() => {
         if (provinceChildrenIsSuccess) {
           setData(provinceChildrenData?.data?.map((row, index) => ({
-            sector: row?.name,
-            district: row?.parent?.name,
-            merchantCode: row?.merchant_code,
+            village: row?.name,
+            cell: row?.parent?.name,
+            sector: row?.parent?.parent?.name,
+            district: row?.parent?.parent?.parent?.name,
+            merchantCode: row?.parent?.parent?.merchant_code,
             ID: row?.id,
             phone: row?.phone1,
           })) || [])
@@ -161,10 +163,11 @@ const DepartmentsTable = ({ user }) => {
       useEffect(() => {
         if (districtChildrenIsSuccess) {
           setData(districtChildrenData?.data?.map((row, index) => ({
-            cell: row?.name,
-            sector: row?.parent?.name,
-            district: row?.parent?.parent?.name,
-            merchantCode: row?.parent?.merchant_code,
+            village: row?.name,
+            cell: row?.parent?.name,
+            sector: row?.parent?.parent?.name,
+            district: row?.parent?.parent?.parent?.name,
+            merchantCode: row?.parent?.parent?.merchant_code,
             phone: row?.phone1,
             ID: row?.id,
           })) || [])
@@ -184,6 +187,8 @@ const DepartmentsTable = ({ user }) => {
             village: row?.name,
             cell: row?.parent?.name,
             sector: row?.parent?.parent?.name,
+            district: row?.parent?.parent?.parent?.name,
+            merchantCode: row?.parent?.parent?.merchant_code,
             phone: row?.phone1,
             ID: row?.id,
           })) || [])
@@ -204,6 +209,7 @@ const DepartmentsTable = ({ user }) => {
             village: row?.name,
             cell: row?.parent?.name,
             sector: row?.parent?.parent?.name,
+            district: row?.parent?.parent?.parent?.name,
             phone: row?.staff[0]?.phone1,
             ID: row?.id,
             merchantCode: row?.parent?.parent?.merchant_code,
@@ -223,12 +229,14 @@ const DepartmentsTable = ({ user }) => {
       useEffect(() => {
         if (countryChildrenIsSuccess) {
           setData(countryChildrenData?.data?.map((row, index) => ({
-            sector: row?.name,
-            district: row?.parent?.name,
-            province: row?.parent?.parent?.name,
+            village: row?.name,
+            cell: row?.parent?.name,
+            sector: row?.parent?.parent?.name,
+            province: row?.parent?.parent?.parent?.name,
+            district: row?.parent?.parent?.parent?.parent?.name,
+            merchantCode: row?.parent?.parent?.merchant_code,
             phone: row?.phone1,
             ID: row?.id,
-            merchantCode: row?.merchant_code,
           })) || [])
         }
       }, [countryChildrenIsSuccess])
@@ -392,12 +400,6 @@ const DepartmentsTable = ({ user }) => {
     {
       Header: 'Merchant Code',
       accessor: 'merchantCode',
-      sortable: true,
-    },
-    {
-      id: 'agent',
-      Header: 'Agent',
-      accessor: 'agent',
       sortable: true,
     },
     {
