@@ -94,10 +94,9 @@ const UpdateAdminStatusModel = ({ user }) => {
       <ToastContainer />
       <button
         onClick={openModal}
-        className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-red-600 hover:scale-[0.98]"
-        type="button"
+        className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-yellow-600 hover:scale-[0.98] max-w-xs overflow-hidden"
       >
-        delete
+        Change Status
       </button>
 
       {showModal && (
@@ -129,79 +128,79 @@ const UpdateAdminStatusModel = ({ user }) => {
               </svg>
               <span className="sr-only">Close modal</span>
             </button>
-            <div className="px-24 py-24 lg:px-42">
+            <div className="px-6 py-6 lg:px-42">
               <h3 className="mb-4 text-xl text-center font-medium text-black">
                 Delete Admin
               </h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
 
-              <div className="flex justify-center items-center">
-  <div className="w-[300px] text-center text-md">
-    <p>
-      Dear<span> {user?.names},</span> before you delete Admin consider disabling their account instead
-    </p>
-  </div>
-</div>
-
-              <div className="flex-1">
-                    <label
-                      htmlFor="category"
-                      className="block mb-2 text-sm font-medium text-black"
-                    >
-                        Category
-                    </label>
-                    {/* a select contoller to select from the retrieved categories */}
-                    <Controller
-                        name="status"
-                        control={control}
-                        defaultValue=""
-                        rules={{ required: 'Please select a status' }}
-                        render={({ field }) => (
-                            <select
-                            {...field}
-                            className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-3 py-4 px-28"
-                          >
-
-                            <option value="ACTIVE">ACTIVE</option>
-                            <option value="INACTIVE">INACTIVE</option>
-                          </select>
-                        )}
-                        />
-
-                    {errors.status && (
-                      <span className="text-red-500">
-                        {errors.status.message}
-                      </span>
-                    )}
+                <div className="flex justify-center items-center">
+                  <div className="w-[300px] text-center text-md">
+                    <p>
+                      Dear<span> {user?.names},</span> before you delete Admin consider disabling their account instead
+                    </p>
                   </div>
-                  <div className="flex justify-between space-x-4">
-  <Controller
-    name="submit"
-    control={control}
-    render={() => {
-      return (
-        <Button
-          submit
-          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-          value={isLoading ? <Loading /> : 'Update Status'}
-        />
-      )
-    }}
-  />
-  <Controller
-    name="submit"
-    control={control}
-    render={() => {
-      return (
-        <Button
-          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-          submit
-          value={'Or delete Admin'}
-        />
-      )
-    }}
-  />
-</div>
+                </div>
+
+                <div className="flex-1">
+                  <label
+                    htmlFor="category"
+                    className="block mb-2 text-sm font-medium text-black"
+                  >
+                    Category
+                  </label>
+                  {/* a select contoller to select from the retrieved categories */}
+                  <Controller
+                    name="status"
+                    control={control}
+                    defaultValue=""
+                    rules={{ required: 'Please select a status' }}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-1 py-2 px-2"
+                      >
+
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                      </select>
+                    )}
+                  />
+
+                  {errors.status && (
+                    <span className="text-red-500">
+                      {errors.status.message}
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between space-x-4">
+                  <Controller
+                    name="submit"
+                    control={control}
+                    render={() => {
+                      return (
+                        <Button
+                          submit
+                          className={'w-full p-1 py-1 px-1 flex items-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
+                          value={isLoading ? <Loading /> : 'Update Status'}
+                        />
+                      )
+                    }}
+                  />
+                  <Controller
+                    name="submit"
+                    control={control}
+                    render={() => {
+                      return (
+                        <Button
+                          className={'w-full p-1 py-1 px-1 flex items-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
+                          submit
+                          value={'delete Admin'}
+                        />
+                      )
+                    }}
+                  />
+                </div>
               </form>
             </div>
           </div>
