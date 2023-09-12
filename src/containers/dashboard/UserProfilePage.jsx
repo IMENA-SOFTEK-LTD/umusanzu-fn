@@ -87,18 +87,6 @@ const UserProfilePage = () => {
             >
               Edit
             </button>
-            <button
-              className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-yellow-600 hover:scale-[0.98] max-w-xs overflow-hidden"
-              onClick={handleStatusChange}
-            >
-              Change Status
-            </button>
-             {/* <button
-              className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-red-600 hover:scale-[0.98]"
-              onClick={handleDelete}
-            >
-              Delete
-            </button> */}
             <UpdateAdminStatusModel user={localStorageUser} />
 
           </div>

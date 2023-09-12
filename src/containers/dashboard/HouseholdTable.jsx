@@ -176,7 +176,6 @@ const HouseholdTable = ({ user }) => {
       })
   }, [offset, size])
 
-
   const handleExportToPdf = async () => {
     const doc = new jsPDF('landscape')
     const logoResponse = await fetch(logo)
@@ -194,7 +193,7 @@ const HouseholdTable = ({ user }) => {
 
       doc.setFontSize(10)
 
-      const columnHeader = ['NO', 'Name', 'Phone 1', 'Phone 2', 'Ubudehe', 'Status' ]
+      const columnHeader = ['NO', 'Name', , 'PHONE 1' , 'PHONE 2', 'UBUDEHE', 'STATUS', 'VILLAGE', 'CELL', 'SECTOR', 'DISTRICT', 'PROVINCE']
       const headerRow = columnHeader.map(header => ({ content: header, styles: { halign: 'center' } }))
       doc.autoTable({
         startY: 50,
@@ -210,29 +209,24 @@ const HouseholdTable = ({ user }) => {
         },
         columnStyles: {},
       })
-      const filteredAndSortedData = TableInstance.rows.map((row) => [
-        row.index + 1,
-        row.original?.name,
-        row.original?.phone1,
-        row.original?.phone2,
-        row.original?.ubudehe,
-        row.original?.status,
-      ])
+      // Create a separate array for "NO" values starting from 1
+      const noValues = Array.from({ length: TableInstance.rows.length }, (_, index) => index + 1);
+    
+      // Combine the "NO" values with your existing data, excluding the ID
+      const exportData = TableInstance.rows.map((row, index) => {
+        const { id,ID, ...rest } = row.original;
+        return {
+          NO: noValues[index],
+          ...rest,
+        };
+      });
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
-        body: filteredAndSortedData.map((row) => Object.values(row)),
+        body: exportData.map((row) => Object.values(row)),
         theme: 'grid',
-        styles: {
-          halign: 'center',
-        },
         columnStyles: {
-          0: { cellWidth: 30 },
-          1: { cellWidth: 50 },
-          2: { cellWidth: 50 },
-          3: { cellWidth: 50 },
-          4: { cellWidth: 50 },
-          5: { cellWidth: 39 },
+          0: { cellWidth: 10 },
         },
       })
 

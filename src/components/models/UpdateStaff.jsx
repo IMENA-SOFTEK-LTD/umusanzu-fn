@@ -163,7 +163,7 @@ function UpdateStaff ({ toggleButton = true }) {
                         <input
                           {...field}
                           type="text"
-                          className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                          className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
                         />
                       )}
                     />
@@ -184,7 +184,7 @@ function UpdateStaff ({ toggleButton = true }) {
                           <input
                             {...field}
                             type="text"
-                            className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                            className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
                           />
                         )}
                       />
@@ -204,7 +204,7 @@ function UpdateStaff ({ toggleButton = true }) {
                           <input
                             {...field}
                             type="email"
-                            className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                            className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
                           />
                         )}
                       />
@@ -226,7 +226,7 @@ function UpdateStaff ({ toggleButton = true }) {
                           <input
                             {...field}
                             type="tel"
-                            className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                            className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
                           />
                         )}
                       />
@@ -246,7 +246,7 @@ function UpdateStaff ({ toggleButton = true }) {
                           <input
                             {...field}
                             type="tel"
-                            className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                            className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
                           />
                         )}
                       />
