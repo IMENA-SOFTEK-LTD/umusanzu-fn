@@ -13,7 +13,7 @@ import { IoIosArrowForward } from 'react-icons/io'
 function Navbar ({ user }) {
   const { pathname } = useLocation()
 
-  const { navDropdown } = useSelector((state) => state.navbar)
+  const { navDropdown, pathName } = useSelector((state) => state.navbar)
 
   const dispatch = useDispatch()
 
@@ -33,7 +33,7 @@ function Navbar ({ user }) {
         <IoIosArrowForward className="w-7 h-4 pl-2 text-gray-400 " />
 
         <span className="mx-2 text-sm font-medium text-gray-800 py-2">
-          Dashboard
+          {pathName}
         </span>
       </Link>
       <div className="flex relative items-center gap-2 content-start w-fit px-8 divide-x-2 divide-gray-200">

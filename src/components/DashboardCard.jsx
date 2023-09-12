@@ -121,7 +121,7 @@ const DashboardCard = ({
           Math.round(
             (
               dashboardCardData?.data[0]?.totalCollected / monthlyTarget
-            ).toFixed(2) * 100
+            ).toFixed(1) * 100
           ) || 0,
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading
@@ -154,7 +154,7 @@ const DashboardCard = ({
           Math.round(
             (
               dashboardCardData?.data[0]?.amountPendingPaid / monthlyTarget
-            ).toFixed(2) * 100
+            ).toFixed(1) * 100
           ) || 0,
         amount: dashboardCardIsLoading
           ? (
@@ -186,7 +186,7 @@ const DashboardCard = ({
           Math.round(
             (
               dashboardCardData?.data[0]?.monthlyCollections / monthlyTarget
-            ).toFixed(2) * 100
+            ).toFixed(1) * 100
           ) || 0,
         amount: dashboardCardIsLoading
           ? (
@@ -217,7 +217,7 @@ const DashboardCard = ({
           Math.round(
             (
               dashboardCardData?.data[0]?.amountPendingNotPaid / monthlyTarget
-            ).toFixed(2) * 100
+            ).toFixed(1) * 100
           ) || 0,
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading
@@ -248,7 +248,7 @@ const DashboardCard = ({
           Math.round(
             (
               dashboardCardData?.data[0]?.advancePayments / monthlyTarget
-            ).toFixed(2) * 100
+            ).toFixed(1) * 100
           ) || 0,
         viewMore: true,
         funds: !dashboardCardIsLoading,
@@ -280,7 +280,7 @@ const DashboardCard = ({
           Math.round(
             (
               dashboardCardData?.data[0]?.todayCollections / monthlyTarget
-            ).toFixed(2) * 100
+            ).toFixed(1) * 100
           ) || 0,
         viewMore: true,
         funds: !dashboardCardIsLoading,
@@ -410,7 +410,7 @@ const DashboardCard = ({
               isOpen ? 'text-[14px]' : 'text-[16px]'
             }  w-full flex items-center gap-2 font-black`}
           >
-            <p>{formatFunds(newProps.amount)}</p>
+            <p>{dashboardCardIsLoading ? '...' : formatFunds(newProps.amount)}</p>
             <p className={`${newProps.funds ? 'flex' : 'hidden'}`}>RWF</p>
           </span>
           <p
@@ -499,7 +499,7 @@ DashboardCard.propTypes = {
 
 DashboardCard.defaultProps = {
   props: {
-    increaseValue: (Math.random() * 10).toFixed(2),
+    increaseValue: (Math.random() * 10).toFixed(1),
     progress: Math.floor(Math.random() * 100)
   }
 }

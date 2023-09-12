@@ -19,6 +19,7 @@ import Report from './containers/dashboard/Report.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
 import Department from './pages/dashboard/Department.jsx'
 import CreateHousehold from './pages/households/CreateHousehold.jsx'
+import NotFound from './pages/notFound/NotFound.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -32,7 +33,7 @@ const App = () => {
     <Router>
       <main
         className={`relative h-full ${
-          isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[4vw,96vw]'
+          isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[0vw,100vw]'
         }`}
       >
         <Sidebar user={user} />
@@ -85,6 +86,7 @@ const App = () => {
               path="/departments"
               element={<Department user={user || stateUser} />}
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </section>
         <ToastContainer />

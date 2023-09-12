@@ -13,7 +13,8 @@ const Input = forwardRef(
       required = false,
       color,
       placeholder,
-      labelClassName
+      labelClassName,
+      readonly
     },
     ref
   ) => {
@@ -34,6 +35,7 @@ const Input = forwardRef(
           name={name}
           required={required}
           defaultValue={value}
+          readOnly={readonly ? 'readOnly' : null}
           placeholder={placeholder}
           onChange={onChange}
           ref={ref}
@@ -52,7 +54,10 @@ Input.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.string,
   name: PropTypes.string,
-  required: PropTypes.bool
+  required: PropTypes.bool,
+  color: PropTypes.string,
+  placeholder: PropTypes.string,
+  readonly: PropTypes.bool
 }
 
 export default Input
