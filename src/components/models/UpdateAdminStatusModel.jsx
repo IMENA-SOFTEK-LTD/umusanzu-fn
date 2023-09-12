@@ -7,13 +7,16 @@ import 'react-toastify/dist/ReactToastify.css'
 import Button from '../Button'
 import Loading from '../Loading'
 import { useParams } from 'react-router-dom'
-import { useUpdateAdminStatusMutation } from '../../states/api/apiSlice'
+import { useUpdateAdminStatusMutation , useDeleteAdminMutation} from '../../states/api/apiSlice'
+import { fi } from 'faker/lib/locales'
 
 const UpdateAdminStatusModel = ({ user }) => {
   const { user: stateUser } = useSelector((state) => state.auth)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false)
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [updateAdminStatus] = useUpdateAdminStatusMutation()
+  const [deleteAdmin] = useDeleteAdminMutation()
 
   const { id } = useParams()
 
@@ -44,7 +47,7 @@ const UpdateAdminStatusModel = ({ user }) => {
 
   const {
     control,
-    handleSubmit,
+    onClick,
     formState: { errors }
   } = useForm()
 
@@ -56,17 +59,53 @@ const UpdateAdminStatusModel = ({ user }) => {
     setShowModal(false)
   }
 
-  const onSubmit = async (values) => {
-    setIsLoading(true)
+  const [newStatus, setNewStatus] = useState('')
 
+  // const onSubmit = async (values) => {
+  //   setIsLoading(true)
+
+  //   try {
+  //     await updateAdminStatus({
+  //       id,
+  //       route: department,
+  //       status: values.status.toUpperCase()
+  //     })
+  //       .unwrap()
+  //       .then(() => {
+  //         toast.success('Admin status updated successfully!')
+  //         closeModal()
+  //       })
+  //       .catch((error) => {
+  //         console.error(error)
+  //         if (error.data && error.data.message) {
+  //           toast.error(error.data.message)
+  //         } else {
+  //           toast.error(
+  //             'An error occurred while updating the Admin Status. Please try again'
+  //           )
+  //         }
+  //       })
+
+  //       .finally(() => {
+  //         setIsLoading(false)
+  //       })
+  //   } catch (error) {
+  //     return error
+  //   }
+  // }
+
+  const handleUpdateStatus = async (values) => {
+    console.log(values.toUpperCase())
+    setIsUpdateLoading(true)
     try {
       await updateAdminStatus({
         id,
         route: department,
-        status: values.status.toUpperCase()
+        status: values.toUpperCase()
       })
         .unwrap()
-        .then(() => {
+        .then((data) => {
+          console.log(data)
           toast.success('Admin status updated successfully!')
           closeModal()
         })
@@ -80,14 +119,46 @@ const UpdateAdminStatusModel = ({ user }) => {
             )
           }
         })
-
         .finally(() => {
-          setIsLoading(false)
+          setIsUpdateLoading(false)
         })
     } catch (error) {
       return error
     }
   }
+
+
+  const handleDeleteAdmin = async () => {
+    setIsDeleteLoading(true)
+    try {
+      await deleteAdmin({
+        id,
+        route: department,
+        
+      })
+        .unwrap()
+        .then(() => {
+          toast.success('Admin Deleted successfully!')
+          closeModal()
+        })
+        .catch((error) => {
+          console.error(error)
+          if (error.data && error.data.message) {
+            toast.error(error.data.message)
+          } else {
+            toast.error(
+              'An error occurred while deleting the Admin. Please try again'
+            )
+          }
+        })
+        .finally(() => {
+          setIsDeleteLoading(false)
+        })
+    } catch (error) {
+      return error
+    }
+  }
+
 
   return (
     <div className="relative">
@@ -132,75 +203,83 @@ const UpdateAdminStatusModel = ({ user }) => {
               <h3 className="mb-4 text-xl text-center font-medium text-black">
                 Delete Admin
               </h3>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+              <form className="space-y-8">
 
-                <div className="flex justify-center items-center">
-                  <div className="w-[300px] text-center text-md">
-                    <p>
-                      Dear<span> {user?.names},</span> before you delete Admin consider disabling their account instead
-                    </p>
-                  </div>
-                </div>
+              <div className="flex justify-center items-center">
+  <div className="w-[300px] text-center text-md">
+    <p>
+      Dear<span> {user?.names},</span> before you delete Admin consider disabling their account instead
+    </p>
+  </div>
+</div>
 
-                <div className="flex-1">
-                  <label
-                    htmlFor="category"
-                    className="block mb-2 text-sm font-medium text-black"
-                  >
-                    Category
-                  </label>
-                  {/* a select contoller to select from the retrieved categories */}
-                  <Controller
-                    name="status"
-                    control={control}
-                    defaultValue=""
-                    rules={{ required: 'Please select a status' }}
-                    render={({ field }) => (
-                      <select
-                        {...field}
-                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-1 py-2 px-2"
-                      >
+              <div className="flex-1">
+                    <label
+                      htmlFor="category"
+                      className="block mb-2 text-sm font-medium text-black"
+                    >
+                        Category
+                    </label>
+                    {/* a select contoller to select from the retrieved categories */}
+                    <Controller
+                        name="status"
+                        control={control}
+                        defaultValue=""
+                        rules={{ required: 'Please select a status' }}
+                        render={({ field }) => (
+                            <select
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e)
+                                setNewStatus(e.target.value)
+                            }}
+                            className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-3 py-4 px-28"
+                          >
 
-                        <option value="ACTIVE">ACTIVE</option>
-                        <option value="INACTIVE">INACTIVE</option>
-                      </select>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                          </select>
+                        )}
+                        />
+
+                    {errors.status && (
+                      <span className="text-red-500">
+                        {errors.status.message}
+                      </span>
                     )}
-                  />
-
-                  {errors.status && (
-                    <span className="text-red-500">
-                      {errors.status.message}
-                    </span>
-                  )}
-                </div>
-                <div className="flex justify-between space-x-4">
-                  <Controller
-                    name="submit"
-                    control={control}
-                    render={() => {
-                      return (
-                        <Button
-                          submit
-                          className={'w-full p-1 py-1 px-1 flex items-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-                          value={isLoading ? <Loading /> : 'Update Status'}
-                        />
-                      )
-                    }}
-                  />
-                  <Controller
-                    name="submit"
-                    control={control}
-                    render={() => {
-                      return (
-                        <Button
-                          className={'w-full p-1 py-1 px-1 flex items-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-                          submit
-                          value={'delete Admin'}
-                        />
-                      )
-                    }}
-                  />
-                </div>
+                  </div>
+                  <div className="flex justify-between space-x-4">
+  <Controller
+    name="submitUpdateStatus"
+    control={control}
+    render={() => {
+      return (
+        <Button
+        onClick={() => {
+          handleUpdateStatus(newStatus)
+        }}
+          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
+          value={isUpdateLoading ? <Loading /> : 'Update Status'}
+        />
+      )
+    }}
+  />
+  <Controller
+    name="submitDeleteAdmin"
+    control={control}
+    render={() => {
+      return (
+        <Button
+          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
+          onClick={() => {
+            handleDeleteAdmin()
+          }}
+          value={isDeleteLoading ? <Loading /> :'Or delete Admin'}
+        />
+      )
+    }}
+  />
+</div>
               </form>
             </div>
           </div>
@@ -212,7 +291,8 @@ const UpdateAdminStatusModel = ({ user }) => {
 
 UpdateAdminStatusModel.PropTypes = {
   user: PropTypes.shape({
-    status: PropTypes.string
+    status: PropTypes.string,
+    is_deleted: PropTypes.bool,
   })
 }
 export default UpdateAdminStatusModel
