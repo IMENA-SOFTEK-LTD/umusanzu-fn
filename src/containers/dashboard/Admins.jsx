@@ -4,6 +4,7 @@ import CreateAdminModel from '../../components/models/CreateAdminModel'
 import { useLazyGetStaffQuery } from '../../states/api/apiSlice'
 import { useParams, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button'
+import Loading from '../../components/Loading'
 const Admins = () => {
   const user = JSON.parse(localStorage.getItem('user'))
   const { id } = useParams()
@@ -52,6 +53,14 @@ const Admins = () => {
   useEffect(() => {
     getStaff({ department, departmentId: id })
   }, [department, getStaff])
+
+  if (staffIsLoading) {
+    return (
+      <main className='h-screen w-full flex items-center justify-center'>
+        <Loading />
+      </main>
+    )
+  }
 
   return (
     <div className="w-[98%] mx-auto relative">

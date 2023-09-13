@@ -398,7 +398,8 @@ const HouseholdTable = ({ user }) => {
           <div
             className={`${
               value === 'ACTIVE'
-                ? 'bg-green-600 shadow-md rounded-sm shadow-200'
+                ? 'bg-green-600 shadow-md rounded-sm shadow-200' :
+                value === 'MOVED' ? 'bg-yellow-600 rounded-sm shadow-md shadow-200'
                 : 'bg-red-600 rounded-sm shadow-md shadow-200'
             } p-1 rounded-md text-white text-center`}
           >
