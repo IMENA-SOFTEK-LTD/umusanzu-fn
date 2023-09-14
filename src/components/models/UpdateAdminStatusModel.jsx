@@ -7,8 +7,10 @@ import 'react-toastify/dist/ReactToastify.css'
 import Button from '../Button'
 import Loading from '../Loading'
 import { useParams } from 'react-router-dom'
-import { useUpdateAdminStatusMutation , useDeleteAdminMutation} from '../../states/api/apiSlice'
-import { fi } from 'faker/lib/locales'
+import {
+  useUpdateAdminStatusMutation,
+  useDeleteAdminMutation,
+} from '../../states/api/apiSlice'
 
 const UpdateAdminStatusModel = ({ user }) => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -48,7 +50,7 @@ const UpdateAdminStatusModel = ({ user }) => {
   const {
     control,
     onClick,
-    formState: { errors }
+    formState: { errors },
   } = useForm()
 
   const openModal = () => {
@@ -61,51 +63,16 @@ const UpdateAdminStatusModel = ({ user }) => {
 
   const [newStatus, setNewStatus] = useState('')
 
-  // const onSubmit = async (values) => {
-  //   setIsLoading(true)
-
-  //   try {
-  //     await updateAdminStatus({
-  //       id,
-  //       route: department,
-  //       status: values.status.toUpperCase()
-  //     })
-  //       .unwrap()
-  //       .then(() => {
-  //         toast.success('Admin status updated successfully!')
-  //         closeModal()
-  //       })
-  //       .catch((error) => {
-  //         console.error(error)
-  //         if (error.data && error.data.message) {
-  //           toast.error(error.data.message)
-  //         } else {
-  //           toast.error(
-  //             'An error occurred while updating the Admin Status. Please try again'
-  //           )
-  //         }
-  //       })
-
-  //       .finally(() => {
-  //         setIsLoading(false)
-  //       })
-  //   } catch (error) {
-  //     return error
-  //   }
-  // }
-
   const handleUpdateStatus = async (values) => {
-    console.log(values.toUpperCase())
     setIsUpdateLoading(true)
     try {
       await updateAdminStatus({
         id,
         route: department,
-        status: values.toUpperCase()
+        status: values.toUpperCase(),
       })
         .unwrap()
         .then((data) => {
-          console.log(data)
           toast.success('Admin status updated successfully!')
           closeModal()
         })
@@ -127,14 +94,12 @@ const UpdateAdminStatusModel = ({ user }) => {
     }
   }
 
-
   const handleDeleteAdmin = async () => {
     setIsDeleteLoading(true)
     try {
       await deleteAdmin({
         id,
         route: department,
-        
       })
         .unwrap()
         .then(() => {
@@ -158,7 +123,6 @@ const UpdateAdminStatusModel = ({ user }) => {
       return error
     }
   }
-
 
   return (
     <div className="relative">
@@ -204,82 +168,87 @@ const UpdateAdminStatusModel = ({ user }) => {
                 Delete Admin
               </h3>
               <form className="space-y-8">
-
-              <div className="flex justify-center items-center">
-  <div className="w-[300px] text-center text-md">
-    <p>
-      Dear<span> {user?.names},</span> before you delete Admin consider disabling their account instead
-    </p>
-  </div>
-</div>
-
-              <div className="flex-1">
-                    <label
-                      htmlFor="category"
-                      className="block mb-2 text-sm font-medium text-black"
-                    >
-                        Category
-                    </label>
-                    {/* a select contoller to select from the retrieved categories */}
-                    <Controller
-                        name="status"
-                        control={control}
-                        defaultValue=""
-                        rules={{ required: 'Please select a status' }}
-                        render={({ field }) => (
-                            <select
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e)
-                                setNewStatus(e.target.value)
-                            }}
-                            className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-3 py-4 px-28"
-                          >
-
-                            <option value="ACTIVE">ACTIVE</option>
-                            <option value="INACTIVE">INACTIVE</option>
-                          </select>
-                        )}
-                        />
-
-                    {errors.status && (
-                      <span className="text-red-500">
-                        {errors.status.message}
-                      </span>
-                    )}
+                <div className="flex justify-center items-center">
+                  <div className="w-[300px] text-center text-md">
+                    <p>
+                      Dear<span> {user?.names},</span> before you delete Admin
+                      consider disabling their account instead
+                    </p>
                   </div>
-                  <div className="flex justify-between space-x-4">
-  <Controller
-    name="submitUpdateStatus"
-    control={control}
-    render={() => {
-      return (
-        <Button
-        onClick={() => {
-          handleUpdateStatus(newStatus)
-        }}
-          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-          value={isUpdateLoading ? <Loading /> : 'Update Status'}
-        />
-      )
-    }}
-  />
-  <Controller
-    name="submitDeleteAdmin"
-    control={control}
-    render={() => {
-      return (
-        <Button
-          className={'w-full p-2 py-4 px-4 flex items-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'}
-          onClick={() => {
-            handleDeleteAdmin()
-          }}
-          value={isDeleteLoading ? <Loading /> :'Or delete Admin'}
-        />
-      )
-    }}
-  />
-</div>
+                </div>
+
+                <div className="flex-1">
+                  <label
+                    htmlFor="category"
+                    className="block mb-2 text-sm font-medium text-black"
+                  >
+                    Category
+                  </label>
+                  {/* a select contoller to select from the retrieved categories */}
+                  <Controller
+                    name="status"
+                    control={control}
+                    defaultValue=""
+                    rules={{ required: 'Please select a status' }}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          setNewStatus(e.target.value)
+                        }}
+                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 px-28"
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                      </select>
+                    )}
+                  />
+
+                  {errors.status && (
+                    <span className="text-red-500">
+                      {errors.status.message}
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between space-x-4">
+                  <Controller
+                    name="submitUpdateStatus"
+                    control={control}
+                    render={() => {
+                      return (
+                        <Button
+                          onClick={() => {
+                            handleUpdateStatus(newStatus)
+                          }}
+                          className={
+                            'w-full p-2 flex items-center text-center justify-center bg-amber-500 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'
+                          }
+                          value={
+                            isUpdateLoading ? <Loading /> : 'Update Status'
+                          }
+                        />
+                      )
+                    }}
+                  />
+                  <Controller
+                    name="submitDeleteAdmin"
+                    control={control}
+                    render={() => {
+                      return (
+                        <Button
+                          className={
+                            'w-full p-2 flex items-center text-center justify-center bg-red-600 cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98]'
+                          }
+                          onClick={() => {
+                            handleDeleteAdmin()
+                          }}
+                          value={isDeleteLoading ? <Loading /> : 'Delete Admin'}
+                        />
+                      )
+                    }}
+                  />
+                </div>
               </form>
             </div>
           </div>
@@ -293,6 +262,6 @@ UpdateAdminStatusModel.PropTypes = {
   user: PropTypes.shape({
     status: PropTypes.string,
     is_deleted: PropTypes.bool,
-  })
+  }),
 }
 export default UpdateAdminStatusModel

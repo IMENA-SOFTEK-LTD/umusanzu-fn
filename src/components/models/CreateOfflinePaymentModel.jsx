@@ -166,7 +166,6 @@ const CreateOfflinePaymentModel = () => {
                           {...field}
                           onChange={(e) => {
                             field.onChange(e)
-                            console.log(e.target.value)
                           }}
                           type="month"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"

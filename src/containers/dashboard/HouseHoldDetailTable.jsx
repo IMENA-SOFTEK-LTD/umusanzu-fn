@@ -4,6 +4,7 @@ import {
   useLazyGetHouseholdTransactionsByMonthPaidQuery
 } from '../../states/api/apiSlice';
 import { useParams } from 'react-router';
+import Button from '../../components/Button';
 
 const HouseHoldDetailTable = ({
   transactions,
@@ -186,7 +187,7 @@ const HouseHoldDetailTable = ({
                 <h6 className="mb-4 text-xl font-semibold text-gray-800">
                   Household Information
                 </h6>
-                <div className="table-responsive">
+                <div className="table-responsive flex flex-col items-center gap-4">
                   <table className="w-full  text-sm">
                     <tbody>
                       <tr className="border-b border-gray-300">
@@ -241,6 +242,10 @@ const HouseHoldDetailTable = ({
                       </tr>
                     </tbody>
                   </table>
+                  <span className='flex items-center gap-4'>
+                  <Button value="Edit" />
+                  <Button className='bg-yellow-600' value="Change status" />
+                  </span>
                 </div>
               </div>
             </div>

@@ -79,6 +79,9 @@ const TransactionTable = ({ user }) => {
     setShowExportPopup(false);
   };
   const dispatch = useDispatch()
+
+  const { sectorId } = useSelector((state) => state.departments)
+
   let department = ''
 
   const location = useLocation()
@@ -88,10 +91,10 @@ const TransactionTable = ({ user }) => {
 
   switch (user?.departments?.level_id) {
     case 1:
-      department = 'province'
+      department = 'sector'
       break
     case 2:
-      department = 'district'
+      department = 'sector'
       break
     case 3:
       department = 'sector'
@@ -114,25 +117,25 @@ const TransactionTable = ({ user }) => {
   useEffect(() => {
     getTransactionsList({
       department,
-      departmentId: user?.departments?.id,
+      departmentId: sectorId || user?.departments?.id,
       route: `${queryRoute}/list`,
-      id: user?.departments?.id,
+      id: sectorId || user?.departments?.id,
     })
   }, [])
 
   useEffect(() => {
     if (transactionsListIsSuccess)
       setTimeout(() => {
-        dispatch(setSize(1000000000))
-      }, 3000)
+        dispatch(setSize(10000000000))
+      }, 2000)
   }, [transactionsListData, transactionsListIsSuccess])
 
   useEffect(() => {
     getTransactionsList({
       department,
-      departmentId: user?.departments?.id,
+      departmentId: sectorId || user?.departments?.id,
       route: `${queryRoute}/list`,
-      id: user?.departments?.id,
+      id: sectorId || user?.departments?.id,
       size,
       page: offset,
     })

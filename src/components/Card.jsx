@@ -28,18 +28,12 @@ const AwesomeCard = ({
         <span className="text-gray-600 font-semibold w-24">Email:</span>
         <p className="text-gray-600">{email}</p>
       </div>
-      <div className="flex justify-start space-x-4">
+      <div className="flex items-center justify-start">
         <button
           onClick={onViewProfileClick}
-          className="bg-white shadow-md text-black px-4 py-[5px] rounded-sm hover:bg-primary hover:text-white transition-colors duration-300"
+          className="shadow-md px-4 py-[5px] rounded-sm bg-primary text-white transition-colors hover:scale-[.98] duration-300"
         >
           View Profile
-        </button>
-        <button
-          onClick={onEditClick}
-          className="bg-primary text-white px-4 py-[5px] rounded-sm transition-colors duration-300"
-        >
-          Edit
         </button>
       </div>
     </motion.div>

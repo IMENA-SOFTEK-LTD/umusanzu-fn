@@ -20,6 +20,7 @@ import Admins from './containers/dashboard/Admins.jsx'
 import Department from './pages/dashboard/Department.jsx'
 import CreateHousehold from './pages/households/CreateHousehold.jsx'
 import NotFound from './pages/notFound/NotFound.jsx'
+import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -57,7 +58,7 @@ const App = () => {
               />
               <Route path="/createVillage" element={<CreateVillageModel />} />
               <Route path="/households/:id" element={<HouseholdDetail />} />
-              <Route path="/households/create" element={<CreateHousehold />} />
+              <Route path="/households/create" element={<CreateHousehold user={user} />} />
               <Route
                 path="/settings"
                 element={<Settings user={user || stateUser} />}
@@ -86,6 +87,7 @@ const App = () => {
               path="/departments"
               element={<Department user={user || stateUser} />}
             />
+            <Route path="/select-department" element={<SelectDepartments user={user} />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </section>
