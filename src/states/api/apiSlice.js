@@ -157,27 +157,36 @@ export const apiSlice = createApi({
             return {
               url: `/${department}/households/?departmentId=${departmentId}&page=${
                 page || 0
-              }&size=${size || 20}`
+              }&size=${size || 20}`,
             }
-          }
-          else if (route === 'ubudehe') {
+          } else if (route === 'ubudehe') {
             return {
               url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${
                 page || 0
-              }&size=${size || 20}&ubudehe=${ubudehe}`
+              }&size=${size || 20}&ubudehe=${ubudehe}`,
             }
-          }
-          else {
+          } else {
             return {
               url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${
                 page || 0
-              }&size=${size || 20}&ubudehe=${ubudehe}`
+              }&size=${size || 20}&ubudehe=${ubudehe}`,
             }
           }
-        }
+        },
       }),
       createHouseHold: builder.mutation({
-        query: ({ name, ubudehe, nid, phone1, phone2, province, district, sector, cell, village }) => ({
+        query: ({
+          name,
+          ubudehe,
+          nid,
+          phone1,
+          phone2,
+          province,
+          district,
+          sector,
+          cell,
+          village,
+        }) => ({
           url: `/households`,
           method: 'POST',
           body: {
@@ -412,7 +421,19 @@ export const apiSlice = createApi({
         }),
       }),
       moveHousehold: builder.mutation({
-        query: ({ name, ubudehe, nid, phone1, phone2, province, district, sector, cell, village, existingHouseholdId }) => ({
+        query: ({
+          name,
+          ubudehe,
+          nid,
+          phone1,
+          phone2,
+          province,
+          district,
+          sector,
+          cell,
+          village,
+          existingHouseholdId,
+        }) => ({
           url: `/households/${existingHouseholdId}/move`,
           method: 'PATCH',
           body: {
@@ -430,7 +451,18 @@ export const apiSlice = createApi({
         }),
       }),
       createDuplicateHouseHold: builder.mutation({
-        query: ({ name, ubudehe, nid, phone1, phone2, province, district, sector, cell, village }) => ({
+        query: ({
+          name,
+          ubudehe,
+          nid,
+          phone1,
+          phone2,
+          province,
+          district,
+          sector,
+          cell,
+          village,
+        }) => ({
           url: `/households/create/duplicate`,
           method: 'POST',
           body: {
@@ -447,6 +479,12 @@ export const apiSlice = createApi({
           },
         }),
       }),
+      logActivities: builder.query({
+        query: ({ staffId }) => ({
+          url: `/activities/${staffId}`,
+          method: 'GET',
+        }),
+      }),
     }
   }
 })
@@ -455,6 +493,7 @@ export const {
   useLoginMutation,
   useVerifyOtpMutation,
   useLazyDashboardCardQuery,
+  useLazyLogActivitiesQuery,
   useLazyGetTotalHouseholdPaysQuery,
   useUpdateUserProfileMutation,
   useLazyGetUserProfileQuery,
@@ -484,10 +523,12 @@ export const {
   useLazyGetProvinceChildrenQuery,
   useLazyGetDistrictChildrenQuery,
   useLazyGetSectorChildrenQuery,
+
   useLazyGetCellChildrenQuery,
   useLazyGetCountryChildrenQuery,
   useLazyGetDistrictSectorsQuery,
   useLazyGetSectorCellsQuery,
   useMoveHouseholdMutation,
   useCreateDuplicateHouseHoldMutation
+
 } = apiSlice

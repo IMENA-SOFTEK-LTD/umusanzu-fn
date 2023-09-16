@@ -3,7 +3,7 @@ import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 import { useCreateDistrictMutation } from '../../states/api/apiSlice'
-import Loading from '../../components/Loading'
+import Loading from '../Loading'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
 const CreateDistrictModel = () => {
