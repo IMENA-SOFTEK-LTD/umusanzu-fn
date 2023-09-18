@@ -193,6 +193,7 @@ const HouseholdTable = ({ user }) => {
 
       doc.setFontSize(10)
 
+      // eslint-disable-next-line no-sparse-arrays
       const columnHeader = ['NO', 'Name', , 'PHONE 1' , 'PHONE 2', 'UBUDEHE', 'STATUS', 'VILLAGE', 'CELL', 'SECTOR', 'DISTRICT', 'PROVINCE']
       const headerRow = columnHeader.map(header => ({ content: header, styles: { halign: 'center' } }))
       doc.autoTable({

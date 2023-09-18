@@ -67,10 +67,10 @@ const UserProfilePage = () => {
     phone2: data?.phone2,
     nationalId: data?.nid,
     email: data?.email,
-    cell: 'GACURIRO',
-    sector: 'KINYINYA',
-    district: 'GASABO',
-    province: 'KIGALI CITY',
+    cell: data?.departments?.name,
+    sector: data?.departments?.parent?.name,
+    district: data?.departments?.parent?.parent?.name,    
+    province: data?.departments?.parent?.parent?.parent?.name,
     status: 'Active',
     recentActivities: [
       { id: 1, activity: 'Logged in', date: '2023-08-18' },
@@ -78,7 +78,21 @@ const UserProfilePage = () => {
     ]
   })
 
-  
+  console.log(data?.departments?.name)
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing)
+  }
+
+  const handleStatusChange = () => {
+    const newStatus = user.status === 'Active' ? 'Inactive' : 'Active'
+    setUser((prevUser) => ({ ...prevUser, status: newStatus }))
+  }
+
+  const handleDelete = () => {
+    // Handle delete user functionality here
+  }
+
   return (
     <div className="flex items-start gap-4 mx-auto">
       <UpdateStaff toggleButton={false} />
@@ -154,7 +168,7 @@ const UserProfilePage = () => {
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">Cell:</td>
-                <td className="py-2 pl-4">{user.cell}</td>
+                <td className="py-2 pl-4">{data?.departments?.parent?.name}</td>
               </tr>
               <tr className="border-t">
                 <td
@@ -168,19 +182,19 @@ const UserProfilePage = () => {
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Sector:
                 </td>
-                <td className="py-2 pl-4">{user.sector}</td>
+                <td className="py-2 pl-4">{data?.departments?.parent?.name}</td>
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   District:
                 </td>
-                <td className="py-2 pl-4">{user.district}</td>
+                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.name}</td>
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Province:
                 </td>
-                <td className="py-2 pl-4">{user.province}</td>
+                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.parent?.name}</td>
               </tr>
             </tbody>
           </table>
