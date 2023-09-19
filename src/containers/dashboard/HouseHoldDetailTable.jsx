@@ -3,8 +3,10 @@ import moment from 'moment';
 import {
   useLazyGetHouseholdTransactionsByMonthPaidQuery
 } from '../../states/api/apiSlice';
+import { FiDownload } from 'react-icons/fi';
 import { useParams } from 'react-router';
 import Button from '../../components/Button';
+import { FaRegEye } from 'react-icons/fa';
 
 const HouseHoldDetailTable = ({
   transactions,
@@ -64,6 +66,9 @@ const HouseHoldDetailTable = ({
                         <th className="py-2 px-4">
                           N<sup>o</sup>
                         </th>
+                        <th className="py-2 px-4">
+                          Action
+                        </th>
                         <th className="py-2 px-4">Month</th>
                         <th className="py-2 px-4 whitespace-nowrap">
                           Amount paid
@@ -107,9 +112,10 @@ const HouseHoldDetailTable = ({
                                   {transaction.status === 'INITIATED' ? 'Complete Payment' : 'Pay Now'}
                                 </button>
                               ) : null}
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
                               {paidMonth}
                             </td>
-
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.amount} RWF
                             </td>
@@ -131,7 +137,7 @@ const HouseHoldDetailTable = ({
                                 className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300"
                                 onClick={() => openModal(transaction.month_paid)}
                               >
-                                <i className="mr-2 text-lg bx bx-eyes"></i>
+                                <FaRegEye className="mr-2" />
                                 View History
                               </a>
                             </td>
@@ -142,7 +148,7 @@ const HouseHoldDetailTable = ({
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
                                   href={`receipt/${transaction.guid}`}
                                 >
-                                  <i className="mr-2 text-lg bx bx-download"></i>
+                                  <FiDownload className="mr-2" />
                                   Receipt
                                 </a>
                               ) : transaction.status === 'PENDING' ? (
@@ -150,7 +156,7 @@ const HouseHoldDetailTable = ({
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-500 rounded-sm hover:bg-red-600 transition duration-300"
                                   href={`invoice/${transaction.guid}`}
                                 >
-                                  <i className="mr-2 text-lg bx bx-file"></i>
+                                    <FiDownload className="mr-2" />
                                   Invoice
                                 </a>
                               ) : transaction.status === 'PARTIAL' ? (
@@ -158,7 +164,7 @@ const HouseHoldDetailTable = ({
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300"
                                   href={`partial-receipt/${transaction.guid}`}
                                 >
-                                  <i className="mr-2 text-lg bx bx-download"></i>
+                                   <FiDownload className="mr-2" />
                                   Partial Receipt
                                 </a>
                               ) : (
@@ -166,7 +172,7 @@ const HouseHoldDetailTable = ({
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
                                   href={`receipt/${transaction.guid}`}
                                 >
-                                  <i className="mr-2 text-lg bx bx-download"></i>
+                                   <FiDownload className="mr-2" />
                                   Receipt
                                 </a>
                               )}
