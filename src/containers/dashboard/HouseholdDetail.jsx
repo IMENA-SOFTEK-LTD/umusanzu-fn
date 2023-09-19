@@ -1,12 +1,18 @@
 import HouseHoldDetailTable from './HouseHoldDetailTable' // Adjust the import path accordingly
 import RecordPaymentModel from '../../components/models/RecordPaymentModel'
 import CreateOfflinePaymentModel from '../../components/models/CreateOfflinePaymentModel'
-import { useLazyGetHouseHoldDetailsQuery, useLazyGetHouseholdDepartmentsQuery } from '../../states/api/apiSlice'
+import {
+  useLazyGetHouseHoldDetailsQuery,
+  useLazyGetHouseholdDepartmentsQuery,
+} from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Button from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faX } from '@fortawesome/free-solid-svg-icons'
+import UpdateHousehold from '../../components/models/UpdateHousehold'
+import UpdateHouseholdStatus from '../../components/models/UpdateHouseholdStatus'
+import DeleteTransaction from '../../components/models/DeleteTransaction'
 const HouseholdDetail = () => {
   const { id } = useParams()
   const [showModals, setShowModals] = useState(false)
@@ -16,8 +22,8 @@ const HouseholdDetail = () => {
       data: householdDepartmentsData,
       isLoading: householdDepartmentsIsLoading,
       isError: householdDepartmentsIsError,
-      isSuccess: householdDepartmentsIsSuccess
-    }
+      isSuccess: householdDepartmentsIsSuccess,
+    },
   ] = useLazyGetHouseholdDepartmentsQuery()
 
   const [
@@ -27,13 +33,15 @@ const HouseholdDetail = () => {
       isLoading: houseHoldDetailsLoading,
       isSuccess: houseHoldDetailsSuccess,
       isError: houseHoldDetailsError,
-      error: houseHoldError
-    }
+      error: houseHoldError,
+    },
   ] = useLazyGetHouseHoldDetailsQuery()
   const [data, setData] = useState(houseHoldDetailsData?.data || [])
   const [transactions, setTransactions] = useState(
     houseHoldDetailsData?.data?.transactions || []
   )
+
+
   useEffect(() => {
     if (houseHoldDetailsSuccess) {
       setData(houseHoldDetailsData?.data || [])
@@ -54,50 +62,38 @@ const HouseholdDetail = () => {
     nid: data?.nid,
     ubudehe: data?.ubudehe,
     currency: 'RWF',
-    status: data?.status
+    status: data?.status,
   }
 
   const village = {
-    name: householdDepartmentsData?.data[0]?.village
+    name: householdDepartmentsData?.data[0]?.village,
   }
 
   const cell = {
-    name: householdDepartmentsData?.data[0]?.cell
+    name: householdDepartmentsData?.data[0]?.cell,
   }
 
   const sector = {
-    name: householdDepartmentsData?.data[0]?.sector
+    name: householdDepartmentsData?.data[0]?.sector,
   }
 
   const district = {
-    name: householdDepartmentsData?.data[0]?.district
+    name: householdDepartmentsData?.data[0]?.district,
   }
 
   const province = {
-    name: householdDepartmentsData?.data[0]?.province
+    name: householdDepartmentsData?.data[0]?.province,
   }
 
   return (
-    <div>
-
-      <main className="flex flex-col gap-16 relative">
-          <Button
-            className="py-2 px-3 bg-primary text-white rounded-[50%] w-fit absolute right-6 top-6"
-            value={<FontAwesomeIcon icon={showModals ? faX : faAdd} />}
-            onClick={() => {
-              setShowModals(!showModals)
-            }}
-          />
-          <article
-            className={`${
-              showModals ? 'flex ease-in-out duration-100' : 'hidden'
-            } ease-in-out duration-100 absolute top-12 right-6  h-full flex flex-col gap-12 bg-white w-full`}
-          >
-            <CreateOfflinePaymentModel />
-            <RecordPaymentModel />
-          </article>
-        </main>
-      <span>{'\u00A0'}</span>
+    <main className="flex flex-col gap-2 my-4">
+      <section className="flex items-center gap-4 px-4">
+        <RecordPaymentModel household={houseHoldDetailsData?.data} />
+        <CreateOfflinePaymentModel householdData={houseHoldDetailsData?.data} householdDepartments={householdDepartmentsData?.data[0]} />
+        <UpdateHousehold household={houseHoldDetailsData?.data} />
+        <UpdateHouseholdStatus household={houseHoldDetailsData?.data} />
+        <DeleteTransaction />
+      </section>
       <HouseHoldDetailTable
         transactions={transactions}
         member={member}
@@ -107,7 +103,7 @@ const HouseholdDetail = () => {
         district={district}
         province={province}
       />
-    </div>
+    </main>
   )
 }
 

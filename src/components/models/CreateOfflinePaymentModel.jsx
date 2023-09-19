@@ -9,19 +9,17 @@ import {
   useRecordOfflinePaymentMutation,
 } from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
-const CreateOfflinePaymentModel = () => {
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faGlobe,
+  faMoneyBill1Wave,
+  faX,
+} from '@fortawesome/free-solid-svg-icons'
+import moment from 'moment/moment'
+
+const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
   const { id } = useParams()
   const [showModal, setShowModal] = useState(false)
-  const [
-    GetHouseHoldDetails,
-    {
-      data: houseHoldDetailsData,
-      isLoading: houseHoldDetailsLoading,
-      isSuccess: houseHoldDetailsSuccess,
-      isError: houseHoldDetailsError,
-      error: houseHoldError,
-    },
-  ] = useLazyGetHouseHoldDetailsQuery()
   const [
     recordOfflinePayment,
     {
@@ -33,7 +31,6 @@ const CreateOfflinePaymentModel = () => {
     },
   ] = useRecordOfflinePaymentMutation()
 
-  const [data, setData] = useState(houseHoldDetailsData?.data || [])
   const {
     control,
     handleSubmit,
@@ -47,35 +44,30 @@ const CreateOfflinePaymentModel = () => {
   const closeModal = () => {
     setShowModal(false)
   }
-  useEffect(() => {
-    if (houseHoldDetailsSuccess) {
-      setData(houseHoldDetailsData?.data || [])
-    }
-  }, [houseHoldDetailsSuccess, houseHoldDetailsData])
 
-  useEffect(() => {
-    GetHouseHoldDetails({ id })
-  }, [GetHouseHoldDetails])
   const onSubmit = (formData) => {
     recordOfflinePayment({
       service: formData.service,
       amount: formData.amount,
       month_paid: formData.month_paid,
-      agent: data?.transactions[0]?.agents?.id,
+      agent: householdData?.transactions[0]?.agents?.id,
+      sms_phone: formData.sms_phone,
+      sector: householdDepartments?.sector,
       household: {
-        guid: data.guid,
-        ubudehe: data.ubudehe,
-        phone1: data.phone1,
+        guid: householdData?.guid,
+        ubudehe: householdData?.ubudehe,
+        phone1: householdData?.phone1,
+        name: householdData?.name
       },
     })
   }
   useEffect(() => {
     if (recordOfflinePaymentSuccess) {
       closeModal()
-      toast.success('Village created successfully')
+      toast.success('Payment initiated successfully. Thank you')
     }
     if (recordOfflinePaymentEror) {
-      toast.error('An error occurred while creating the village')
+      toast.error('An error occurred while inititating payment. Please try again')
     }
   }, [
     recordOfflinePaymentData,
@@ -85,14 +77,18 @@ const CreateOfflinePaymentModel = () => {
 
   return (
     <div className="relative">
-      <button
-        onClick={openModal}
-        className="flex items-center absolute right-6 top-4 justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg shadow-md ease-in-out duration-300 hover:scale-[]"
-        type="button"
-      >
-        <AiFillPlusCircle className="mr-2 text-lg" />
-        Record offline payment
-      </button>
+      <Button
+        value={
+          <span className="flex items-center gap-2">
+            <FontAwesomeIcon icon={faGlobe} />
+            Record offline payment
+          </span>
+        }
+        onClick={(e) => {
+          e.preventDefault()
+          openModal()
+        }}
+      />
 
       {showModal && (
         <div
@@ -101,35 +97,29 @@ const CreateOfflinePaymentModel = () => {
           className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
         >
           <div className="relative bg-white rounded-lg shadow">
-            <div className="bg-primary rounded-t-lg p-3">
-              <button
-                onClick={closeModal}
-                type="button"
-                className="absolute top-3 right-2.5 text-white bg-transparent hover:bg-primary hover:text-primary rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-primary dark:hover:text-white"
-              >
-                <svg
-                  className="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+            <article className="bg-primary relative rounded-sm flex flex-row-reverse items-center justify-center py-4 px-4">
+              <Button
+                onClick={(e) => {
+                  e.preventDefault()
+                  closeModal()
+                }}
+                className="absolute right-4 top-4 !px-0 !py-0"
+                value={
+                  <FontAwesomeIcon
+                    icon={faX}
+                    className="bg-white text-primary hover:bg-white hover:text-primary p-2 px-[10px] rounded-md"
                   />
-                </svg>
-                <span className="sr-only">Close modal</span>
-              </button>
-              <h3 className="mb-4 mt-2  text-xl text-center font-medium text-white">
+                }
+              />
+              <h4 className="text-[20px] text-center font-medium uppercase text-white">
                 Record Offline Payment
-              </h3>
-            </div>
+              </h4>
+            </article>
             <div className="px-6 py-6 lg:px-8">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 min-w-[30rem]">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-6 min-w-[30rem]"
+              >
                 <div className="flex space-x-4">
                   <div className="flex-1">
                     <label
@@ -161,6 +151,7 @@ const CreateOfflinePaymentModel = () => {
                     <Controller
                       name="month_paid"
                       control={control}
+                      defaultValue={moment().format('YYYY-MM')}
                       render={({ field }) => (
                         <input
                           {...field}
@@ -185,7 +176,7 @@ const CreateOfflinePaymentModel = () => {
                   <Controller
                     name="amount"
                     control={control}
-                    defaultValue={houseHoldDetailsData?.data?.ubudehe}
+                    defaultValue={householdData?.ubudehe}
                     render={({ field }) => (
                       <input
                         {...field}
@@ -204,14 +195,36 @@ const CreateOfflinePaymentModel = () => {
                     Phone Number
                   </label>
                   <Controller
-                    name="phone"
+                    name="phone1"
                     control={control}
-                    defaultValue={houseHoldDetailsData?.data?.phone1}
+                    rules={{ required: "Please enter phone number" }}
+                    defaultValue={householdData?.phone1}
                     render={({ field }) => (
                       <input
                         {...field}
                         type="tel"
-                        placeholder="0785767647"
+                        placeholder="07XX XXX XXX"
+                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                      />
+                    )}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block mb-2 text-sm font-medium text-black"
+                  >
+                    SMS Phone
+                  </label>
+                  <Controller
+                    name="sms_phone"
+                    control={control}
+                    defaultValue={householdData?.phone1}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        type="tel"
+                        placeholder="07XX XXX XXX"
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
                     )}

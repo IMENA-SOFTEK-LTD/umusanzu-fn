@@ -18,6 +18,9 @@ const householdSlice = createSlice({
     moveHouseholdModal: false,
     confirmMoveHouseholdModal: false,
     existingHouseholdId: null,
+    updateHouseholdModal: false,
+    updateHouseholdStatusModal: false,
+    deleteTransactionModal: true,
   },
   reducers: {
     setProvinces: (state, action) => {
@@ -36,34 +39,40 @@ const householdSlice = createSlice({
       state.villages = action.payload
     },
     setSelectedProvince: (state, action) => {
-        state.selectedProvince = action.payload
+      state.selectedProvince = action.payload
     },
     setSelectedDistrict: (state, action) => {
-        state.selectedDistrict = action.payload
+      state.selectedDistrict = action.payload
     },
     setSelectedSector: (state, action) => {
-        state.selectedSector = action.payload
+      state.selectedSector = action.payload
     },
     setSelectedCell: (state, action) => {
-        state.selectedCell = action.payload
+      state.selectedCell = action.payload
     },
     setSelectedVillage: (state, action) => {
-        state.selectedVillage = action.payload
+      state.selectedVillage = action.payload
     },
     setHouseholdConflict: (state, action) => {
-        state.householdConflict = action.payload
+      state.householdConflict = action.payload
     },
     setExistingHousehold: (state, action) => {
-        state.existingHousehold = action.payload
+      state.existingHousehold = action.payload
     },
     setMoveHouseholdModal: (state, action) => {
-        state.moveHouseholdModal = action.payload
+      state.moveHouseholdModal = action.payload
     },
     setConfirmMoveHouseholdModal: (state, action) => {
-        state.confirmMoveHouseholdModal = action.payload
+      state.confirmMoveHouseholdModal = action.payload
     },
     setExistingHouseholdId: (state, action) => {
-        state.existingHouseholdId = action.payload
+      state.existingHouseholdId = action.payload
+    },
+    setUpdateHouseholdModal: (state, action) => {
+      state.updateHouseholdModal = action.payload
+    },
+    setUpdateHouseholdStatusModal: (state, action) => {
+      state.updateHouseholdStatusModal = action.payload
     },
   },
 })
@@ -86,4 +95,6 @@ export const {
   setMoveHouseholdModal,
   setConfirmMoveHouseholdModal,
   setExistingHouseholdId,
+  setUpdateHouseholdModal,
+  setUpdateHouseholdStatusModal,
 } = householdSlice.actions

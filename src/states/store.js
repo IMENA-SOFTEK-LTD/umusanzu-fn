@@ -9,6 +9,7 @@ import dashboardCardSlice from './features/dashboard/dashboardCardSlice'
 import modalSlice from './features/modals/modalSlice'
 import householdSlice from './features/modals/householdSlice'
 import departmentSlice from './features/departments/departmentSlice'
+import transactionSlice from './features/transactions/transactionSlice'
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     modals: modalSlice,
     household: householdSlice,
     departments: departmentSlice,
+    transactions: transactionSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware)

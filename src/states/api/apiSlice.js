@@ -4,7 +4,7 @@ import { LOCAL_API_URL } from '../../constants'
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3000/api/v2/' || LOCAL_API_URL,
+    baseUrl: LOCAL_API_URL || 'https://umusanzu-bn.onrender.com/api/v2/',
     prepareHeaders: (headers) => {
       // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
@@ -348,7 +348,7 @@ export const apiSlice = createApi({
         }),
       }),
       recordOfflinePayment: builder.mutation({
-        query: ({ service, amount, month_paid, agent, household }) => ({
+        query: ({ service, amount, month_paid, agent, household, sms_phone, sector }) => ({
           url: '/transactions/offline',
           method: 'POST',
           body: {
@@ -357,6 +357,8 @@ export const apiSlice = createApi({
             month_paid,
             agent,
             household,
+            sms_phone,
+            sector
           },
         }),
       }),
@@ -485,6 +487,55 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
+      createPaymentSession: builder.mutation({
+        query: ({
+          total_month_paid,
+          lang,
+          household_id,
+          payment_phone,
+          month_paid,
+          payment_method,
+        }) => ({
+          url: `/payment/session`,
+          method: 'POST',
+          body: {
+            total_month_paid,
+            lang,
+            household_id,
+            payment_phone,
+            month_paid,
+            payment_method,
+          },
+        }),
+      }),
+      updateHousehold: builder.mutation({
+        query: ({ name, nid, phone1, phone2, ubudehe, id }) => ({
+          url: `/households/${id}`,
+          method: 'PATCH',
+          body: {
+            name,
+            nid,
+            phone1,
+            phone2,
+            ubudehe,
+          },
+        }), 
+      }),
+      updateHouseholdStatus: builder.mutation({
+        query: ({ id, status }) => ({
+          url: `/households/${id}/status`,
+          method: 'PATCH',
+          body: {
+            status,
+          },
+        }),
+      }),
+      deleteTransaction: builder.mutation({
+        query: ({ id }) => ({
+          url: `/transactions/${id}`,
+          method: 'DELETE',
+        }),
+      }),
     }
   },
 })
@@ -523,12 +574,14 @@ export const {
   useLazyGetProvinceChildrenQuery,
   useLazyGetDistrictChildrenQuery,
   useLazyGetSectorChildrenQuery,
-
+  useCreatePaymentSessionMutation,
   useLazyGetCellChildrenQuery,
   useLazyGetCountryChildrenQuery,
   useLazyGetDistrictSectorsQuery,
   useLazyGetSectorCellsQuery,
   useMoveHouseholdMutation,
-  useCreateDuplicateHouseHoldMutation
-
+  useCreateDuplicateHouseHoldMutation,
+  useUpdateHouseholdMutation,
+  useUpdateHouseholdStatusMutation,
+  useDeleteTransactionMutation,
 } = apiSlice

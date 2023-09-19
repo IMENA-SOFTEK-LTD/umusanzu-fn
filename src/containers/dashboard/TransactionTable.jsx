@@ -103,7 +103,7 @@ const TransactionTable = ({ user }) => {
       department = 'cell'
       break
     case 5:
-      department = 'country'
+      department = 'sector'
       break
     case 6:
       department = 'agent'
