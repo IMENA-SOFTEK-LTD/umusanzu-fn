@@ -73,6 +73,8 @@ const HouseholdTable = ({ user }) => {
 
   const dispatch = useDispatch()
 
+  const { sectorId } = useSelector((state) => state.departments)
+
   const queryRoute = queryString.parse(location.search)
 
   useEffect(() => {
@@ -86,10 +88,10 @@ const HouseholdTable = ({ user }) => {
 
   switch (user?.departments?.level_id) {
     case 1:
-      department = 'province'
+      department = 'sector'
       break
     case 2:
-      department = 'district'
+      department = 'sector'
       break
     case 3:
       department = 'sector'
@@ -113,8 +115,8 @@ const HouseholdTable = ({ user }) => {
   useEffect(() => {
     getHouseholdsList({
       department,
-      departmentId: user?.departments?.id,
-      id: user?.departments?.id,
+      departmentId: sectorId || user?.departments?.id,
+      id: sectorId || user?.departments?.id,
       size,
       route: queryRoute?.query || '',
       page: offset,
@@ -147,8 +149,8 @@ const HouseholdTable = ({ user }) => {
   useEffect(() => {
     getHouseholdsList({
       department,
-      departmentId: user?.departments?.id,
-      id: user?.departments?.id,
+      departmentId: sectorId || user?.departments?.id,
+      id: sectorId || user?.departments?.id,
       size,
       page: offset,
       ubudehe: queryRoute?.ubudehe,

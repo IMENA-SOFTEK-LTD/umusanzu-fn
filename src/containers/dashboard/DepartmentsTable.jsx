@@ -115,6 +115,8 @@ const DepartmentsTable = ({ user }) => {
     totalPages
   } = useSelector((state) => state.pagination)
 
+  const { sectorId } = useSelector((state) => state.departments)
+
   let department = ''
 
   switch (user?.departments?.level_id) {

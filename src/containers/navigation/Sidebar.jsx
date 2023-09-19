@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react'
 
 import { motion, useAnimation } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
-import { toggleSidebar } from '../../states/features/navigation/sidebarSlice'
+import { setPathRoute, toggleSidebar } from '../../states/features/navigation/sidebarSlice'
 import { setPathName } from '../../states/features/navigation/navbarSlice'
 
 
@@ -52,26 +52,43 @@ function Sidebar({ user }) {
           title: 'Dashboard',
           icon: FaMicrosoft,
           path: '/dashboard',
+          route: '/dashboard',
         },
         {
           title: 'Households',
           icon: BsHousesFill,
-          path: '/households',
+          path: `${
+            department === 'country' ||
+            department === 'province' ||
+            department === 'district'
+              ? '/select-department'
+              : '/households'
+          }`,
+          route: '/households',
         },
         {
           title: 'Departments',
           icon: FaBorderAll,
-          path: '/departments',
+          path: `/departments`,
+          route: '/departments',
         },
         {
           title: 'Transactions',
           icon: AiOutlineTransaction,
-          path: `/transactions`,
+          path: `${
+            department === 'country' ||
+            department === 'province' ||
+            department === 'district'
+              ? '/select-department'
+              : '/transactions'
+          }`,
+          route: '/transactions',
         },
         {
           title: 'Household Details',
           icon: FaListAlt,
           path: '/houseDetails',
+          route: '/houseDetails',
         },
       ],
     },
@@ -191,6 +208,8 @@ function Sidebar({ user }) {
                     e.preventDefault()
                     dispatch(setPathName(item.title))
                     localStorage.setItem('pathName', item.title)
+                    dispatch(setPathRoute(item.route))
+                    localStorage.setItem('pathRoute', item.route)
                     navigate(item.path)
                   }}>
                     <figure

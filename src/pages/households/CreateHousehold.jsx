@@ -26,8 +26,9 @@ import {
 import Loading from '../../components/Loading'
 import { useNavigate } from 'react-router-dom'
 import MoveHousehold from '../../containers/households/MoveHousehold'
+import { setCellId, setDistrictId, setProvinceId, setSectorId, setVillageId } from '../../states/features/departments/departmentSlice'
 
-const CreateHousehold = () => {
+const CreateHousehold = ({ user }) => {
   const {
     register,
     handleSubmit,
@@ -53,6 +54,59 @@ const CreateHousehold = () => {
     moveHouseholdModal,
   } = useSelector((state) => state.household)
 
+  const { villageId, cellId, sectorId, districtId, provinceId } = useSelector((state) => state.departments)
+
+  let department = ''
+
+  switch (user?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      dispatch(setSectorId(null))
+      dispatch(setProvinceId(user?.departments?.id))
+      break
+    case 2:
+      department = 'district'
+      dispatch(setSectorId(null))
+      dispatch(setDistrictId(user?.departments?.id))
+      dispatch(setProvinceId(user?.departments?.parent?.id))
+      break
+    case 3:
+      department = 'sector'
+      dispatch(setSectorId(user?.departments?.id))
+      dispatch(setDistrictId(user?.departments?.parent?.id))
+      dispatch(setProvinceId(user?.departments?.parent?.parent?.id))
+      break
+    case 4:
+      department = 'cell'
+      dispatch(setCellId(user?.departments?.id))
+      dispatch(setSectorId(user?.departments?.parent?.id))
+      dispatch(setDistrictId(user?.departments?.parent?.parent?.id))
+      dispatch(setProvinceId(user?.departments?.parent?.parent?.parent?.id))
+      break
+    case 5:
+      department = 'country'
+      dispatch(setCellId(user?.departments?.id))
+      dispatch(setSectorId(user?.departments?.parent?.id))
+      dispatch(setDistrictId(user?.departments?.parent?.parent?.id))
+      dispatch(setProvinceId(user?.departments?.parent?.parent?.parent?.id))
+      break
+    case 6:
+      department = 'agent'
+      dispatch(setVillageId(user?.departments?.id))
+      dispatch(setCellId(user?.departments?.parent?.id))
+      dispatch(setSectorId(user?.departments?.parent?.parent?.id))
+      dispatch(setDistrictId(user?.departments?.parent?.parent?.parent?.id))
+      dispatch(setProvinceId(user?.departments?.parent?.parent?.parent?.parent?.id))
+      break
+    default:
+      department = 'agent'
+      dispatch(setVillageId(user?.departments?.id))
+      dispatch(setCellId(user?.departments?.parent?.id))
+      dispatch(setSectorId(user?.departments?.parent?.parent?.id))
+      dispatch(setDistrictId(user?.departments?.parent?.parent?.parent?.id))
+      dispatch(setProvinceId(user?.departments?.parent?.parent?.parent?.parent?.id))
+  }
+
   /**
    *
    * FETCHING DEPARTMENTS CHILDREN
@@ -74,7 +128,12 @@ const CreateHousehold = () => {
   useEffect(() => {
     if (countryDistrictsData) {
       dispatch(setDistricts(countryDistrictsData?.data?.rows))
-      dispatch(setSelectedDistrict(countryDistrictsData?.data?.rows[0]?.id))
+      if (districtId) {
+        dispatch(setSelectedDistrict(countryDistrictsData?.data?.rows?.filter((district) => district.id === districtId)))
+      }
+      else {
+        dispatch(setSelectedDistrict(countryDistrictsData?.data?.rows[0]?.id))
+      }
     }
   }, [countryDistrictsData])
 
@@ -88,13 +147,23 @@ const CreateHousehold = () => {
     },
   ] = useLazyGetDistrictSectorsQuery()
   useEffect(() => {
-    getDistrictSectors({ id: selectedDistrict })
-  }, [selectedDistrict])
+    if (districtId) {
+      getDistrictSectors({ id: districtId })
+    }
+    else {
+      getDistrictSectors({ id: selectedDistrict })
+    }
+  }, [selectedDistrict, districtId])
 
   useEffect(() => {
     if (districtSectorsData) {
       dispatch(setSectors(districtSectorsData?.data?.rows))
-      dispatch(setSelectedSector(districtSectorsData?.data?.rows[0]?.id))
+      if (sectorId) {
+        dispatch(setSelectedSector(districtSectorsData?.data?.rows?.filter((sector) => sector.id === sectorId)))
+      }
+      else {
+        dispatch(setSelectedSector(districtSectorsData?.data?.rows[0]?.id))
+      }
     }
   }, [districtSectorsData])
 
@@ -109,13 +178,23 @@ const CreateHousehold = () => {
   ] = useLazyGetSectorCellsQuery()
 
   useEffect(() => {
-    getSectorCells({ id: selectedSector })
-  }, [selectedSector])
+    if (sectorId) {
+      getSectorCells({ id: sectorId })
+    }
+    else {
+      getSectorCells({ id: selectedSector })
+    }
+  }, [selectedSector, sectorId])
 
   useEffect(() => {
     if (sectorCellsData) {
       dispatch(setCells(sectorCellsData?.data?.rows))
-      dispatch(setSelectedCell(sectorCellsData?.data?.rows[0]?.id))
+      if (cellId) {
+        dispatch(setSelectedCell(sectorCellsData?.data?.rows?.filter((cell) => cell.id === cellId)))
+      }
+      else {
+        dispatch(setSelectedCell(sectorCellsData?.data?.rows[0]?.id))
+      }
     }
   }, [sectorCellsData, sectorCellsSuccess])
 
@@ -130,12 +209,22 @@ const CreateHousehold = () => {
   ] = useLazyGetCellVillagesQuery()
 
   useEffect(() => {
-    getCellVillages({ id: selectedCell })
-  }, [selectedCell])
+    if (cellId) {
+      getCellVillages({ id: cellId })
+    }
+    else {
+      getCellVillages({ id: selectedCell })
+    }
+  }, [selectedCell, cellId])
 
   useEffect(() => {
     if (cellVillagesData) {
-      dispatch(setVillages(cellVillagesData?.data?.rows))
+      if (villageId) {
+        dispatch(setVillages(cellVillagesData?.data?.rows?.filter((village) => village.id === villageId)))
+      }
+      else {
+        dispatch(setVillages(cellVillagesData?.data?.rows))
+      }
     }
   }, [cellVillagesData, cellVillagesSuccess])
 
@@ -333,7 +422,7 @@ const CreateHousehold = () => {
             <Controller
               control={control}
               name="district"
-              defaultValue={selectedDistrict}
+              defaultValue={districtId || selectedDistrict}
               rules={{ required: 'Please select the district' }}
               render={({ field }) => {
                 return (
@@ -349,11 +438,18 @@ const CreateHousehold = () => {
                       Select a district
                     </option>
                     {districts?.map((district) => {
-                      return (
-                        <option key={district.id} value={district.id}>
-                          {district.name}
-                        </option>
-                      )
+                        if (districtId) {
+                          return (
+                            <option disabled={district.id !== districtId} key={district.id} value={district.id}>
+                              {district.name}
+                            </option>
+                          )
+                        }
+                        return (
+                          <option key={district.id} value={district.id}>
+                            {district.name}
+                          </option>
+                        )
                     })}
                   </select>
                 )
@@ -372,7 +468,7 @@ const CreateHousehold = () => {
             <Controller
               control={control}
               name="sector"
-              defaultValue={selectedSector}
+              defaultValue={sectorId || selectedSector}
               rules={{ required: 'Please select the sector' }}
               render={({ field }) => {
                 return (
@@ -388,6 +484,13 @@ const CreateHousehold = () => {
                       Select a sector
                     </option>
                     {sectors?.map((sector) => {
+                      if (sectorId) {
+                        return (
+                          <option disabled = {sector.id !== sectorId} key={sector.id} value={sector.id}>
+                            {sector.name || 'Sector'}
+                          </option>
+                        )
+                      }
                       return (
                         <option key={sector.id} value={sector.id}>
                           {sector.name || 'Sector'}
@@ -411,7 +514,7 @@ const CreateHousehold = () => {
             <Controller
               control={control}
               name="cell"
-              defaultValue={selectedCell}
+              defaultValue={cellId || selectedCell}
               defa
               rules={{ required: 'Please select the cell' }}
               render={({ field }) => {
@@ -428,6 +531,13 @@ const CreateHousehold = () => {
                       Select a cell
                     </option>
                     {cells?.map((cell) => {
+                      if (cellId) {
+                        return (
+                          <option disabled={cell.id !== cellId} key={cell.id} value={cell.id}>
+                            {cell.name}
+                          </option>
+                        )
+                      }
                       return (
                         <option key={cell.id} value={cell.id}>
                           {cell.name}
@@ -451,7 +561,7 @@ const CreateHousehold = () => {
             <Controller
               control={control}
               name="village"
-              defaultValue={selectedVillage}
+              defaultValue={villageId || selectedVillage}
               rules={{ required: 'Please select the village' }}
               render={({ field }) => {
                 return (
@@ -467,6 +577,13 @@ const CreateHousehold = () => {
                       Select a village
                     </option>
                     {villages?.map((village) => {
+                      if (villageId) {
+                        return (
+                          <option disabled={village.id !== villageId} key={village.id} value={village.id}>
+                            {village.name}
+                          </option>
+                        )
+                      }
                       return (
                         <option key={village.id} value={village.id}>
                           {village.name}

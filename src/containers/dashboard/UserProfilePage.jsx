@@ -78,8 +78,6 @@ const UserProfilePage = () => {
     ]
   })
 
-  console.log(data?.departments?.name)
-
   const handleEditToggle = () => {
     setIsEditing(!isEditing)
   }
@@ -92,6 +90,7 @@ const UserProfilePage = () => {
   const handleDelete = () => {
     // Handle delete user functionality here
   }
+
 
   return (
     <div className="flex items-start gap-4 mx-auto">
@@ -182,19 +181,19 @@ const UserProfilePage = () => {
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Sector:
                 </td>
-                <td className="py-2 pl-4">{data?.departments?.parent?.name}</td>
+                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.name}</td>
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   District:
                 </td>
-                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.name}</td>
+                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.parent?.name}</td>
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Province:
                 </td>
-                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.parent?.name}</td>
+                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.parent?.parent?.name}</td>
               </tr>
             </tbody>
           </table>
