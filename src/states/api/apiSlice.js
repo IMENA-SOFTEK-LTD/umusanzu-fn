@@ -4,7 +4,7 @@ import { LOCAL_API_URL } from '../../constants'
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://umusanzu-bn.onrender.com/api/v2/' || LOCAL_API_URL,
+    baseUrl: 'http://localhost:3000/api/v2/' || LOCAL_API_URL,
     prepareHeaders: (headers) => {
       // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
@@ -12,7 +12,7 @@ export const apiSlice = createApi({
         headers.set('authorization', token)
       }
       return headers
-    }
+    },
   }),
   endpoints: (builder) => {
     return {
@@ -486,7 +486,7 @@ export const apiSlice = createApi({
         }),
       }),
     }
-  }
+  },
 })
 
 export const {

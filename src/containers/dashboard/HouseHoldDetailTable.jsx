@@ -18,7 +18,7 @@ const HouseHoldDetailTable = ({
   const [data, setData] = useState(null);
   const { id } = useParams();
   const [monthPaid, setMonthPaid] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [getHouseholdTransactionsByMonthPaid, {
     data: transactionsData,
@@ -41,11 +41,11 @@ const HouseHoldDetailTable = ({
 
   const openModal = (month_paid) => {
     setMonthPaid(month_paid);
-    setIsModalOpen(true); 
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false); 
+    setIsModalOpen(false);
   };
   return (
     <div className="page-wrapper p-4 mt-8">
@@ -78,7 +78,7 @@ const HouseHoldDetailTable = ({
                         <th className="py-2 px-4">Reference</th>
                       </tr>
                     </thead>
-                      <tbody className='w-full'>
+                    <tbody className='w-full'>
                       {transactions.map((transaction, index) => {
                         const paidMonth = new Date(
                           transaction.month_paid
@@ -102,13 +102,14 @@ const HouseHoldDetailTable = ({
                               {index + 1}
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
-                              {transaction.status !== 'PAID' && (
+                              {transaction.status !== 'PAID' ? (
                                 <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 mr-2 rounded-sm transition duration-300">
-                                  Pay Now
+                                  {transaction.status === 'INITIATED' ? 'Complete Payment' : 'Pay Now'}
                                 </button>
-                              )}
+                              ) : null}
                               {paidMonth}
                             </td>
+
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.amount} RWF
                             </td>
@@ -243,8 +244,8 @@ const HouseHoldDetailTable = ({
                     </tbody>
                   </table>
                   <span className='flex items-center gap-4'>
-                  <Button value="Edit" />
-                  <Button className='bg-yellow-600' value="Change status" />
+                    <Button value="Edit" />
+                    <Button className='bg-yellow-600' value="Change status" />
                   </span>
                 </div>
               </div>
@@ -252,7 +253,7 @@ const HouseHoldDetailTable = ({
           </div>
         </div>
       </div>
-  
+
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="modal-overlay fixed inset-0 bg-black opacity-50"></div>
