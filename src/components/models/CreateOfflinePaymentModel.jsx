@@ -124,7 +124,7 @@ const CreateOfflinePaymentModel = () => {
                 </svg>
                 <span className="sr-only">Close modal</span>
               </button>
-              <h3 className="mb-4 text-xl text-center font-medium text-white">
+              <h3 className="mb-4 mt-2  text-xl text-center font-medium text-white">
                 Record Offline Payment
               </h3>
             </div>

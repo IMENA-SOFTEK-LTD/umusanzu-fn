@@ -393,24 +393,6 @@ const HouseholdTable = ({ user }) => {
         Filter: SelectColumnFilter,
       },
       {
-        Header: 'status',
-        accessor: 'status',
-        sortable: true,
-        Filter: SelectColumnFilter,
-        Cell: ({ value }) => (
-          <div
-            className={`${
-              value === 'ACTIVE'
-                ? 'bg-green-600 shadow-md rounded-sm shadow-200' :
-                value === 'MOVED' ? 'bg-yellow-600 rounded-sm shadow-md shadow-200'
-                : 'bg-red-600 rounded-sm shadow-md shadow-200'
-            } p-1 rounded-md text-white text-center`}
-          >
-            {value}
-          </div>
-        ),
-      },
-      {
         Header: 'phone',
         accessor: 'phone1',
         sortable: true,
@@ -444,6 +426,23 @@ const HouseholdTable = ({ user }) => {
         accessor: 'province',
         sortable: true,
         Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'status',
+        accessor: 'status',
+        sortable: true,
+        Filter: SelectColumnFilter,
+        Cell: ({ value }) => (
+          <div
+            className={`${value === 'ACTIVE'
+                ? 'bg-green-600 shadow-md rounded-sm shadow-200' :
+                value === 'MOVED' ? 'bg-yellow-600 rounded-sm shadow-md shadow-200'
+                  : 'bg-red-600 rounded-sm shadow-md shadow-200'
+              } p-1 rounded-md text-white text-center`}
+          >
+            {value}
+          </div>
+        ),
       },
       {
         id: 'ID',

@@ -3,7 +3,7 @@ import { AiFillPlusCircle } from 'react-icons/ai'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 
-function RecordPaymentModel () {
+function RecordPaymentModel() {
   const [showModal, setShowModal] = useState(false)
   const {
     control,
@@ -65,7 +65,7 @@ function RecordPaymentModel () {
                 </svg>
                 <span className="sr-only">Close modal</span>
               </button>
-              <h3 className="mb-4 text-xl text-center font-medium text-white">
+              <h3 className="mb-4 mt-2 text-xl text-center font-medium text-white">
                 Record Payment
               </h3>
             </div>

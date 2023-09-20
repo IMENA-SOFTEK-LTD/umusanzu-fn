@@ -10,7 +10,7 @@ import { useParams } from 'react-router-dom'
 import { useLazyGetSingleStaffDetailsQuery, useUpdateStaffDetailsMutation } from '../../states/api/apiSlice'
 import Loading from '../Loading'
 
-function UpdateStaff ({ toggleButton = true }) {
+function UpdateStaff({ toggleButton = true }) {
   const [showModal, setShowModal] = useState(false)
   const { id } = useParams()
   const [
@@ -139,7 +139,7 @@ function UpdateStaff ({ toggleButton = true }) {
                   </svg>
                   <span className="sr-only">Close modal</span>
                 </button>
-                <h3 className="mb-4 text-xl text-center font-medium text-white">
+                <h3 className="mb-4 mt-2 text-xl text-center font-medium text-white">
                   Edit Admin Information
                 </h3>
               </div>
@@ -263,11 +263,11 @@ function UpdateStaff ({ toggleButton = true }) {
                           value={
                             updateStaffDetailsLoading
                               ? (
-                              <Loading />
-                                )
+                                <Loading />
+                              )
                               : (
-                                  'Save changes'
-                                )
+                                'Save changes'
+                              )
                           }
                         />
                       )
