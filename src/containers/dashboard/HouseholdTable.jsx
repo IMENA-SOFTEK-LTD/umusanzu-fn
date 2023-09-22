@@ -8,7 +8,6 @@ import * as XLSX from 'xlsx';
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { FaEye } from 'react-icons/fa'
 import queryString from 'query-string'
 import {
   faAnglesLeft,
@@ -20,6 +19,7 @@ import {
   faFileExcel,
   faFilePdf,
   faHouse,
+  faHouseChimney,
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -40,7 +40,6 @@ import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import Input from '../../components/Input'
-import { Link } from 'react-router-dom'
 
 const HouseholdTable = ({ user }) => {
 
@@ -385,12 +384,15 @@ const HouseholdTable = ({ user }) => {
         Header: 'Details',
         accessor: 'ID',
         Cell: ({ row }) => (
-          <Link
-            to={`/households/${row?.original?.ID}`}
-            className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-          >
-            <FaEye className="" />
-          </Link>
+          <Button
+          className='!p-0 !py-0 !px-0 !rounded-[50%]'
+            route={`/households/${row.original.ID}`}
+            value={
+              <span>
+                <FontAwesomeIcon className='p-2 px-[10px]' icon={faHouseChimney} />
+              </span>
+            }
+          />
         ),
       },
       {

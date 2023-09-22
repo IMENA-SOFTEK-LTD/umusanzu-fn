@@ -172,7 +172,7 @@ function Sidebar({ user }) {
   }
 
   return (
-    <aside className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] max-[800px]:min-w-[30%] ${isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'}`}>
+    <aside className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] max-[800px]:min-w-[30%] max-[800px]:!w-fit ${isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'}`}>
       <motion.div
         animate={controls}
         className={

@@ -45,6 +45,7 @@ const HouseholdDetail = () => {
     if (houseHoldDetailsSuccess) {
       setData(houseHoldDetailsData?.data || [])
       setTransactions(houseHoldDetailsData?.data?.transactions || [])
+      document.title = `${houseHoldDetailsData?.data?.name} | Umusanzu Digital`
     }
   }, [houseHoldDetailsSuccess, houseHoldDetailsData])
   useEffect(() => {
@@ -83,11 +84,10 @@ const HouseholdDetail = () => {
   const province = {
     name: householdDepartmentsData?.data[0]?.province,
   }
-
   return (
     <main className="flex flex-col gap-2 my-4 max-[1000px]:flex-col">
     
-      <section className="flex items-center gap-4 px-4">
+      <section className="flex items-center gap-2 px-4">
         <RecordPaymentModel household={houseHoldDetailsData?.data} />
         <CreateOfflinePaymentModel householdData={houseHoldDetailsData?.data} householdDepartments={householdDepartmentsData?.data[0]} />
         <UpdateHousehold household={houseHoldDetailsData?.data} />

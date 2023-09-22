@@ -40,8 +40,9 @@ const MoveHousehold = ({ isOpen, className }) => {
     existingHousehold,
   } = useSelector((state) => state.household)
 
-  const { villageId, cellId, sectorId, districtId, provinceId } = useSelector((state) => state.departments)
-
+  const { villageId, cellId, sectorId, districtId, provinceId } = useSelector(
+    (state) => state.departments
+  )
 
   const {
     handleSubmit,
@@ -194,7 +195,9 @@ const MoveHousehold = ({ isOpen, className }) => {
                 defaultValue={householdData?.phone1}
                 rules={{ required: 'Please add the primary phone number' }}
                 render={({ field }) => {
-                  return <Input readOnly {...field} placeholder="0788 000 000" />
+                  return (
+                    <Input readOnly {...field} placeholder="0788 000 000" />
+                  )
                 }}
               />
               {errors.phone1 && (
@@ -308,7 +311,11 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {districts?.map((district) => {
                         return (
-                          <option disabled={district.id !== districtId} key={district.id} value={district.id}>
+                          <option
+                            disabled={district !== districtId}
+                            key={district.id}
+                            value={district.id}
+                          >
                             {district.name}
                           </option>
                         )
@@ -346,7 +353,11 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {sectors?.map((sector) => {
                         return (
-                          <option disabled = {sector.id !== sectorId} key={sector.id} value={sector.id}>
+                          <option
+                            disabled={sector.id !== sectorId}
+                            key={sector.id}
+                            value={sector.id}
+                          >
                             {sector.name || 'Sector'}
                           </option>
                         )
@@ -385,7 +396,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {cells?.map((cell) => {
                         return (
-                          <option disabled={cell.id !== cellId} key={cell.id} value={cell.id}>
+                          <option key={cell.id} value={cell.id}>
                             {cell.name}
                           </option>
                         )
@@ -423,7 +434,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {villages?.map((village) => {
                         return (
-                          <option disabled={village.id !== villageId} key={village.id} value={village.id}>
+                          <option key={village.id} value={village.id}>
                             {village.name}
                           </option>
                         )
@@ -471,7 +482,9 @@ const MoveHousehold = ({ isOpen, className }) => {
                   </p>
                   <p
                     className={`${
-                      moveHouseholdSuccess ? 'text-green-500 text-center' : 'hidden'
+                      moveHouseholdSuccess
+                        ? 'text-green-500 text-center'
+                        : 'hidden'
                     }`}
                   >
                     Household moved successfully
