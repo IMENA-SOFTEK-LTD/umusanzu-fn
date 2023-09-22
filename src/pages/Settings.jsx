@@ -7,6 +7,7 @@ import UpdatePasswordModel from '../components/models/UpdatePasswordModel'
 import { useLazyGetUserProfileQuery } from '../states/api/apiSlice'
 import EditSectorInfoModel from '../components/models/EditSectorInfoModel'
 import UploadSectorStamp from '../components/models/UploadSectorStamp'
+
 function Settings({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
 
@@ -37,7 +38,7 @@ function Settings({ user }) {
       <div className="bg-white overflow-hidden  shadow rounded-lg border">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Admin Profile
+            Staff Profile
           </h3>
         </div>
         <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
@@ -90,7 +91,7 @@ function Settings({ user }) {
                 Sector
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                KINYINYA
+                {isLoading ? <Loading /> : userProfileData?.data?.departments?.name}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -98,7 +99,7 @@ function Settings({ user }) {
                 District
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                GASABO
+              {isLoading ? <Loading /> : userProfileData?.data?.departments?.parent?.name}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -106,7 +107,7 @@ function Settings({ user }) {
                 Province
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                KIGALI CITY
+              {isLoading ? <Loading /> : userProfileData?.data?.departments?.parent?.parent?.name}
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -114,7 +115,7 @@ function Settings({ user }) {
                 Status
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                Active
+              {isLoading ? <Loading /> : userProfileData?.data?.status}
               </dd>
             </div>
           </dl>
@@ -214,7 +215,9 @@ function Settings({ user }) {
           gap-5
 
         ">
-          <EditSectorInfoModel />
+          <EditSectorInfoModel 
+           user={user || stateUser}         
+           />
           <UploadSectorStamp />
         </div>
       </div>

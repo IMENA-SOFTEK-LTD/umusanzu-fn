@@ -536,6 +536,20 @@ export const apiSlice = createApi({
           method: 'DELETE',
         }),
       }),
+      getDepartmentProfile: builder.query({
+        query: ({ id }) => ({
+          url: `/department/${id}`,
+          method: 'GET',
+        }),
+      }),
+      updateDepartmentProfile: builder.mutation({
+        query: ({ id,  merchant_code, phone1, phone2, email,leader_name,account_bank, account_name, service_offer, leader_title }) => ({
+          url: `/department/${id}`,
+          method: 'PUT',
+          body: { merchant_code, phone1, phone2, email,leader_name,account_bank, account_name,service_offer, leader_title  },
+        }),
+      }),
+
     }
   },
 })
@@ -584,4 +598,8 @@ export const {
   useUpdateHouseholdMutation,
   useUpdateHouseholdStatusMutation,
   useDeleteTransactionMutation,
+
+  useLazyGetDepartmentProfileQuery,
+  useUpdateDepartmentProfileMutation,
+
 } = apiSlice
