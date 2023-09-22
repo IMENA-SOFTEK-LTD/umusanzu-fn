@@ -1,15 +1,20 @@
-import { useEffect, useState } from 'react'
-import moment from 'moment'
-import { useLazyGetHouseholdTransactionsByMonthPaidQuery } from '../../states/api/apiSlice'
-import { FiDownload } from 'react-icons/fi'
-import { useParams } from 'react-router'
-import Button from '../../components/Button'
-import { FaRegEye } from 'react-icons/fa'
-import { useDispatch } from 'react-redux'
-import { setUpdateHouseholdModal, setUpdateHouseholdStatusModal } from '../../states/features/modals/householdSlice'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { setDeleteTransactionId, setDeleteTransactionModal } from '../../states/features/transactions/transactionSlice'
+import { useEffect, useState } from 'react';
+import moment from 'moment';
+import { useLazyGetHouseholdTransactionsByMonthPaidQuery } from '../../states/api/apiSlice';
+import { FiDownload } from 'react-icons/fi';
+import { useParams } from 'react-router';
+import jsPDF from 'jspdf';
+import RWlogo from "../../assets/login.png";
+import Kgl from "../../assets/kglLogo.png";
+import FaQrcode from '../../assets/qrcode.jpeg';
+import Button from '../../components/Button';
+import { FaRegEye } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
+import { setUpdateHouseholdModal, setUpdateHouseholdStatusModal } from '../../states/features/modals/householdSlice';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { setDeleteTransactionId, setDeleteTransactionModal } from '../../states/features/transactions/transactionSlice';
+import formatFunds from '../../utils/Funds';
 
 const HouseHoldDetailTable = ({
   transactions,
@@ -20,12 +25,12 @@ const HouseHoldDetailTable = ({
   district,
   province,
 }) => {
-  const [data, setData] = useState(null)
-  const { id } = useParams()
-  const [monthPaid, setMonthPaid] = useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [data, setData] = useState(null);
+  const { id } = useParams();
+  const [monthPaid, setMonthPaid] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const [
     getHouseholdTransactionsByMonthPaid,
@@ -35,61 +40,154 @@ const HouseHoldDetailTable = ({
       isError: transactionsError,
       error: transactionsErrorRes,
     },
-  ] = useLazyGetHouseholdTransactionsByMonthPaidQuery()
+  ] = useLazyGetHouseholdTransactionsByMonthPaidQuery();
 
   useEffect(() => {
     getHouseholdTransactionsByMonthPaid({
       departmentId: id,
       month: monthPaid,
-    })
-  }, [id, monthPaid])
+    });
+  }, [id, monthPaid]);
+
   useEffect(() => {
     if (transactionsSuccess) {
-      setData(transactionsData?.data || [])
+      setData(transactionsData?.data || []);
     }
-  }, [transactionsSuccess, transactionsData])
+  }, [transactionsSuccess, transactionsData]);
 
   const openModal = (month_paid) => {
-    setMonthPaid(month_paid)
-    setIsModalOpen(true)
-  }
+    setMonthPaid(month_paid);
+    setIsModalOpen(true);
+  };
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const closeModal = () => {
-    setIsModalOpen(false)
+    setIsModalOpen(false);
+  };
+  const handleDownloadPdf = () => {
+    const doc = new jsPDF();
+    // Add the header section
+    doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30);
+    doc.setFontSize(14);
+    doc.text("REPUBLIC OF RWANDA", 50, 20);
+    doc.text("KIGALI CITY", 50, 30);
+    doc.text(`${district.name} DISTRICT`, 50, 40);
+    doc.text(`${sector.name} SECTOR`, 50, 50);
+    doc.addImage(Kgl, 'PNG', 150, 10, 30, 30);
+    // Add the PAYMENT RECEIPT section
+    doc.setFontSize(12);
+    const itemsColumn1 = [
+      "PAYMENT RECEIPT",
+      "Reference: 71063010IMS159",
+      `Names: ${member.name}`,
+      "Service: Umutekano",
+      `Tel: ${member.phone1}`
+    ];
+    const itemsColumn2 = [
+      `Date: ${
+      new Date().toLocaleString('default', {
+        month: 'long',
+        year: 'numeric',
+        minute:
+          'numeric',
+        hour: 'numeric',
+        day: 'numeric',
+      })}`,
+      `Cell: ${cell.name}`,
+      "Status: PAID",
+      `Village: ${village.name}`,
+      `TIN: ${member.phone2}`
+    ];
+    console.log(member)
+    const startXColumn1 = 15;
+    const startXColumn2 = 130;
+    let currentY = 70;
+
+    doc.setFontSize(12);
+
+    // Display items in column 1
+    for (let i = 0; i < itemsColumn1.length; i++) {
+      doc.text(itemsColumn1[i], startXColumn1, currentY);
+      currentY += 10;
+    }
+
+    currentY = 70;
+
+    // Display items in column 2
+    for (let i = 0; i < itemsColumn2.length; i++) {
+      doc.text(itemsColumn2[i], startXColumn2, currentY);
+      currentY += 10;
+    }
+
+    // Add the table section
+    doc.autoTable({
+      startY: 120,
+      head: [["DESCRIPTION", "MONTH", "UNIT PRICE", "PAID AMOUNT"]],
+      body: [["Umutekano", "2023-09", `${formatFunds(member.ubudehe) } RWF`, "1,000 RWF"]],
+    });
+    // Add the TOTAL PAID section
+    doc.text("TOTAL PAID 1,000 RWF", 140, doc.autoTable.previous.finalY + 10);
+
+    doc.setFontSize(10);
+    doc.text("For more info, Please call:", 105, doc.autoTable.previous.finalY + 30);
+    doc.text("PAY CASHLESS DIAL: *775*3#", 105, doc.autoTable.previous.finalY + 40);
+    doc.text("0788623772", 105, doc.autoTable.previous.finalY + 50);
+
+    doc.addImage(FaQrcode, 'JPEG', 150, doc.autoTable.previous.finalY + 30, 30, 30);
+    const pdfDataUrl = doc.output('datauristring');
+    const blob = dataURLtoBlob(pdfDataUrl);
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    // Open the Blob URL in a new tab for download
+    const newTab = window.open(blobUrl, '_blank');
+    if (newTab) {
+      newTab.focus();
+    }
+  };
+
+  // Helper function to convert data URL to Blob
+  function dataURLtoBlob(dataURL) {
+    const parts = dataURL.split(';base64,');
+    const contentType = parts[0].split(':')[1];
+    const raw = window.atob(parts[1]);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
+    for (let i = 0; i < rawLength; ++i) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+    return new Blob([uInt8Array], { type: contentType });
   }
 
-  let department = ''
+  let department = '';
 
   switch (user?.departments?.level_id) {
     case 1:
-      department = 'province'
-      break
+      department = 'province';
+      break;
     case 2:
-      department = 'district'
-      break
+      department = 'district';
+      break;
     case 3:
-      department = 'sector'
-      break
+      department = 'sector';
+      break;
     case 4:
-      department = 'cell'
-      break
+      department = 'cell';
+      break;
     case 5:
-      department = 'country'
-      break
+      department = 'country';
+      break;
     case 6:
-      department = 'agent'
-      break
+      department = 'agent';
+      break;
     default:
-      department = 'agent'
+      department = 'agent';
   }
-
   return (
     <div className="page-wrapper p-4">
       <div className="page-content-wrapper">
         <div className="page-content">
-          <div className="flex items-start gap-4 mx-auto">
+          <div className="flex flex-col md:flex-row items-start gap-4 mx-auto">
             <div className="max-w-[65%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
               <div className="card-body">
                 <h6 className="font-semibold mb-4 text-gray-800 px-3 mt-3">
@@ -191,8 +289,8 @@ const HouseHoldDetailTable = ({
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.status === 'PAID' ? (
                                 <a
-                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
-                                  href={`receipt/${transaction.guid}`}
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300 cursor-pointer"
+                                  onClick={handleDownloadPdf}
                                 >
                                   <FiDownload className="mr-2" />
                                   Receipt
@@ -200,23 +298,23 @@ const HouseHoldDetailTable = ({
                               ) : transaction.status === 'PENDING' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-sm hover:bg-red-600 transition duration-300"
-                                  href={`invoice/${transaction.guid}`}
+                                    onClick={handleDownloadPdf}
                                 >
                                   <FiDownload className="mr-2" />
                                   Invoice
                                 </a>
                               ) : transaction.status === 'PARTIAL' ? (
                                 <a
-                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300"
-                                  href={`partial-receipt/${transaction.guid}`}
+                                      className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300 cursor-pointer "
+                                      onClick={handleDownloadPdf}
                                 >
                                   <FiDownload className="mr-2" />
                                   Partial Receipt
                                 </a>
                               ) : (
                                 <a
-                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300"
-                                  href={`receipt/${transaction.guid}`}
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300 cursor-pointer"
+                                        onClick={handleDownloadPdf}
                                 >
                                   <FiDownload className="mr-2" />
                                   Receipt
@@ -235,7 +333,7 @@ const HouseHoldDetailTable = ({
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow-lg ring-1 ring-gray-200 p-4 w-[80%] mx-auto">
+            <div className="bg-white rounded-lg shadow-lg ring-1 ring-gray-200 p-4 w-full md:w-[35%] mx-auto">
               <div className="p-3">
                 <h6 className="mb-4 text-xl font-semibold text-gray-800">
                   Household Information
@@ -328,8 +426,7 @@ const HouseHoldDetailTable = ({
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="modal-overlay fixed inset-0 bg-black opacity-50"></div>
-
-          <div className="modal-container h-[50vh] w-[50vw] bg-white mx-auto rounded shadow-lg z-50 overflow-y-auto">
+          <div className="modal-container h-[80vh] w-full  bg-white mx-auto rounded shadow-lg z-50 ">
             <div className="modal-content py-4 text-left px-6">
               <div className="flex justify-between items-center pb-3">
                 <p className="text-2xl font-bold">Transaction History</p>

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Login from './pages/auth/Login.jsx'
@@ -21,6 +21,7 @@ import Department from './pages/dashboard/Department.jsx'
 import CreateHousehold from './pages/households/CreateHousehold.jsx'
 import NotFound from './pages/notFound/NotFound.jsx'
 import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
+import { useEffect } from 'react'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -28,19 +29,24 @@ const App = () => {
   const { loginPageLoaded } = useSelector((state) => state.auth)
 
   const { isOpen } = useSelector((state) => state.sidebar)
+  const location = useLocation();
+
+  useEffect(() => {
+    // Set the document title based on the current route
+    document.title = `${location.pathname.replace('/', '')} | Umusanzu Digital `;
+  }, [location.pathname]);
 
   // eslint-disable-next-line no-undef
   const user = JSON.parse(localStorage.getItem('user'))
 
   return (
-    <Router>
       <main
         className={`relative h-full`}>
         <section className="absolute">
           <Sidebar user={user} />
         </section>
         <section
-          className={`w-full absolute ${
+          className={`absolute ${
             isOpen
               ? 'w-[80vw] left-[20vw]'
               : loginPageLoaded
@@ -104,7 +110,6 @@ const App = () => {
         </section>
         <ToastContainer />
       </main>
-    </Router>
   )
 }
 
