@@ -100,11 +100,10 @@ const HouseholdTable = ({ user }) => {
       department = 'cell'
       break
     case 5:
-      department = 'country'
+      department = 'sector'
       break
     case 6:
       department = 'agent'
-      useEffect(() => {}, [])
       break
     default:
       department = 'agent'
@@ -382,12 +381,25 @@ const HouseholdTable = ({ user }) => {
   const columns = useMemo(
     () => [
       {
+        id: 'ID',
+        Header: 'Details',
+        accessor: 'ID',
+        Cell: ({ row }) => (
+          <Link
+            to={`/households/${row?.original?.ID}`}
+            className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
+          >
+            <FaEye className="" />
+          </Link>
+        ),
+      },
+      {
         Header: 'Names',
         accessor: 'name',
         sortable: true,
       },
       {
-        Header: 'Ubudehe',
+        Header: 'Amount',
         accessor: 'ubudehe',
         sortable: true,
         Filter: SelectColumnFilter,
@@ -426,36 +438,6 @@ const HouseholdTable = ({ user }) => {
         accessor: 'province',
         sortable: true,
         Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'status',
-        accessor: 'status',
-        sortable: true,
-        Filter: SelectColumnFilter,
-        Cell: ({ value }) => (
-          <div
-            className={`${value === 'ACTIVE'
-                ? 'bg-green-600 shadow-md rounded-sm shadow-200' :
-                value === 'MOVED' ? 'bg-yellow-600 rounded-sm shadow-md shadow-200'
-                  : 'bg-red-600 rounded-sm shadow-md shadow-200'
-              } p-1 rounded-md text-white text-center`}
-          >
-            {value}
-          </div>
-        ),
-      },
-      {
-        id: 'ID',
-        Header: 'Details',
-        accessor: 'ID',
-        Cell: ({ row }) => (
-          <Link
-            to={`/households/${row?.original?.ID}`}
-            className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-          >
-            <FaEye className="" />
-          </Link>
-        ),
       },
     ],
     []
@@ -545,7 +527,7 @@ const HouseholdTable = ({ user }) => {
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
                   <div className="flex gap-2">
                     <Button
                       value={

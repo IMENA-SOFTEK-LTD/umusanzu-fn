@@ -1,15 +1,31 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
 import { AiFillPlusCircle } from 'react-icons/ai'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, useWatch } from 'react-hook-form'
 import Button from '../Button'
+import Input from '../Input'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMoneyBill, faX } from '@fortawesome/free-solid-svg-icons'
+import moment from 'moment'
+import { useCreatePaymentSessionMutation } from '../../states/api/apiSlice'
+import Loading from '../Loading'
 
-function RecordPaymentModel() {
+function RecordPaymentModel({ household }) {
   const [showModal, setShowModal] = useState(false)
   const {
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm()
+
+  const [
+    createPaymentSession, {
+      data: paymentSessionData,
+      isLoading: paymentSessionIsLoading,
+      isError: paymentSessionIsError,
+      isSuccess: paymentSessionIsSuccess
+    }
+  ] = useCreatePaymentSessionMutation()
 
   const openModal = () => {
     setShowModal(true)
@@ -20,241 +36,211 @@ function RecordPaymentModel() {
   }
 
   const onSubmit = (data) => {
-    closeModal()
-    return data
+    createPaymentSession({
+      household_id: household?.guid,
+      month_paid: data?.month_paid,
+      total_month_paid: data?.total_month_paid,
+      payment_method: data?.payment_method,
+      payment_phone: data?.payment_phone,
+      lang: data?.lang,
+    })
   }
 
+  useEffect(() => {
+    if (paymentSessionIsSuccess) {
+      closeModal()
+    }
+  }, [paymentSessionData])
+
   return (
-    <div className="relative">
-      <button
-        onClick={openModal}
-        className="flex items-center absolute right-6 top-4 justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg shadow-md ease-in-out duration-300 hover:scale-[]"
-        type="button"
-      >
-        <AiFillPlusCircle className="mr-2 text-lg" />
-        Record Payment
-      </button>
+    <main className="relative">
+      <Button value={<span className='flex items-center gap-2'>
+        <FontAwesomeIcon icon={faMoneyBill} />
+        <span>Record Transaction</span>
+      </span>} 
+      onClick={(e) => {
+        e.preventDefault()
+        openModal()
+      }}
+      />
 
       {showModal && (
-        <div
+        <section
           tabIndex={-1}
           aria-hidden="true"
           className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
         >
           <div className="relative bg-white rounded-lg shadow max-w-[600px]">
-            <div className="bg-primary rounded-t-lg p-3">
-              <button
-                onClick={closeModal}
-                type="button"
-                className="absolute top-3 right-2.5 text-white bg-transparent hover:bg-primary hover:text-primary rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-primary dark:hover:text-white"
-              >
-                <svg
-                  className="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+            <article className="bg-primary relative rounded-sm flex flex-row-reverse items-center justify-center py-4 px-4">
+              <Button
+                onClick={(e) => {
+                  e.preventDefault()
+                  closeModal()
+                }}
+                className="absolute right-4 top-4 !px-0 !py-0"
+                value={
+                  <FontAwesomeIcon
+                    icon={faX}
+                    className="bg-white text-primary hover:bg-white hover:text-primary p-2 px-[10px] rounded-md"
                   />
-                </svg>
-                <span className="sr-only">Close modal</span>
-              </button>
-              <h3 className="mb-4 mt-2 text-xl text-center font-medium text-white">
-                Record Payment
-              </h3>
-            </div>
-            <div className="px-6 py-6 lg:px-8">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="flex space-x-4">
-                  <div className="flex-1">
-                    <label
-                      htmlFor="month_paid"
-                      className="block mb-2 text-sm font-medium text-black"
-                    >
-                      Choose month to be paid
-                    </label>
-                    <Controller
-                      name="month_paid"
-                      control={control}
-                      rules={{ required: 'month_paid is required' }}
-                      render={({ field }) => (
-                        <input
-                          type="date"
-                          {...field}
-                          className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                        />
-                      )}
-                    />
-                    {errors.month_paid && (
-                      <span className="text-red-500">
-                        {errors.month_paid.message}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <label
-                      htmlFor="amount"
-                      className="block mb-2 text-sm font-medium text-black"
-                    >
-                      Amount Paid
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-2 flex items-center text-black">
-                        RWF
-                      </span>
-                      <Controller
-                        name="Amount"
-                        control={control}
-                        rules={{ required: 'Amount is required' }}
-                        render={({ field }) => (
-                          <input
-                            type="number"
-                            {...field}
-                            placeholder="1000"
-                            className="pl-11 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                          />
-                        )}
-                      />
-                    </div>
-                    {errors.Amount && (
-                      <span className="text-red-500">
-                        {errors.Amount.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="Numero"
-                    className="block mb-2 text-sm font-medium text-black"
-                  >
-                    Numero y'Umuturage yakira Message
-                  </label>
+                }
+              />
+              <h4 className="text-[20px] text-center font-medium uppercase text-white">
+                Record Transaction
+              </h4>
+            </article>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-4 items-center w-full min-w-[30rem] p-6 pl-10"
+            >
+              <div className="w-full flex flex-col gap-2 items-center">
+                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                  Select month paid
                   <Controller
-                    name="Numero"
+                    name="month_paid"
                     control={control}
-                    rules={{ required: 'Numero is required' }}
-                    render={({ field }) => (
-                      <input
-                        type="text"
-                        {...field}
-                        placeholder="0785767647"
-                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                      />
-                    )}
+                    defaultValue={moment().format('YYYY-MM')}
+                    rules={{ required: 'Paid month is required' }}
+                    render={({ field }) => <Input type="month" {...field} />}
                   />
-                  {errors.phone2 && (
+                  {errors.month_paid && (
                     <span className="text-red-500">
-                      {errors.Numero.message}
+                      {errors.month_paid.message}
                     </span>
                   )}
-                </div>
-                <div>
-                  <label
-                    htmlFor="payment"
-                    className="block mb-2 text-sm font-medium text-black"
-                  >
-                    Choose payment option
-                  </label>
+                </label>
+                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                  Amount Paid
                   <Controller
-                    name="payment"
+                    name="total_month_paid"
                     control={control}
-                    rules={{
-                      required: 'Payment option is required'
-                    }}
+                    defaultValue={household?.ubudehe}
+                    rules={{ required: 'Amount is required' }}
                     render={({ field }) => (
-                      <select
-                        {...field}
-                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                      >
-                        <option value="MTN">Choose payment</option>
-                        <option value="bank">Bank Transfer</option>
-                      </select>
+                      <Input type="number" {...field} placeholder="1000" />
                     )}
                   />
-                  {errors.payment && (
+                  {errors.total_month_paid && (
                     <span className="text-red-500">
-                      {errors.payment.message}
+                      {errors.total_month_paid.message}
                     </span>
                   )}
-                </div>
-
-                <div className="flex space-x-4">
-                  <div className="flex-1">
-                    <label
-                      htmlFor="phone2"
-                      className="block mb-2 text-sm font-medium text-black"
-                    >
-                      Andikamo Numero ya Mobile Money Iriho Amafaranga
-                    </label>
-                    <Controller
-                      name="phone2"
-                      control={control}
-                      rules={{ required: 'Phone  No. is required' }}
-                      render={({ field }) => (
-                        <input
-                          type="text"
-                          {...field}
-                          placeholder="0785767647"
-                          className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                        />
-                      )}
-                    />
-                    {errors.phone2 && (
-                      <span className="text-red-500">
-                        {errors.phone2.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="SMS"
-                    className="block mb-2 text-sm font-medium text-black"
-                  >
-                    Choose SMS Language
-                  </label>
-                  <Controller
-                    name="SMS"
-                    control={control}
-                    rules={{
-                      required: 'Payment option is required'
-                    }}
-                    render={({ field }) => (
-                      <select
-                        {...field}
-                        className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-                      >
-                        <option value="English">English</option>
-                        <option value="Kinyarwanda">Kinyarwanda</option>
-                        <option value="Français">Français</option>
-                      </select>
-                    )}
-                  />
-                  {errors.SMS && (
-                    <span className="text-red-500">{errors.SMS.message}</span>
-                  )}
-                </div>
+                </label>
+              </div>
+              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                Numero iriho amafaranga
                 <Controller
-                  name="submit"
+                  name="payment_phone"
                   control={control}
-                  render={() => {
-                    return <Button submit value="Pay now" />
-                  }}
+                  defaultValue={household?.phone1}
+                  rules={{ required: 'Please enter the phone number' }}
+                  render={({ field }) => (
+                    <Input type="text" {...field} placeholder="07XXXXXXXX" />
+                  )}
                 />
-              </form>
-            </div>
+                {errors.payment_phone && (
+                  <span className="text-red-500">
+                    {errors.payment_phone.message}
+                  </span>
+                )}
+              </label>
+              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                Choose payment option
+                <Controller
+                  name="payment_method"
+                  control={control}
+                  rules={{
+                    required: 'Payment option is required',
+                  }}
+                  defaultValue={'MOMO'}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
+                    >
+                      <option value="MTN">Choose payment</option>
+                      <option value="bank">Bank Transfer</option>
+                      <option value="MOMO">MTN Mobile Money</option>
+                      <option value="Airtel">Airtel Money</option>
+                    </select>
+                  )}
+                />
+                {errors.payment_method && (
+                  <span className="text-red-500">
+                    {errors.payment_method.message}
+                  </span>
+                )}
+              </label>
+              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                Numero yakira message
+                <Controller
+                  name="phone1"
+                  control={control}
+                  defaultValue={household?.phone1}
+                  render={({ field }) => (
+                    <Input type="text" {...field} placeholder="0785767647" />
+                  )}
+                />
+              </label>
+              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                Choose SMS Language
+                <Controller
+                  name="lang"
+                  control={control}
+                  defaultValue={'rw'}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
+                    >
+                      <option value="rw">Kinyarwanda</option>
+                      <option value="en">English</option>
+                      <option value="fr">Français</option>
+                    </select>
+                  )}
+                />
+              </label>
+              <article
+                className={
+                  paymentSessionIsError || paymentSessionIsSuccess
+                    ? 'flex'
+                    : 'hidden'
+                }
+              >
+                <p className={paymentSessionIsSuccess ? 'flex text-teal-600' : 'hidden'}>
+                  Payment created successfully
+                </p>
+                <p className={paymentSessionIsError ? 'flex text-red-600' : 'hidden'}>
+                  Could not create payment. Please check if all information is
+                  correct
+                </p>
+              </article>
+              <Controller
+                name="submit"
+                control={control}
+                render={() => {
+                  return (
+                    <article className="mt-2">
+                      <Button
+                        submit
+                        value={
+                          paymentSessionIsLoading ? <Loading /> : 'Pay now'
+                        }
+                      />
+                    </article>
+                  )
+                }}
+              />
+            </form>
           </div>
-        </div>
+        </section>
       )}
-    </div>
+    </main>
   )
+}
+
+RecordPaymentModel.propTypes = {
+  household: PropTypes.shape({}),
 }
 
 export default RecordPaymentModel

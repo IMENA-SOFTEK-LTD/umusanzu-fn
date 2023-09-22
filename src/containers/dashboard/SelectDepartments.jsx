@@ -177,7 +177,10 @@ const SelectDepartments = ({ user }) => {
                       if (!selectedProvince) {
                         return (
                           <option
-                            disabled={district.id !== selectedDistrict}
+                            disabled={
+                              department !== 'country' &&
+                              district.id !== selectedDistrict
+                            }
                             key={district.id}
                             value={district.id}
                           >

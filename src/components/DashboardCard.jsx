@@ -112,7 +112,7 @@ const DashboardCard = ({
     case 6:
       newProps = {
         ...props,
-        title: 'Total Collected',
+        title: 'Monthly Collections',
         period: 'month',
         bg_color: 'bg-[#94d2bd]',
         text_color: 'text-black',

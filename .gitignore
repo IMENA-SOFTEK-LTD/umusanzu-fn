@@ -10,3 +10,6 @@ dist/
 
 # History file
 .history/
+
+# Firebase
+.firebase/

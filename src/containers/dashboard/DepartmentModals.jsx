@@ -1,6 +1,5 @@
-import CreateCellModell from '../../components/models/CreateCellModel'
 import { useSelector } from 'react-redux'
-import CreateDistictModel from '../../components/models/createDistrictModel'
+import CreateDistictModel from '../../components/models/CreateDistrictModel'
 import CreateVillageModel from '../../components/models/CreateVillageModel'
 import CreateAgentModel from '../../components/models/CreateAgentModel'
 import CreateAdminModel from '../../components/models/CreateAdminModel'

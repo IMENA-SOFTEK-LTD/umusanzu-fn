@@ -39,7 +39,7 @@ const App = () => {
       >
         <Sidebar user={user} />
         <section
-          className={`w-full ${
+          className={`w-full h-fit ${
             isOpen ? 'left-[280px]' : 'left-[55px]'
           } mx-auto`}
         >
@@ -73,7 +73,7 @@ const App = () => {
               path="/two-fa-authentication"
               element={<Validate2faPage />}
             />
-            <Route path="/houseDetails" element={<HouseDetails />} />
+            <Route path="/households/stats" element={<HouseDetails />} />
             <Route
               path="/profile/:id"
               element={<UserProfilePage user={user || stateUser} />}

@@ -85,10 +85,10 @@ function Sidebar({ user }) {
           route: '/transactions',
         },
         {
-          title: 'Household Details',
+          title: 'Household Stats',
           icon: FaListAlt,
-          path: '/houseDetails',
-          route: '/houseDetails',
+          path: '/households/stats',
+          route: '/households/stats',
         },
       ],
     },
@@ -162,7 +162,7 @@ function Sidebar({ user }) {
   }
 
   return (
-    <div className="min-h-screen relative bg-cyan-800 left-0 top-0 bottom-0 h-full w-fit z-[999]">
+    <div className="h-screen relative bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999]">
       <motion.div
         animate={controls}
         className={
