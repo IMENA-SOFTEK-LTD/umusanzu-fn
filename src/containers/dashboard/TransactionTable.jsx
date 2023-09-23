@@ -615,15 +615,17 @@ const TransactionTable = ({ user }) => {
     return (
       <main className="my-12 w-full">
         <div className="flex flex-col items-center gap-6">
-          <div className="search-filter flex flex-col items-center gap-6">
-            <span className="w-fit min-w-[30rem] flex flex-col items-end justify-center">
+        <div className="search-filter flex flex-col w-full items-center gap-6">
+          <span className='flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center'>
+          <span className="w-full flex flex-col items-end justify-center">
               <GlobalFilter
                 preGlobalFilteredRows={preGlobalFilteredRows}
                 globalFilter={state.globalFilter}
                 setGlobalFilter={setGlobalFilter}
               />
             </span>
-            <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4">
+          </span>
+            <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
                   column.Filter ? (
@@ -764,7 +766,7 @@ const TransactionTable = ({ user }) => {
           </div>
         </div>
         <table className="w-[95%] mx-auto my-6 divide-y divide-gray-200">
-          <tr className="bg-gray-100 ">
+          <tr className="bg-gray-100 flex items-center flex-wrap">
             <td className="px-6 py-4 text-gray-800 font-semibold">
               Total Amout:
             </td>
@@ -984,7 +986,7 @@ function GlobalFilter({
   }, 200)
 
   return (
-    <label className="flex gap-2 items-center w-full mx-auto">
+    <label className="flex gap-4 items-center min-w-[25rem] mx-auto max-md:flex-col max-md:items-center max-md:min-w-full">
       <Input
         type="text"
         className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
@@ -993,7 +995,7 @@ function GlobalFilter({
           setValue(e.target.value)
           onChange(e.target.value)
         }}
-        placeholder={`${count} transactions...`}
+        placeholder={`${count} households...`}
       />
       <Button
         value="Search"

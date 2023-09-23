@@ -7,13 +7,15 @@ import Button from '../../components/Button'
 import Loading from '../../components/Loading'
 import Input from '../../components/Input'
 import Logo from '../../../public/logo.png'
-import { setUser } from '../../states/features/auth/authSlice'
+import { setLoginPageLoaded, setUser } from '../../states/features/auth/authSlice'
 
 const Login = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { user } = useSelector((state) => state.auth)
   const [invalidLogin, setInvalidLogin] = useState(false)
+
+  const { isOpen } = useSelector((state) => state.sidebar)
 
   const [
     login,
@@ -68,8 +70,12 @@ const Login = () => {
     }
   }, [user])
 
+  useEffect(() => {
+    dispatch(setLoginPageLoaded(true))
+  }, [])
+
   return (
-    <main className="bg-primary relative flx flex-col items-start">
+    <main className={`bg-primary relative flx flex-col items-start`}>
       <div className="flex flex-col items-start h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
         <div className="flex flex-col items-center justify-center min-h-[100vh] h-full my-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row">
           <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
@@ -89,7 +95,57 @@ const Login = () => {
                 Umusanzu Digital
                 </h3>
               </Link>
-              {invalidLogin && (
+                <span className="flex flex-col w-[85%] mx-auto gap-6">
+                  <Controller
+                    name="username"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <label className='flex flex-col gap-2'>
+                        <p className='font-medium'>Username</p>
+                        <Input
+                          placeholder="Agent"
+                          type="text"
+                          value={field.value}
+                          className="w-[90%] mx-auto"
+                          onChange={field.onChange}
+                          ref={field.ref}
+                        />
+                        {formErrors.username && (
+                          <span className="text-red-500">
+                            {formErrors.username}
+                          </span>
+                        )}
+                      </label>
+                    )}
+                  />
+
+                  <Controller
+                    name="password"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <label className='flex flex-col gap-2'>
+                        <p>Password</p>
+                        <Input
+                          placeholder="*******"
+                          label="Password"
+                          type="password"
+                          className="w-[90%] mx-auto"
+                          value={field.value}
+                          onChange={field.onChange}
+                          ref={field.ref}
+                        />
+                        {formErrors.password && (
+                          <span className="text-red-500">
+                            {formErrors.password}
+                          </span>
+                        )}
+                      </label>
+                    )}
+                  />
+                </span>
+                {invalidLogin && (
                 <div className="flex justify-center items-center">
                   <div
                     className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
@@ -106,69 +162,19 @@ const Login = () => {
                   {successMessage}
                 </span>
               )}
-              <article className="w-full relative flex flex-col gap-8 h-fit items-center justify-center">
-                <span className="flex flex-col w-full pl-6 gap-6">
-                  <Controller
-                    name="username"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <div>
-                        <Input
-                          placeholder="Agent"
-                          label="Username"
-                          type="text"
-                          value={field.value}
-                          onChange={field.onChange}
-                          ref={field.ref}
-                        />
-                        {formErrors.username && (
-                          <span className="text-red-500">
-                            {formErrors.username}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  />
-
-                  <Controller
-                    name="password"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <div>
-                        <Input
-                          placeholder="*******"
-                          label="Password"
-                          type="password"
-                          value={field.value}
-                          onChange={field.onChange}
-                          ref={field.ref}
-                        />
-                        {formErrors.password && (
-                          <span className="text-red-500">
-                            {formErrors.password}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  />
-                </span>
-                <span className="relative w-[90%]">
+                <span className="flex flex-col w-[85%] mx-auto gap-6">
                   <Controller
                     name="submit"
                     control={control}
                     render={() => (
                       <Button
                         submit
+                        className='w-full text-[16px]'
                         value={loginLoading ? <Loading /> : 'Login'}
-                        className="w-full h-[45px] inline-block py-[6px] px-4 text-xl font-medium text-center text-white bg-primary
-                        rounded-lg transition duration-200 hover:scale-[.99] ease-in-out"
-                      />
+                        />
                     )}
                   />
                 </span>
-              </article>
             </form>
             <svg
               viewBox="0 0 91 91"

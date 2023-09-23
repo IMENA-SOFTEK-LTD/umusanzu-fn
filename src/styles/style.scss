@@ -1,3 +1,7 @@
+@use 'dashboardCard';
+@use 'navbar.scss';
+@use 'sidebar.scss';
+
 /* Import Tailwind CSS */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
