@@ -36,15 +36,15 @@ function EditSectorInfoModel({user}) {
         control
     } = useForm({ 
         defaultValues: {            
-            merchant_code: data?.data?.department_infos?.merchant_code,
+            merchant_code: data?.data?.department_infos[0]?.merchant_code,
             email: data?.data?.email,
             phone1: data?.data?.phone1,
             phone2: data?.data?.phone2,
-            account_bank: data?.data?.department_infos?.account_bank,
-            account_name: data?.data?.department_infos?.account_name,
-            service_offer: data?.data?.department_infos?.service_offer,
-            leader_name: data?.data?.department_infos?.leader_name,
-            leader_title: data?.data?.department_infos?.leader_title
+            account_bank: data?.data?.department_infos[0]?.account_bank,
+            account_name: data?.data?.department_infos[0]?.account_name,
+            service_offer: data?.data?.department_infos[0]?.service_offer,
+            leader_name: data?.data?.department_infos[0]?.leader_name,
+            leader_title: data?.data?.department_infos[0]?.leader_title
         }
     })
 
