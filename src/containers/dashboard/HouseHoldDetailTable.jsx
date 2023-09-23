@@ -197,10 +197,10 @@ const HouseHoldDetailTable = ({
   }, [])
 
   return (
-    <div className="page-wrapper p-4">
-      <div className="page-content-wrapper">
+    <div className="page-wrapper p-4 ">
+      <div className="page-content-wrapper ">
         <div className="page-content">
-          <div className="flex flex-col md:flex-row items-start gap-4 mx-auto">
+          <div className="flex items-start gap-4 mx-auto  max-[900px]:p900-householdDetails max-[100px]:p100-householdDetails max-[150px]:p150-householdDetails max-[200px]:p200-householdDetails max-[250px]:p250-householdDetails max-[300px]:p300-householdDetails max-[350px]:p350-householdDetails max-[400px]:p400-householdDetails max-[450px]:p450-householdDetails max-[500px]:p500-householdDetails max-[600px]:p600-householdDetails max-[700px]:p700-householdDetails max-[800px]:p800-householdDetails max-[1000px]:p1000-householdDetails max-[1100px]:p1100-householdDetails max-[1200px]:p1200-householdDetails max-[1300px]:p1300-householdDetails max-[2000px]:p2000-householdDetails">
             <div className="max-w-[65%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
               <div className="card-body">
                 <h6 className="font-semibold mb-4 text-gray-800 px-3 mt-3">
@@ -213,7 +213,13 @@ const HouseHoldDetailTable = ({
                         <th className="py-2 px-4">
                           N<sup>o</sup>
                         </th>
-                        <th className={`${department === 'country' ? 'flex' : "hidden"} py-2 px-4`}>Action</th>
+                        <th
+                          className={`${
+                            department === 'country' ? 'flex' : 'hidden'
+                          } py-2 px-4`}
+                        >
+                          Action
+                        </th>
                         <th className="py-2 px-4">Pay</th>
                         <th className="py-2 px-4">Month</th>
                         <th className="py-2 px-4 whitespace-nowrap">
@@ -252,12 +258,22 @@ const HouseHoldDetailTable = ({
                             <td className="py-3 px-4 whitespace-nowrap">
                               {index + 1}
                             </td>
-                            <td className={`${department === 'country' ? 'flex' : 'hidden'}`}>
-                              <Button onClick={(e) => {
-                                e.preventDefault()
-                                dispatch(setDeleteTransactionModal(true))
-                                dispatch(setDeleteTransactionId(transaction.id))
-                              }} value={<FontAwesomeIcon icon={faTrash} />} className='!p-[8px] !px-[10px] !rounded-[50%] bg-red-600' />
+                            <td
+                              className={`${
+                                department === 'country' ? 'flex' : 'hidden'
+                              }`}
+                            >
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  dispatch(setDeleteTransactionModal(true))
+                                  dispatch(
+                                    setDeleteTransactionId(transaction.id)
+                                  )
+                                }}
+                                value={<FontAwesomeIcon icon={faTrash} />}
+                                className="!p-[8px] !px-[10px] !rounded-[50%] bg-red-600"
+                              />
                             </td>
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.status !== 'PAID' ? (
