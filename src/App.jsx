@@ -25,6 +25,8 @@ import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
 
+  const { loginPageLoaded } = useSelector((state) => state.auth)
+
   const { isOpen } = useSelector((state) => state.sidebar)
 
   // eslint-disable-next-line no-undef
@@ -33,15 +35,18 @@ const App = () => {
   return (
     <Router>
       <main
-        className={`relative h-full ${
-          isOpen ? 'grid grid-cols-[20vw,80vw]' : 'grid grid-cols-[0vw,100vw]'
-        }`}
-      >
-        <Sidebar user={user} />
+        className={`relative h-full`}>
+        <section className="absolute">
+          <Sidebar user={user} />
+        </section>
         <section
-          className={`w-full h-fit ${
-            isOpen ? 'left-[280px]' : 'left-[55px]'
-          } mx-auto`}
+          className={`w-full absolute ${
+            isOpen
+              ? 'w-[80vw] left-[20vw]'
+              : loginPageLoaded
+              ? 'grid grid-cols-[0vw, 100vw]'
+              : 'w-[96vw] left-[4vw]'
+          }`}
         >
           <Navbar user={user || stateUser} />
           <Routes>
@@ -58,7 +63,10 @@ const App = () => {
               />
               <Route path="/createVillage" element={<CreateVillageModel />} />
               <Route path="/households/:id" element={<HouseholdDetail />} />
-              <Route path="/households/create" element={<CreateHousehold user={user} />} />
+              <Route
+                path="/households/create"
+                element={<CreateHousehold user={user} />}
+              />
               <Route
                 path="/settings"
                 element={<Settings user={user || stateUser} />}
@@ -87,7 +95,10 @@ const App = () => {
               path="/departments"
               element={<Department user={user || stateUser} />}
             />
-            <Route path="/select-department" element={<SelectDepartments user={user} />} />
+            <Route
+              path="/select-department"
+              element={<SelectDepartments user={user} />}
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </section>

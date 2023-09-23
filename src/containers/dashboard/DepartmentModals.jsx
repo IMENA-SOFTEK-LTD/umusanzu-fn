@@ -24,7 +24,7 @@ export const DepartmentModals = () => {
       content = (
         <main className="flex flex-col gap-16 relative">
           <Button
-            className="py-2 px-3 bg-primary text-white rounded-[50%] w-fit absolute right-6 top-6"
+            className="py-2 px-3 bg-primary text-white rounded-[50%] w-fit absolute right-6 top-6 max-md:top-2"
             value={<FontAwesomeIcon icon={showModals ? faX : faAdd} />}
             onClick={() => {
               setShowModals(!showModals)

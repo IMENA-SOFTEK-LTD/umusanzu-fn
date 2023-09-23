@@ -4,7 +4,8 @@ const navbarSlice = createSlice({
   name: 'navbar',
   initialState: {
     navDropdown: false,
-    pathName: localStorage.getItem('pathName') || 'Dashboard'
+    pathName: localStorage.getItem('pathName') || 'Dashboard',
+    navResponsive: false
   },
   reducers: {
     toggleNavDropdown: (state, { payload }) => {
@@ -12,10 +13,13 @@ const navbarSlice = createSlice({
     },
     setPathName: (state, { payload }) => {
       state.pathName = payload
+    },
+    toggleNavResponsive: (state, { payload }) => {
+      state.navResponsive = payload
     }
   }
 })
 
 export default navbarSlice.reducer
 
-export const { toggleNavDropdown, setPathName } = navbarSlice.actions
+export const { toggleNavDropdown, setPathName, toggleNavResponsive } = navbarSlice.actions

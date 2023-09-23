@@ -16,7 +16,7 @@ const Button = ({ value, submit = false, type, className, route, onClick }) => {
     <Link
       to={route}
       onClick={onClick}
-      className={`w-fit py-2 px-6 flex items-center justify-center bg-primary cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98] ${className}`}
+      className={`w-fit py-2 px-6 flex items-center justify-center bg-primary cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98] !${className}`}
     >
       {value}
     </Link>

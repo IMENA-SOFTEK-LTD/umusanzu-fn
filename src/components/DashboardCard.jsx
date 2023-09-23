@@ -377,7 +377,7 @@ const DashboardCard = ({
         newProps.bg_color
       } ${
         newProps.text_color
-      } max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01]`}
+      } max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01] max-[1200px]:p1200-dashboardCard`}
     >
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
@@ -453,7 +453,7 @@ const DashboardCard = ({
           }
           className={`${
             isOpen
-              ? 'px-[3px] py-[3px] text-[12px] text-center ml-4'
+              ? '!px-[7px] !py-[7px] text-[12px] text-center ml-4'
               : 'px-[8px] py-[7px] text-[12px] text-center'
           } ${newProps.viewMore ? 'flex' : 'invisible'} p-2 ${
             newProps.period === 'day' ? 'ml-4' : 'ml-0'

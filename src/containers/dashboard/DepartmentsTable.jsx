@@ -7,9 +7,6 @@ import jsPDF from 'jspdf'
 import ExcelJS from "exceljs"
 import {
   useLazyGetCellVillagesQuery,
-  useLazyGetDistrictCellsQuery,
-  useLazyGetSectorVillagesQuery,
-  useLazyGetCountryDistrictsQuery,
   useLazyGetProvinceChildrenQuery,
   useLazyGetDistrictChildrenQuery,
   useLazyGetSectorChildrenQuery,
@@ -30,7 +27,6 @@ import Loading from '../../components/Loading'
 import {
   setPage,
   setSize,
-  setTotalPages
 } from '../../states/features/pagination/paginationSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import Button, { PageButton } from '../../components/Button'
@@ -47,6 +43,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import Input from '../../components/Input'
 import { Link } from 'react-router-dom'
+import { DepartmentModals } from './DepartmentModals'
 
 const DepartmentsTable = ({ user }) => {
   const [data, setData] = useState([])
@@ -509,7 +506,6 @@ const DepartmentsTable = ({ user }) => {
         Cell: ({ row }) => <p>{row.index + 1}</p>,
         sortable: true,
       },
-      ...columns,
       {
         id: 'ID',
         Header: 'Staff',
@@ -523,7 +519,8 @@ const DepartmentsTable = ({ user }) => {
           </Link>
         ),
         sortable: true
-      }
+      },
+      ...columns,
     ])
   }
 
@@ -569,16 +566,17 @@ const DepartmentsTable = ({ user }) => {
     return (
       <main className="my-12 w-full">
         <div className="flex flex-col items-center gap-6">
-          <div className="search-filter flex flex-col items-center gap-6">
-            <span className="w-fit min-w-[30rem] flex flex-col items-end justify-center">
+          <div className="search-filter flex flex-col w-full items-center gap-6">
+          <span className='flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center'>
+          <span className="w-full flex flex-col items-end justify-center">
               <GlobalFilter
                 preGlobalFilteredRows={preGlobalFilteredRows}
                 globalFilter={state.globalFilter}
                 setGlobalFilter={setGlobalFilter}
               />
             </span>
-            <span className="w-[100%] mx-auto h-fit flex items-center flex-wrap gap-4">
-             
+          </span>
+            <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
                   column.Filter ? (
@@ -597,8 +595,8 @@ const DepartmentsTable = ({ user }) => {
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div className="shadow flex flex-col gap-4 overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                  <div className="flex gap-2">
+                <div className="shadow flex flex-col gap-4 overflow-hidden border-b border-gray-200">
+                  <div className="flex gap-2 max-md:pl-2">
                     <Button
                       value={
                         <span className="flex items-center gap-2">
@@ -887,19 +885,19 @@ export function SelectColumnFilter ({
   )
 }
 
-function GlobalFilter ({
+function GlobalFilter({
   preGlobalFilteredRows,
   globalFilter,
-  setGlobalFilter
+  setGlobalFilter,
 }) {
   const count = preGlobalFilteredRows.length
-  const [value, setValue] = React.useState(globalFilter)
+  const [value, setValue] = useState(globalFilter)
   const onChange = useAsyncDebounce((value) => {
     setGlobalFilter(value || undefined)
   }, 200)
 
   return (
-    <label className="flex gap-2 items-center w-full mx-auto">
+    <label className="flex gap-4 items-center min-w-[25rem] mx-auto max-md:flex-col max-md:items-center max-md:min-w-full">
       <Input
         type="text"
         className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
@@ -908,7 +906,7 @@ function GlobalFilter ({
           setValue(e.target.value)
           onChange(e.target.value)
         }}
-        placeholder={`${count} departments...`}
+        placeholder={`${count} households...`}
       />
       <Button
         value="Search"

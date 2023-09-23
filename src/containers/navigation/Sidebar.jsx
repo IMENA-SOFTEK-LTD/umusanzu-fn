@@ -12,12 +12,15 @@ import { useState, useEffect } from 'react'
 
 import { motion, useAnimation } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
-import { setPathRoute, toggleSidebar } from '../../states/features/navigation/sidebarSlice'
+import {
+  setPathRoute,
+  toggleSidebar,
+} from '../../states/features/navigation/sidebarSlice'
 import { setPathName } from '../../states/features/navigation/navbarSlice'
-
 
 function Sidebar({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
+  const { isOpen } = useSelector((state) => state.sidebar)
 
   let department = ''
 
@@ -104,7 +107,7 @@ function Sidebar({ user }) {
     },
   ]
 
-  const [active, setActive] = useState(false)
+  const [active, setActive] = useState(isOpen)
   const controls = useAnimation()
   const controlText = useAnimation()
   const controlTitleText = useAnimation()
@@ -129,7 +132,7 @@ function Sidebar({ user }) {
       transition: { delay: 0.3 },
     })
 
-    setActive(true)
+    dispatch(toggleSidebar(true))
   }
 
   const showLess = () => {
@@ -147,38 +150,38 @@ function Sidebar({ user }) {
       opacity: 0,
     })
 
-    setActive(false)
+    dispatch(toggleSidebar(false))
   }
 
   useEffect(() => {
     showMore()
   }, [])
 
-  const pathsToHideSidebar = ['/login', '/two-fa-authentication'];
+  const pathsToHideSidebar = ['/login', '/two-fa-authentication']
 
   if (pathsToHideSidebar.includes(pathname)) {
-    dispatch(toggleSidebar(false));
-    return <div>{''}</div>;
+    dispatch(toggleSidebar(false))
+    return <div>{''}</div>
   }
 
   return (
-    <div className="h-screen relative bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999]">
+    <aside className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] ${isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'}`}>
       <motion.div
         animate={controls}
         className={
-          'z-[999] w-full animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen'
+          `z-[999] w-full ${isOpen ? '!w-[20vw] max-sm:small-sidebar' : 'max-sm:!min-w-[4vw]'} max-sm:w-full animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`
         }
       >
-        {active && (
+        {isOpen && (
           <BsFillArrowLeftSquareFill
             onClick={() => {
               showLess()
               dispatch(toggleSidebar(false))
             }}
-            className="absolute ease-in-out text-white duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-[55px] rounded-none"
+            className={`absolute ease-in-out text-white duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-[55px] rounded-none`}
           />
         )}
-        {!active && (
+        {!isOpen && (
           <BsFillArrowRightSquareFill
             onClick={() => {
               showMore()
@@ -188,13 +191,13 @@ function Sidebar({ user }) {
           />
         )}
 
-        <div className="grow ">
+        <div className={`grow ${isOpen ? 'max-sm:!min-w-[70%]' : 'max-sm:hidden'}`}>
           {data.map((group, index) => (
-            <div key={index} className="pt-5">
+            <div key={index} className="pt-16 flex flex-col">
               <motion.p
                 key={index}
                 animate={controlTitleText}
-                className="mb-2 ml-4 text-md uppercase font-bold text-black"
+                className={`mb-2 ml-4 text-md uppercase font-bold !text-black ${isOpen ? '!flex !opacity-100' : 'hidden'}'`}
               >
                 {group.name}
               </motion.p>
@@ -204,26 +207,31 @@ function Sidebar({ user }) {
                   return null
                 }
                 return (
-                  <Link key={index2} to={item.path} onClick={(e) => {
-                    e.preventDefault()
-                    dispatch(setPathName(item.title))
-                    localStorage.setItem('pathName', item.title)
-                    dispatch(setPathRoute(item.route))
-                    localStorage.setItem('pathRoute', item.route)
-                    navigate(item.path)
-                  }}>
+                  <Link
+                    key={index2}
+                    to={item.path}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      dispatch(setPathName(item.title))
+                      localStorage.setItem('pathName', item.title)
+                      dispatch(setPathRoute(item.route))
+                      localStorage.setItem('pathRoute', item.route)
+                      navigate(item.path)
+                    }}
+                  >
                     <figure
                       key={index2}
-                      className={`flex px-4 py-1 cursor-pointer pt-3 pb-3 hover:bg-gray-800`}
+                      className={`${
+                        isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
+                      } flex py-1 cursor-pointer pt-3 pb-3`}
                     >
-                      <item.icon className="text-lg text-amber-600  transition-colors duration-300 transform rounded-lg dark:text-amber-600 hover:bg-gray-700 dark:hover:bg-gray-200 dark:hover:text-amber-800 hover:text-gray-700" />
+                      <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
                       <motion.p
                         key={index2}
                         to={item.path}
                         animate={controlText}
-                        className={`ml-4 text-sm font-bold text-white`}
+                        className={`ml-4 text-sm font-bold !text-white ${isOpen ? '!opacity-100 !flex' : 'hidden'}`}
                       >
-                        {' '}
                         {item.title}
                       </motion.p>
                     </figure>
@@ -234,7 +242,7 @@ function Sidebar({ user }) {
           ))}
         </div>
       </motion.div>
-    </div>
+    </aside>
   )
 }
 
