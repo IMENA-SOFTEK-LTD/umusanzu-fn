@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Loading from '../components/Loading'
 import UserProfileUpdateForm from '../components/UserProfileUpdateForm'
 import UpdatePasswordModel from '../components/models/UpdatePasswordModel'
-import { useLazyGetUserProfileQuery } from '../states/api/apiSlice'
+import { useLazyGetUserProfileQuery, useLazyGetDepartmentProfileQuery } from '../states/api/apiSlice'
 import EditSectorInfoModel from '../components/models/EditSectorInfoModel'
 import UploadSectorStamp from '../components/models/UploadSectorStamp'
 
@@ -12,6 +12,7 @@ function Settings({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const [userProfile, setUserProfile] = useState([])
+ 
 
   const [
     getUserProfile,
@@ -33,6 +34,19 @@ function Settings({ user }) {
     }
   }, [userProfileData, isSuccess])
 
+  const [
+    getDepartmentProfile,
+    { data, isLoadingData, isErrors, isSuccessful },
+  ] = useLazyGetDepartmentProfileQuery();
+  
+  useEffect(() => {             
+    getDepartmentProfile({
+      id: user.department_id || stateUser?.department_id,
+    });       
+  
+  }, []);
+
+  
   return (
     <div className="flex gap-5 mt-10">
       <div className="bg-white overflow-hidden  shadow rounded-lg border">
@@ -141,7 +155,7 @@ function Settings({ user }) {
             <div className="py-3 sm:py-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Name	KINYINYA</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                KINYINYA
+                {data?.data?.name}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -149,7 +163,7 @@ function Settings({ user }) {
                 Telephone 1
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                0788623772
+                {data?.data?.phone1}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -157,7 +171,7 @@ function Settings({ user }) {
                 Telephone 2
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                078829939
+                {data?.data?.phone2}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -165,7 +179,7 @@ function Settings({ user }) {
                 Email
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                kinyinyasector@gmail.com
+                {data?.data?.email}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -173,7 +187,7 @@ function Settings({ user }) {
                 Service
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                Umutekano
+                {data?.data?.department_infos[0]?.service_offer}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -181,7 +195,7 @@ function Settings({ user }) {
                 Representative Names
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                HAVUGUZIGA Charles
+                {data?.data?.department_infos[0]?.leader_name}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -189,7 +203,7 @@ function Settings({ user }) {
                 Representative Position
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                Executive Secretary
+              {data?.data?.department_infos[0]?.leader_title}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -197,7 +211,7 @@ function Settings({ user }) {
                 Bank Account Number
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                PAY CASHLESS DIAL: *775*3#
+                {data?.data?.department_infos[0]?.account_bank}
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -205,7 +219,7 @@ function Settings({ user }) {
                 Bank Account Name
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                Umusanzu w'Irondo
+               {data?.data?.department_infos[0]?.account_name}
               </dd>
             </div>
           </dl>
