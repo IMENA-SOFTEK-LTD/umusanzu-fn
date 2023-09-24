@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { useLazyGetDepartmentProfileQuery, useLazyGetSingleTransactionQuery } from '../states/api/apiSlice'
+import { useEffect, useState } from 'react'
+import { useLazyGetDepartmentProfileQuery, useLazyGetSectorDetailsQuery, useLazyGetSingleTransactionQuery } from '../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import RWlogo from '../assets/login.png'
@@ -44,55 +44,74 @@ const PaymentReceipt = () => {
     { data, isLoadingData, isErrors, isSuccessful },
   ] = useLazyGetDepartmentProfileQuery();
 
-  useEffect(() => {
-    getDepartmentProfile({
-      id: user?.departments?.department_id,
-    });
+  const [getSectorDetails, {
+    data: sectorDetailsData,
+    isLoading: sectorDetailsIsLoading,
+    isError: sectorDetailsIsError,
+    isSuccess: sectorDetailsIsSuccess,
+}] = useLazyGetSectorDetailsQuery();
 
-  }, []);
-  const departmentInfos = data?.data?.department_infos;
+useEffect(() => {
+    getDepartmentProfile({
+        id: user?.departments?.department_id,
+    });
+    getSectorDetails({
+        id: 121
+    });
+}, []);
+
+const [departmentInfos, setDeparmtmentInfos] = useState(sectorDetailsData?.data?.department_infos[0] || {})
+
+useEffect(() => {
+    if(sectorDetailsIsSuccess) {
+      setDeparmtmentInfos(sectorDetailsData?.data?.department_infos[0] || {})
+    }
+}, [sectorDetailsIsSuccess, sectorDetailsData]);
   const handleDownloadPdf = (transaction) => {
     const doc = new jsPDF()
     // Add the header section
     doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
-    doc.setFontSize(12)
-    doc.text('REPUBLIC OF RWANDA', 50, 15)
-    doc.text('KIGALI CITY', 50, 22)
-    doc.text(
-      `${transaction?.households?.districts[0]?.name} DISTRICT`,
-      50,
-      30
-    )
-    doc.text(`${transaction?.households?.sectors[0]?.name} SECTOR`, 50, 40)
+    doc.setFontSize(10.5)
+    doc.setFont('Times New Roman', 'bold');
+    doc.text('REPUBLIC OF RWANDA', 43, 17)
+    doc.text('KIGALI CITY', 43, 23)
+    doc.text(`${transaction?.households?.districts[0]?.name} DISTRICT`, 43, 29)
+    doc.text(`${transaction?.households?.sectors[0]?.name} SECTOR`, 43, 35)
+    doc.setFont('Times New Roman', 'bold');
     doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
 
-    doc.addImage(RWline, 'PNG', 10, 50, 180, 10)
-    // Add the PAYMENT RECEIPT section
-    doc.setFontSize(12)
-    // Determine the title based on the transaction status
-    let title = ''
-    if (transaction?.status === 'PAID') {
-      title = 'PAYMENT RECEIPT'
-    } else if (transaction?.status === 'PENDING') {
-      title = 'PAYMENT INVOICE'
-    } else if (transaction?.status === 'PARTIAL') {
-      title = 'PAYMENT PARTIAL RECEIPT'
-    }
-    doc.setFontSize(24)
-    doc.text(`${title}`, 60, 70)
+    doc.addImage(RWline, 'PNG', 10, 45, 180, 10)
+          // Add the PAYMENT RECEIPT section
+          doc.setFontSize(11)
+          // Determine the title based on the transaction status
+          let title = ''
+          let paymentStatus = ''
+          if (transaction?.status === 'PAID') {
+            title = 'PAYMENT RECEIPT'
+            paymentStatus = 'PAID'
+          } else if (transaction?.status === 'PENDING') {
+            title = 'PAYMENT INVOICE'
+            paymentStatus = 'PENDING'
+          }
+
+          doc.setFontSize(18)
+          doc.setFont('Times New Roman', 'bold')
+          doc.text(`${title}`, 70, 65)
+
+          doc.setFont('Times New Roman', 'normal');
 
     const itemsColumn1 = [
       `Reference: ${transaction?.id}UMS${transaction?.households?.id}`,
       `Names: ${transaction?.households?.name}`,
       `Tel: ${transaction?.households?.phone1}`,
-      `TIN: ${transaction?.households?.phone1}`,
+      `TIN: ${transaction?.households?.tin || 'N/A'}`,
     ]
     const itemsColumn2 = [
       `Date: ${moment(transaction?.transaction_date).format(
         'YYYY-MM-DD HH:mm:ss'
       )}`,
       `Cell: ${transaction?.households?.cells[0]?.name}`,
-      `Status:${transaction?.status}`,
+      `Status: ${transaction?.status}`,
       `Village: ${transaction?.households?.villages[0]?.name}`,
       'Service: Umutekano',
     ]
@@ -105,7 +124,7 @@ const PaymentReceipt = () => {
     // Display items in column 1
     for (let i = 0; i < itemsColumn1.length; i++) {
       doc.text(itemsColumn1[i], startXColumn1, currentY)
-      currentY += 10
+      currentY += 8
     }
 
     currentY = 80
@@ -113,7 +132,7 @@ const PaymentReceipt = () => {
     // Display items in column 2
     for (let i = 0; i < itemsColumn2.length; i++) {
       doc.text(itemsColumn2[i], startXColumn2, currentY)
-      currentY += 10
+      currentY += 8
     }
     // Define the style for the table header
     const tableHeaderStyle = {
@@ -128,7 +147,7 @@ const PaymentReceipt = () => {
         [
           'DESCRIPTION',
           'MONTH',
-          'MONTHLY CONTRIBUTION',
+          'AMOUNT',
           `${
             transaction?.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'
           }`,
@@ -147,55 +166,65 @@ const PaymentReceipt = () => {
         fillColor: [0, 128, 0], // Green background color for the header
         textColor: 255, // White text color for the header
         fontSize: 12, // Font size for the header
+        halign: 'center', // Center align the text horizontally
       },
       styles: {
         fontSize: 10, // Font size for the body
         textColor: 0, // Black text color for the body
-        cellPadding: 5, // Padding for each cell
+        cellPadding: 3, // Padding for each cell
       },
       columnStyles: {
         0: {
-          // Style for the first column (MONTH)
-          fontStyle: 'bold', // Make the text bold
+          // Style for the first column (DESCRIPTION)
+          halign: 'center', // Center align the text horizontally
         },
         1: {
-          // Style for the second column (10 %)
-          halign: 'right', // Align the text to the right
+          // Style for the second column (MONTH)
+          halign: 'center', // Center align the text horizontally
+        },
+        2: {
+          // Style for the third column (UNIT PRICE)
+          halign: 'center', // Center align the text horizontally
+        },
+        3: {
+          // Style for the fourth column (AMOUNT PAID or PENDING AMOUNT)
+          halign: 'center', // Center align the text horizontally
+          fontStyle: 'bold', // Make the text bold
         },
       },
     })
-    // Add the TOTAL PAID section
+    doc.setFont('Times New Roman', 'normal');
+    doc.setFontSize(12)
     doc.text(
-      `TOTAL PAID ${formatFunds(transaction?.amount)} RWF`,
-      140,
-      doc.autoTable.previous.finalY + 10
-    )
-
-    doc.setFontSize(10)
-    doc.text(
-      'For more info, Please call: 0788623772',
+      `For more info, Please call: ${transaction?.households?.phone1}`,
       15,
-      doc.autoTable.previous.finalY + 20
+      doc.autoTable.previous.finalY + 15
     )
     doc.text(
-      'PAY CASHLESS DIAL: *775*3# ',
+      'PAY CASHLESS DIAL: *775*3#',
       15,
       doc.autoTable.previous.finalY + 30
     )
-    doc.setFontSize(13);
-    doc.text(`${departmentInfos[0]?.leader_name}`, 120, doc.autoTable.previous.finalY + 50);
-    doc.text(`${departmentInfos[0]?.leader_title}`, 120, doc.autoTable.previous.finalY + 60);
-    // doc.addImage(
-    //   FaQrcode,
-    //   'JPEG',
-    //   150,
-    //   doc.autoTable.previous.finalY + 30,
-    //   30,
-    //   30
-    // )
-    const pdfDataUrl = doc.output('datauristring')
-    const blob = dataURLtoBlob(pdfDataUrl)
-    const blobUrl = window.URL.createObjectURL(blob)
+          doc.setFontSize(13)
+
+          const image = transaction?.households?.sectors[0]?.stamp;
+        doc.addImage(image, image.slice(-3), 130,
+            doc.autoTable.previous.finalY + 17, 40, 40);
+            doc.setFont('Times New Roman', 'bold');
+          doc.text(
+            `${transaction?.households?.sectors[0]?.department_infos[0]?.leader_name}`,
+            130,
+            doc.autoTable.previous.finalY + 73
+          )
+          doc.text(
+            `${transaction?.households?.sectors[0]?.department_infos[0]?.leader_title},`,
+            130,
+            doc.autoTable.previous.finalY + 83
+          )
+          doc.text(`${transaction?.households?.sectors[0]?.name} SECTOR`, 130, doc.autoTable.previous.finalY + 90)
+          const pdfDataUrl = doc.output('datauristring')
+          const blob = dataURLtoBlob(pdfDataUrl)
+          const blobUrl = window.URL.createObjectURL(blob)
 
     window.location.href = blobUrl
   }
@@ -204,6 +233,7 @@ const PaymentReceipt = () => {
 
   useEffect(() => {
     if (singleTransactionSuccess) {
+      console.log(singleTransactionData.data)
       handleDownloadPdf(singleTransactionData.data)
     }
   }, [singleTransactionSuccess])
