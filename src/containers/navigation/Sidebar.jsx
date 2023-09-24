@@ -21,6 +21,7 @@ import { setPathName } from '../../states/features/navigation/navbarSlice'
 function Sidebar({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const { isOpen } = useSelector((state) => state.sidebar)
+  const { pathName } = useSelector((state) => state.navbar)
 
   let department = ''
 
@@ -165,11 +166,11 @@ function Sidebar({ user }) {
   }
 
   return (
-    <aside className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] ${isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'}`}>
+    <aside className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] max-[800px]:min-w-[30%] ${isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'}`}>
       <motion.div
         animate={controls}
         className={
-          `z-[999] w-full ${isOpen ? '!w-[20vw] max-sm:small-sidebar' : 'max-sm:!min-w-[4vw]'} max-sm:w-full animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`
+          `z-[999] w-full ${isOpen ? 'max-[800px]:!w-[100%] !w-[20vw] max-sm:small-sidebar' : 'max-sm:!min-w-[4vw]'} animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`
         }
       >
         {isOpen && (
@@ -223,14 +224,14 @@ function Sidebar({ user }) {
                       key={index2}
                       className={`${
                         isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
-                      } flex py-1 cursor-pointer pt-3 pb-3`}
+                      } flex py-1 ${pathName === item.title ? 'bg-slate-800' : null } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
                     >
                       <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
                       <motion.p
                         key={index2}
                         to={item.path}
                         animate={controlText}
-                        className={`ml-4 text-sm font-bold !text-white ${isOpen ? '!opacity-100 !flex' : 'hidden'}`}
+                        className={`ml-4 text-sm font-bold text-white ${isOpen ? '!opacity-100 !flex' : 'hidden'}`}
                       >
                         {item.title}
                       </motion.p>

@@ -4,7 +4,7 @@ export const sidebarSlice = createSlice({
   name: 'sidebar',
   initialState: {
     isOpen: true,
-    pathRoute: localStorage.getItem('pathRoute') || '/'
+    pathRoute: localStorage.getItem('pathRoute') || '/',
   },
   reducers: {
     toggleSidebar: (state, { payload }) => {

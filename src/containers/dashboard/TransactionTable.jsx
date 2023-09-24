@@ -611,6 +611,10 @@ const TransactionTable = ({ user }) => {
     setPageSize,
   } = TableInstance
 
+  useEffect(() => {
+    document.title = 'Transactions | Umusanzu Digital'
+  }, [])
+
   if (transactionsListIsSuccess) {
     return (
       <main className="my-12 w-full">

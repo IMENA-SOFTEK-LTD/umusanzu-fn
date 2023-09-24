@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useEffect } from 'react'
 
 const AwesomeCard = ({
   name,
@@ -6,8 +7,11 @@ const AwesomeCard = ({
   nationalId,
   email,
   onViewProfileClick,
-  onEditClick
 }) => {
+  useEffect(() => {
+    document.title = `${name} | Umusanzu Digital`
+  }, [])
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.5 }}

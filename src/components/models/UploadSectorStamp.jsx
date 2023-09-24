@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 import { BiSolidCloudUpload } from 'react-icons/bi'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUpload } from '@fortawesome/free-solid-svg-icons'
 
 function UploadSectorStamp() {
 
@@ -26,14 +28,10 @@ function UploadSectorStamp() {
 
     return (
         <div className="relative">
-            <button
-                onClick={openModal}
-                className="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg shadow-md ease-in-out duration-300 hover:scale-[]"
-                type="button"
-            >
-                <BiSolidCloudUpload className="mr-2 text-lg" />
-                Upload Sector Stamp
-            </button>
+            <Button value={<span className='flex items-center gap-2'>
+                <FontAwesomeIcon icon={faUpload} />
+                Upload Stamp
+            </span>} onClick={openModal} />
             {showModal && (
                 <div
                     tabIndex={-1}

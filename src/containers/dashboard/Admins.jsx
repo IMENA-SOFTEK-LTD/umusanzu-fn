@@ -47,6 +47,7 @@ const Admins = () => {
   useEffect(() => {
     if (staffIsSuccess) {
       setData(staffData?.data || [])
+      document.title = `Admins | Umusanzu Digital`
     }
   }, [staffIsSuccess, staffData])
 
@@ -61,6 +62,7 @@ const Admins = () => {
       </main>
     )
   }
+
 
   return (
     <div className="w-[98%] mx-auto relative">
