@@ -50,7 +50,7 @@ const App = () => {
             isOpen
               ? 'w-[80vw] left-[20vw]'
               : loginPageLoaded
-              ? 'grid grid-cols-[0vw, 100vw]'
+              ? 'w-full grid grid-cols-[0vw, 100vw]'
               : 'w-[96vw] left-[4vw]'
           }`}
         >
