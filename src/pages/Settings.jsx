@@ -46,7 +46,6 @@ function Settings({ user }) {
   
   }, []);
 
-  
   return (
     <div className="flex gap-5 mt-10">
       <div className="bg-white overflow-hidden  shadow rounded-lg border">
@@ -66,7 +65,7 @@ function Settings({ user }) {
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Username</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                Kinyinyasec
+                {isLoading ? <Loading /> : userProfileData?.data?.username}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -98,6 +97,7 @@ function Settings({ user }) {
                 National ID
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {isLoading ? <Loading /> : userProfileData?.data?.nid}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -136,7 +136,6 @@ function Settings({ user }) {
         </div>
         <div className="flex items-center justify-center">
           {' '}
-          {/* Center horizontally and vertically */}
           <UserProfileUpdateForm
             user={user || stateUser}
             userProfile={userProfile}

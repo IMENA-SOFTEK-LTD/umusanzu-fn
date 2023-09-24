@@ -76,7 +76,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.3",
-    "react-router-dom": "^6.14.2",
+    "react-router-dom": "^6.16.0",
     "vite": "^4.1.0"
   },
   "browserslist": [
