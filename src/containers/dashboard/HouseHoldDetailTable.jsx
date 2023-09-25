@@ -65,7 +65,8 @@ const HouseHoldDetailTable = ({
   const closeModal = () => {
     setIsModalOpen(false);
   };
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = (transaction) => {
+    
     const doc = new jsPDF();
     // Add the header section
     doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30);
@@ -77,8 +78,17 @@ const HouseHoldDetailTable = ({
     doc.addImage(Kgl, 'PNG', 150, 10, 30, 30);
     // Add the PAYMENT RECEIPT section
     doc.setFontSize(12);
+    // Determine the title based on the transaction status
+    let title = '';
+    if (transaction.status === 'PAID') {
+      title = "PAYMENT RECEIPT";
+    } else if (transaction.status === 'PENDING') {
+      title = "PAYMENT Invoice";
+    } else if (transaction.status === 'PARTIAL') {
+      title = "PAYMENT Partial Receipt";
+    }
     const itemsColumn1 = [
-      "PAYMENT RECEIPT",
+      `${title}`,
       "Reference: 71063010IMS159",
       `Names: ${member.name}`,
       "Service: Umutekano",
@@ -95,11 +105,10 @@ const HouseHoldDetailTable = ({
         day: 'numeric',
       })}`,
       `Cell: ${cell.name}`,
-      "Status: PAID",
+      `Status:${transaction.status }`,
       `Village: ${village.name}`,
       `TIN: ${member.phone2}`
     ];
-    console.log(member)
     const startXColumn1 = 15;
     const startXColumn2 = 130;
     let currentY = 70;
@@ -123,11 +132,11 @@ const HouseHoldDetailTable = ({
     // Add the table section
     doc.autoTable({
       startY: 120,
-      head: [["DESCRIPTION", "MONTH", "UNIT PRICE", "PAID AMOUNT"]],
-      body: [["Umutekano", "2023-09", `${formatFunds(member.ubudehe) } RWF`, "1,000 RWF"]],
+      head: [["DESCRIPTION", "MONTH", "UNIT PRICE", `${transaction.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`]],
+      body: [["Umutekano", `${transaction.transaction_date}`, `${formatFunds(member.ubudehe)} RWF`, `${formatFunds(transaction.amount)} RWF`]],
     });
     // Add the TOTAL PAID section
-    doc.text("TOTAL PAID 1,000 RWF", 140, doc.autoTable.previous.finalY + 10);
+    doc.text(`TOTAL PAID ${formatFunds(transaction.amount)} RWF`, 140, doc.autoTable.previous.finalY + 10);
 
     doc.setFontSize(10);
     doc.text("For more info, Please call:", 105, doc.autoTable.previous.finalY + 30);
@@ -158,7 +167,6 @@ const HouseHoldDetailTable = ({
     }
     return new Blob([uInt8Array], { type: contentType });
   }
-
   let department = '';
 
   switch (user?.departments?.level_id) {
@@ -295,15 +303,15 @@ const HouseHoldDetailTable = ({
                               {transaction.status === 'PAID' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300 cursor-pointer"
-                                  onClick={handleDownloadPdf}
+                                onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Receipt
                                 </a>
                               ) : transaction.status === 'PENDING' ? (
                                 <a
-                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-sm hover:bg-red-600 transition duration-300"
-                                    onClick={handleDownloadPdf}
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-sm hover:bg-red-600 transition duration-300 cursor-pointer"
+                                   onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Invoice
@@ -311,7 +319,7 @@ const HouseHoldDetailTable = ({
                               ) : transaction.status === 'PARTIAL' ? (
                                 <a
                                       className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300 cursor-pointer "
-                                      onClick={handleDownloadPdf}
+                                     onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Partial Receipt
@@ -319,7 +327,7 @@ const HouseHoldDetailTable = ({
                               ) : (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300 cursor-pointer"
-                                        onClick={handleDownloadPdf}
+                                      onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Receipt
