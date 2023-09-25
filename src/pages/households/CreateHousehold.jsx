@@ -394,7 +394,6 @@ const CreateHousehold = ({ user }) => {
               control={control}
               name="province"
               defaultValue={31}
-              rules={{ required: 'Please select the province' }}
               render={({ field }) => {
                 return (
                   <select
@@ -423,7 +422,6 @@ const CreateHousehold = ({ user }) => {
               control={control}
               name="district"
               defaultValue={districtId || selectedDistrict}
-              rules={{ required: 'Please select the district' }}
               render={({ field }) => {
                 return (
                   <select
@@ -469,7 +467,6 @@ const CreateHousehold = ({ user }) => {
               control={control}
               name="sector"
               defaultValue={sectorId || selectedSector}
-              rules={{ required: 'Please select the sector' }}
               render={({ field }) => {
                 return (
                   <select
@@ -516,7 +513,6 @@ const CreateHousehold = ({ user }) => {
               name="cell"
               defaultValue={cellId || selectedCell}
               defa
-              rules={{ required: 'Please select the cell' }}
               render={({ field }) => {
                 return (
                   <select
@@ -562,7 +558,6 @@ const CreateHousehold = ({ user }) => {
               control={control}
               name="village"
               defaultValue={villageId || selectedVillage}
-              rules={{ required: 'Please select the village' }}
               render={({ field }) => {
                 return (
                   <select

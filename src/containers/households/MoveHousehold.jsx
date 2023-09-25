@@ -40,6 +40,9 @@ const MoveHousehold = ({ isOpen, className }) => {
     existingHousehold,
   } = useSelector((state) => state.household)
 
+  const { villageId, cellId, sectorId, districtId, provinceId } = useSelector((state) => state.departments)
+
+
   const {
     handleSubmit,
     control,
@@ -262,7 +265,6 @@ const MoveHousehold = ({ isOpen, className }) => {
                 control={control}
                 name="province"
                 defaultValue={householdData?.province}
-                rules={{ required: 'Please select the province' }}
                 render={({ field }) => {
                   return (
                     <select
@@ -291,7 +293,6 @@ const MoveHousehold = ({ isOpen, className }) => {
                 control={control}
                 name="district"
                 defaultValue={householdData?.district}
-                rules={{ required: 'Please select the district' }}
                 render={({ field }) => {
                   return (
                     <select
@@ -307,7 +308,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {districts?.map((district) => {
                         return (
-                          <option key={district.id} value={district.id}>
+                          <option disabled={district.id !== districtId} key={district.id} value={district.id}>
                             {district.name}
                           </option>
                         )
@@ -330,7 +331,6 @@ const MoveHousehold = ({ isOpen, className }) => {
                 control={control}
                 name="sector"
                 defaultValue={householdData?.sector}
-                rules={{ required: 'Please select the sector' }}
                 render={({ field }) => {
                   return (
                     <select
@@ -346,7 +346,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {sectors?.map((sector) => {
                         return (
-                          <option key={sector.id} value={sector.id}>
+                          <option disabled = {sector.id !== sectorId} key={sector.id} value={sector.id}>
                             {sector.name || 'Sector'}
                           </option>
                         )
@@ -370,7 +370,6 @@ const MoveHousehold = ({ isOpen, className }) => {
                 name="cell"
                 defaultValue={householdData?.cell}
                 defa
-                rules={{ required: 'Please select the cell' }}
                 render={({ field }) => {
                   return (
                     <select
@@ -386,7 +385,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {cells?.map((cell) => {
                         return (
-                          <option key={cell.id} value={cell.id}>
+                          <option disabled={cell.id !== cellId} key={cell.id} value={cell.id}>
                             {cell.name}
                           </option>
                         )
@@ -409,7 +408,6 @@ const MoveHousehold = ({ isOpen, className }) => {
                 control={control}
                 name="village"
                 defaultValue={householdData?.village}
-                rules={{ required: 'Please select the village' }}
                 render={({ field }) => {
                   return (
                     <select
@@ -425,7 +423,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                       </option>
                       {villages?.map((village) => {
                         return (
-                          <option key={village.id} value={village.id}>
+                          <option disabled={village.id !== villageId} key={village.id} value={village.id}>
                             {village.name}
                           </option>
                         )
@@ -465,7 +463,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                 >
                   <p
                     className={`${
-                      moveHouseholdError ? 'text-red-500' : 'hidden'
+                      moveHouseholdError ? 'text-red-50 text-center' : 'hidden'
                     }`}
                   >
                     The household could not be moved successfully. Please
@@ -473,7 +471,7 @@ const MoveHousehold = ({ isOpen, className }) => {
                   </p>
                   <p
                     className={`${
-                      moveHouseholdSuccess ? 'text-green-500' : 'hidden'
+                      moveHouseholdSuccess ? 'text-green-500 text-center' : 'hidden'
                     }`}
                   >
                     Household moved successfully
