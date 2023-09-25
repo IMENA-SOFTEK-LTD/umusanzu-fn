@@ -1,12 +1,16 @@
 import { useSelector } from 'react-redux'
 import HouseholdDetailsCard from '../../components/HouseholdDetailsCard'
+import { useEffect } from 'react'
 
 const HouseDetails = () => {
-  const { user: stateUser } = useSelector((state) => state.auth)
   const user = JSON.parse(localStorage.getItem('user'))
 
+  useEffect(() => {
+    document.title = 'Household Stats | Umusanzu Digital'
+  }, [])
+
   return (
-    <main className="w-full mx-auto p-4 flex items-center flex-wrap gap-4">
+    <main className="w-full mx-auto p-4 flex items-center flex-wrap gap-4 justify-center">
       {Array.from({ length: 9 }, (_, i) => {
         const props = {
           index: i + 1,

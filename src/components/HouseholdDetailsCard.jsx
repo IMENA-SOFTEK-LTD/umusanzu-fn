@@ -199,7 +199,7 @@ const HouseholdDetailsCard = ({
     >
       <section className="w-full flex items-start py-6 px-4 justify-start h-full min-h-[70%]">
         <div className="w-full flex flex-col items-start gap-4">
-          <div className="flex flex-row">
+          <div className="flex flex-row gap-2">
             <div>Number of pays: </div>
             <div className="text-slate-700 text-[1rem] font-bold">
               {newProps.numberOfPays}

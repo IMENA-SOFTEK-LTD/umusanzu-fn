@@ -183,6 +183,11 @@ const HouseHoldDetailTable = ({
     default:
       department = 'agent';
   }
+
+  useEffect(() => {
+    document.title = `${member?.name} | Umusanzu Digital`
+  }, [])
+
   return (
     <div className="page-wrapper p-4">
       <div className="page-content-wrapper">

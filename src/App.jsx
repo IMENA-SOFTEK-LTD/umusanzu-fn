@@ -5,7 +5,7 @@ import Login from './pages/auth/Login.jsx'
 import Validate2faPage from './pages/auth/Validate2faPage.jsx'
 import Sidebar from './containers/navigation/Sidebar.jsx'
 import Navbar from './containers/navigation/Navbar.jsx'
-import Dashboard from './containers/dashboard/Dashboard.jsx'
+import Dashboard from './pages/dashboard/Dashboard.jsx'
 import HouseDetails from './containers/dashboard/HouseDetails.jsx'
 import TransactionTable from './containers/dashboard/TransactionTable.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
@@ -21,7 +21,6 @@ import Department from './pages/dashboard/Department.jsx'
 import CreateHousehold from './pages/households/CreateHousehold.jsx'
 import NotFound from './pages/notFound/NotFound.jsx'
 import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
-import { useEffect } from 'react'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -30,11 +29,6 @@ const App = () => {
 
   const { isOpen } = useSelector((state) => state.sidebar)
   const location = useLocation();
-
-  useEffect(() => {
-    // Set the document title based on the current route
-    document.title = `${location.pathname.replace('/', '')} | Umusanzu Digital `;
-  }, [location.pathname]);
 
   // eslint-disable-next-line no-undef
   const user = JSON.parse(localStorage.getItem('user'))

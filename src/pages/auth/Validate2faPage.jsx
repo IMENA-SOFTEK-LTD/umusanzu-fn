@@ -20,8 +20,8 @@ const Validate2faPage = () => {
       isLoading: otpLoading,
       isSuccess: otpIsSuccess,
       isError: otpIsError,
-      error: otpError
-    }
+      error: otpError,
+    },
   ] = useVerifyOtpMutation()
 
   const inputRefs = useRef([])
@@ -70,7 +70,7 @@ const Validate2faPage = () => {
 
       verifyOtp({
         username: user?.username,
-        code: otpCode
+        code: otpCode,
       })
     } catch (error) {
       console.error('Error verifying OTP:', error)
@@ -85,47 +85,52 @@ const Validate2faPage = () => {
     }
   }, [otpData, otpIsSuccess])
 
+  useEffect(() => {
+    document.title = 'Verify OTP | Umusanzu Digital'
+  }, [])
+
   return (
     <>
-        <div className="container mx-auto w-full h-full min-h-[74vh] bg-slate-50 flex items-center justify-center">
-            <div className="w-full">
-              <form className="flex flex-col items-center gap-6 p-8 bg-white shadow-lg w-full max-w-[50%] mx-auto">
-                <h1 className="text-[25px] uppercase font-bold">OTP Confirmation</h1>
-                <span className='w-full max-w-[80%] mx-auto flex flex-col items-center gap-4'>
-                <p className='text-center'>
-                Please enter a One-Time Password (OTP) you received on your phone number below.
-                </p>
-                <p className='text-center text-[1.5rem] font-bold'>
-                  +250 ******{user?.phone1.slice(-3)}
-                </p>
-                </span>
-                <article
-                  id="otp"
-                  className="flex flex-row justify-center text-center px-2 mt-5"
-                  onPaste={handlePaste}
-                >
-                  {otpValues.map((value, index) => (
-                    <input
-                      key={index}
-                      ref={(ref) => (inputRefs.current[index] = ref)}
-                      className="m-2 border h-10 w-10 text-center form-control rounded focus:border-none outline-none focus:outline-primary"
-                      type="text"
-                      value={value}
-                      onChange={(e) => handleInputChange(index, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, index)}
-                      maxLength="1"
-                    />
-                  ))}
-                </article>
+      <main className="container mx-auto w-full h-screen max-h-[80vh] bg-slate-50 flex items-center justify-center">
+        <form className="flex flex-col items-center gap-6 p-8 bg-white shadow-lg w-full max-w-[50%] mx-auto max-md:max-w-[70%] max-sm:max-w-[85%]">
+          <h1 className="text-[25px] uppercase font-bold text-center">
+            OTP Confirmation
+          </h1>
+          <span className="w-full max-w-[80%] mx-auto flex flex-col items-center gap-4">
+            <p className="text-center">
+              Please enter a One-Time Password (OTP) you received on your email
+              address below.
+            </p>
+            <p className="text-center text-[1.5rem] font-bold">
+              {user?.email}
+            </p>
+          </span>
+          <article
+            id="otp"
+            className="flex flex-row justify-center text-center"
+            onPaste={handlePaste}
+          >
+            {otpValues.map((value, index) => (
+              <input
+                key={index}
+                ref={(ref) => (inputRefs.current[index] = ref)}
+                className="m-2 border h-8 w-8 text-center form-control rounded focus:border-none outline-none focus:outline-primary max-md:w-8 max-md:h-8"
+                type="text"
+                value={value}
+                onChange={(e) => handleInputChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                maxLength="1"
+              />
+            ))}
+          </article>
 
-                <Button
-                value={otpLoading ? <Loading /> : 'Confirm OTP'}
-                onClick={handleOtpVerification}
-                className='mx-auto w-full max-w-[50%]'
-                />
-              </form>
-            </div>
-          </div>
+          <Button
+            value={otpLoading ? <Loading /> : 'Confirm OTP'}
+            onClick={handleOtpVerification}
+            className="mx-auto w-full max-w-[50%] flex items-center justify-center text-center max-md:max-w-[70%] max-sm:max-w-[85%]"
+          />
+        </form>
+      </main>
     </>
   )
 }

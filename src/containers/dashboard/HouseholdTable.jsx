@@ -488,6 +488,10 @@ const HouseholdTable = ({ user }) => {
     setPageSize,
   } = TableInstance
 
+  useEffect(() => {
+    document.title = 'Households | Umusanzu Digital'
+  }, [])
+
   if (householdsListIsSuccess) {
     return (
       <main className={`my-12`}>

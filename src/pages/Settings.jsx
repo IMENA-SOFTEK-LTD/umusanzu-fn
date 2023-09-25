@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react'
 import Loading from '../components/Loading'
 import UserProfileUpdateForm from '../components/UserProfileUpdateForm'
 import UpdatePasswordModel from '../components/models/UpdatePasswordModel'
-import { useLazyGetUserProfileQuery, useLazyGetDepartmentProfileQuery } from '../states/api/apiSlice'
+import {
+  useLazyGetUserProfileQuery,
+  useLazyGetDepartmentProfileQuery,
+} from '../states/api/apiSlice'
 import EditSectorInfoModel from '../components/models/EditSectorInfoModel'
 import UploadSectorStamp from '../components/models/UploadSectorStamp'
 
@@ -12,18 +15,17 @@ function Settings({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const [userProfile, setUserProfile] = useState([])
- 
 
   const [
     getUserProfile,
-    { data: userProfileData, isLoading, isError, isSuccess }
+    { data: userProfileData, isLoading, isSuccess },
   ] = useLazyGetUserProfileQuery()
 
   useEffect(() => {
     if (user || stateUser) {
       getUserProfile({
         id: user?.id || stateUser?.id,
-        departmentId: user?.department_id || stateUser?.department_id
+        departmentId: user?.department_id || stateUser?.department_id,
       })
     }
   }, [user, stateUser, getUserProfile])
@@ -37,18 +39,21 @@ function Settings({ user }) {
   const [
     getDepartmentProfile,
     { data, isLoadingData, isErrors, isSuccessful },
-  ] = useLazyGetDepartmentProfileQuery();
-  
-  useEffect(() => {             
+  ] = useLazyGetDepartmentProfileQuery()
+
+  useEffect(() => {
     getDepartmentProfile({
       id: user.department_id || stateUser?.department_id,
-    });       
-  
-  }, []);
+    })
+  }, [])
+
+  useEffect(() => {
+    document.title = 'Settings | Umusanzu Digital'
+  }, [])
 
   return (
-    <div className="flex gap-5 mt-10">
-      <div className="bg-white overflow-hidden  shadow rounded-lg border">
+    <main className="flex gap-5 mt-10 w-[90%] mx-auto max-md:flex-col">
+      <section className="bg-white overflow-hidden shadow rounded-lg border p-4 flex flex-col justify-between">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             Staff Profile
@@ -93,98 +98,94 @@ function Settings({ user }) {
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                National ID
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">National ID</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {isLoading ? <Loading /> : userProfileData?.data?.nid}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Sector
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">Sector</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {isLoading ? <Loading /> : userProfileData?.data?.departments?.name}
+                {isLoading ? (
+                  <Loading />
+                ) : (
+                  userProfileData?.data?.departments?.name
+                )}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                District
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">District</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {isLoading ? <Loading /> : userProfileData?.data?.departments?.parent?.name}
+                {isLoading ? (
+                  <Loading />
+                ) : (
+                  userProfileData?.data?.departments?.parent?.name
+                )}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Province
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">Province</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {isLoading ? <Loading /> : userProfileData?.data?.departments?.parent?.parent?.name}
+                {isLoading ? (
+                  <Loading />
+                ) : (
+                  userProfileData?.data?.departments?.parent?.parent?.name
+                )}
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Status
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">Status</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {isLoading ? <Loading /> : userProfileData?.data?.status}
+                {isLoading ? <Loading /> : userProfileData?.data?.status}
               </dd>
             </div>
           </dl>
         </div>
-        <div className="flex items-center justify-center">
+        <article className="flex items-center justify-center gap-4">
           {' '}
           <UserProfileUpdateForm
             user={user || stateUser}
             userProfile={userProfile}
           />
           <UpdatePasswordModel user={user || stateUser} />
-        </div>
-      </div>
-      <div className="bg-white overflow-hidden  shadow rounded-lg border">
-        <div className="px-4 py-5 sm:px-6">
+        </article>
+      </section>
+      <section className="bg-white overflow-hidden shadow rounded-lg p-4 border flex flex-col justify-between">
+        <article className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             KINYINYA Sector Profile
           </h3>
-        </div>
+        </article>
         <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-          <dl className="sm:divide-y sm:divide-gray-200">
+          <dl className="sm:divide-y sm:divide-gray-200 flex flex-col gap-2">
             <div className="py-3 sm:py-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Name	KINYINYA</dt>
+              <dt className="text-sm font-medium text-gray-500">
+                Name KINYINYA
+              </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {data?.data?.name}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Telephone 1
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">Telephone 1</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {data?.data?.phone1}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Telephone 2
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">Telephone 2</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {data?.data?.phone2}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Email
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">Email</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {data?.data?.email}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">
-                Service
-              </dt>
+              <dt className="text-sm font-medium text-gray-500">Service</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {data?.data?.department_infos[0]?.service_offer}
               </dd>
@@ -202,7 +203,7 @@ function Settings({ user }) {
                 Representative Position
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {data?.data?.department_infos[0]?.leader_title}
+                {data?.data?.department_infos[0]?.leader_title}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -218,23 +219,17 @@ function Settings({ user }) {
                 Bank Account Name
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-               {data?.data?.department_infos[0]?.account_name}
+                {data?.data?.department_infos[0]?.account_name}
               </dd>
             </div>
           </dl>
         </div>
-        <div className="flex items-center justify-center
-          bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse
-          gap-5
-
-        ">
-          <EditSectorInfoModel 
-           user={user || stateUser}         
-           />
+        <article className="flex items-center justify-center gap-4">
+          <EditSectorInfoModel user={user || stateUser} />
           <UploadSectorStamp />
-        </div>
-      </div>
-    </div>
+        </article>
+      </section>
+    </main>
   )
 }
 
@@ -246,8 +241,8 @@ Settings.propTypes = {
     email: PropTypes.string,
     password: PropTypes.string,
     department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    username: PropTypes.string
-  })
+    username: PropTypes.string,
+  }),
 }
 
 export default Settings
