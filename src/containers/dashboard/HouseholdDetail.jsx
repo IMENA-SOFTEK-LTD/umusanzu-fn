@@ -86,7 +86,8 @@ const HouseholdDetail = () => {
   }
   console.log(transactions)
   return (
-    <main className="flex flex-col gap-2 my-4">
+    <main className="flex flex-col gap-2 my-4 max-[1000px]:flex-col">
+    
       <section className="flex items-center gap-4 px-4">
         <RecordPaymentModel household={houseHoldDetailsData?.data} />
         <CreateOfflinePaymentModel householdData={houseHoldDetailsData?.data} householdDepartments={householdDepartmentsData?.data[0]} />
@@ -94,6 +95,7 @@ const HouseholdDetail = () => {
         <UpdateHouseholdStatus household={houseHoldDetailsData?.data} />
         <DeleteTransaction />
       </section>
+      <section>
       <HouseHoldDetailTable
         transactions={transactions}
         member={member}
@@ -103,6 +105,7 @@ const HouseholdDetail = () => {
         district={district}
         province={province}
       />
+      </section>
     </main>
   )
 }
