@@ -4,7 +4,7 @@ import { API_URL, LOCAL_API_URL } from '../../constants'
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: LOCAL_API_URL || API_URL,
+    baseUrl: 'https://v2.api.umusanzu.rw/api/v2/' || LOCAL_API_URL || API_URL,
     prepareHeaders: (headers) => {
       // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
@@ -348,15 +348,7 @@ export const apiSlice = createApi({
         }),
       }),
       recordOfflinePayment: builder.mutation({
-        query: ({
-          service,
-          amount,
-          month_paid,
-          agent,
-          household,
-          sms_phone,
-          sector,
-        }) => ({
+        query: ({ service, amount, month_paid, agent, household, sms_phone, sector }) => ({
           url: '/transactions/offline',
           method: 'POST',
           body: {
@@ -366,7 +358,7 @@ export const apiSlice = createApi({
             agent,
             household,
             sms_phone,
-            sector,
+            sector
           },
         }),
       }),
@@ -527,7 +519,7 @@ export const apiSlice = createApi({
             phone2,
             ubudehe,
           },
-        }),
+        }), 
       }),
       updateHouseholdStatus: builder.mutation({
         query: ({ id, status }) => ({
@@ -551,33 +543,13 @@ export const apiSlice = createApi({
         }),
       }),
       updateDepartmentProfile: builder.mutation({
-        query: ({
-          id,
-          merchant_code,
-          phone1,
-          phone2,
-          email,
-          leader_name,
-          account_bank,
-          account_name,
-          service_offer,
-          leader_title,
-        }) => ({
+        query: ({ id,  merchant_code, phone1, phone2, email,leader_name,account_bank, account_name, service_offer, leader_title }) => ({
           url: `/department/${id}`,
           method: 'PUT',
-          body: {
-            merchant_code,
-            phone1,
-            phone2,
-            email,
-            leader_name,
-            account_bank,
-            account_name,
-            service_offer,
-            leader_title,
-          },
+          body: { merchant_code, phone1, phone2, email,leader_name,account_bank, account_name,service_offer, leader_title  },
         }),
       }),
+
     }
   },
 })
