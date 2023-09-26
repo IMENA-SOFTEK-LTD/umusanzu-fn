@@ -575,6 +575,7 @@ const HouseholdTable = ({ user }) => {
                                 <FontAwesomeIcon icon={faFileExcel} />
                               </span>
                             }
+                            className={user?.departments?.level_id === 5 ? 'flex' : 'hidden'}
                             onClick={handleExportToExcel}
 
                           />

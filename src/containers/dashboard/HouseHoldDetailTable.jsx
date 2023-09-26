@@ -6,6 +6,7 @@ import { useParams } from 'react-router';
 import jsPDF from 'jspdf';
 import RWlogo from "../../assets/login.png";
 import Kgl from "../../assets/kglLogo.png";
+import RWline from "../../assets/rwline.png"
 import FaQrcode from '../../assets/qrcode.jpeg';
 import Button from '../../components/Button';
 import { FaRegEye } from 'react-icons/fa';
@@ -65,17 +66,20 @@ const HouseHoldDetailTable = ({
   const closeModal = () => {
     setIsModalOpen(false);
   };
+  // Handle changes in the selected months
   const handleDownloadPdf = (transaction) => {
     
     const doc = new jsPDF();
     // Add the header section
     doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30);
-    doc.setFontSize(14);
-    doc.text("REPUBLIC OF RWANDA", 50, 20);
-    doc.text("KIGALI CITY", 50, 30);
-    doc.text(`${district.name} DISTRICT`, 50, 40);
-    doc.text(`${sector.name} SECTOR`, 50, 50);
+    doc.setFontSize(12);
+    doc.text("REPUBLIC OF RWANDA", 50, 15);
+    doc.text("KIGALI CITY", 50, 22);
+    doc.text(`${district.name} DISTRICT`, 50, 30);
+    doc.text(`${sector.name} SECTOR`, 50, 40);
     doc.addImage(Kgl, 'PNG', 150, 10, 30, 30);
+
+    doc.addImage(RWline, 'PNG', 10, 50, 180, 10);
     // Add the PAYMENT RECEIPT section
     doc.setFontSize(12);
     // Determine the title based on the transaction status
@@ -83,12 +87,14 @@ const HouseHoldDetailTable = ({
     if (transaction.status === 'PAID') {
       title = "PAYMENT RECEIPT";
     } else if (transaction.status === 'PENDING') {
-      title = "PAYMENT Invoice";
+      title = "PAYMENT INVOICE";
     } else if (transaction.status === 'PARTIAL') {
-      title = "PAYMENT Partial Receipt";
+      title = "PAYMENT PARTIAL RECEIPT";
     }
+    doc.setFontSize(24);
+    doc.text(`${title}`, 60,70);
+
     const itemsColumn1 = [
-      `${title}`,
       "Reference: 71063010IMS159",
       `Names: ${member.name}`,
       "Service: Umutekano",
@@ -111,7 +117,7 @@ const HouseHoldDetailTable = ({
     ];
     const startXColumn1 = 15;
     const startXColumn2 = 130;
-    let currentY = 70;
+    let currentY = 80;
 
     doc.setFontSize(12);
 
@@ -121,28 +127,51 @@ const HouseHoldDetailTable = ({
       currentY += 10;
     }
 
-    currentY = 70;
+    currentY = 80;
 
     // Display items in column 2
     for (let i = 0; i < itemsColumn2.length; i++) {
       doc.text(itemsColumn2[i], startXColumn2, currentY);
       currentY += 10;
     }
+    // Define the style for the table header
+    const tableHeaderStyle = {
+      fillColor: [0, 128, 0], // Green background color
+      textColor: 255, // White text color
+    };
 
     // Add the table section
     doc.autoTable({
-      startY: 120,
+      startY: 125,
       head: [["DESCRIPTION", "MONTH", "UNIT PRICE", `${transaction.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`]],
       body: [["Umutekano", `${transaction.transaction_date}`, `${formatFunds(member.ubudehe)} RWF`, `${formatFunds(transaction.amount)} RWF`]],
+      theme: 'grid', // Apply a grid theme
+      headStyles: {
+        fillColor: [0, 128, 0], // Green background color for the header
+        textColor: 255, // White text color for the header
+        fontSize: 12, // Font size for the header
+      },
+      styles: {
+        fontSize: 10, // Font size for the body
+        textColor: 0, // Black text color for the body
+        cellPadding: 5, // Padding for each cell
+      },
+      columnStyles: {
+        0: { // Style for the first column (MONTH)
+          fontStyle: 'bold', // Make the text bold
+        },
+        1: { // Style for the second column (10 %)
+          halign: 'right', // Align the text to the right
+        },
+      },
     });
     // Add the TOTAL PAID section
     doc.text(`TOTAL PAID ${formatFunds(transaction.amount)} RWF`, 140, doc.autoTable.previous.finalY + 10);
 
     doc.setFontSize(10);
-    doc.text("For more info, Please call:", 105, doc.autoTable.previous.finalY + 30);
-    doc.text("PAY CASHLESS DIAL: *775*3#", 105, doc.autoTable.previous.finalY + 40);
-    doc.text("0788623772", 105, doc.autoTable.previous.finalY + 50);
-
+    doc.text("For more info, Please call: 0788623772", 15, doc.autoTable.previous.finalY + 20);
+    doc.text("PAY CASHLESS DIAL: *775*3# ", 15, doc.autoTable.previous.finalY + 30);
+   
     doc.addImage(FaQrcode, 'JPEG', 150, doc.autoTable.previous.finalY + 30, 30, 30);
     const pdfDataUrl = doc.output('datauristring');
     const blob = dataURLtoBlob(pdfDataUrl);
@@ -191,10 +220,6 @@ const HouseHoldDetailTable = ({
     default:
       department = 'agent';
   }
-
-  useEffect(() => {
-    document.title = `${member?.name} | Umusanzu Digital`
-  }, [])
 
   return (
     <div className="page-wrapper p-4 ">

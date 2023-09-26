@@ -21,6 +21,7 @@ import Department from './pages/dashboard/Department.jsx'
 import CreateHousehold from './pages/households/CreateHousehold.jsx'
 import NotFound from './pages/notFound/NotFound.jsx'
 import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
+import { CompleteInitiatedPaymentsForm } from './components/models/CompleteInitiatedPaymentsForm.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -89,8 +90,13 @@ const App = () => {
             <Route
               path="/admins/:id"
               element={<Admins user={user || stateUser} />}
-            />
+          />
+          {/* CompleteInitiatedPaymentsForm */}
+           <Route
+          path='/agent/completeInitiatedPayment'
+          element = {<CompleteInitiatedPaymentsForm/>}/> 
 
+         
             <Route
               path="/departments"
               element={<Department user={user || stateUser} />}
@@ -98,7 +104,9 @@ const App = () => {
             <Route
               path="/select-department"
               element={<SelectDepartments user={user} />}
-            />
+          />
+          {/* <Route exact path="/"> */}
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </section>
