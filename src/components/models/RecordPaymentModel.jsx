@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { AiFillPlusCircle } from 'react-icons/ai'
-import { useForm, Controller, useWatch } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 import Input from '../Input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

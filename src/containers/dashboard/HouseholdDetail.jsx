@@ -7,12 +7,11 @@ import {
 } from '../../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import Button from '../../components/Button'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAdd, faX } from '@fortawesome/free-solid-svg-icons'
 import UpdateHousehold from '../../components/models/UpdateHousehold'
 import UpdateHouseholdStatus from '../../components/models/UpdateHouseholdStatus'
 import DeleteTransaction from '../../components/models/DeleteTransaction'
+import InvoiceRequestFormModel from '../../components/models/InvoiceRequestFormModel'
+import RecordMultipleMonthsPayment from '../../components/models/RecordMultipleMonthsPayment'
 const HouseholdDetail = () => {
   const { id } = useParams()
   const [showModals, setShowModals] = useState(false)
@@ -84,7 +83,7 @@ const HouseholdDetail = () => {
   const province = {
     name: householdDepartmentsData?.data[0]?.province,
   }
-  console.log(transactions)
+
   return (
     <main className="flex flex-col gap-2 my-4 max-[1000px]:flex-col">
     
@@ -92,6 +91,8 @@ const HouseholdDetail = () => {
         <RecordPaymentModel household={houseHoldDetailsData?.data} />
         <CreateOfflinePaymentModel householdData={houseHoldDetailsData?.data} householdDepartments={householdDepartmentsData?.data[0]} />
         <UpdateHousehold household={houseHoldDetailsData?.data} />
+        <RecordMultipleMonthsPayment household={houseHoldDetailsData?.data} />
+        <InvoiceRequestFormModel/>
         <UpdateHouseholdStatus household={houseHoldDetailsData?.data} />
         <DeleteTransaction />
       </section>

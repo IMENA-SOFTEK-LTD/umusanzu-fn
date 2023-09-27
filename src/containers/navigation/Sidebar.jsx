@@ -6,7 +6,7 @@ import {
 } from 'react-icons/bs'
 import PropTypes from 'prop-types'
 import { AiOutlineTransaction } from 'react-icons/ai'
-import { FaListAlt, FaMicrosoft, FaBorderAll } from 'react-icons/fa'
+import { FaListAlt, FaMicrosoft, FaBorderAll, FaPaypal } from 'react-icons/fa'
 import { MdOutlineSettingsSuggest } from 'react-icons/md'
 import { useState, useEffect } from 'react'
 
@@ -94,6 +94,12 @@ function Sidebar({ user }) {
           path: '/households/stats',
           route: '/households/stats',
         },
+        {
+          title: 'Complete Initiated Payments',
+          icon: FaPaypal,
+          path: '/agent/completeInitiatedPayment',
+          route: '/agent/completeInitiatedPayment',
+        }
       ],
     },
     {
@@ -105,7 +111,7 @@ function Sidebar({ user }) {
           path: '/settings',
         },
       ],
-    },
+    }
   ]
 
   const [active, setActive] = useState(isOpen)

@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
+import FaQrcode from '../../assets/qrcode.jpeg';
 import cachet from "../../assets/cachet.png"
 import signature from "../../assets/signature.png"
 import 'jspdf-autotable';
@@ -20,7 +21,7 @@ import {
 } from 'react-table';
 import Button from '../../components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose, faFile, faFileExcel, faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faFile, faFileExcel, faFilePdf, faReceipt } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
 const Report = ({ user }) => {
@@ -333,7 +334,83 @@ const Report = ({ user }) => {
             link.click();
         }
     };
+    // Define a function to underline text
+    function underlineText(doc, text, x, y) {
+        const textWidth = doc.getStringUnitWidth(text) * doc.internal.getFontSize();
+        const lineLength = textWidth / 2 * 0.75;
+        doc.text(text, x, y);
+        doc.setLineWidth(0.5); // Adjust the line width as needed
+        doc.line(x, y + 1, x + lineLength, y + 1); // Draw a line under the text
+    }
+    const handleGenerateRecept = () => {
+        const doc = new jsPDF();
+        // Add the header section
+        doc.addImage(logo, 'PNG', 80, 10, 30, 30);
+        doc.setFontSize(24);
+        // Usage
+        underlineText(doc, "PAYMENT RECEIPT", 50, 50);
+        doc.setFontSize(18);
+        doc.text("FROM: IMENA SOFTEK LTD", 30, 70 );
+        doc.text("TO: KIMIHURURA SECTOR ", 30, 80);
+        // Add the table section with styles
+        doc.autoTable({
+            startY:90,
+            head: [["MONTH", "10 %"]],
+            body: [["12-2023", `30300 RWF`]],
+            theme: 'grid', // Apply a grid theme
+            headStyles: {
+                fillColor: [0, 128, 0], // Green background color for the header
+                textColor: 255, // White text color for the header
+                fontSize: 12, // Font size for the header
+            },
+            styles: {
+                fontSize: 10, // Font size for the body
+                textColor: 0, // Black text color for the body
+                cellPadding: 5, // Padding for each cell
+            },
+            columnStyles: {
+                0: { // Style for the first column (MONTH)
+                    fontStyle: 'bold', // Make the text bold
+                },
+                1: { // Style for the second column (10 %)
+                    halign: 'right', // Align the text to the right
+                },
+            },
+        });
 
+        const qrCodeHeight = 30;
+        doc.addImage(FaQrcode, 'JPEG', 20, doc.autoTable.previous.finalY + 20, 30, qrCodeHeight);
+        doc.setFontSize(10);
+
+        // Place the text at the end of the QR code image
+        const textY = doc.autoTable.previous.finalY + 30 + qrCodeHeight;
+
+        doc.text("IMENA SOFTEK LTD", 15, textY);
+        doc.text("TIN : 1123965711 ", 15, textY + 10);
+        doc.text("TEL : +250 784 368 695 ", 15, textY + 20);
+        doc.text("Kacyiru , Kigali , Rwanda ", 15, textY + 30);
+        const pdfDataUrl = doc.output('datauristring');
+        const blob = dataURLtoBlob(pdfDataUrl);
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        // Open the Blob URL in a new tab for download
+        const newTab = window.open(blobUrl, '_blank');
+        if (newTab) {
+            newTab.focus();
+        }
+    }
+    // Helper function to convert data URL to Blob
+    function dataURLtoBlob(dataURL) {
+        const parts = dataURL.split(';base64,');
+        const contentType = parts[0].split(':')[1];
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+        for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+        return new Blob([uInt8Array], { type: contentType });
+    }
     const columns = useMemo(
         () => [
             {
@@ -466,6 +543,15 @@ const Report = ({ user }) => {
                                         }
                                         onClick={openExportPopup}
                                     />
+                                    <Button
+                                        value={
+                                            <span className="flex items-center gap-2">
+                                                Generate month receipt
+                                                <FontAwesomeIcon icon={faReceipt} />
+                                            </span>
+                                        }
+                                        onClick={handleGenerateRecept}
+                                    />
                                 </div>
 
                                 {noDataMessage && (
@@ -502,6 +588,7 @@ const Report = ({ user }) => {
                                                             <FontAwesomeIcon icon={faFileExcel} />
                                                         </span>
                                                     }
+                                                    className={user?.departments?.level_id === 5 ? 'flex' : 'hidden'}
                                                     onClick={handleExportToExcel}
 
                                                 />
