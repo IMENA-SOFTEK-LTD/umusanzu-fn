@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Login from './pages/auth/Login.jsx'
@@ -22,6 +27,7 @@ import CreateHousehold from './pages/households/CreateHousehold.jsx'
 import NotFound from './pages/notFound/NotFound.jsx'
 import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
 import { CompleteInitiatedPaymentsForm } from './components/models/CompleteInitiatedPaymentsForm.jsx'
+import PaymentReceipt from './components/PaymentReceipt.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -29,89 +35,84 @@ const App = () => {
   const { loginPageLoaded } = useSelector((state) => state.auth)
 
   const { isOpen } = useSelector((state) => state.sidebar)
-  const location = useLocation();
+  const location = useLocation()
 
   // eslint-disable-next-line no-undef
   const user = JSON.parse(localStorage.getItem('user'))
 
   return (
-      <main
-        className={`relative h-full`}>
-        <section className="absolute">
-          <Sidebar user={user} />
-        </section>
-        <section
-          className={`absolute ${
-            isOpen
-              ? 'w-[80vw] left-[20vw]'
-              : loginPageLoaded
-              ? 'w-full grid grid-cols-[0vw, 100vw]'
-              : 'w-[96vw] left-[4vw]'
-          }`}
-        >
-          <Navbar user={user || stateUser} />
-          <Routes>
-            <Route element={<IsLoggedIn />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route
-                path="/households"
-                element={<HouseholdTable user={user || stateUser} />}
-              />
-              <Route
-                path="/dashboard/report"
-                element={<Report user={user || stateUser} />}
-              />
-              <Route path="/createVillage" element={<CreateVillageModel />} />
-              <Route path="/households/:id" element={<HouseholdDetail />} />
-              <Route
-                path="/households/create"
-                element={<CreateHousehold user={user} />}
-              />
-              <Route
-                path="/settings"
-                element={<Settings user={user || stateUser} />}
-              />
-              <Route
-                path="/transactions"
-                element={<TransactionTable user={user || stateUser} />}
-              />
-            </Route>
-            <Route path="/login" element={<Login />} />
+    <main className={`relative h-full`}>
+      <section className="absolute">
+        <Sidebar user={user} />
+      </section>
+      <section
+        className={`absolute ${
+          isOpen
+            ? 'w-[80vw] left-[20vw]'
+            : loginPageLoaded
+            ? 'w-full grid grid-cols-[0vw, 100vw]'
+            : 'w-[96vw] left-[4vw]'
+        }`}
+      >
+        <Navbar user={user || stateUser} />
+        <Routes>
+          <Route element={<IsLoggedIn />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route
-              path="/two-fa-authentication"
-              element={<Validate2faPage />}
-            />
-            <Route path="/households/stats" element={<HouseDetails />} />
-            <Route
-              path="/profile/:id"
-              element={<UserProfilePage user={user || stateUser} />}
+              path="/households"
+              element={<HouseholdTable user={user || stateUser} />}
             />
             <Route
-              path="/admins/:id"
-              element={<Admins user={user || stateUser} />}
-          />
-          {/* CompleteInitiatedPaymentsForm */}
-           <Route
-          path='/agent/completeInitiatedPayment'
-          element = {<CompleteInitiatedPaymentsForm/>}/> 
+              path="/dashboard/report"
+              element={<Report user={user || stateUser} />}
+            />
+            <Route path="/createVillage" element={<CreateVillageModel />} />
+            <Route path="/households/:id" element={<HouseholdDetail />} />
+            <Route
+              path="/households/create"
+              element={<CreateHousehold user={user} />}
+            />
+            <Route
+              path="/settings"
+              element={<Settings user={user || stateUser} />}
+            />
+            <Route
+              path="/agent/completeInitiatedPayment"
+              element={<CompleteInitiatedPaymentsForm />}
+            />
 
-         
             <Route
-              path="/departments"
-              element={<Department user={user || stateUser} />}
+              path="/transactions"
+              element={<TransactionTable user={user || stateUser} />}
             />
-            <Route
-              path="/select-department"
-              element={<SelectDepartments user={user} />}
+          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/two-fa-authentication" element={<Validate2faPage />} />
+          <Route path="/households/stats" element={<HouseDetails />} />
+          <Route
+            path="/profile/:id"
+            element={<UserProfilePage user={user || stateUser} />}
           />
-          {/* <Route exact path="/"> */}
+          <Route
+            path="/admins/:id"
+            element={<Admins user={user || stateUser} />}
+          />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </section>
-        <ToastContainer />
-      </main>
+          <Route
+            path="/departments"
+            element={<Department user={user || stateUser} />}
+          />
+          <Route
+            path="/select-department"
+            element={<SelectDepartments user={user} />}
+          />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/receipt/:id" element={<PaymentReceipt />} />
+        </Routes>
+      </section>
+      <ToastContainer />
+    </main>
   )
 }
 

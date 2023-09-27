@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useForm, Controller } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { useForm, Controller, useWatch } from 'react-hook-form'
 import Button from '../Button'
 import Input from '../Input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -18,12 +19,13 @@ function RecordPaymentModel({ household }) {
   } = useForm()
 
   const [
-    createPaymentSession, {
+    createPaymentSession,
+    {
       data: paymentSessionData,
       isLoading: paymentSessionIsLoading,
       isError: paymentSessionIsError,
-      isSuccess: paymentSessionIsSuccess
-    }
+      isSuccess: paymentSessionIsSuccess,
+    },
   ] = useCreatePaymentSessionMutation()
 
   const openModal = () => {
@@ -42,25 +44,38 @@ function RecordPaymentModel({ household }) {
       payment_method: data?.payment_method,
       payment_phone: data?.payment_phone,
       lang: data?.lang,
+      agent: household?.agents.id || 'N/A',
+      merchant_code: household?.sectors[0].merchant_code || 'N/A',
     })
   }
 
   useEffect(() => {
     if (paymentSessionIsSuccess) {
-      closeModal()
+      toast.success('Payment created successfully')
+      setTimeout(() => {
+        closeModal()
+      }, 1500)
+    }
+    if (paymentSessionIsError) {
+      toast.error(
+        'Could not create payment. Please check if all information is correct'
+      )
     }
   }, [paymentSessionData])
 
   return (
     <main className="relative">
-      <Button value={<span className='flex items-center gap-2'>
-        <FontAwesomeIcon icon={faMoneyBill} />
-        <span>Record Transaction</span>
-      </span>} 
-      onClick={(e) => {
-        e.preventDefault()
-        openModal()
-      }}
+      <Button
+        value={
+          <span className="flex items-center gap-2">
+            <FontAwesomeIcon icon={faMoneyBill} />
+            <span>Record Transaction</span>
+          </span>
+        }
+        onClick={(e) => {
+          e.preventDefault()
+          openModal()
+        }}
       />
 
       {showModal && (
@@ -171,13 +186,18 @@ function RecordPaymentModel({ household }) {
                 )}
               </label>
               <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                Numero yakira message
+                Numero yakira SMS
                 <Controller
                   name="phone1"
                   control={control}
                   defaultValue={household?.phone1}
                   render={({ field }) => (
-                    <Input type="text" {...field} placeholder="0785767647" />
+                    <Input
+                      readonly
+                      type="text"
+                      {...field}
+                      placeholder="07XX XXX XXX"
+                    />
                   )}
                 />
               </label>
@@ -199,21 +219,6 @@ function RecordPaymentModel({ household }) {
                   )}
                 />
               </label>
-              <article
-                className={
-                  paymentSessionIsError || paymentSessionIsSuccess
-                    ? 'flex'
-                    : 'hidden'
-                }
-              >
-                <p className={paymentSessionIsSuccess ? 'flex text-teal-600' : 'hidden'}>
-                  Payment created successfully
-                </p>
-                <p className={paymentSessionIsError ? 'flex text-red-600' : 'hidden'}>
-                  Could not create payment. Please check if all information is
-                  correct
-                </p>
-              </article>
               <Controller
                 name="submit"
                 control={control}

@@ -55,8 +55,6 @@ const InvoiceRequestFormModel = () => {
     };
 
     const handleRequest = () => {
-        console.log(receiptRequests)
-        console.log(requestType)
 
         closeModal();
     };

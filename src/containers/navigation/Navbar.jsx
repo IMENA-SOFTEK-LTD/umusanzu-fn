@@ -39,7 +39,7 @@ function Navbar({ user }) {
 
   return (
     <nav
-      className={`w-full bg-white relative drop-shadow-md z-20 py-2 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between`}
+      className={'w-full bg-white drop-shadow-md z-20 py-2 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between'}
     >
       <section className='hidden max-sm:flex'>
       <Button

@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 import { useLazyGetHouseholdTransactionsByMonthPaidQuery } from '../../states/api/apiSlice';
 import { FiDownload } from 'react-icons/fi';
 import { useParams } from 'react-router';
-import jsPDF from 'jspdf';
-import RWlogo from "../../assets/login.png";
-import Kgl from "../../assets/kglLogo.png";
-import RWline from "../../assets/rwline.png"
-import FaQrcode from '../../assets/qrcode.jpeg';
 import Button from '../../components/Button';
 import { FaRegEye } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
@@ -32,6 +28,8 @@ const HouseHoldDetailTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
+
+  const navigate = useNavigate();
 
   const [
     getHouseholdTransactionsByMonthPaid,
@@ -66,136 +64,11 @@ const HouseHoldDetailTable = ({
   const closeModal = () => {
     setIsModalOpen(false);
   };
-  // Handle changes in the selected months
+  
   const handleDownloadPdf = (transaction) => {
-    
-    const doc = new jsPDF();
-    // Add the header section
-    doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30);
-    doc.setFontSize(12);
-    doc.text("REPUBLIC OF RWANDA", 50, 15);
-    doc.text("KIGALI CITY", 50, 22);
-    doc.text(`${district.name} DISTRICT`, 50, 30);
-    doc.text(`${sector.name} SECTOR`, 50, 40);
-    doc.addImage(Kgl, 'PNG', 150, 10, 30, 30);
-
-    doc.addImage(RWline, 'PNG', 10, 50, 180, 10);
-    // Add the PAYMENT RECEIPT section
-    doc.setFontSize(12);
-    // Determine the title based on the transaction status
-    let title = '';
-    if (transaction.status === 'PAID') {
-      title = "PAYMENT RECEIPT";
-    } else if (transaction.status === 'PENDING') {
-      title = "PAYMENT INVOICE";
-    } else if (transaction.status === 'PARTIAL') {
-      title = "PAYMENT PARTIAL RECEIPT";
-    }
-    doc.setFontSize(24);
-    doc.text(`${title}`, 60,70);
-
-    const itemsColumn1 = [
-      "Reference: 71063010IMS159",
-      `Names: ${member.name}`,
-      "Service: Umutekano",
-      `Tel: ${member.phone1}`
-    ];
-    const itemsColumn2 = [
-      `Date: ${
-      new Date().toLocaleString('default', {
-        month: 'long',
-        year: 'numeric',
-        minute:
-          'numeric',
-        hour: 'numeric',
-        day: 'numeric',
-      })}`,
-      `Cell: ${cell.name}`,
-      `Status:${transaction.status }`,
-      `Village: ${village.name}`,
-      `TIN: ${member.phone2}`
-    ];
-    const startXColumn1 = 15;
-    const startXColumn2 = 130;
-    let currentY = 80;
-
-    doc.setFontSize(12);
-
-    // Display items in column 1
-    for (let i = 0; i < itemsColumn1.length; i++) {
-      doc.text(itemsColumn1[i], startXColumn1, currentY);
-      currentY += 10;
-    }
-
-    currentY = 80;
-
-    // Display items in column 2
-    for (let i = 0; i < itemsColumn2.length; i++) {
-      doc.text(itemsColumn2[i], startXColumn2, currentY);
-      currentY += 10;
-    }
-    // Define the style for the table header
-    const tableHeaderStyle = {
-      fillColor: [0, 128, 0], // Green background color
-      textColor: 255, // White text color
-    };
-
-    // Add the table section
-    doc.autoTable({
-      startY: 125,
-      head: [["DESCRIPTION", "MONTH", "UNIT PRICE", `${transaction.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`]],
-      body: [["Umutekano", `${transaction.transaction_date}`, `${formatFunds(member.ubudehe)} RWF`, `${formatFunds(transaction.amount)} RWF`]],
-      theme: 'grid', // Apply a grid theme
-      headStyles: {
-        fillColor: [0, 128, 0], // Green background color for the header
-        textColor: 255, // White text color for the header
-        fontSize: 12, // Font size for the header
-      },
-      styles: {
-        fontSize: 10, // Font size for the body
-        textColor: 0, // Black text color for the body
-        cellPadding: 5, // Padding for each cell
-      },
-      columnStyles: {
-        0: { // Style for the first column (MONTH)
-          fontStyle: 'bold', // Make the text bold
-        },
-        1: { // Style for the second column (10 %)
-          halign: 'right', // Align the text to the right
-        },
-      },
-    });
-    // Add the TOTAL PAID section
-    doc.text(`TOTAL PAID ${formatFunds(transaction.amount)} RWF`, 140, doc.autoTable.previous.finalY + 10);
-
-    doc.setFontSize(10);
-    doc.text("For more info, Please call: 0788623772", 15, doc.autoTable.previous.finalY + 20);
-    doc.text("PAY CASHLESS DIAL: *775*3# ", 15, doc.autoTable.previous.finalY + 30);
-   
-    doc.addImage(FaQrcode, 'JPEG', 150, doc.autoTable.previous.finalY + 30, 30, 30);
-    const pdfDataUrl = doc.output('datauristring');
-    const blob = dataURLtoBlob(pdfDataUrl);
-    const blobUrl = window.URL.createObjectURL(blob);
-
-    // Open the Blob URL in a new tab for download
-    const newTab = window.open(blobUrl, '_blank');
-    if (newTab) {
-      newTab.focus();
-    }
-  };
-
-  // Helper function to convert data URL to Blob
-  function dataURLtoBlob(dataURL) {
-    const parts = dataURL.split(';base64,');
-    const contentType = parts[0].split(':')[1];
-    const raw = window.atob(parts[1]);
-    const rawLength = raw.length;
-    const uInt8Array = new Uint8Array(rawLength);
-    for (let i = 0; i < rawLength; ++i) {
-      uInt8Array[i] = raw.charCodeAt(i);
-    }
-    return new Blob([uInt8Array], { type: contentType });
+    navigate(`/receipt/${transaction.id}`);
   }
+
   let department = '';
 
   switch (user?.departments?.level_id) {
@@ -344,7 +217,7 @@ const HouseHoldDetailTable = ({
                               {transaction.status === 'PAID' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300 cursor-pointer"
-                                onClick={() => handleDownloadPdf(transaction)}
+                                  onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Receipt
@@ -352,15 +225,15 @@ const HouseHoldDetailTable = ({
                               ) : transaction.status === 'PENDING' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-sm hover:bg-red-600 transition duration-300 cursor-pointer"
-                                   onClick={() => handleDownloadPdf(transaction)}
+                                  onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Invoice
                                 </a>
                               ) : transaction.status === 'PARTIAL' ? (
                                 <a
-                                      className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300 cursor-pointer "
-                                     onClick={() => handleDownloadPdf(transaction)}
+                                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-sm hover:bg-blue-600 transition duration-300 cursor-pointer "
+                                  onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Partial Receipt
@@ -368,7 +241,7 @@ const HouseHoldDetailTable = ({
                               ) : (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-500 rounded-sm hover:bg-green-600 transition duration-300 cursor-pointer"
-                                      onClick={() => handleDownloadPdf(transaction)}
+                                  onClick={() => handleDownloadPdf(transaction)}
                                 >
                                   <FiDownload className="mr-2" />
                                   Receipt
