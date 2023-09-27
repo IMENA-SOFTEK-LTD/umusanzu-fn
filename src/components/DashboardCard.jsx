@@ -93,7 +93,7 @@ const DashboardCard = ({
               2
             ) * 100
           ) || 0,
-        route: 'active',
+        route: 'monthlyTarget',
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
