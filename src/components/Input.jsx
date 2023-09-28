@@ -25,7 +25,7 @@ const Input = forwardRef(
         placeholder={placeholder}
         onChange={onChange}
         ref={ref}
-        className={`text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 !${className}`}
+        className={`text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 ${className}`}
       />
     )
   }

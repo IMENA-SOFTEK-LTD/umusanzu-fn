@@ -394,7 +394,24 @@ const HouseholdTable = ({ user }) => {
             }
           />
         ),
+      },      {
+        Header: 'Status',
+        accessor: 'status',
+        Cell: ({ row }) => (
+          <p
+            className={`${
+              row?.original?.status === 'ACTIVE'
+                ? 'bg-green-600'
+                : row?.original?.status === 'MOVED'
+                ? 'bg-yellow-700'
+                : 'bg-red-600'
+            } p-2 flex items-center justify-center text-white rounded-sm`}
+          >
+            {row?.original?.status}
+          </p>
+        ),
       },
+
       {
         Header: 'Names',
         accessor: 'name',

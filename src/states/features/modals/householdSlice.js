@@ -21,6 +21,7 @@ const householdSlice = createSlice({
     updateHouseholdModal: false,
     updateHouseholdStatusModal: false,
     deleteTransactionModal: true,
+    searchTerm: '',
   },
   reducers: {
     setProvinces: (state, action) => {
@@ -74,6 +75,9 @@ const householdSlice = createSlice({
     setUpdateHouseholdStatusModal: (state, action) => {
       state.updateHouseholdStatusModal = action.payload
     },
+    setSearchTerm: (state, action) => {
+      state.searchTerm = action.payload
+    },
   },
 })
 
@@ -97,4 +101,5 @@ export const {
   setExistingHouseholdId,
   setUpdateHouseholdModal,
   setUpdateHouseholdStatusModal,
+  setSearchTerm,
 } = householdSlice.actions
