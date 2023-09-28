@@ -607,6 +607,20 @@ export const apiSlice = createApi({
           method: 'POST',
         }),
       }),
+      getReceipt: builder.query({
+        query: ({ id, months }) => ({
+          url: `/households/${id}/receipt`,
+          method: 'POST',
+          body: { months },
+        }),
+      }),
+      getInvoice: builder.query({
+        query: ({ id, months }) => ({
+          url: `/households/${id}/invoice`,
+          method: 'POST',
+          body: { months },
+        }),
+      }),
     }
   },
 })
@@ -660,4 +674,8 @@ export const {
   useUpdateDepartmentProfileMutation,
   useUploadDepartmentInfoStampMutation,
   useSearchHouseholdMutation,
+  useLazyGetReceiptQuery,
+  useLazyGetInvoiceQuery,
+  
+
 } = apiSlice
