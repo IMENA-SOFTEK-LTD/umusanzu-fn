@@ -10,7 +10,7 @@ export const CompleteInitiatedPaymentsForm = () => {
     } = useForm()
 
     const onSubmit = (data) => {
-        console.log(data)
+        return data
     }
   return (
       <div>

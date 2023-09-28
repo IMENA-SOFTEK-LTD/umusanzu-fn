@@ -48,8 +48,8 @@ function Settings({ user }) {
 
   
   return (
-    <div className="flex gap-5 mt-10 max-[900px]:p900-settings max-[100px]:p100-settings max-[150px]:p150-settings max-[200px]:p200-settings max-[250px]:p250-settings max-[300px]:p300-settings max-[350px]:p350-settings max-[400px]:p400-settings max-[450px]:p450-settings max-[500px]:p500-settings max-[600px]:p600-settings max-[700px]:p700-settings max-[800px]:p800-settings max-[1000px]:p1000-settings max-[1100px]:p1100-settings max-[1200px]:p1200-settings max-[1300px]:p1300-settings max-[2000px]:p2000-settings">
-      <div className="bg-white overflow-hidden  shadow rounded-lg border">
+    <main className="flex gap-5 mt-10 max-[900px]:p900-settings max-[100px]:p100-settings max-[150px]:p150-settings max-[200px]:p200-settings max-[250px]:p250-settings max-[300px]:p300-settings max-[350px]:p350-settings max-[400px]:p400-settings max-[450px]:p450-settings max-[500px]:p500-settings max-[600px]:p600-settings max-[700px]:p700-settings max-[800px]:p800-settings max-[1000px]:p1000-settings max-[1100px]:p1100-settings max-[1200px]:p1200-settings max-[1300px]:p1300-settings max-[2000px]:p2000-settings">
+      <div className="bg-white overflow-hidden p-2 shadow rounded-lg border">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             Staff Profile
@@ -60,13 +60,13 @@ function Settings({ user }) {
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Full name</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {isLoading ? <Loading /> : userProfileData?.data?.names}{' '}
+              {isLoading ? <Loading /> : data?.data?.department_infos[0]?.leader_name}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Username</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                Kinyinyasec
+              {isLoading ? <Loading /> : userProfileData?.data?.names}{' '}
               </dd>
             </div>
             <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -134,7 +134,7 @@ function Settings({ user }) {
             </div>
           </dl>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center gap-4">
           {' '}
           {/* Center horizontally and vertically */}
           <UserProfileUpdateForm
@@ -144,7 +144,7 @@ function Settings({ user }) {
           <UpdatePasswordModel user={user || stateUser} />
         </div>
       </div>
-      <div className="bg-white overflow-hidden  shadow rounded-lg border">
+      <div className="bg-white overflow-hidden p-2 mb-4 shadow rounded-lg border">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             KINYINYA Sector Profile
@@ -153,7 +153,7 @@ function Settings({ user }) {
         <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
           <dl className="sm:divide-y sm:divide-gray-200">
             <div className="py-3 sm:py-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Name	KINYINYA</dt>
+              <dt className="text-sm font-medium text-gray-500">Name</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {data?.data?.name}
               </dd>
@@ -232,10 +232,10 @@ function Settings({ user }) {
           <EditSectorInfoModel 
            user={user || stateUser}         
            />
-          <UploadSectorStamp />
+          <UploadSectorStamp department={data?.data} />
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 
