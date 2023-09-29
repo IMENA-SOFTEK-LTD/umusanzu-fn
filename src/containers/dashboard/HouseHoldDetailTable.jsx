@@ -11,7 +11,6 @@ import { setUpdateHouseholdModal, setUpdateHouseholdStatusModal } from '../../st
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { setDeleteTransactionId, setDeleteTransactionModal } from '../../states/features/transactions/transactionSlice';
-import formatFunds from '../../utils/Funds';
 
 const HouseHoldDetailTable = ({
   transactions,

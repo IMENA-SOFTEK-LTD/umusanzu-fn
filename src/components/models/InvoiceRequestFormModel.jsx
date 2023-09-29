@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../Button';
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia';
 import { faAdd, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -7,13 +7,14 @@ import { useParams } from 'react-router-dom';
 import {
     useLazyGetReceiptQuery,
     useLazyGetInvoiceQuery,
+    useLazyGetDepartmentProfileQuery,
 } from '../../states/api/apiSlice'
 import jsPDF from 'jspdf'
 import RWlogo from '../../assets/login.png'
 import Kgl from '../../assets/kglLogo.png'
 import RWline from '../../assets/rwline.png'
-import FaQrcode from '../../assets/qrcode.jpeg'
 import formatFunds from '../../utils/Funds'
+import { useSelector } from 'react-redux';
 
 const InvoiceRequestFormModel = () => {
     const { id } = useParams();
@@ -21,7 +22,11 @@ const InvoiceRequestFormModel = () => {
     const [receiptRequests, setReceiptRequests] = useState([
         { year: new Date().getFullYear(), month: 'January' },
     ]);
+    const { user: stateUser } = useSelector((state) => state.auth)
+    const user = JSON.parse(localStorage.getItem('user'))
+
     const [requestType, setRequestType] = useState('PENDING');
+
     const [
         getReceipt
         ,
@@ -86,6 +91,18 @@ const InvoiceRequestFormModel = () => {
         const { value } = event.target;
         setRequestType(value);
     };
+    const [
+        getDepartmentProfile,
+        { data, isLoadingData, isErrors, isSuccessful },
+    ] = useLazyGetDepartmentProfileQuery();
+
+    useEffect(() => {
+        getDepartmentProfile({
+            id: user?.departments?.department_id,
+        });
+
+    }, []);
+    const departmentInfos = data?.data?.department_infos;
     const handleDownloadPdf = (data) => {
         const doc = new jsPDF();
         // Assuming data is an array of objects
@@ -216,8 +233,9 @@ const InvoiceRequestFormModel = () => {
             doc.setFontSize(10);
             doc.text("For more info, Please call: 0788623772", 15, doc.autoTable.previous.finalY + 20);
             doc.text("PAY CASHLESS DIAL: *775*3# ", 15, doc.autoTable.previous.finalY + 30);
-
-            doc.addImage(FaQrcode, 'JPEG', 150, doc.autoTable.previous.finalY + 30, 30, 30);
+            doc.setFontSize(13);
+            doc.text(`${departmentInfos[0]?.leader_name}`, 120, doc.autoTable.previous.finalY + 50); 
+            doc.text(`${departmentInfos[0]?.leader_title}`, 120, doc.autoTable.previous.finalY + 60);
             const pdfDataUrl = doc.output('datauristring');
             const blob = dataURLtoBlob(pdfDataUrl);
             const blobUrl = window.URL.createObjectURL(blob);
