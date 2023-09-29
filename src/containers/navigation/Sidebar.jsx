@@ -6,7 +6,7 @@ import {
 } from 'react-icons/bs'
 import PropTypes from 'prop-types'
 import { AiOutlineTransaction } from 'react-icons/ai'
-import { FaListAlt, FaMicrosoft, FaBorderAll, FaPaypal } from 'react-icons/fa'
+import { FaListAlt, FaMicrosoft, FaBorderAll, FaPaypal, FaSearch } from 'react-icons/fa'
 import { MdOutlineSettingsSuggest } from 'react-icons/md'
 import { useState, useEffect } from 'react'
 
@@ -99,7 +99,17 @@ function Sidebar({ user }) {
           icon: FaPaypal,
           path: '/agent/completeInitiatedPayment',
           route: '/agent/completeInitiatedPayment',
-        }
+        },
+      ],
+    },
+    {
+      name: 'Search',
+      items: [
+        {
+          title: 'Search Households',
+          icon: FaSearch,
+          path: '/households/search',
+        },
       ],
     },
     {
@@ -111,7 +121,7 @@ function Sidebar({ user }) {
           path: '/settings',
         },
       ],
-    }
+    },
   ]
 
   const [active, setActive] = useState(isOpen)
@@ -172,12 +182,18 @@ function Sidebar({ user }) {
   }
 
   return (
-    <aside className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] max-[800px]:min-w-[30%] max-[800px]:!w-fit ${isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'}`}>
+    <aside
+      className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] max-[800px]:min-w-[30%] max-[800px]:!w-fit ${
+        isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'
+      }`}
+    >
       <motion.div
         animate={controls}
-        className={
-          `z-[999] w-full ${isOpen ? 'max-[800px]:!w-[100%] !w-[20vw] max-sm:small-sidebar' : 'max-sm:!min-w-[4vw]'} animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`
-        }
+        className={`z-[999] w-full ${
+          isOpen
+            ? 'max-[800px]:!w-[100%] !w-[20vw] max-sm:small-sidebar'
+            : 'max-sm:!min-w-[4vw]'
+        } animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`}
       >
         {isOpen && (
           <BsFillArrowLeftSquareFill
@@ -198,19 +214,27 @@ function Sidebar({ user }) {
           />
         )}
 
-        <div className={`grow ${isOpen ? 'max-sm:!min-w-[70%]' : 'max-sm:hidden'}`}>
+        <div
+          className={`grow ${isOpen ? 'max-sm:!min-w-[70%]' : 'max-sm:hidden'}`}
+        >
           {data.map((group, index) => (
             <div key={index} className="pt-16 flex flex-col">
               <motion.p
                 key={index}
                 animate={controlTitleText}
-                className={`mb-2 ml-4 text-md uppercase font-bold !text-black ${isOpen ? '!flex !opacity-100' : 'hidden'}'`}
+                className={`mb-2 ml-4 text-md uppercase font-bold !text-black ${
+                  isOpen ? '!flex !opacity-100' : 'hidden'
+                }'`}
               >
                 {group.name}
               </motion.p>
 
               {group.items.map((item, index2) => {
-                if (item.title === 'Departments' && department === 'agent') {
+                if (
+                  (item.title === 'Departments' && department === 'agent') ||
+                  (item.title === 'Complete Initiated Payments' &&
+                    department !== 'agent')
+                ) {
                   return null
                 }
                 return (
@@ -230,14 +254,18 @@ function Sidebar({ user }) {
                       key={index2}
                       className={`${
                         isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
-                      } flex py-1 ${pathName === item.title ? 'bg-slate-800' : null } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
+                      } flex py-1 ${
+                        pathName === item.title ? 'bg-slate-800' : null
+                      } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
                     >
                       <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
                       <motion.p
                         key={index2}
                         to={item.path}
                         animate={controlText}
-                        className={`ml-4 text-sm font-bold text-white ${isOpen ? '!opacity-100 !flex' : 'hidden'}`}
+                        className={`ml-4 text-sm font-bold text-white ${
+                          isOpen ? '!opacity-100 !flex' : 'hidden'
+                        }`}
                       >
                         {item.title}
                       </motion.p>

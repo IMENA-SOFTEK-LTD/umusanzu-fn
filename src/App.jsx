@@ -28,6 +28,7 @@ import NotFound from './pages/notFound/NotFound.jsx'
 import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
 import { CompleteInitiatedPaymentsForm } from './components/models/CompleteInitiatedPaymentsForm.jsx'
 import PaymentReceipt from './components/PaymentReceipt.jsx'
+import SearchHousehold from './containers/households/SearchHousehold.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -72,6 +73,10 @@ const App = () => {
             <Route
               path="/households/create"
               element={<CreateHousehold user={user} />}
+            />
+            <Route
+              path="/households/search"
+              element={<SearchHousehold user={user} />}
             />
             <Route
               path="/settings"

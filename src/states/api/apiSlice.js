@@ -165,7 +165,6 @@ export const apiSlice = createApi({
                 page || 0
               }&size=${size || 20}&ubudehe=${ubudehe}`,
             }
-
           } else if (route === 'monthlyTargetList') {
             return {
               url: `/${department}/households/monthlyTargetList/?departmentId=${departmentId}&page=${
@@ -178,7 +177,7 @@ export const apiSlice = createApi({
                 page || 0
               }&size=${size || 20}&ubudehe=${ubudehe}`,
             }
-          } 
+          }
         },
       }),
       createHouseHold: builder.mutation({
@@ -355,7 +354,15 @@ export const apiSlice = createApi({
         }),
       }),
       recordOfflinePayment: builder.mutation({
-        query: ({ service, amount, month_paid, agent, household, sms_phone, sector }) => ({
+        query: ({
+          service,
+          amount,
+          month_paid,
+          agent,
+          household,
+          sms_phone,
+          sector,
+        }) => ({
           url: '/transactions/offline',
           method: 'POST',
           body: {
@@ -365,7 +372,7 @@ export const apiSlice = createApi({
             agent,
             household,
             sms_phone,
-            sector
+            sector,
           },
         }),
       }),
@@ -502,7 +509,7 @@ export const apiSlice = createApi({
           payment_phone,
           month_paid,
           payment_method,
-          agent
+          agent,
         }) => ({
           url: `/payment/session`,
           method: 'POST',
@@ -513,7 +520,7 @@ export const apiSlice = createApi({
             payment_phone,
             month_paid,
             payment_method,
-            agent
+            agent,
           },
         }),
       }),
@@ -528,7 +535,7 @@ export const apiSlice = createApi({
             phone2,
             ubudehe,
           },
-        }), 
+        }),
       }),
       updateHouseholdStatus: builder.mutation({
         query: ({ id, status }) => ({
@@ -552,10 +559,31 @@ export const apiSlice = createApi({
         }),
       }),
       updateDepartmentProfile: builder.mutation({
-        query: ({ id,  merchant_code, phone1, phone2, email,leader_name,account_bank, account_name, service_offer, leader_title }) => ({
+        query: ({
+          id,
+          merchant_code,
+          phone1,
+          phone2,
+          email,
+          leader_name,
+          account_bank,
+          account_name,
+          service_offer,
+          leader_title,
+        }) => ({
           url: `/department/${id}`,
           method: 'PUT',
-          body: { merchant_code, phone1, phone2, email,leader_name,account_bank, account_name,service_offer, leader_title  },
+          body: {
+            merchant_code,
+            phone1,
+            phone2,
+            email,
+            leader_name,
+            account_bank,
+            account_name,
+            service_offer,
+            leader_title,
+          },
         }),
       }),
       getSingleTransaction: builder.query({
@@ -569,6 +597,14 @@ export const apiSlice = createApi({
           url: `/departmentInfo/stamps/upload`,
           method: 'POST',
           body: { image, department },
+        }),
+      }),
+      searchHousehold: builder.mutation({
+        query: ({ search, page, size }) => ({
+          url: `/households/search/name-phone?search=${search}&page=${
+            page || 0
+          }&size=${size || 50}`,
+          method: 'POST',
         }),
       }),
     }
@@ -623,4 +659,5 @@ export const {
   useLazyGetDepartmentProfileQuery,
   useUpdateDepartmentProfileMutation,
   useUploadDepartmentInfoStampMutation,
+  useSearchHouseholdMutation,
 } = apiSlice
