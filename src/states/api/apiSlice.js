@@ -621,6 +621,12 @@ export const apiSlice = createApi({
           body: { months },
         }),
       }),
+      getSectorDetails: builder.query({
+        query: ({ id }) => ({
+          url: `/department/sector/${id}`,
+          method: 'GET',
+        }),
+      }),
     }
   },
 })
@@ -676,6 +682,5 @@ export const {
   useSearchHouseholdMutation,
   useLazyGetReceiptQuery,
   useLazyGetInvoiceQuery,
-  
-
+  useLazyGetSectorDetailsQuery,
 } = apiSlice

@@ -6,7 +6,13 @@ import {
 } from 'react-icons/bs'
 import PropTypes from 'prop-types'
 import { AiOutlineTransaction } from 'react-icons/ai'
-import { FaListAlt, FaMicrosoft, FaBorderAll, FaPaypal, FaSearch } from 'react-icons/fa'
+import {
+  FaListAlt,
+  FaMicrosoft,
+  FaBorderAll,
+  FaPaypal,
+  FaSearch,
+} from 'react-icons/fa'
 import { MdOutlineSettingsSuggest } from 'react-icons/md'
 import { useState, useEffect } from 'react'
 
