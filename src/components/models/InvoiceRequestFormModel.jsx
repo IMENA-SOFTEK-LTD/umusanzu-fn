@@ -1,21 +1,54 @@
 import { useState } from 'react';
 import Button from '../Button';
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia';
-import { faAdd, faDeleteLeft, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useParams } from 'react-router-dom';
+import {
+    useLazyGetReceiptQuery,
+    useLazyGetInvoiceQuery,
+} from '../../states/api/apiSlice'
+import jsPDF from 'jspdf'
+import RWlogo from '../../assets/login.png'
+import Kgl from '../../assets/kglLogo.png'
+import RWline from '../../assets/rwline.png'
+import FaQrcode from '../../assets/qrcode.jpeg'
+import formatFunds from '../../utils/Funds'
 
 const InvoiceRequestFormModel = () => {
+    const { id } = useParams();
     const [showModal, setShowModal] = useState(false);
     const [receiptRequests, setReceiptRequests] = useState([
         { year: new Date().getFullYear(), month: 'January' },
     ]);
-    const [requestType, setRequestType] = useState('pendingInvoices');
+    const [requestType, setRequestType] = useState('PENDING');
+    const [
+        getReceipt
+        ,
+        {
+            data: receiptData,
+            isLoading: receiptIsLoading,
+            isError: receiptIsError,
+            isSuccess: receiptIsSuccess,
+        },
+    ] = useLazyGetReceiptQuery();
+
+    const [
+        getInvoice
+        ,
+        {
+            data: invoiceData,
+            isLoading: invoiceIsLoading,
+            isError: invoiceIsError,
+            isSuccess: invoiceIsSuccess,
+        },
+    ] = useLazyGetInvoiceQuery();
 
     const months = [
-       'All months', 'January', 'February', 'March', 'April', 'May', 'June',
+        'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    const years = ['All years','2021', '2022', '2023', '2024', '2025'];
+    const years = ['2021', '2022', '2023', '2024', '2025'];
 
     const openModal = () => {
         setShowModal(true);
@@ -53,12 +86,208 @@ const InvoiceRequestFormModel = () => {
         const { value } = event.target;
         setRequestType(value);
     };
+    const handleDownloadPdf = (data) => {
+        const doc = new jsPDF();
+        // Assuming data is an array of objects
+        data.forEach((item, index) => {
+            // Check if data is null, skip if null
+            if (!item.data) {
+                return;
+            }
 
-    const handleRequest = () => {
+            // Add a page for each data item (except null data)
+            if (index > 0) {
+                doc.addPage();
+            }
+            // Add content for the current data item
+            const {
+                data: {
+                    name,
+                    phone1,
+                    phone2,
+                    ubudehe,
+                    districts,
+                    sectors,
+                    cells,
+                    villages,
+                    transactions,
+                },
+            } = item;
+            // Add a table for transactions
+            const transactionData = transactions.map((transaction) => [
+                "Umutekano",
+                 transaction.month_paid,
+                ` ${formatFunds(ubudehe)} RWF`,
+                ` ${transaction.amount} RWF`,
+            ]);
+            // Add the header section
+            doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30);
+            doc.setFontSize(12);
+            doc.text("REPUBLIC OF RWANDA", 50, 15);
+            doc.text("KIGALI CITY", 50, 22);
+            doc.text(`${districts[0]?.name} DISTRICT`, 50, 30);
+            doc.text(`${sectors[0]?.name} SECTOR`, 50, 40);
+            doc.addImage(Kgl, 'PNG', 150, 10, 30, 30);
+
+            doc.addImage(RWline, 'PNG', 10, 50, 180, 10);
+            // Add the PAYMENT RECEIPT section
+            doc.setFontSize(12);
+            // Determine the title based on the transaction status
+            let title = '';
+            let paymentStatus = '';
+            if (requestType === 'PAID') {
+                title = "PAYMENT RECEIPT";
+                paymentStatus = "PAID"
+            } else if (requestType === 'PENDING') {
+                title = "PAYMENT INVOICE";
+                paymentStatus = "PENDING"
+            }
+
+            doc.setFontSize(24);
+            doc.text(`${title}`, 60, 70);
+
+            const itemsColumn1 = [
+                "Reference: 71063010IMS159",
+                `Names: ${name}`,
+                "Service: Umutekano",
+                `Tel: ${phone1}`,
+                `TIN: ${phone2}`
+            ];
+            const itemsColumn2 = [
+                `Date: ${new Date().toLocaleString('default', {
+                    month: 'long',
+                    year: 'numeric',
+                    minute:
+                        'numeric',
+                    hour: 'numeric',
+                    day: 'numeric',
+                })}`,
+                `Cell: ${cells[0]?.name}`,
+                `Status:${paymentStatus}`,
+                `Village: ${villages[0]?.name}`,
+            ];
+            const startXColumn1 = 15;
+            const startXColumn2 = 130;
+            let currentY = 80;
+
+            doc.setFontSize(12);
+
+            // Display items in column 1
+            for (let i = 0; i < itemsColumn1.length; i++) {
+                doc.text(itemsColumn1[i], startXColumn1, currentY);
+                currentY += 10;
+            }
+
+            currentY = 80;
+
+            // Display items in column 2
+            for (let i = 0; i < itemsColumn2.length; i++) {
+                doc.text(itemsColumn2[i], startXColumn2, currentY);
+                currentY += 10;
+            }
+            // Add the table section
+            doc.autoTable({
+                startY: 125,
+                head: [["DESCRIPTION", "MONTH", "UNIT PRICE", `${requestType === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`]],
+                body: transactionData,
+                theme: 'grid', // Apply a grid theme
+                headStyles: {
+                    fillColor: [0, 128, 0], // Green background color for the header
+                    textColor: 255, // White text color for the header
+                    fontSize: 12, // Font size for the header
+                },
+                styles: {
+                    fontSize: 10, // Font size for the body
+                    textColor: 0, // Black text color for the body
+                    cellPadding: 5, // Padding for each cell
+                },
+                columnStyles: {
+                    0: { // Style for the first column (MONTH)
+                        fontStyle: 'bold', // Make the text bold
+                    },
+                    1: { // Style for the second column (10 %)
+                        halign: 'right', // Align the text to the right
+                    },
+                },
+            });
+            // Add the TOTAL PAID section
+            doc.text(`TOTAL ${formatFunds(10000000)} RWF`, 140, doc.autoTable.previous.finalY + 10);
+
+            doc.setFontSize(10);
+            doc.text("For more info, Please call: 0788623772", 15, doc.autoTable.previous.finalY + 20);
+            doc.text("PAY CASHLESS DIAL: *775*3# ", 15, doc.autoTable.previous.finalY + 30);
+
+            doc.addImage(FaQrcode, 'JPEG', 150, doc.autoTable.previous.finalY + 30, 30, 30);
+            const pdfDataUrl = doc.output('datauristring');
+            const blob = dataURLtoBlob(pdfDataUrl);
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            // Open the Blob URL in a new tab for download
+            const newTab = window.open(blobUrl, '_blank');
+            if (newTab) {
+                newTab.focus();
+            }
+        });
+    };
+
+    // Helper function to convert data URL to Blob
+    function dataURLtoBlob(dataURL) {
+        const parts = dataURL.split(';base64,');
+        const contentType = parts[0].split(':')[1];
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+        for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+        return new Blob([uInt8Array], { type: contentType });
+    }
+    const handleRequest = async () => {
+        // Transform the receiptRequests data
+        const transformedReceiptRequests = {
+            months: receiptRequests.map(({ year, month }) => {
+                const monthNumber = months.indexOf(month) + 1;
+                return `${year}-${monthNumber.toString().padStart(2, '0')}`;
+            }),
+        };
+        if (requestType === 'PAID') {
+            try {
+                // Call getReceipt and wait for the data to be fetched
+                const receiptResponse = await getReceipt({ id, months: transformedReceiptRequests.months });
+
+                // Check if the receipt request was successful
+                if (receiptResponse.data) {
+                    // Call the function to generate and download the receipt report
+                    handleDownloadPdf(receiptResponse.data?.data);
+                } else {
+                    // Handle the case where the receipt request was not successful
+                    console.error('Error fetching receipt data');
+                }
+            } catch (error) {
+                // Handle any errors that occurred during the receipt request
+                console.error('Error fetching receipt data:', error.message);
+            }
+        } else if (requestType === 'PENDING') {
+            try {
+                // Call getInvoice and wait for the data to be fetched
+                const invoiceResponse = await getInvoice({ id, months: transformedReceiptRequests.months });
+
+                // Check if the invoice request was successful
+                if (invoiceResponse.data) {
+                    // Call the function to generate and download the invoice report
+                    handleDownloadPdf(invoiceResponse.data?.data);
+                } else {
+                    // Handle the case where the invoice request was not successful
+                    console.error('Error fetching invoice data');
+                }
+            } catch (error) {
+                // Handle any errors that occurred during the invoice request
+                console.error('Error fetching invoice data:', error);
+            }
+        }
 
         closeModal();
     };
-
     return (
         <div className='relative'>
             <Button
@@ -90,7 +319,7 @@ const InvoiceRequestFormModel = () => {
                                     fill="none"
                                     viewBox="0 0 14 14"
                                 >
-                                     <path
+                                    <path
                                         stroke="currentColor"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -115,21 +344,21 @@ const InvoiceRequestFormModel = () => {
                                     <input
                                         type="radio"
                                         className="form-radio text-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                                        value="pending"
-                                        checked={requestType === 'pending'}
+                                        value="PENDING"
+                                        checked={requestType === 'PENDING'}
                                         onChange={handleRequestTypeChange}
                                     />
-                                    <span className="ml-2">Pending</span>
+                                    <span className="ml-2">PENDING</span>
                                 </label>
                                 <label className="inline-flex items-center mt-2">
                                     <input
                                         type="radio"
                                         className="form-radio text-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                                        value="paid"
-                                        checked={requestType === 'paid'}
+                                        value="PAID"
+                                        checked={requestType === 'PAID'}
                                         onChange={handleRequestTypeChange}
                                     />
-                                    <span className="ml-2">Paid</span>
+                                    <span className="ml-2">PAID</span>
                                 </label>
                             </div>
                             <div className="mt-4">
@@ -171,9 +400,9 @@ const InvoiceRequestFormModel = () => {
                                 </button>
 
                             </div>
-                            <div className="mt-4">
+                            <div className="mt-4 flex justify-center">
                                 <Button
-                                    value="Submit Request"
+                                    value='Generate'
                                     onClick={handleRequest}
                                 />
                             </div>

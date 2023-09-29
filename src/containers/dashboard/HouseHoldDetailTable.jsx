@@ -28,7 +28,6 @@ const HouseHoldDetailTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
-
   const navigate = useNavigate();
 
   const [
@@ -64,7 +63,7 @@ const HouseHoldDetailTable = ({
   const closeModal = () => {
     setIsModalOpen(false);
   };
-  
+
   const handleDownloadPdf = (transaction) => {
     navigate(`/receipt/${transaction.id}`);
   }
@@ -112,9 +111,8 @@ const HouseHoldDetailTable = ({
                           N<sup>o</sup>
                         </th>
                         <th
-                          className={`${
-                            department === 'country' ? 'flex' : 'hidden'
-                          } py-2 px-4`}
+                          className={`${department === 'country' ? 'flex' : 'hidden'
+                            } py-2 px-4`}
                         >
                           Action
                         </th>
@@ -157,9 +155,8 @@ const HouseHoldDetailTable = ({
                               {index + 1}
                             </td>
                             <td
-                              className={`${
-                                department === 'country' ? 'flex' : 'hidden'
-                              }`}
+                              className={`${department === 'country' ? 'flex' : 'hidden'
+                                }`}
                             >
                               <Button
                                 onClick={(e) => {
@@ -314,11 +311,10 @@ const HouseHoldDetailTable = ({
                         <td className="py-2 pr-4 font-semibold">Status</td>
                         <td className="py-2 pl-4">
                           <span
-                            className={`inline-block px-3 py-1 text-sm font-semibold text-white ${
-                              member?.status?.toUpperCase() === 'INACTIVE'
+                            className={`inline-block px-3 py-1 text-sm font-semibold text-white ${member?.status?.toUpperCase() === 'INACTIVE'
                                 ? 'bg-red-600'
                                 : 'bg-green-500'
-                            }`}
+                              }`}
                           >
                             {member?.status?.toUpperCase()}
                           </span>

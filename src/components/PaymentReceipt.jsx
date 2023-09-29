@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useLazyGetSingleTransactionQuery } from '../states/api/apiSlice'
-import Button from './Button'
 import { useParams } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import RWlogo from '../assets/login.png'
