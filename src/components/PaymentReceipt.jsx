@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useLazyGetSingleTransactionQuery } from '../states/api/apiSlice'
+import { useLazyGetDepartmentProfileQuery, useLazyGetSingleTransactionQuery } from '../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import RWlogo from '../assets/login.png'
@@ -12,7 +12,7 @@ import Loading from './Loading'
 
 const PaymentReceipt = () => {
   const { id } = useParams()
-
+  const user = JSON.parse(localStorage.getItem('user'))
   const [
     getSingleTransaction,
     {
@@ -39,7 +39,18 @@ const PaymentReceipt = () => {
     }
     return new Blob([uInt8Array], { type: contentType })
   }
+  const [
+    getDepartmentProfile,
+    { data, isLoadingData, isErrors, isSuccessful },
+  ] = useLazyGetDepartmentProfileQuery();
 
+  useEffect(() => {
+    getDepartmentProfile({
+      id: user?.departments?.department_id,
+    });
+
+  }, []);
+  const departmentInfos = data?.data?.department_infos;
   const handleDownloadPdf = (transaction) => {
     const doc = new jsPDF()
     // Add the header section
@@ -171,15 +182,17 @@ const PaymentReceipt = () => {
       15,
       doc.autoTable.previous.finalY + 30
     )
-
-    doc.addImage(
-      FaQrcode,
-      'JPEG',
-      150,
-      doc.autoTable.previous.finalY + 30,
-      30,
-      30
-    )
+    doc.setFontSize(13);
+    doc.text(`${departmentInfos[0]?.leader_name}`, 120, doc.autoTable.previous.finalY + 50);
+    doc.text(`${departmentInfos[0]?.leader_title}`, 120, doc.autoTable.previous.finalY + 60);
+    // doc.addImage(
+    //   FaQrcode,
+    //   'JPEG',
+    //   150,
+    //   doc.autoTable.previous.finalY + 30,
+    //   30,
+    //   30
+    // )
     const pdfDataUrl = doc.output('datauristring')
     const blob = dataURLtoBlob(pdfDataUrl)
     const blobUrl = window.URL.createObjectURL(blob)
