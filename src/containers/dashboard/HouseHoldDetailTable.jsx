@@ -64,7 +64,11 @@ const HouseHoldDetailTable = ({
   };
 
   const handleDownloadPdf = (transaction) => {
-    navigate(`/receipt/${transaction.id}`);
+    const newTab = window.open(`/receipt/${transaction.id}`, '_blank');
+
+  if (newTab) {
+    newTab.focus();
+  }
   }
 
   let department = '';

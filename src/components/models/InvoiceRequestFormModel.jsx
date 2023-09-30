@@ -7,15 +7,12 @@ import { useParams } from 'react-router-dom'
 import {
   useLazyGetReceiptQuery,
   useLazyGetInvoiceQuery,
-  useLazyGetDepartmentProfileQuery,
-  useLazyGetSectorDetailsQuery,
 } from '../../states/api/apiSlice'
 import jsPDF from 'jspdf'
 import RWlogo from '../../assets/login.png'
 import Kgl from '../../assets/kglLogo.png'
 import RWline from '../../assets/rwline.png'
 import formatFunds from '../../utils/Funds'
-import { useSelector } from 'react-redux'
 import moment from 'moment'
 import Loading from '../Loading'
 
