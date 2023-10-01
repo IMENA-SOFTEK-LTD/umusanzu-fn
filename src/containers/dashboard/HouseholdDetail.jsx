@@ -84,6 +84,9 @@ const HouseholdDetail = () => {
   const province = {
     name: householdDepartmentsData?.data[0]?.province,
   }
+
+  console.log(houseHoldDetailsData?.data)
+
   return (
     <main className="flex flex-col gap-2 my-4 max-[1000px]:flex-col">
     
