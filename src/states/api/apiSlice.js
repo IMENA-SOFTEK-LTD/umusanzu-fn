@@ -627,9 +627,19 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
-    }
-  },
-})
+      getInitiatedTransactions: builder.query({
+        query: ({ staffId }) => ({
+          url: `/agent/transactions/initiated/?staffId=${staffId}`,
+      }),
+    }),
+    completeInitiatedPayments: builder.mutation({
+      query: ({ totalAmount, staffId, payment_phone }) => ({
+        url: `/payment/initiated/complete?staffId=${staffId}`,
+        method: 'POST',
+        body: { totalAmount, payment_phone },
+      }),
+    }),
+}}})
 
 export const {
   useLoginMutation,
@@ -683,4 +693,6 @@ export const {
   useLazyGetReceiptQuery,
   useLazyGetInvoiceQuery,
   useLazyGetSectorDetailsQuery,
+  useLazyGetInitiatedTransactionsQuery,
+  useCompleteInitiatedPaymentsMutation,
 } = apiSlice

@@ -103,8 +103,8 @@ function Sidebar({ user }) {
         {
           title: 'Complete Initiated Payments',
           icon: FaPaypal,
-          path: '/agent/completeInitiatedPayment',
-          route: '/agent/completeInitiatedPayment',
+          path: '/agent/transactions/initiated',
+          route: '/agent/transactions/initiated',
         },
       ],
     },

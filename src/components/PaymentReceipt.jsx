@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { useLazyGetDepartmentProfileQuery, useLazyGetSectorDetailsQuery, useLazyGetSingleTransactionQuery } from '../states/api/apiSlice'
+import {
+  useLazyGetDepartmentProfileQuery,
+  useLazyGetSectorDetailsQuery,
+  useLazyGetSingleTransactionQuery,
+} from '../states/api/apiSlice'
 import { useParams } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import RWlogo from '../assets/login.png'
 import Kgl from '../assets/kglLogo.png'
 import RWline from '../assets/rwline.png'
-import FaQrcode from '../assets/qrcode.jpeg'
 import moment from 'moment'
 import formatFunds from '../utils/Funds'
 import Loading from './Loading'
@@ -208,8 +211,10 @@ useEffect(() => {
           doc.setFontSize(13)
 
           const image = transaction?.households?.sectors[0]?.stamp;
-        doc.addImage(image, image.slice(-3), 130,
+        if (image) {
+          doc.addImage(image, image?.slice(-3), 130,
             doc.autoTable.previous.finalY + 17, 40, 40);
+        }
             doc.setFont('Times New Roman', 'bold');
           doc.text(
             `${transaction?.households?.sectors[0]?.department_infos[0]?.leader_name}`,
@@ -233,7 +238,6 @@ useEffect(() => {
 
   useEffect(() => {
     if (singleTransactionSuccess) {
-      console.log(singleTransactionData.data)
       handleDownloadPdf(singleTransactionData.data)
     }
   }, [singleTransactionSuccess])

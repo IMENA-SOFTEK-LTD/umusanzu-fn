@@ -83,8 +83,8 @@ const App = () => {
               element={<Settings user={user || stateUser} />}
             />
             <Route
-              path="/agent/completeInitiatedPayment"
-              element={<CompleteInitiatedPaymentsForm />}
+              path="/agent/transactions/initiated"
+              element={<CompleteInitiatedPaymentsForm user={user} />}
             />
 
             <Route
