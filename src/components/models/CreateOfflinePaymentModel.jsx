@@ -98,7 +98,7 @@ const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
           aria-hidden="true"
           className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
         >
-          <div className="relative bg-white rounded-lg shadow">
+          <div className="relative bg-white rounded-lg shadow md:max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] mx-auto">
             <article className="bg-primary relative rounded-sm flex flex-row-reverse items-center justify-center py-4 px-4">
               <Button
                 onClick={(e) => {
@@ -117,13 +117,13 @@ const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
                 Record Offline Payment
               </h4>
             </article>
-            <div className="px-6 py-6 lg:px-8">
+            <div className='px-1 py-6 lg:px-8' >
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="space-y-6 min-w-[30rem]"
+                className="flex flex-col gap-4 items-center w-full px-4 md:px-6 lg:px-10"
               >
-                <div className="flex space-x-4">
-                  <div className="flex-1">
+                <div className="flex space-x-4 w-full">
+                  <div className="flex-1 w-full">
                     <label
                       htmlFor="service"
                       className="block mb-2 text-sm font-medium text-black"
@@ -167,8 +167,7 @@ const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
                     />
                   </div>
                 </div>
-
-                <div>
+                <div className='w-full'>
                   <label
                     htmlFor="amount"
                     className="block mb-2 text-sm font-medium text-black"
@@ -189,7 +188,7 @@ const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
                   />
                 </div>
 
-                <div>
+                <div className='w-full'>
                   <label
                     htmlFor="phone"
                     className="block mb-2 text-sm font-medium text-black"
@@ -211,7 +210,7 @@ const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
                     )}
                   />
                 </div>
-                <div>
+                <div className='w-full'>
                   <label
                     htmlFor="phone"
                     className="block mb-2 text-sm font-medium text-black"

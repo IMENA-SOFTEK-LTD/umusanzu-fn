@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { AiFillPlusCircle } from 'react-icons/ai'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import Button from '../Button'
 import Input from '../Input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faMoneyBill, faTrash, faX } from '@fortawesome/free-solid-svg-icons'
-import moment from 'moment'
 import { useCreatePaymentSessionMutation } from '../../states/api/apiSlice'
 import Loading from '../Loading'
 
@@ -102,7 +100,7 @@ function RecordMultipleMonthsPayment({ household }) {
                     aria-hidden="true"
                     className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
                 >
-                    <div className="relative bg-white rounded-lg shadow max-w-[600px]">
+                    <div className="relative bg-white rounded-lg shadow md:max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] mx-auto h-full">
                         <article className="bg-primary relative rounded-sm flex flex-row-reverse items-center justify-center py-4 px-4">
                             <Button
                                 onClick={(e) => {
@@ -123,11 +121,13 @@ function RecordMultipleMonthsPayment({ household }) {
                         </article>
                         <form
                             onSubmit={handleSubmit(onSubmit)}
-                            className="flex flex-col gap-4 items-center w-full min-w-[30rem] p-6 pl-10"
+                            className="flex flex-col gap-4 items-center w-full px-4 md:px-6 lg:px-10"
                         >
-                            <div className="w-full flex flex-col gap-2 items-center">
-                                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                                    Select month paid
+
+                            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2 mt-2">
+                                Select month paid
+                                <div className='flex w-full justify-between p-2'>
+                                <div className="max-h-[100px] overflow-y-auto">
                                     {date.map((request, index) => (
                                         <div key={index} className="mb-4">
                                             <div className="flex mt-2 justify-between gap-3">
@@ -137,53 +137,51 @@ function RecordMultipleMonthsPayment({ household }) {
                                                     onChange={(e) => handleYearChange(e, index)}
                                                 >
                                                     {years.map((element, index) => <option key={index}>{element}</option>)}
-
                                                 </select>
-
                                                 <select
                                                     className="form-select flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                                                     value={request.month}
                                                     onChange={(e) => handleMonthChange(e, index)}
                                                 >
                                                     {months.map((element, index) => <option key={index}>{element}</option>)}
-
                                                 </select>
                                                 <button
-
                                                     className="ml-2 bg-red-500 w-10 h-10 rounded-full hover:bg-red-500 text-white"
                                                     onClick={() => removeReceiptRequest(index)}
                                                 >
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
-
                                             </div>
                                         </div>
                                     ))}
-                                    <button
-                                        onClick={addReceiptRequest}
-                                        className="ml-2 bg-primary w-10 h-10 rounded-full hover:bg-red-500 text-white"
-                                    >
-                                        <FontAwesomeIcon icon={faAdd} />
+                                </div>
+                                <button
+                                    onClick={addReceiptRequest}
+                                    className="ml-2 bg-primary w-10 h-10 rounded-full hover:bg-red-500 text-white"
+                                >
+                                    <FontAwesomeIcon icon={faAdd} />
                                     </button>
-                                </label>
-                                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                                    Amount Paid
-                                    <Controller
-                                        name="total_month_paid"
-                                        control={control}
-                                        defaultValue={household?.ubudehe}
-                                        rules={{ required: 'Amount is required' }}
-                                        render={({ field }) => (
-                                            <Input type="number" {...field} placeholder="1000" />
-                                        )}
-                                    />
-                                    {errors.total_month_paid && (
-                                        <span className="text-red-500">
-                                            {errors.total_month_paid.message}
-                                        </span>
+                                </div>
+                            </label>
+
+                            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                                Amount Paid
+                                <Controller
+                                    name="total_month_paid"
+                                    control={control}
+                                    defaultValue={household?.ubudehe}
+                                    rules={{ required: 'Amount is required' }}
+                                    render={({ field }) => (
+                                        <Input type="number" {...field} placeholder="1000" />
                                     )}
-                                </label>
-                            </div>
+                                />
+                                {errors.total_month_paid && (
+                                    <span className="text-red-500">
+                                        {errors.total_month_paid.message}
+                                    </span>
+                                )}
+                            </label>
+
                             <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                                 Numero iriho amafaranga
                                 <Controller
@@ -201,7 +199,8 @@ function RecordMultipleMonthsPayment({ household }) {
                                     </span>
                                 )}
                             </label>
-                            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                            <div className='flex justify-between  w-full'>
+                            <label className=" text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                                 Choose payment option
                                 <Controller
                                     name="payment_method"
@@ -227,18 +226,7 @@ function RecordMultipleMonthsPayment({ household }) {
                                         {errors.payment_method.message}
                                     </span>
                                 )}
-                            </label>
-                            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                                Numero yakira message
-                                <Controller
-                                    name="phone1"
-                                    control={control}
-                                    defaultValue={household?.phone1}
-                                    render={({ field }) => (
-                                        <Input type="text" {...field} placeholder="0785767647" />
-                                    )}
-                                />
-                            </label>
+                                </label>
                             <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                                 Choose SMS Language
                                 <Controller
@@ -256,7 +244,20 @@ function RecordMultipleMonthsPayment({ household }) {
                                         </select>
                                     )}
                                 />
+                                </label>
+                            </div>
+                            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                                Numero yakira message
+                                <Controller
+                                    name="phone1"
+                                    control={control}
+                                    defaultValue={household?.phone1}
+                                    render={({ field }) => (
+                                        <Input type="text" {...field} placeholder="0785767647" />
+                                    )}
+                                />
                             </label>
+
                             <article
                                 className={
                                     paymentSessionIsError || paymentSessionIsSuccess

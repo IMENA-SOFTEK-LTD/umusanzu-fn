@@ -106,8 +106,8 @@ const HouseHoldDetailTable = ({
     <div className="page-wrapper p-4 ">
       <div className="page-content-wrapper ">
         <div className="page-content">
-          <div className="flex items-start gap-4 mx-auto  max-[900px]:p900-householdDetails max-[100px]:p100-householdDetails max-[150px]:p150-householdDetails max-[200px]:p200-householdDetails max-[250px]:p250-householdDetails max-[300px]:p300-householdDetails max-[350px]:p350-householdDetails max-[400px]:p400-householdDetails max-[450px]:p450-householdDetails max-[500px]:p500-householdDetails max-[600px]:p600-householdDetails max-[700px]:p700-householdDetails max-[800px]:p800-householdDetails max-[1000px]:p1000-householdDetails max-[1100px]:p1100-householdDetails max-[1200px]:p1200-householdDetails max-[1300px]:p1300-householdDetails max-[2000px]:p2000-householdDetails">
-            <div className="max-w-[65%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
+          <div className="flex flex-col-reverse gap-3 md:flex-row items-center md:gap-4 mx-auto max-w-[900px]">
+            <div className="max-w-[100%] md:max-w-[65%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200 overflow-x-auto">
               <div className="card-body">
                 <h6 className="font-semibold mb-4 text-gray-800 px-3 mt-3">
                   <b>Transaction history</b>

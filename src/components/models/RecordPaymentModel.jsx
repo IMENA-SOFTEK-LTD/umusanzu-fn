@@ -84,7 +84,7 @@ function RecordPaymentModel({ household }) {
           aria-hidden="true"
           className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
         >
-          <div className="relative bg-white rounded-lg shadow max-w-[600px]">
+          <div className="relative bg-white rounded-lg w-full shadow md:max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] mx-auto">
             <article className="bg-primary relative rounded-sm flex flex-row-reverse items-center justify-center py-4 px-4">
               <Button
                 onClick={(e) => {
@@ -105,7 +105,7 @@ function RecordPaymentModel({ household }) {
             </article>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-4 items-center w-full min-w-[30rem] p-6 pl-10"
+              className="flex flex-col gap-4 items-center w-full px-4 md:px-6 lg:px-10"
             >
               <div className="w-full flex flex-col gap-2 items-center">
                 <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
@@ -235,7 +235,7 @@ function RecordPaymentModel({ household }) {
                   )
                 }}
               />
-            </form>
+              </form>
           </div>
         </section>
       )}
