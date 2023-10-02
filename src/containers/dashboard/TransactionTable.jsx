@@ -149,7 +149,7 @@ const TransactionTable = ({ user }) => {
         // eslint-disable-next-line array-callback-return
         transactionsListData?.data?.rows?.map((row, index) => {
           const paidAmount = Number(row?.amount) || 0
-          const remainingAmount = Number(row?.payments[0]?.remain_amount) || 0
+          const remainingAmount = Number(row?.remain) || 0
           totalCommission += Number(row?.amount) / 10
           totalPaidAmount += paidAmount
           totalRemainingAmount = totalPaidAmount - totalCommission
@@ -173,7 +173,7 @@ const TransactionTable = ({ user }) => {
             month_paid: moment(row.month_paid).format('MM-YYYY'),
             payment_method: row?.payment_method?.split('_').join(' '),
             status: row?.status,
-            remain_amount: row?.payments[0]?.remain_amount,
+            remain_amount: row?.remain || 0,
             agent: row?.agents?.names,
             commission: Number(row?.amount) / 10,
             transaction_date: moment(row?.transaction_date).format(
@@ -215,7 +215,7 @@ const TransactionTable = ({ user }) => {
           payment_method: row.payment_method.split('_').join(' '),
           agent: row?.agents?.names,
           status: row?.status,
-          remain_amount: row?.payments[0]?.remain_amount,
+          remain_amount: row?.remain || 0,
           commission: Number(row?.amount) / 10,
           transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
         }
@@ -476,6 +476,23 @@ const TransactionTable = ({ user }) => {
   const columns = useMemo(
     () => [
       {
+        Header: 'Status',
+        accessor: 'status',
+        sortable: true,
+        Filter: SelectColumnFilter,
+        Cell: ({ value }) => (
+          <div
+            className={`${value === 'PAID'
+              ? 'bg-green-600 shadow-md rounded-sm shadow-200' :
+              value === 'INITIATED' ? 'bg-yellow-600 rounded-sm shadow-md shadow-200'
+                : 'bg-red-600 rounded-sm shadow-md shadow-200'
+              } p-1 rounded-md text-white text-center`}
+          >
+            {value}
+          </div>
+        ),
+      },
+      {
         Header: 'Names',
         accessor: 'name',
         sortable: true,
@@ -542,23 +559,6 @@ const TransactionTable = ({ user }) => {
         accessor: 'transaction_date',
         sortable: true,
       },
-      {
-        Header: 'Status',
-        accessor: 'status',
-        sortable: true,
-        Filter: SelectColumnFilter,
-        Cell: ({ value }) => (
-          <div
-            className={`${value === 'PAID'
-              ? 'bg-green-600 shadow-md rounded-sm shadow-200' :
-              value === 'INITIATED' ? 'bg-yellow-600 rounded-sm shadow-md shadow-200'
-                : 'bg-red-600 rounded-sm shadow-md shadow-200'
-              } p-1 rounded-md text-white text-center`}
-          >
-            {value}
-          </div>
-        ),
-      }
     ],
     []
   )

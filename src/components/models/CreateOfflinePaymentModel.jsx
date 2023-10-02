@@ -18,7 +18,6 @@ import {
 import moment from 'moment/moment'
 
 const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
-  const { id } = useParams()
   const [showModal, setShowModal] = useState(false)
   const [
     recordOfflinePayment,
@@ -45,12 +44,15 @@ const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
     setShowModal(false)
   }
 
+  console.log(householdData)
+
   const onSubmit = (formData) => {
+    console.log(householdData?.transactions)
     recordOfflinePayment({
       service: formData.service,
       amount: formData.amount,
       month_paid: formData.month_paid,
-      agent: householdData?.transactions[0]?.agents?.id,
+      agent: householdData?.agents?.id,
       sms_phone: formData.sms_phone,
       sector: householdDepartments?.sector,
       household: {

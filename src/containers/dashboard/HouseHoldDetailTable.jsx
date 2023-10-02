@@ -1,16 +1,22 @@
-import { useEffect, useState } from 'react';
-import moment from 'moment';
-import { useNavigate } from 'react-router-dom';
-import { useLazyGetHouseholdTransactionsByMonthPaidQuery } from '../../states/api/apiSlice';
-import { FiDownload } from 'react-icons/fi';
-import { useParams } from 'react-router';
-import Button from '../../components/Button';
-import { FaRegEye } from 'react-icons/fa';
-import { useDispatch } from 'react-redux';
-import { setUpdateHouseholdModal, setUpdateHouseholdStatusModal } from '../../states/features/modals/householdSlice';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { setDeleteTransactionId, setDeleteTransactionModal } from '../../states/features/transactions/transactionSlice';
+import { useEffect, useState } from 'react'
+import moment from 'moment'
+import { useNavigate } from 'react-router-dom'
+import { useLazyGetHouseholdTransactionsByMonthPaidQuery } from '../../states/api/apiSlice'
+import { FiDownload } from 'react-icons/fi'
+import { useParams } from 'react-router'
+import Button from '../../components/Button'
+import { FaRegEye } from 'react-icons/fa'
+import { useDispatch } from 'react-redux'
+import {
+  setUpdateHouseholdModal,
+  setUpdateHouseholdStatusModal,
+} from '../../states/features/modals/householdSlice'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import {
+  setDeleteTransactionId,
+  setDeleteTransactionModal,
+} from '../../states/features/transactions/transactionSlice'
 
 const HouseHoldDetailTable = ({
   transactions,
@@ -21,13 +27,13 @@ const HouseHoldDetailTable = ({
   district,
   province,
 }) => {
-  const [data, setData] = useState(null);
-  const { id } = useParams();
-  const [monthPaid, setMonthPaid] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [data, setData] = useState(null)
+  const { id } = useParams()
+  const [monthPaid, setMonthPaid] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const user = JSON.parse(localStorage.getItem('user'));
-  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'))
+  const navigate = useNavigate()
 
   const [
     getHouseholdTransactionsByMonthPaid,
@@ -37,63 +43,63 @@ const HouseHoldDetailTable = ({
       isError: transactionsError,
       error: transactionsErrorRes,
     },
-  ] = useLazyGetHouseholdTransactionsByMonthPaidQuery();
+  ] = useLazyGetHouseholdTransactionsByMonthPaidQuery()
 
   useEffect(() => {
     getHouseholdTransactionsByMonthPaid({
       departmentId: id,
       month: monthPaid,
-    });
-  }, [id, monthPaid]);
+    })
+  }, [id, monthPaid])
 
   useEffect(() => {
     if (transactionsSuccess) {
-      setData(transactionsData?.data || []);
+      setData(transactionsData?.data || [])
     }
-  }, [transactionsSuccess, transactionsData]);
+  }, [transactionsSuccess, transactionsData])
 
   const openModal = (month_paid) => {
-    setMonthPaid(month_paid);
-    setIsModalOpen(true);
-  };
+    setMonthPaid(month_paid)
+    setIsModalOpen(true)
+  }
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   const closeModal = () => {
-    setIsModalOpen(false);
-  };
+    setIsModalOpen(false)
+  }
 
   const handleDownloadPdf = (transaction) => {
-    const newTab = window.open(`/receipt/${transaction.id}`, '_blank');
+    const newTab = window.open(`/receipt/${transaction.id}`, '_blank')
 
-  if (newTab) {
-    newTab.focus();
-  }
+    if (newTab) {
+      newTab.focus()
+    }
   }
 
-  let department = '';
+  let department = ''
 
   switch (user?.departments?.level_id) {
     case 1:
-      department = 'province';
-      break;
+      department = 'province'
+      break
     case 2:
-      department = 'district';
-      break;
+      department = 'district'
+      break
     case 3:
-      department = 'sector';
-      break;
+      department = 'sector'
+      break
     case 4:
-      department = 'cell';
-      break;
+      department = 'cell'
+      break
     case 5:
-      department = 'country';
-      break;
+      department = 'country'
+      break
     case 6:
-      department = 'agent';
-      break;
+      department = 'agent'
+      break
     default:
-      department = 'agent';
+      department = 'agent'
   }
 
   return (
@@ -114,8 +120,9 @@ const HouseHoldDetailTable = ({
                           N<sup>o</sup>
                         </th>
                         <th
-                          className={`${department === 'country' ? 'flex' : 'hidden'
-                            } py-2 px-4`}
+                          className={`${
+                            department === 'country' ? 'flex' : 'hidden'
+                          } py-2 px-4`}
                         >
                           Action
                         </th>
@@ -158,8 +165,9 @@ const HouseHoldDetailTable = ({
                               {index + 1}
                             </td>
                             <td
-                              className={`${department === 'country' ? 'flex' : 'hidden'
-                                }`}
+                              className={`${
+                                department === 'country' ? 'flex' : 'hidden'
+                              }`}
                             >
                               <Button
                                 onClick={(e) => {
@@ -314,10 +322,11 @@ const HouseHoldDetailTable = ({
                         <td className="py-2 pr-4 font-semibold">Status</td>
                         <td className="py-2 pl-4">
                           <span
-                            className={`inline-block px-3 py-1 text-sm font-semibold text-white ${member?.status?.toUpperCase() === 'INACTIVE'
+                            className={`inline-block px-3 py-1 text-sm font-semibold text-white ${
+                              member?.status?.toUpperCase() === 'INACTIVE'
                                 ? 'bg-red-600'
                                 : 'bg-green-500'
-                              }`}
+                            }`}
                           >
                             {member?.status?.toUpperCase()}
                           </span>
