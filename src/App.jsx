@@ -8,6 +8,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Login from './pages/auth/Login.jsx'
 import Validate2faPage from './pages/auth/Validate2faPage.jsx'
+import Sector_commission from './containers/dashboard/Sector_commission.jsx'
 import Sidebar from './containers/navigation/Sidebar.jsx'
 import Navbar from './containers/navigation/Navbar.jsx'
 import Dashboard from './pages/dashboard/Dashboard.jsx'
@@ -89,6 +90,7 @@ const App = () => {
               path="/households/search"
               element={<SearchHousehold user={user} />}
             />
+
             <Route
               path="/settings"
               element={<Settings user={user || stateUser} />}
@@ -126,6 +128,10 @@ const App = () => {
           <Route
             path="/select-department"
             element={<SelectDepartments user={user} />}
+          />
+          <Route
+            path="/report/sectors"
+            element={<Sector_commission user={user || stateUser} />}
           />
           <Route path="*" element={<NotFound />} />
           <Route path="/receipt/:id" element={<PaymentReceipt />} />
