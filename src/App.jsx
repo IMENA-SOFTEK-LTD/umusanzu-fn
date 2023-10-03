@@ -20,7 +20,7 @@ import Settings from './pages/Settings.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import HouseholdDetail from './containers/dashboard/HouseholdDetail.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
-import Report from './containers/dashboard/Report.jsx'
+import VillagesReport from './containers/reports/VillagesReport.jsx'
 import Admins from './containers/dashboard/Admins.jsx'
 import Department from './pages/dashboard/Department.jsx'
 import CreateHousehold from './pages/households/CreateHousehold.jsx'
@@ -29,6 +29,9 @@ import SelectDepartments from './containers/dashboard/SelectDepartments.jsx'
 import { CompleteInitiatedPaymentsForm } from './components/models/CompleteInitiatedPaymentsForm.jsx'
 import PaymentReceipt from './components/PaymentReceipt.jsx'
 import SearchHousehold from './containers/households/SearchHousehold.jsx'
+import Performances from './pages/dashboard/Performances.jsx'
+import Reports from './containers/reports/Reports.jsx'
+import SectorsReports from './containers/reports/SectorsReports.jsx'
 
 const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -65,8 +68,16 @@ const App = () => {
               element={<HouseholdTable user={user || stateUser} />}
             />
             <Route
-              path="/dashboard/report"
-              element={<Report user={user || stateUser} />}
+              path="/reports/villages"
+              element={<VillagesReport user={user || stateUser} />}
+            />
+            <Route
+              path="/reports/sectors"
+              element={<SectorsReports user={user || stateUser} />}
+            />
+            <Route
+              path="/reports"
+              element={<Reports user={user || stateUser} />}
             />
             <Route path="/createVillage" element={<CreateVillageModel />} />
             <Route path="/households/:id" element={<HouseholdDetail />} />
@@ -98,6 +109,10 @@ const App = () => {
           <Route
             path="/profile/:id"
             element={<UserProfilePage user={user || stateUser} />}
+          />
+          <Route
+            path="/performances"
+            element={<Performances user={user} />}
           />
           <Route
             path="/admins/:id"

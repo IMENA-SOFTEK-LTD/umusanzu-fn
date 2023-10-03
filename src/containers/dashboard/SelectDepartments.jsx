@@ -117,6 +117,7 @@ const SelectDepartments = ({ user }) => {
 
   const onSubmit = (data) => {
     dispatch(setSectorId(data?.sector))
+    localStorage.setItem('sectorId', data?.sector)
     navigate(pathRoute)
   }
 
