@@ -376,10 +376,10 @@ export const apiSlice = createApi({
           },
         }),
       }),
-      getSectorStaffTotalCollectionsByMonth: builder.query({
+      getSectorVillagesPerformance: builder.query({
         query: ({ departmentId, month }) => {
           return {
-            url: `/sector/staffsCollections/list/?departmentId=${departmentId}&month=${month}`,
+            url: `/sector/performance/villages/?departmentId=${departmentId}&month=${month}`,
             method: 'GET',
           }
         },
@@ -393,6 +393,12 @@ export const apiSlice = createApi({
       getCountryChildren: builder.query({
         query: () => ({
           url: `/department/country/children`,
+          method: 'GET',
+        }),
+      }),
+      getCountrySectors: builder.query({
+        query: ({ page, size = 35 }) => ({
+          url: `/department/country/sectors?page=${page || 0}&size=${size}`,
           method: 'GET',
         }),
       }),
@@ -662,7 +668,7 @@ export const {
   useLazyGetCountryDistrictsQuery,
   useUpdatePasswordMutation,
   useLazyGetStaffQuery,
-  useLazyGetSectorStaffTotalCollectionsByMonthQuery,
+  useLazyGetSectorVillagesPerformanceQuery,
   useLazyGetHouseHoldDetailsQuery,
   useLazyGetSingleStaffDetailsQuery,
   useCreateAdminMutation,
@@ -678,6 +684,7 @@ export const {
   useCreatePaymentSessionMutation,
   useLazyGetCellChildrenQuery,
   useLazyGetCountryChildrenQuery,
+  useLazyGetCountrySectorsQuery,
   useLazyGetDistrictSectorsQuery,
   useLazyGetSectorCellsQuery,
   useMoveHouseholdMutation,

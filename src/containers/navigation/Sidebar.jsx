@@ -106,6 +106,12 @@ function Sidebar({ user }) {
           path: '/agent/transactions/initiated',
           route: '/agent/transactions/initiated',
         },
+        {
+          title: 'Reports',
+          icon: FaListAlt,
+          path: '/reports',
+          route: '/reports',
+        },
       ],
     },
     {
