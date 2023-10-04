@@ -384,6 +384,22 @@ export const apiSlice = createApi({
           }
         },
       }),
+      getSingleSectorCommision: builder.query({
+        query: ({ departmentId, month }) => {
+          return {
+            url: `/sector/${departmentId}/commission/?month=${month}`,
+            method: 'GET',
+          }
+        },
+      }),
+      getSectorsCommissions: builder.query({
+        query: ({ month }) => {
+          return {
+            url: `/sector/commission/?month=${month}`,
+            method: 'GET',
+          }
+        },
+      }),
       getHouseholdTransactionsByMonthPaid: builder.query({
         query: ({ departmentId, month }) => ({
           url: `/households/${departmentId}/transactions/?month=${month}`,
@@ -702,4 +718,6 @@ export const {
   useLazyGetSectorDetailsQuery,
   useLazyGetInitiatedTransactionsQuery,
   useCompleteInitiatedPaymentsMutation,
+  useLazyGetSectorsCommissionsQuery,
+  useLazyGetSingleSectorCommisionQuery,
 } = apiSlice

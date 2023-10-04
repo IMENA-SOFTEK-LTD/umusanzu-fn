@@ -38,12 +38,7 @@ import Loading from '../../components/Loading'
 
 const VillagesReport = ({ user }) => {
   const [data, setData] = useState([])
-  const [startDate, setStartDate] = useState(
-    moment(new Date()).format('YYYY-MM')
-  )
-  const [selectedDate, setSelectedDate] = useState(
-    moment(new Date()).format('YYYY-MM')
-  )
+  const [selectedDate, setSelectedDate] = useState(moment(new Date()).format('YYYY-MM'));
   const [noDataMessage, setNoDataMessage] = useState('')
   const [showExportPopup, setShowExportPopup] = useState(false)
   const [reportName, setReportName] = useState('')
@@ -82,23 +77,11 @@ const VillagesReport = ({ user }) => {
       departmentId: sectorId || sector,
       month: selectedDate,
     })
-      .unwrap()
-      .then((response) => {
-        if (!response || response?.data.length === 0) {
-          setNoDataMessage(`No transactions found for ${selectedDate}`)
-        } else {
-          setNoDataMessage('')
-        }
-      })
-      .catch((error) => {
-        console.error('API Error:', error)
-      })
   }, [selectedDate, user?.departments?.id])
-
-  console.log(sectorVillagesPerformance?.data)
 
 
   useEffect(() => {
+    if (sectorVillagesPerformance) {
     const newData =
       sectorVillagesPerformance?.data?.map((item, index) => ({
         id: item?.id || index + 1,
@@ -109,8 +92,14 @@ const VillagesReport = ({ user }) => {
         bank_transfer: item?.totalAmount - item?.totalAmount / 10,
         commission: item?.totalAmount / 10,
         bank_slip: 0,
-      })) || []
-    setData(newData)
+      }));
+      setData(newData);
+      if (newData.length === 0) {
+        setNoDataMessage('No data found');
+      } else {
+        setNoDataMessage('');
+      }
+    }
   }, [sectorVillagesPerformanceSuccess])
 
 
@@ -393,80 +382,6 @@ const VillagesReport = ({ user }) => {
       link.click()
     }
   }
-  // Define a function to underline text
-  function underlineText(doc, text, x, y) {
-    const textWidth = doc.getStringUnitWidth(text) * doc.internal.getFontSize()
-    const lineLength = (textWidth / 2) * 0.75
-    doc.text(text, x, y)
-    doc.setLineWidth(0.5) // Adjust the line width as needed
-    doc.line(x, y + 1, x + lineLength, y + 1) // Draw a line under the text
-  }
-  const handleGenerateRecept = () => {
-    const doc = new jsPDF()
-    // Add the header section
-    doc.addImage(logo, 'PNG', 80, 10, 30, 30)
-    doc.setFontSize(24)
-    // Usage
-    underlineText(doc, 'PAYMENT RECEIPT', 50, 50)
-    doc.setFontSize(18)
-    doc.text('FROM: IMENA SOFTEK LTD', 30, 70)
-    doc.text('TO: KIMIHURURA SECTOR ', 30, 80)
-    // Add the table section with styles
-    doc.autoTable({
-      startY: 90,
-      head: [['MONTH', '10 %']],
-      body: [['12-2023', `30300 RWF`]],
-      theme: 'grid', // Apply a grid theme
-      headStyles: {
-        fillColor: [0, 128, 0], // Green background color for the header
-        textColor: 255, // White text color for the header
-        fontSize: 12, // Font size for the header
-      },
-      styles: {
-        fontSize: 10, // Font size for the body
-        textColor: 0, // Black text color for the body
-        cellPadding: 5, // Padding for each cell
-      },
-      columnStyles: {
-        0: {
-          // Style for the first column (MONTH)
-          fontStyle: 'bold', // Make the text bold
-        },
-        1: {
-          // Style for the second column (10 %)
-          halign: 'right', // Align the text to the right
-        },
-      },
-    })
-
-    const qrCodeHeight = 30
-    doc.addImage(
-      FaQrcode,
-      'JPEG',
-      20,
-      doc.autoTable.previous.finalY + 20,
-      30,
-      qrCodeHeight
-    )
-    doc.setFontSize(10)
-
-    // Place the text at the end of the QR code image
-    const textY = doc.autoTable.previous.finalY + 30 + qrCodeHeight
-
-    doc.text('IMENA SOFTEK LTD', 15, textY)
-    doc.text('TIN : 1123965711 ', 15, textY + 10)
-    doc.text('TEL : +250 784 368 695 ', 15, textY + 20)
-    doc.text('Kacyiru , Kigali , Rwanda ', 15, textY + 30)
-    const pdfDataUrl = doc.output('datauristring')
-    const blob = dataURLtoBlob(pdfDataUrl)
-    const blobUrl = window.URL.createObjectURL(blob)
-
-    // Open the Blob URL in a new tab for download
-    const newTab = window.open(blobUrl, '_blank')
-    if (newTab) {
-      newTab.focus()
-    }
-  }
   // Helper function to convert data URL to Blob
   function dataURLtoBlob(dataURL) {
     const parts = dataURL.split(';base64,')
@@ -587,12 +502,11 @@ const VillagesReport = ({ user }) => {
           <input
             type="month"
             className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
-            onChange={(e) => {
-              const newDate = e.target.value
-              setStartDate(newDate)
-              setSelectedDate(newDate)
-            }}
-            value={selectedDate}
+              onChange={(e) => {
+                const newDate = e.target.value;
+                setSelectedDate(newDate);
+              }}
+              value={selectedDate}
           />
           </span>
           <span className="w-full h-fit flex items-center gap-4">
@@ -624,15 +538,6 @@ const VillagesReport = ({ user }) => {
                       </span>
                     }
                     onClick={openExportPopup}
-                  />
-                  <Button
-                    value={
-                      <span className="flex items-center gap-2">
-                        Generate month receipt
-                        <FontAwesomeIcon icon={faReceipt} />
-                      </span>
-                    }
-                    onClick={handleGenerateRecept}
                   />
                 </div>
 
