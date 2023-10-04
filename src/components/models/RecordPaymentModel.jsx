@@ -84,7 +84,7 @@ function RecordPaymentModel({ household }) {
           aria-hidden="true"
           className="fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60"
         >
-          <div className="relative bg-white rounded-lg w-full shadow md:max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] mx-auto">
+          <div className="relative bg-white rounded-lg w-[500px] shadow md:max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] mx-auto">
             <article className="bg-primary relative rounded-sm flex flex-row-reverse items-center justify-center py-4 px-4">
               <Button
                 onClick={(e) => {

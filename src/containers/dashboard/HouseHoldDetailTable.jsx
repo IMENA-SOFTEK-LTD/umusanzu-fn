@@ -106,8 +106,8 @@ const HouseHoldDetailTable = ({
     <div className="page-wrapper p-4 ">
       <div className="page-content-wrapper ">
         <div className="page-content">
-          <div className="flex flex-col-reverse gap-3 md:flex-row items-center md:gap-4 mx-auto max-w-[900px]">
-            <div className="max-w-[100%] md:max-w-[65%] bg-white rounded-lg shadow-lg ring-1 ring-gray-200 overflow-x-auto">
+          <div className=" flex flex-col-reverse gap-3 md:flex-row  mx-auto">
+            <div className="md:max-w-[65%] w-full bg-white rounded-lg shadow-lg ring-1 ring-gray-200">
               <div className="card-body">
                 <h6 className="font-semibold mb-4 text-gray-800 px-3 mt-3">
                   <b>Transaction history</b>
