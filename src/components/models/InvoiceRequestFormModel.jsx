@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Button from '../Button'
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
 import { faAdd, faTrash } from '@fortawesome/free-solid-svg-icons'
@@ -335,7 +335,6 @@ const InvoiceRequestFormModel = () => {
           id,
           months: transformedReceiptRequests.months,
         })
-
         // Check if the receipt request was successful
         if (receiptResponse.data) {
           // Call the function to generate and download the receipt report
