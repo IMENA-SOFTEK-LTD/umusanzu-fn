@@ -907,7 +907,7 @@ function GlobalFilter({
           setValue(e.target.value)
           onChange(e.target.value)
         }}
-        placeholder={`${count} households...`}
+        placeholder={`${count} records...`}
       />
       <Button
         value="Search"

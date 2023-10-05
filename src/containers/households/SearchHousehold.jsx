@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Input from '../../components/Input'
 import Button, { PageButton } from '../../components/Button'
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchHouseholdMutation } from '../../states/api/apiSlice'
+import { useLazySearchHouseholdQuery } from '../../states/api/apiSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faAnglesLeft,
@@ -29,13 +29,42 @@ import {
 import { setSearchTerm } from '../../states/features/modals/householdSlice'
 import Loading from '../../components/Loading'
 
-const SearchHousehold = () => {
+const SearchHousehold = ({ user }) => {
   const { control, handleSubmit } = useForm()
   const [data, setData] = useState([])
 
   const dispatch = useDispatch()
   const { page: offset, size } = useSelector((state) => state.pagination)
   const { searchTerm } = useSelector((state) => state.household)
+
+  /**
+   * SWITCH DEPARTMENT
+   */
+
+  let department = ''
+
+  switch (user?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
+  }
 
   const [
     searchHousehold,
@@ -45,7 +74,7 @@ const SearchHousehold = () => {
       isSuccess: searchHouseholdSuccess,
       isError: searchHouseholdError,
     },
-  ] = useSearchHouseholdMutation()
+  ] = useLazySearchHouseholdQuery()
 
   useEffect(() => {
     document.title = 'Search Household | Umusanzu Digital'
@@ -58,6 +87,8 @@ const SearchHousehold = () => {
       search: data.search || 'Nishimwe',
       offset,
       size: 10000,
+      departmentId: user?.departments?.id,
+      department,
     })
     }
   }

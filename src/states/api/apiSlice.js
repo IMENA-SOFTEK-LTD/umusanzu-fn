@@ -621,12 +621,12 @@ export const apiSlice = createApi({
           body: { image, department },
         }),
       }),
-      searchHousehold: builder.mutation({
-        query: ({ search, page, size }) => ({
-          url: `/households/search/name-phone?search=${search}&page=${
+      searchHousehold: builder.query({
+        query: ({ search, page, size, departmentId, department }) => ({
+          url: `/${department}/search/households?search=${search}&page=${
             page || 0
-          }&size=${size || 50}`,
-          method: 'POST',
+          }&size=${size || 50}&departmentId=${departmentId || 0}`,
+          method: 'GET',
         }),
       }),
       getReceipt: builder.query({
@@ -660,6 +660,11 @@ export const apiSlice = createApi({
         method: 'POST',
         body: { totalAmount, payment_phone },
       }),
+    }),
+    getDepartmentPerformances: builder.query({
+      query: ({ department, month, departmentId }) => ({
+        url: `/${department}/performance/?month=${month}&departmentId=${departmentId}`,
+      })
     }),
 }}})
 
@@ -712,9 +717,10 @@ export const {
   useLazyGetDepartmentProfileQuery,
   useUpdateDepartmentProfileMutation,
   useUploadDepartmentInfoStampMutation,
-  useSearchHouseholdMutation,
+  useLazySearchHouseholdQuery,
   useLazyGetReceiptQuery,
   useLazyGetInvoiceQuery,
+  useLazyGetDepartmentPerformancesQuery,
   useLazyGetSectorDetailsQuery,
   useLazyGetInitiatedTransactionsQuery,
   useCompleteInitiatedPaymentsMutation,

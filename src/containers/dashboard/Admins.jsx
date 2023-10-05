@@ -38,7 +38,7 @@ const Admins = () => {
       department = 'country'
       break
     case 6:
-      department = 'agent'
+      department = 'country'
       break
     default:
       department = 'agent'
