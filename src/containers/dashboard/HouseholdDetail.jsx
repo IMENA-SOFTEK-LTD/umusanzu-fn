@@ -96,9 +96,13 @@ const HouseholdDetail = () => {
             <DeleteTransaction className="mb-2 md:mb-0" />
             <InvoiceRequestFormModel className="mb-2 md:mb-0" />
         </section>
-      )}
+        )}
+        {user?.departments.level_id < 6 && (
+      <div>
       <UpdateHousehold household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
-      <UpdateHouseholdStatus household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
+          <UpdateHouseholdStatus household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
+          </div>
+        )}
       </div>
       <section>
       <HouseHoldDetailTable
