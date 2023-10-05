@@ -93,7 +93,8 @@ const HouseholdDetail = () => {
         <RecordPaymentModel household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
         <CreateOfflinePaymentModel householdData={houseHoldDetailsData?.data} householdDepartments={householdDepartmentsData?.data[0]} className="mb-2 md:mb-0" />
         <RecordMultipleMonthsPayment household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
-        <DeleteTransaction className="mb-2 md:mb-0" />
+            <DeleteTransaction className="mb-2 md:mb-0" />
+            <InvoiceRequestFormModel className="mb-2 md:mb-0" />
         </section>
       )}
       <UpdateHousehold household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
