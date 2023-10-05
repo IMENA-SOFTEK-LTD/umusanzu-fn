@@ -145,7 +145,7 @@ function CreateAdminModel({ user }) {
                       htmlFor="adminName"
                       className="block mb-2 text-sm font-medium text-black"
                     >
-                      admin Name
+                      Admin Name
                     </label>
                     <Controller
                       name="names"

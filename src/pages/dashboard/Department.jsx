@@ -12,7 +12,6 @@ const Department = () => {
 
   return (
     <main className='relative'>
-      <Button value = 'Performances' route='/performances' className='ml-6 mt-4' />
       <DepartmentModals />
       <DepartmentsTable user={user} />
     </main>

@@ -157,6 +157,9 @@ const HouseHoldDetailTable = ({
                           payStatus = 'bg-red-600 text-white'
                         } else if (transaction.status === 'PARTIAL') {
                           payStatus = 'bg-blue-500 text-white'
+                        }
+                          else if (transaction.status === 'FAILED') {
+                          payStatus = 'bg-red-500 text-white'
                         } else if (transaction.status === 'PAID') {
                           payStatus = 'bg-green-500 text-white'
                         } else {
@@ -235,7 +238,7 @@ const HouseHoldDetailTable = ({
                                   <FiDownload className="mr-2" />
                                   Receipt
                                 </a>
-                              ) : transaction.status === 'PENDING' ? (
+                              ) : transaction.status === 'PENDING' || transaction?.status === 'FAILED' ? (
                                 <a
                                   className="flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-sm hover:bg-red-600 transition duration-300 cursor-pointer"
                                   onClick={() => handleDownloadPdf(transaction)}

@@ -3,7 +3,7 @@ import PerformancesTable from "../../containers/dashboard/PerformancesTable";
 const Performances = ({ user }) => {
   return (
     <main>
-        <PerformancesTable user={user} />
+      <PerformancesTable user={user} />
     </main>
   )
 }
