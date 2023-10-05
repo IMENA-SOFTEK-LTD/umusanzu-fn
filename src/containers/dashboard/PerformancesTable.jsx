@@ -171,7 +171,7 @@ const PerformancesTable = ({ user }) => {
       if (department === 'sector') {
         return baseColumns;
       } else {
-        return baseColumns.filter(column => column.id !== 'sector');
+        return baseColumns.filter(column => column.id !== 'sector' || column.id === 'staff');
       }
     }, []);
   
@@ -187,16 +187,21 @@ const PerformancesTable = ({ user }) => {
         },
         {
           id: 'ID',
-          Header: `${department === 'country' ? 'Cells' : 'Villages'}`,
+          Header: `${department === 'country' ? 'Cells' : ''}`,
           accessor: 'ID',
-          Cell: ({ row }) => (
+          Cell: ({ row }) => {
+            if (department === 'sector') {
+              return null
+            }
+            return (
             <Link
               to={`/performances/${row?.original?.ID}`}
               className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
             >
               <FaEye className="" />
             </Link>
-          ),
+            )
+          },
           sortable: true
         },
         ...columns,
@@ -204,14 +209,19 @@ const PerformancesTable = ({ user }) => {
           id: 'staff',
           Header: 'Staff',
           accessor: 'staffId',
-          Cell: ({ row }) => (
-            <Link
+          Cell: ({ row }) => {
+            if (department === 'sector') {
+              return null
+            }
+            return (
+              <Link
               to={`/admins/${row?.original?.ID}`}
               className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
             >
               <FontAwesomeIcon icon = {faUser} />
             </Link>
-          ),
+            )
+            },
           sortable: true
         },
       ])

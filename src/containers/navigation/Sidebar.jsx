@@ -80,12 +80,17 @@ function Sidebar({ user }) {
           title: 'Departments',
           icon: FaBorderAll,
           path: `${
-            department === 'country' || 
-            department === 'sector'
+            department === 'country'
               ? '/performances'
               : '/departments'
           }`,
           route: '/departments',
+        },
+        {
+          title: 'Performances',
+          icon: FaBorderAll,
+          path: '/performances',
+          route: '/performances',
         },
         {
           title: 'Transactions',
@@ -252,7 +257,9 @@ function Sidebar({ user }) {
                   (item.title === 'Complete Initiated Payments' &&
                     department !== 'agent') ||
                     (item.title === 'Reports' &&
-                    department !== 'country')
+                    department !== 'country') ||
+                    (item.title === 'Performances' &&
+                    department !== 'sector')
                 ) {
                   return null
                 }

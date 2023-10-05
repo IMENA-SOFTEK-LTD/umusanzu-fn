@@ -146,7 +146,7 @@ const DashboardCard = ({
         period: 'month',
         bg_color: 'bg-[#CADEDE]',
         text_color: 'white',
-        route: 'amountPendingNotPaid',
+        route: 'amountPendingPaid',
         viewMore: true,
         funds: !dashboardCardIsLoading,
         progress:
