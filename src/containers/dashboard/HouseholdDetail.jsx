@@ -14,7 +14,7 @@ import InvoiceRequestFormModel from '../../components/models/InvoiceRequestFormM
 import RecordMultipleMonthsPayment from '../../components/models/RecordMultipleMonthsPayment'
 const HouseholdDetail = () => {
   const { id } = useParams()
-  const [showModals, setShowModals] = useState(false)
+  const user = JSON.parse(localStorage.getItem('user'))
   const [
     getHouseholdDepartments,
     {
@@ -85,22 +85,20 @@ const HouseholdDetail = () => {
     name: householdDepartmentsData?.data[0]?.province,
   }
 
-  console.log(houseHoldDetailsData?.data)
-
   return (
     <main className="flex flex-col gap-2 my-4 max-[1000px]:flex-col">
-    
+      <div>
+      {user?.departments.level_id >5  && (
       <section className="flex flex-col gap-2 md:flex-row items-center md:gap-2 px-4 mt-20 md:mt-0">
         <RecordPaymentModel household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
         <CreateOfflinePaymentModel householdData={houseHoldDetailsData?.data} householdDepartments={householdDepartmentsData?.data[0]} className="mb-2 md:mb-0" />
-        <UpdateHousehold household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
         <RecordMultipleMonthsPayment household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
-        <InvoiceRequestFormModel className="mb-2 md:mb-0" />
-        <UpdateHouseholdStatus household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
         <DeleteTransaction className="mb-2 md:mb-0" />
-      </section>
-
-
+        </section>
+      )}
+      <UpdateHousehold household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
+      <UpdateHouseholdStatus household={houseHoldDetailsData?.data} className="mb-2 md:mb-0" />
+      </div>
       <section>
       <HouseHoldDetailTable
         transactions={transactions}

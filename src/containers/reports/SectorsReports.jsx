@@ -101,7 +101,6 @@ const SectorsReports = ({ user }) => {
                     <article className="flex flex-col items-start gap-2">
                         <Button onClick={(e) => {
                             e.preventDefault()
-                            console.log(row.original)
                         }} className='py-[4px] text-[14px] !px-4' value = 'Performance' />
                         <Button className='py-[4px] text-[14px] !px-4' value = 'Departments' />
                     </article>
@@ -112,8 +111,6 @@ const SectorsReports = ({ user }) => {
           ...columns,
         ])
       }
-
-      console.log(data, columns, countrySectorsData)
 
     const TableInstance = useTable(
         {

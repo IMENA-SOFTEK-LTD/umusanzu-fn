@@ -120,7 +120,6 @@ const InvoiceRequestFormModel = () => {
           id,
           name,
           phone1,
-          phone2,
           ubudehe,
           districts,
           sectors,
@@ -145,10 +144,10 @@ const InvoiceRequestFormModel = () => {
       doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
       doc.setFontSize(10.5)
       doc.setFont('Times New Roman', 'bold')
-      doc.text('REPUBLIC OF RWANDA', 43, 17)
-      doc.text('KIGALI CITY', 43, 23)
-      doc.text(`${districts[0]?.name} DISTRICT`, 43, 29)
-      doc.text(`${sectors[0]?.name} SECTOR`, 43, 35)
+      doc.text('REPUBLIC OF RWANDA',70, 17)
+      doc.text('KIGALI CITY',70, 23)
+      doc.text(`${districts[0]?.name} DISTRICT`,70, 29)
+      doc.text(`${sectors[0]?.name} SECTOR`,70, 35)
       doc.setFont('Times New Roman', 'bold')
       doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
 

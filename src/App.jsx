@@ -35,7 +35,7 @@ import Reports from './containers/reports/Reports.jsx'
 import SectorsReports from './containers/reports/SectorsReports.jsx'
 
 const App = () => {
-  const { user: stateUser } = useSelector((state) => state.auth)
+  
 
   const { loginPageLoaded } = useSelector((state) => state.auth)
 
@@ -44,7 +44,7 @@ const App = () => {
 
   // eslint-disable-next-line no-undef
   const user = JSON.parse(localStorage.getItem('user'))
-
+  const { user: stateUser } = useSelector((state) => state.auth)
   return (
     <main className={`relative h-full`}>
       <section className="absolute">

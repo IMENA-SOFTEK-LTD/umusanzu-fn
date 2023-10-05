@@ -6,7 +6,7 @@ import { FiDownload } from 'react-icons/fi'
 import { useParams } from 'react-router'
 import Button from '../../components/Button'
 import { FaRegEye } from 'react-icons/fa'
-import { useDispatch } from 'react-redux'
+import { useDispatch, } from 'react-redux'
 import {
   setUpdateHouseholdModal,
   setUpdateHouseholdStatusModal,
@@ -33,6 +33,7 @@ const HouseHoldDetailTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const user = JSON.parse(localStorage.getItem('user'))
+
   const navigate = useNavigate()
 
   const [
@@ -126,7 +127,9 @@ const HouseHoldDetailTable = ({
                         >
                           Action
                         </th>
+                        {user?.departments.level_id > 5 && (
                         <th className="py-2 px-4">Pay</th>
+                        )}
                         <th className="py-2 px-4">Month</th>
                         <th className="py-2 px-4 whitespace-nowrap">
                           Amount paid
@@ -181,6 +184,7 @@ const HouseHoldDetailTable = ({
                                 className="!p-[8px] !px-[10px] !rounded-[50%] bg-red-600"
                               />
                             </td>
+                            {user?.departments.level_id > 5 && (
                             <td className="py-3 px-4 whitespace-nowrap">
                               {transaction.status !== 'PAID' ? (
                                 <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 mr-2 rounded-sm transition duration-300">
@@ -190,6 +194,7 @@ const HouseHoldDetailTable = ({
                                 </button>
                               ) : null}
                             </td>
+                            )}
                             <td className="py-3 px-4 whitespace-nowrap">
                               {paidMonth}
                             </td>
@@ -334,23 +339,26 @@ const HouseHoldDetailTable = ({
                       </tr>
                     </tbody>
                   </table>
-                  <span className="flex items-center gap-4">
-                    <Button
-                      value="Edit"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        dispatch(setUpdateHouseholdModal(true))
-                      }}
-                    />
-                    <Button
-                      className="bg-yellow-600"
-                      value="Change status"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        dispatch(setUpdateHouseholdStatusModal(true))
-                      }}
-                    />
-                  </span>
+                  {user?.departments.level_id !== 5 && (
+                    <span className="flex items-center gap-4">
+                      <Button
+                        value="Edit"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          dispatch(setUpdateHouseholdModal(true))
+                        }}
+                      />
+                      <Button
+                        className="bg-yellow-600"
+                        value="Change status"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          dispatch(setUpdateHouseholdStatusModal(true))
+                        }}
+                      />
+                    </span>
+                  )}
+
                 </div>
               </div>
             </div>
