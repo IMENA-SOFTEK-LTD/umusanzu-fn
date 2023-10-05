@@ -105,9 +105,9 @@ const PerformancesTable = ({ user }) => {
         setData(departmentPerformancesData?.data?.map((row) => {
           return {
             name: row?.name,
-            district: row?.district,
-            sector: row?.sector,
-            province: row?.province,
+            district: row?.districtName || row?.district,
+            sector: row?.sectorName || row?.sector,
+            province: row?.provinceName || row?.province,
             merchantCode: row?.merchant_code,
             phone: row?.phone1,
             monthlyTarget: formatFunds(row?.monthlyTarget),
