@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 
 const Loading = ({ color = 'primary', size = 6 }) => {
   return (
-    <a href="#" role="status" className="flex items-center justify-center">
+    <section className="flex items-center justify-center">
       <svg
         aria-hidden="true"
         className={`w-${size} h-${size} mr-2 text-${color} animate-spin fill-white`}
@@ -19,7 +19,7 @@ const Loading = ({ color = 'primary', size = 6 }) => {
           fill="currentFill"
         />
       </svg>
-    </a>
+    </section>
   )
 }
 

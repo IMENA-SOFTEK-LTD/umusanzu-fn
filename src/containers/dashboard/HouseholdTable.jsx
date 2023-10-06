@@ -410,6 +410,7 @@ const HouseholdTable = ({ user }) => {
             {row?.original?.status}
           </p>
         ),
+        Filter: SelectColumnFilter,
       },
 
       {

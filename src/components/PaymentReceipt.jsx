@@ -9,6 +9,7 @@ import jsPDF from 'jspdf'
 import RWlogo from '../assets/login.png'
 import Kgl from '../assets/kglLogo.png'
 import RWline from '../assets/rwline.png'
+import QRCOD from '../assets/qrcode.jpeg'
 import moment from 'moment'
 import formatFunds from '../utils/Funds'
 import Loading from './Loading'
@@ -70,7 +71,9 @@ useEffect(() => {
       setDeparmtmentInfos(sectorDetailsData?.data?.department_infos[0] || {})
     }
 }, [sectorDetailsIsSuccess, sectorDetailsData]);
+  
   const handleDownloadPdf = (transaction) => {
+
     const doc = new jsPDF()
     // Add the header section
     doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
@@ -137,11 +140,6 @@ useEffect(() => {
       doc.text(itemsColumn2[i], startXColumn2, currentY)
       currentY += 8
     }
-    // Define the style for the table header
-    const tableHeaderStyle = {
-      fillColor: [0, 128, 0], // Green background color
-      textColor: 255, // White text color
-    }
 
     // Add the table section
     doc.autoTable({
@@ -196,6 +194,24 @@ useEffect(() => {
         },
       },
     })
+    // Calculate the height of the image (assuming it's 10 units high)
+    const imageHeight = 20;
+
+    // Calculate the vertical position (y-coordinate) to place the image at the bottom center
+    const pageHeight = doc.internal.pageSize.height;
+    const imageY = pageHeight - imageHeight - 10; // Adjust the 10 for padding if needed
+    // Calculate the total amount
+    const totalAmount = transaction?.amount;
+    // Add the image at the bottom center
+    doc.addImage(QRCOD, 'JPEG', 95, imageY, 20, imageHeight);
+    // Add the TOTAL PAID section
+    doc.setFont('Times New Roman', 'bold')
+    doc.text(
+      `TOTAL ${formatFunds(totalAmount)} RWF`,
+      130,
+      doc.autoTable.previous.finalY + 15
+    )
+
     doc.setFont('Times New Roman', 'normal');
     doc.setFontSize(12)
     doc.text(

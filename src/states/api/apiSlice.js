@@ -4,7 +4,7 @@ import {LOCAL_API_URL } from '../../constants'
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://v2.api.umusanzu.rw/api/v2/',
+    baseUrl: LOCAL_API_URL,
     prepareHeaders: (headers) => {
       // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
@@ -630,17 +630,17 @@ export const apiSlice = createApi({
         }),
       }),
       getReceipt: builder.query({
-        query: ({ id, months }) => ({
+        query: ({ id, startingMonth, endingMonth }) => ({
           url: `/households/${id}/receipt`,
           method: 'POST',
-          body: { months },
+          body: { startingMonth, endingMonth },
         }),
       }),
       getInvoice: builder.query({
-        query: ({ id, months }) => ({
+        query: ({ id, startingMonth, endingMonth }) => ({
           url: `/households/${id}/invoice`,
           method: 'POST',
-          body: { months },
+          body: { startingMonth, endingMonth },
         }),
       }),
       getSectorDetails: builder.query({
@@ -652,21 +652,23 @@ export const apiSlice = createApi({
       getInitiatedTransactions: builder.query({
         query: ({ staffId }) => ({
           url: `/agent/transactions/initiated/?staffId=${staffId}`,
+        }),
       }),
-    }),
-    completeInitiatedPayments: builder.mutation({
-      query: ({ totalAmount, staffId, payment_phone }) => ({
-        url: `/payment/initiated/complete?staffId=${staffId}`,
-        method: 'POST',
-        body: { totalAmount, payment_phone },
+      completeInitiatedPayments: builder.mutation({
+        query: ({ totalAmount, staffId, payment_phone }) => ({
+          url: `/payment/initiated/complete?staffId=${staffId}`,
+          method: 'POST',
+          body: { totalAmount, payment_phone },
+        }),
       }),
-    }),
-    getDepartmentPerformances: builder.query({
-      query: ({ department, month, departmentId }) => ({
-        url: `/${department}/performance/?month=${month}&departmentId=${departmentId}`,
-      })
-    }),
-}}})
+      getDepartmentPerformances: builder.query({
+        query: ({ department, month, departmentId }) => ({
+          url: `/${department}/performance/?month=${month}&departmentId=${departmentId}`,
+        }),
+      }),
+    }
+  },
+})
 
 export const {
   useLoginMutation,

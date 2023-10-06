@@ -649,7 +649,7 @@ const TransactionTable = ({ user }) => {
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
-                
+                  {user?.departments.level_id !== 6 && (
                   <div className="flex gap-2">
                     <Button
                       value={
@@ -660,7 +660,8 @@ const TransactionTable = ({ user }) => {
                       }
                       onClick={openExportPopup}
                     />
-                  </div>
+                    </div>
+                  )}
                   {/* Export Popup/Modal */}
                   {showExportPopup && (
                     <div className="fixed inset-0 flex items-center justify-center z-10">
@@ -673,6 +674,7 @@ const TransactionTable = ({ user }) => {
                           onChange={(e) => setReportName(e.target.value)}
                           className="border p-2 rounded-md w-full mb-4"
                         />
+                       
                         <div className="flex gap-3">
                           <Button
                             value={
@@ -702,7 +704,8 @@ const TransactionTable = ({ user }) => {
                               </span>
                             }
                             onClick={closeExportPopup} />
-                        </div>
+                          </div>
+                     
                       </div>
                     </div>
                   )}
@@ -770,25 +773,25 @@ const TransactionTable = ({ user }) => {
           </div>
         </div>
         <table className="w-[95%] mx-auto my-6 divide-y divide-gray-200">
-          <tr className="bg-gray-100 flex items-center flex-wrap">
-            <td className="px-6 py-4 text-gray-800 font-semibold">
+          <tr className="bg-green-600 flex items-center flex-wrap">
+            <td className="px-6 py-4 text-black font-semibold">
               Total Amout:
             </td>
-            <td className="px-6 py-4 text-gray-800 font-semibold">
+            <td className="px-6 py-4 green font-semibold">
               {formatFunds(totals?.totalAmount) || formatFunds(totalAmount)} RWF
             </td>
-            <td className="px-6 py-4 text-gray-800 font-semibold">
+            <td className="px-6 py-4 green font-semibold">
               Total Commission:
             </td>
-            <td className="px-6 py-4 text-gray-800 font-semibold">
+            <td className="px-6 py-4 green font-semibold">
               {formatFunds(totals?.totalCommission) ||
                 formatFunds(totalCommission)}{' '}
               RWF
             </td>
-            <td className="px-6 py-4 text-gray-800 font-semibold">
+            <td className="px-6 py-4 green font-semibold">
               Total Remaining:
             </td>
-            <td className="px-6 py-4 text-gray-800 font-semibold">
+            <td className="px-6 py-4 green font-semibold">
               {formatFunds(totals?.remainingAmount) ||
                 formatFunds(totalRemaining)}{' '}
               RWF

@@ -158,6 +158,7 @@ const SearchHousehold = ({ user }) => {
             {row?.original?.status}
           </p>
         ),
+        Filter: SelectColumnFilter,
       },
       {
         Header: 'Names',

@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import Button from '../Button'
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
-import { faAdd, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useParams } from 'react-router-dom'
 import {
   useLazyGetReceiptQuery,
@@ -13,16 +11,21 @@ import RWlogo from '../../assets/login.png'
 import Kgl from '../../assets/kglLogo.png'
 import RWline from '../../assets/rwline.png'
 import formatFunds from '../../utils/Funds'
+import QRCOD from '../../assets/qrcode.jpeg'
 import moment from 'moment'
 import Loading from '../Loading'
 
-const InvoiceRequestFormModel = () => {
+const InvoiceRequestFormModel = ({
+  member,
+  village,
+  cell,
+  sector,
+  district,
+ }) => {
   const { id } = useParams()
   const [showModal, setShowModal] = useState(false)
-  const [receiptRequests, setReceiptRequests] = useState([
-    { year: new Date().getFullYear(), month: 'January' },
-  ])
-
+  const [startingMonth, setStartingMonth] = useState('2023-01');
+  const [endingMonth, setEndingMonth] = useState('2023-01');
   const [requestType, setRequestType] = useState('PENDING')
 
   const [
@@ -45,22 +48,6 @@ const InvoiceRequestFormModel = () => {
     },
   ] = useLazyGetInvoiceQuery()
 
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ]
-  const years = ['2021', '2022', '2023', '2024', '2025']
-
   const openModal = () => {
     setShowModal(true)
   }
@@ -69,85 +56,23 @@ const InvoiceRequestFormModel = () => {
     setShowModal(false)
   }
 
-  const addReceiptRequest = () => {
-    setReceiptRequests([
-      ...receiptRequests,
-      { year: new Date().getFullYear(), month: 'January' },
-    ])
-  }
-
-  const removeReceiptRequest = (index) => {
-    const updatedRequests = [...receiptRequests]
-    updatedRequests.splice(index, 1)
-    setReceiptRequests(updatedRequests)
-  }
-
-  const handleYearChange = (event, index) => {
-    const { value } = event.target
-    const updatedRequests = [...receiptRequests]
-    updatedRequests[index].year = parseInt(value)
-    setReceiptRequests(updatedRequests)
-  }
-
-  const handleMonthChange = (event, index) => {
-    const { value } = event.target
-    const updatedRequests = [...receiptRequests]
-    updatedRequests[index].month = value
-    setReceiptRequests(updatedRequests)
-  }
-
   const handleRequestTypeChange = (event) => {
     const { value } = event.target
     setRequestType(value)
   }
 
   const handleDownloadPdf = (data) => {
+    console.log(data)
     const doc = new jsPDF()
     // Assuming data is an array of objects
-    data.forEach((item, index) => {
-      // Check if data is null, skip if null
-      if (!item.data) {
-        return
-      }
-
-      // Add a page for each data item (except null data)
-      if (index > 0) {
-        doc.addPage()
-      }
-      // Add content for the current data item
-      const {
-        data: {
-          id,
-          name,
-          phone1,
-          ubudehe,
-          districts,
-          sectors,
-          cells,
-          villages,
-          transactions,
-          tin,
-        },
-      } = item
-      // Add a table for transactions
-      const transactionData = transactions.map((transaction) => [
-        'Umutekano',
-        transaction.month_paid,
-        ` ${formatFunds(ubudehe)} RWF`,
-        ` ${transaction.amount} RWF`,
-      ])
-      const total = transactionData.reduce(
-        (acc, curr) => acc + parseFloat(curr[3]),
-        0
-      )
       // Add the header section
       doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
       doc.setFontSize(10.5)
       doc.setFont('Times New Roman', 'bold')
-      doc.text('REPUBLIC OF RWANDA',70, 17)
-      doc.text('KIGALI CITY',70, 23)
-      doc.text(`${districts[0]?.name} DISTRICT`,70, 29)
-      doc.text(`${sectors[0]?.name} SECTOR`,70, 35)
+      doc.text('REPUBLIC OF RWANDA', 70, 17)
+      doc.text('KIGALI CITY', 70, 23)
+      doc.text(`${district.name} DISTRICT`, 70, 29)
+      doc.text(`${sector.name} SECTOR`, 70, 35)
       doc.setFont('Times New Roman', 'bold')
       doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
 
@@ -157,10 +82,10 @@ const InvoiceRequestFormModel = () => {
       // Determine the title based on the transaction status
       let title = ''
       let paymentStatus = ''
-      if (requestType === 'PAID') {
+    if (requestType === 'PAID' || requestType === 'INITIATED') {
         title = 'PAYMENT RECEIPT'
         paymentStatus = 'PAID'
-      } else if (requestType === 'PENDING') {
+      } else if (requestType === 'PENDING' || requestType === 'PENDING') {
         title = 'PAYMENT INVOICE'
         paymentStatus = 'PENDING'
       }
@@ -171,17 +96,17 @@ const InvoiceRequestFormModel = () => {
 
       doc.setFont('Times New Roman', 'normal')
       const itemsColumn1 = [
-        `Reference: ${id}UMS${name.split(' ')[0]}`,
-        `Names: ${name}`,
+        `Reference: ${id}UMS${member.name.split(' ')[0]}`,
+        `Names: ${member.name}`,
         'Service: Umutekano',
-        `Tel: ${phone1}`,
-        `TIN: ${tin || 'N/A'}`,
+        `Tel: ${member.phone1}`,
+        `TIN: ${member.tin || 'N/A'}`,
       ]
       const itemsColumn2 = [
         `Date: ${moment().format('DD-MM-YYYY HH:mm')}`,
-        `Cell: ${cells[0]?.name}`,
-        `Status: ${paymentStatus}`,
-        `Village: ${villages[0]?.name}`,
+        `Cell: ${cell.name}`,
+        `Status: ${paymentStatus === 'PAID' ? doc.setTextColor(0, 128, 0) : doc.setTextColor(255, 0, 0)}${paymentStatus}`,
+        `Village: ${village.name}`,
       ]
       const startXColumn1 = 15
       const startXColumn2 = 130
@@ -203,6 +128,14 @@ const InvoiceRequestFormModel = () => {
         currentY += 8
       }
       // Add the table section
+      const tableData = data.map((item) => [
+        'Umuteko',
+        item.month_paid,
+        formatFunds(member.ubudehe),
+        formatFunds(item.amount),
+      ]);
+
+      // Add the table section
       doc.autoTable({
         startY: 120,
         head: [
@@ -213,7 +146,7 @@ const InvoiceRequestFormModel = () => {
             `${requestType === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`,
           ],
         ],
-        body: transactionData,
+        body: tableData,
         theme: 'grid', // Apply a grid theme
         headStyles: {
           fillColor: [0, 128, 0], // Green background color for the header
@@ -246,11 +179,12 @@ const InvoiceRequestFormModel = () => {
           },
         },
       })
-
+    // Calculate the total amount
+    const totalAmount = tableData.reduce((sum, row) => sum + parseFloat(row[3].replace(/,/g, '')), 0);
       // Add the TOTAL PAID section
       doc.setFont('Times New Roman', 'bold')
       doc.text(
-        `TOTAL ${formatFunds(total)} RWF`,
+        `TOTAL ${formatFunds(totalAmount)} RWF`,
         130,
         doc.autoTable.previous.finalY + 15
       )
@@ -258,7 +192,7 @@ const InvoiceRequestFormModel = () => {
       doc.setFont('Times New Roman', 'normal')
       doc.setFontSize(12)
       doc.text(
-        `For more info, Please call: ${phone1}`,
+        `For more info, Please call: ${member.phone1}`,
         15,
         doc.autoTable.previous.finalY + 15
       )
@@ -269,32 +203,40 @@ const InvoiceRequestFormModel = () => {
       )
 
       doc.setFontSize(13)
+    // Calculate the height of the image (assuming it's 10 units high)
+    const imageHeight = 20;
 
-      const image = sectors[0]?.stamp
-      doc.addImage(
-        image,
-        image.slice(-3),
-        130,
-        doc.autoTable.previous.finalY + 17,
-        40,
-        40
-      )
-      doc.setFont('Times New Roman', 'bold')
-      doc.text(
-        `${sectors[0]?.department_infos[0]?.leader_name}`,
-        130,
-        doc.autoTable.previous.finalY + 73
-      )
-      doc.text(
-        `${sectors[0]?.department_infos[0]?.leader_title},`,
-        130,
-        doc.autoTable.previous.finalY + 83
-      )
-      doc.text(
-        `${sectors[0]?.name} SECTOR`,
-        130,
-        doc.autoTable.previous.finalY + 90
-      )
+    // Calculate the vertical position (y-coordinate) to place the image at the bottom center
+    const pageHeight = doc.internal.pageSize.height;
+    const imageY = pageHeight - imageHeight - 10; // Adjust the 10 for padding if needed
+
+    // Add the image at the bottom center
+    doc.addImage(QRCOD, 'JPEG', 95, imageY, 20, imageHeight);
+      // const image = sectors[0]?.stamp
+      // doc.addImage(
+      //   image,
+      //   image.slice(-3),
+      //   130,
+      //   doc.autoTable.previous.finalY + 17,
+      //   40,
+      //   40
+      // )
+      // doc.setFont('Times New Roman', 'bold')
+      // doc.text(
+      //   `${sectors[0]?.department_infos[0]?.leader_name}`,
+      //   130,
+      //   doc.autoTable.previous.finalY + 73
+      // )
+      // doc.text(
+      //   `${sectors[0]?.department_infos[0]?.leader_title},`,
+      //   130,
+      //   doc.autoTable.previous.finalY + 83
+      // )
+      // doc.text(
+      //   `${sectors[0]?.name} SECTOR`,
+      //   130,
+      //   doc.autoTable.previous.finalY + 90
+    // )
       const pdfDataUrl = doc.output('datauristring')
       const blob = dataURLtoBlob(pdfDataUrl)
       const blobUrl = window.URL.createObjectURL(blob)
@@ -304,7 +246,6 @@ const InvoiceRequestFormModel = () => {
       if (newTab) {
         newTab.focus()
       }
-    })
   }
 
   // Helper function to convert data URL to Blob
@@ -320,24 +261,19 @@ const InvoiceRequestFormModel = () => {
     return new Blob([uInt8Array], { type: contentType })
   }
   const handleRequest = async () => {
-    // Transform the receiptRequests data
-    const transformedReceiptRequests = {
-      months: receiptRequests.map(({ year, month }) => {
-        const monthNumber = months.indexOf(month) + 1
-        return `${year}-${monthNumber.toString().padStart(2, '0')}`
-      }),
-    }
-    if (requestType === 'PAID') {
+
+    if (requestType === 'PAID' || requestType === 'INITIATED') {
       try {
         // Call getReceipt and wait for the data to be fetched
         const receiptResponse = await getReceipt({
           id,
-          months: transformedReceiptRequests.months,
+          startingMonth,
+          endingMonth,
         })
         // Check if the receipt request was successful
-        if (receiptResponse.data) {
+        if (receiptResponse?.data?.data) {
           // Call the function to generate and download the receipt report
-          handleDownloadPdf(receiptResponse.data?.data)
+          handleDownloadPdf(receiptResponse?.data?.data)
         } else {
           // Handle the case where the receipt request was not successful
           console.error('Error fetching receipt data')
@@ -351,11 +287,12 @@ const InvoiceRequestFormModel = () => {
         // Call getInvoice and wait for the data to be fetched
         const invoiceResponse = await getInvoice({
           id,
-          months: transformedReceiptRequests.months,
+          startingMonth,
+          endingMonth,
         })
 
         // Check if the invoice request was successful
-        if (invoiceResponse.data) {
+        if (invoiceResponse?.data?.data) {
           // Call the function to generate and download the invoice report
           handleDownloadPdf(invoiceResponse.data?.data)
         } else {
@@ -376,7 +313,7 @@ const InvoiceRequestFormModel = () => {
         value={
           <span className="flex items-center gap-2">
             <LiaFileInvoiceDollarSolid />
-            Request Invoice
+            Request Invoice / Receipt
           </span>
         }
         onClick={openModal}
@@ -413,7 +350,7 @@ const InvoiceRequestFormModel = () => {
               </button>
               <div className="flex items-center justify-center gap-5">
                 <h3 className="mb-4 mt-2 text-xl text-center font-medium text-white">
-                  Request Invoice
+                  Request Invoice / Receipt
                 </h3>
               </div>
             </div>
@@ -444,42 +381,23 @@ const InvoiceRequestFormModel = () => {
                 </label>
               </div>
               <div className="mt-4">
-                {receiptRequests.map((request, index) => (
-                  <div key={index} className="mb-4">
-                    <div className="flex mt-2 justify-between gap-3">
-                      <select
-                        className="form-select flex-1  rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                        value={request.year}
-                        onChange={(e) => handleYearChange(e, index)}
-                      >
-                        {years.map((element, index) => (
-                          <option key={index}>{element}</option>
-                        ))}
-                      </select>
-                      <select
-                        className="form-select flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                        value={request.month}
-                        onChange={(e) => handleMonthChange(e, index)}
-                      >
-                        {months.map((element, index) => (
-                          <option key={index}>{element}</option>
-                        ))}
-                      </select>
-                      <button
-                        className="ml-2 bg-red-500 w-10 h-10 rounded-full hover:bg-red-500 text-white"
-                        onClick={() => removeReceiptRequest(index)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </div>
+                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2 mt-2">
+                  Select starting and ending month
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="month"
+                      className="p-2 outline-none border-[1px] rounded-md border-primary w-[45%] focus:border-[1.5px] ease-in-out duration-150"
+                      value={startingMonth}
+                      onChange={(e) => setStartingMonth(e.target.value)}
+                    />
+                    <input
+                      type="month"
+                      className="p-2 outline-none border-[1px] rounded-md border-primary w-[45%] focus:border-[1.5px] ease-in-out duration-150"
+                      value={endingMonth}
+                      onChange={(e) => setEndingMonth(e.target.value)}
+                    />
                   </div>
-                ))}
-                <button
-                  onClick={addReceiptRequest}
-                  className="ml-2 bg-primary w-10 h-10 rounded-full hover:bg-red-500 text-white"
-                >
-                  <FontAwesomeIcon icon={faAdd} />
-                </button>
+                </label>
               </div>
               <div className="mt-4 flex justify-center">
                 <Button
