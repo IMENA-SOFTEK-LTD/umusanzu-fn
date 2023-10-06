@@ -629,17 +629,17 @@ export const apiSlice = createApi({
         }),
       }),
       getReceipt: builder.query({
-        query: ({ id, months }) => ({
+        query: ({ id, startingMonth, endingMonth }) => ({
           url: `/households/${id}/receipt`,
           method: 'POST',
-          body: { months },
+          body: { startingMonth, endingMonth },
         }),
       }),
       getInvoice: builder.query({
-        query: ({ id, months }) => ({
+        query: ({ id, startingMonth, endingMonth }) => ({
           url: `/households/${id}/invoice`,
           method: 'POST',
-          body: { months },
+          body: { startingMonth, endingMonth },
         }),
       }),
       getSectorDetails: builder.query({

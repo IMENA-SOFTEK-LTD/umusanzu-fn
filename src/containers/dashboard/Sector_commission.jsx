@@ -239,6 +239,7 @@ const Sector_commission = ({ user }) => {
     };
 
     const handleAction = async (id) => {
+        console.log(id, selectedDate);
         // Fetch data for the selected sector and month
         await getSingleSectorCommission({
             departmentId: id,
@@ -294,33 +295,34 @@ const Sector_commission = ({ user }) => {
             doc.text('Data not available', 30, 100);
         }
 
-    const qrCodeHeight = 30
-        doc.addImage(
-            FaQrcode,
-            'JPEG',
-            20,
-            doc.autoTable.previous.finalY + 20,
-            30,
-            qrCodeHeight
-        )
+        const qrCodeHeight = 30
+        doc.addImage(FaQrcode, 'JPEG', 20,  140, 30, 30);
         doc.setFontSize(10)
 
-        // Place the text at the end of the QR code image
         const textY = doc.autoTable.previous.finalY + 30 + qrCodeHeight;
 
-        doc.text('IMENA SOFTEK LTD', 15, textY);
-        doc.text('TIN : 1123965711 ', 15, textY + 10);
-        doc.text('TEL : +250 784 368 695 ', 15, textY + 20);
-        doc.text('Kacyiru , Kigali , Rwanda ', 15, textY + 30);
+        // Check if the calculated textY exceeds the page height
+        if (textY < doc.internal.pageSize.height) {
+            doc.text('IMENA SOFTEK LTD', 15, textY);
+            doc.text('TIN : 1123965711 ', 15, textY + 10);
+            doc.text('TEL : +250 784 368 695 ', 15, textY + 20);
+            doc.text('Kacyiru , Kigali , Rwanda ', 15, textY + 30);
+        }
+
+
         const pdfDataUrl = doc.output('datauristring');
         const blob = dataURLtoBlob(pdfDataUrl);
-        const blobUrl = window.URL.createObjectURL(blob);
 
-        // Open the Blob URL in a new tab for download
-        const newTab = window.open(blobUrl, '_blank');
-        if (newTab) {
-            newTab.focus();
-        }
+        // Create a unique file name based on the ID (you can modify this as needed)
+        const fileName = `report_${id}.pdf`;
+
+        // Create a download link element
+        const downloadLink = document.createElement('a');
+        downloadLink.href = window.URL.createObjectURL(blob);
+        downloadLink.download = fileName;
+
+        // Trigger the click event on the download link to initiate the download
+        downloadLink.click();
     };
 
     const columns = useMemo(
