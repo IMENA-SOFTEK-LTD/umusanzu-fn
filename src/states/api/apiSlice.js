@@ -4,7 +4,7 @@ import {LOCAL_API_URL } from '../../constants'
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://v2.api.umusanzu.rw/api/v2/',
+    baseUrl: LOCAL_API_URL || 'https://v2.api.umusanzu.rw/api/v2/',
     prepareHeaders: (headers) => {
       // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
