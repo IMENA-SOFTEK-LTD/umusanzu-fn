@@ -30,11 +30,10 @@ import {
   usePagination,
 } from 'react-table'
 import {
-  setPage,
   setSize,
   setTotalPages,
 } from '../../states/features/pagination/paginationSlice'
-import { useLazyGetHouseholdsListQuery } from '../../states/api/apiSlice'
+import { useCancelMoveHouseholdMutation, useLazyGetHouseholdsListQuery, useMoveHouseholdMutation } from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -64,6 +63,20 @@ const HouseholdTable = ({ user }) => {
     },
   ] = useLazyGetHouseholdsListQuery()
 
+  const [moveHousehold, {
+    data: moveHouseholdData,
+    isLoading: moveHouseholdIsLoading,
+    isSuccess: moveHouseholdIsSuccess,
+    isError: moveHouseholdIsError,
+  }] = useMoveHouseholdMutation();
+
+  const [cancelMoveHousehold, {
+    data: cancelMoveHouseholdData,
+    isLoading: cancelMoveHouseholdIsLoading,
+    isSuccess: cancelMoveHouseholdIsSuccess,
+    isError: cancelMoveHouseholdIsError,
+  }] = useCancelMoveHouseholdMutation();
+
   const {
     page: offset,
     size,
@@ -75,13 +88,6 @@ const HouseholdTable = ({ user }) => {
   const { sectorId } = useSelector((state) => state.departments)
 
   const queryRoute = queryString.parse(location.search)
-
-  useEffect(() => {
-    if (householdsListIsSuccess)
-      setTimeout(() => {
-        dispatch(setSize(1000000000))
-      }, 3000)
-  }, [householdsListData, householdsListIsSuccess])
 
   let department = ''
 
@@ -138,43 +144,57 @@ const HouseholdTable = ({ user }) => {
           sector: row?.sectors[0]?.name,
           district: row?.districts[0]?.name,
           province: row?.provinces[0]?.name,         
-          ID: row?.id
+          ID: row?.id,
+          villageId: row?.village,
+          cellId: row?.cell,
+          sectorId: row?.sector,
+          districtId: row?.district,
+          provinceId: row?.province
         })) || []
       )
     }
   }, [householdsListData, householdsListIsSuccess])
 
   useEffect(() => {
-    getHouseholdsList({
-      department,
-      departmentId: sectorId || user?.departments?.id,
-      id: sectorId || user?.departments?.id,
-      size,
-      page: offset,
-      ubudehe: queryRoute?.ubudehe,
-      route: queryRoute?.query || '',
-    })
-      .unwrap()
-      .then((data) => {
-        dispatch(setTotalPages(data?.data?.totalPages))
-        setData(
-          data?.data?.rows?.map((row, index) => ({
-            id: index + 1,
-            name: row?.name,
-            phone1: row?.phone1,
-            phone2: row?.phone2,
-            ubudehe: row?.ubudehe,
-            status: row?.status,
-            village: row?.villages[0]?.name,
-            cell: row?.cells[0]?.name,
-            sector: row?.sectors[0]?.name,
-            district: row?.districts[0]?.name,
-            province: row?.provinces[0]?.name,
-            ID: row?.id
-          })) || []
-        )
-      })
-  }, [offset, size])
+    if (householdsListIsSuccess) {
+      setTimeout(() => {
+        getHouseholdsList({
+          department,
+          departmentId: sectorId || user?.departments?.id,
+          id: sectorId || user?.departments?.id,
+          size: 1000000,
+          page: offset,
+          ubudehe: queryRoute?.ubudehe,
+          route: queryRoute?.query || '',
+        })
+          .unwrap()
+          .then((data) => {
+            dispatch(setTotalPages(data?.data?.totalPages))
+            setData(
+              data?.data?.rows?.map((row, index) => ({
+                id: index + 1,
+                name: row?.name,
+                phone1: row?.phone1,
+                phone2: row?.phone2,
+                ubudehe: row?.ubudehe,
+                status: row?.status,
+                village: row?.villages[0]?.name,
+                cell: row?.cells[0]?.name,
+                sector: row?.sectors[0]?.name,
+                district: row?.districts[0]?.name,
+                province: row?.provinces[0]?.name,
+                ID: row?.id,
+                villageId: row?.village,
+                cellId: row?.cell,
+                sectorId: row?.sector,
+                districtId: row?.district,
+                provinceId: row?.province
+              })) || []
+            )
+          })
+      }, 2000);
+    }
+  }, [householdsListData])
 
   const handleExportToPdf = async () => {
     const doc = new jsPDF('landscape')
@@ -385,30 +405,78 @@ const HouseholdTable = ({ user }) => {
         accessor: 'ID',
         Cell: ({ row }) => (
           <Button
-          className='!p-0 !py-0 !px-0 !rounded-[50%]'
+            className="!p-0 !py-0 !px-0 !rounded-[50%]"
             route={`/households/${row.original.ID}`}
             value={
               <span>
-                <FontAwesomeIcon className='p-2 px-[10px]' icon={faHouseChimney} />
+                <FontAwesomeIcon
+                  className="p-2 px-[10px]"
+                  icon={faHouseChimney}
+                />
               </span>
             }
           />
         ),
-      },      {
+      },
+      {
         Header: 'Status',
         accessor: 'status',
+        Filter: SelectColumnFilter,
         Cell: ({ row }) => (
-          <p
-            className={`${
-              row?.original?.status === 'ACTIVE'
-                ? 'bg-green-600'
-                : row?.original?.status === 'MOVED'
-                ? 'bg-yellow-700'
-                : 'bg-red-600'
-            } p-2 flex items-center justify-center text-white rounded-sm`}
-          >
-            {row?.original?.status}
-          </p>
+          <span className="flex flex-col items-center gap-[4px]">
+            <p
+              className={`${
+                row?.original?.status === 'ACTIVE'
+                  ? 'bg-green-600'
+                  : row?.original?.status === 'MOVED' ||
+                    row?.original?.status === 'REQUESTED'
+                  ? 'bg-yellow-700'
+                  : 'bg-red-600'
+              } p-2 flex items-center justify-center text-white rounded-sm`}
+            >
+              {row?.original?.status}
+            </p>
+            <span className='flex items-center gap-[3px]'>
+            <Button
+              value="Approve"
+              className={
+                row?.original?.status === 'REQUESTED'
+                  ? '!bg-green-600'
+                  : '!hidden'
+              }
+              onClick={(e) => {
+                e.preventDefault()
+                moveHousehold({
+                  name: row?.original?.name,
+                  ubudehe: row?.original?.ubudehe,
+                  nid: row?.original?.nid,
+                  phone1: row?.original?.phone1,
+                  phone2: row?.original?.phone2,
+                  village: row?.original?.villageId,
+                  cell: row?.original?.cellId,
+                  sector: row?.original?.sectorId,
+                  district: row?.original?.districtId,
+                  province: row?.original?.provinceId,
+                  existingHouseholdId: row?.original?.ID
+                })
+              }}
+            />
+            <Button
+              value={`${row?.original?.status === 'REQUESTED' ? 'Deny' : 'Return'}`}
+              className={
+                row?.original?.status === 'REQUESTED'
+                  ? '!bg-red-600'
+                  : row?.original?.status === 'MOVED' ? '!bg-green-600' : '!hidden'
+              }
+              onClick={(e) => {
+                e.preventDefault()
+                cancelMoveHousehold({
+                  id: row?.original?.ID
+                })
+              }}
+            />
+            </span>
+          </span>
         ),
       },
 
@@ -516,22 +584,24 @@ const HouseholdTable = ({ user }) => {
       <main className={`my-12`}>
         <div className="flex my-8 flex-col w-full items-center gap-6 relative">
           <div className="search-filter flex flex-col w-full items-center gap-6">
-            <span className='flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center'>
-            <Button
-            className="right-6 top-0"
-            value={<span className='flex items-center gap-2'>
-              <FontAwesomeIcon icon={faHouse} />
-              <p>Add new household</p>
-            </span>}
-            route='/households/create'
-          />
-          <span className="w-full flex flex-col items-end justify-center">
-              <GlobalFilter
-                preGlobalFilteredRows={preGlobalFilteredRows}
-                globalFilter={state.globalFilter}
-                setGlobalFilter={setGlobalFilter}
+            <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
+              <Button
+                className="right-6 top-0"
+                value={
+                  <span className="flex items-center gap-2">
+                    <FontAwesomeIcon icon={faHouse} />
+                    <p>Add new household</p>
+                  </span>
+                }
+                route="/households/create"
               />
-            </span>
+              <span className="w-full flex flex-col items-end justify-center">
+                <GlobalFilter
+                  preGlobalFilteredRows={preGlobalFilteredRows}
+                  globalFilter={state.globalFilter}
+                  setGlobalFilter={setGlobalFilter}
+                />
+              </span>
             </span>
             <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
               {headerGroups.map((headerGroup) =>
@@ -568,7 +638,9 @@ const HouseholdTable = ({ user }) => {
                   {showExportPopup && (
                     <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
                       <div className="bg-white p-4 rounded-lg shadow-lg">
-                        <h2 className="text-xl font-semibold mb-4">Export Report</h2>
+                        <h2 className="text-xl font-semibold mb-4">
+                          Export Report
+                        </h2>
                         <input
                           type="text"
                           placeholder="Enter report name"
@@ -585,7 +657,6 @@ const HouseholdTable = ({ user }) => {
                               </span>
                             }
                             onClick={handleExportToPdf}
-
                           />
                           <Button
                             value={
@@ -594,9 +665,12 @@ const HouseholdTable = ({ user }) => {
                                 <FontAwesomeIcon icon={faFileExcel} />
                               </span>
                             }
-                            className={user?.departments?.level_id === 5 ? 'flex' : 'hidden'}
+                            className={
+                              user?.departments?.level_id === 5
+                                ? 'flex'
+                                : 'hidden'
+                            }
                             onClick={handleExportToExcel}
-
                           />
                           <Button
                             value={
@@ -605,64 +679,84 @@ const HouseholdTable = ({ user }) => {
                                 <FontAwesomeIcon icon={faClose} />
                               </span>
                             }
-                            onClick={closeExportPopup} />
+                            onClick={closeExportPopup}
+                          />
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <table
-                    {...getTableProps()}
-                    border="1"
-                    className="min-w-full divide-y divide-gray-200"
-                  >
-                    <thead className="bg-gray-50">
-                      {headerGroups.map((headerGroup) => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
-                          {headerGroup.headers.map((column) => (
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                              {...column.getHeaderProps(
-                                column.getSortByToggleProps()
-                              )}
-                            >
-                              {column.render('Header')}
-                              <span>
-                                {column.isSorted
-                                  ? column.isSortedDesc
-                                    ? ' ▼'
-                                    : ' ▲'
-                                  : ''}
-                              </span>
-                            </th>
-                          ))}
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody
-                      className="bg-white divide-y divide-gray-200"
-                      {...getTableBodyProps()}
+                  {moveHouseholdIsLoading || cancelMoveHouseholdIsLoading ? (
+                    <span className="flex flex-col items-center justify-center min-h-[30vh]">
+                      <Loading />
+                      <h4 className="uppercase text-primary text-md font-bold text-center">
+                        {moveHouseholdIsLoading ? 'Moving Household...' : 'Cancelling request...'}
+                      </h4>
+                    </span>
+                  ) : moveHouseholdIsSuccess || cancelMoveHouseholdIsSuccess ? (
+                    <span className="flex flex-col items-center justify-center gap-4 min-h-[30vh]">
+                      <h4 className="uppercase text-primary text-md font-bold text-center">
+                        {moveHouseholdIsSuccess ? 'Household moved successfully' : 'Request cancelled successfully'}
+                      </h4>
+                      <Button
+                        value={`${moveHouseholdIsSuccess ? 'View household' : 'Go to dashboard'}`}
+                        route={moveHouseholdIsSuccess ? `/households/${moveHouseholdData?.data?.id}` : '/dashboard'}
+                      />
+                    </span>
+                  ) : (
+                    <table
+                      {...getTableProps()}
+                      border="1"
+                      className="min-w-full divide-y divide-gray-200"
                     >
-                      {page.map((row) => {
-                        prepareRow(row)
-                        return (
-                          <tr {...row.getRowProps()}>
-                            {row.cells.map((cell) => {
-                              return (
-                                <td
-                                  {...cell.getCellProps()}
-                                  className="px-6 py-4 whitespace-nowrap"
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              )
-                            })}
+                      <thead className="bg-gray-50">
+                        {headerGroups.map((headerGroup) => (
+                          <tr {...headerGroup.getHeaderGroupProps()}>
+                            {headerGroup.headers.map((column) => (
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                {...column.getHeaderProps(
+                                  column.getSortByToggleProps()
+                                )}
+                              >
+                                {column.render('Header')}
+                                <span>
+                                  {column.isSorted
+                                    ? column.isSortedDesc
+                                      ? ' ▼'
+                                      : ' ▲'
+                                    : ''}
+                                </span>
+                              </th>
+                            ))}
                           </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                        ))}
+                      </thead>
+                      <tbody
+                        className="bg-white divide-y divide-gray-200"
+                        {...getTableBodyProps()}
+                      >
+                        {page.map((row) => {
+                          prepareRow(row)
+                          return (
+                            <tr {...row.getRowProps()}>
+                              {row.cells.map((cell) => {
+                                return (
+                                  <td
+                                    {...cell.getCellProps()}
+                                    className="px-6 py-4 whitespace-nowrap"
+                                  >
+                                    {cell.render('Cell')}
+                                  </td>
+                                )
+                              })}
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </div>
             </div>

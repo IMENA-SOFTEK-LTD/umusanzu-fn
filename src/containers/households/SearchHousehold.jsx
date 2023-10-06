@@ -145,6 +145,7 @@ const SearchHousehold = ({ user }) => {
       {
         Header: 'Status',
         accessor: 'status',
+        Filter: SelectColumnFilter,
         Cell: ({ row }) => (
           <p
             className={`${
