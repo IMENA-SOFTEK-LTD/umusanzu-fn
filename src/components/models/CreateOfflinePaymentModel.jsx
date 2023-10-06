@@ -44,10 +44,7 @@ const CreateOfflinePaymentModel = ({ householdData, householdDepartments }) => {
     setShowModal(false)
   }
 
-  console.log(householdData)
-
   const onSubmit = (formData) => {
-    console.log(householdData?.transactions)
     recordOfflinePayment({
       service: formData.service,
       amount: formData.amount,

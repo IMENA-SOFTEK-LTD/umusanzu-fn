@@ -256,10 +256,10 @@ function Sidebar({ user }) {
                   (item.title === 'Departments' && department === 'agent') ||
                   (item.title === 'Complete Initiated Payments' &&
                     department !== 'agent') ||
-                    (item.title === 'Reports' &&
-                    department !== 'country') ||
-                    (item.title === 'Performances' &&
-                    department !== 'sector')
+                  (item.title === 'Reports' && department !== 'country') ||
+                  (item.title === 'Performances' && department !== 'sector') ||
+                  (item.title === 'Approve Move Households' && department === 'agent') ||
+                  (item.title === 'Approve Move Households' && department === 'cell')
                 ) {
                   return null
                 }

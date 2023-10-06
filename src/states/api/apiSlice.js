@@ -1,12 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import {LOCAL_API_URL } from '../../constants'
+import { LOCAL_API_URL } from '../../constants'
 
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: LOCAL_API_URL || 'https://v2.api.umusanzu.rw/api/v2/',
     prepareHeaders: (headers) => {
-      // eslint-disable-next-line no-undef
       const token = localStorage.getItem('token')
       if (token) {
         headers.set('authorization', token)
@@ -472,7 +471,7 @@ export const apiSlice = createApi({
           village,
           existingHouseholdId,
         }) => ({
-          url: `/households/${existingHouseholdId}/move`,
+          url: `/households/${existingHouseholdId}/move/approve`,
           method: 'PATCH',
           body: {
             name,
@@ -533,7 +532,7 @@ export const apiSlice = createApi({
           payment_method,
           agent,
         }) => ({
-          url: `/payment/session`,
+          url: `/payment/session/production`,
           method: 'POST',
           body: {
             total_month_paid,
@@ -666,6 +665,12 @@ export const apiSlice = createApi({
           url: `/${department}/performance/?month=${month}&departmentId=${departmentId}`,
         }),
       }),
+      cancelMoveHousehold: builder.mutation({
+        query: ({ id }) => ({
+          url: `/households/${id}/move/cancel`,
+          method: 'PATCH',
+        }),
+  }),
     }
   },
 })
@@ -728,4 +733,5 @@ export const {
   useCompleteInitiatedPaymentsMutation,
   useLazyGetSectorsCommissionsQuery,
   useLazyGetSingleSectorCommisionQuery,
+  useCancelMoveHouseholdMutation,
 } = apiSlice

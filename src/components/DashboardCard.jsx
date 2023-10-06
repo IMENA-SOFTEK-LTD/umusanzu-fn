@@ -361,6 +361,54 @@ const DashboardCard = ({
         })
       }, [])
       break
+      case 11:
+      newProps = {
+        ...props,
+        title: 'Moved Households',
+        viewMore: true,
+        period: 'month',
+        bg_color: 'bg-yellow-900',
+        text_color: 'text-white',
+        route: 'moved',
+        funds: false,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.movedHouseholds || 0
+        ),
+      }
+      useEffect(() => {
+        dashboardCard({
+          department,
+          route: 'movedHouseholds',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+      case 12:
+      newProps = {
+        ...props,
+        title: 'Requests to move',
+        viewMore: true,
+        period: 'month',
+        bg_color: 'bg-green-900',
+        text_color: 'text-white',
+        route: 'requested',
+        funds: false,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data[0]?.requestedHouseholds || 0
+        ),
+      }
+      useEffect(() => {
+        dashboardCard({
+          department,
+          route: 'requestedHouseholds',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
     default:
       newProps = { ...newProps }
   }
@@ -377,7 +425,12 @@ const DashboardCard = ({
         newProps.bg_color
       } ${
         newProps.text_color
-      } max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01] max-[1200px]:p1200-dashboardCard`}
+      } max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01] max-[1200px]:p1200-dashboardCard ${
+        (department !== 'sector' && department !== 'country') &&
+        (newProps?.route === 'moved' || newProps?.route === 'requested')
+          ? 'hidden'
+          : 'flex'
+      }`}
     >
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
@@ -470,7 +523,10 @@ const DashboardCard = ({
                 newProps.title !== `${getMonthName()}'s Target`
               ) {
                 navigate(`/transactions/?query=${newProps?.route}`)
-              } else if (newProps.funds && newProps.title === `${getMonthName()}'s Target`) {
+              } else if (
+                newProps.funds &&
+                newProps.title === `${getMonthName()}'s Target`
+              ) {
                 navigate(`/households/?query=${newProps?.route}`)
               } else {
                 navigate(`/households/?query=${newProps?.route}`)
@@ -484,11 +540,13 @@ const DashboardCard = ({
                   setPathRoute(`/transactions/?query=${newProps?.route}`)
                 )
                 navigate('/select-department')
-              } else if (newProps.funds && newProps.title === `${getMonthName()}'s Target`) {
+              } else if (
+                newProps.funds &&
+                newProps.title === `${getMonthName()}'s Target`
+              ) {
                 dispatch(setPathRoute(`/households/?query=${newProps?.route}`))
                 navigate('/select-department')
-              }
-              else {
+              } else {
                 dispatch(setPathRoute(`/households/?query=${newProps?.route}`))
                 navigate('/select-department')
               }

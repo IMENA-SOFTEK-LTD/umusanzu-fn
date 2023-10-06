@@ -34,8 +34,6 @@ const HouseHoldDetailTable = ({
 
   const user = JSON.parse(localStorage.getItem('user'))
 
-  const navigate = useNavigate()
-
   const [
     getHouseholdTransactionsByMonthPaid,
     {
@@ -342,7 +340,7 @@ const HouseHoldDetailTable = ({
                       </tr>
                     </tbody>
                   </table>
-                  {user?.departments.level_id !== 5 && (
+                  {user?.departments.level_id !== 6 && (
                     <span className="flex items-center gap-4">
                       <Button
                         value="Edit"

@@ -9,13 +9,12 @@ import {
   useLazyGetDistrictSectorsQuery,
   useLazyGetSectorCellsQuery,
 } from '../../states/api/apiSlice'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   setCells,
   setDistricts,
   setExistingHousehold,
   setHouseholdConflict,
-  setMoveHouseholdModal,
   setSectors,
   setSelectedCell,
   setSelectedDistrict,
@@ -25,8 +24,14 @@ import {
 } from '../../states/features/modals/householdSlice'
 import Loading from '../../components/Loading'
 import { useNavigate } from 'react-router-dom'
-import MoveHousehold from '../../containers/households/MoveHousehold'
-import { setCellId, setDistrictId, setProvinceId, setSectorId, setVillageId } from '../../states/features/departments/departmentSlice'
+import {
+  setCellId,
+  setDistrictId,
+  setProvinceId,
+  setSectorId,
+  setVillageId,
+} from '../../states/features/departments/departmentSlice'
+import ExistingHouseholds from '../../containers/households/ExistingHouseholds'
 
 const CreateHousehold = ({ user }) => {
   const {
@@ -51,10 +56,13 @@ const CreateHousehold = ({ user }) => {
     selectedVillage,
     householdConflict,
     existingHousehold,
-    moveHouseholdModal,
   } = useSelector((state) => state.household)
 
-  const { villageId, cellId, sectorId, districtId, provinceId } = useSelector((state) => state.departments)
+  const [existingHouseholdData, setExistingHouseholdData] = useState([])
+
+  const { villageId, cellId, sectorId, districtId, provinceId } = useSelector(
+    (state) => state.departments
+  )
 
   let department = ''
 
@@ -96,7 +104,9 @@ const CreateHousehold = ({ user }) => {
       dispatch(setCellId(user?.departments?.parent?.id))
       dispatch(setSectorId(user?.departments?.parent?.parent?.id))
       dispatch(setDistrictId(user?.departments?.parent?.parent?.parent?.id))
-      dispatch(setProvinceId(user?.departments?.parent?.parent?.parent?.parent?.id))
+      dispatch(
+        setProvinceId(user?.departments?.parent?.parent?.parent?.parent?.id)
+      )
       break
     default:
       department = 'agent'
@@ -104,7 +114,9 @@ const CreateHousehold = ({ user }) => {
       dispatch(setCellId(user?.departments?.parent?.id))
       dispatch(setSectorId(user?.departments?.parent?.parent?.id))
       dispatch(setDistrictId(user?.departments?.parent?.parent?.parent?.id))
-      dispatch(setProvinceId(user?.departments?.parent?.parent?.parent?.parent?.id))
+      dispatch(
+        setProvinceId(user?.departments?.parent?.parent?.parent?.parent?.id)
+      )
   }
 
   /**
@@ -129,9 +141,14 @@ const CreateHousehold = ({ user }) => {
     if (countryDistrictsData) {
       dispatch(setDistricts(countryDistrictsData?.data?.rows))
       if (districtId) {
-        dispatch(setSelectedDistrict(countryDistrictsData?.data?.rows?.filter((district) => district.id === districtId)))
-      }
-      else {
+        dispatch(
+          setSelectedDistrict(
+            countryDistrictsData?.data?.rows?.filter(
+              (district) => district.id === districtId
+            )
+          )
+        )
+      } else {
         dispatch(setSelectedDistrict(countryDistrictsData?.data?.rows[0]?.id))
       }
     }
@@ -149,8 +166,7 @@ const CreateHousehold = ({ user }) => {
   useEffect(() => {
     if (districtId) {
       getDistrictSectors({ id: districtId })
-    }
-    else {
+    } else {
       getDistrictSectors({ id: selectedDistrict })
     }
   }, [selectedDistrict, districtId])
@@ -159,9 +175,14 @@ const CreateHousehold = ({ user }) => {
     if (districtSectorsData) {
       dispatch(setSectors(districtSectorsData?.data?.rows))
       if (sectorId) {
-        dispatch(setSelectedSector(districtSectorsData?.data?.rows?.filter((sector) => sector.id === sectorId)))
-      }
-      else {
+        dispatch(
+          setSelectedSector(
+            districtSectorsData?.data?.rows?.filter(
+              (sector) => sector.id === sectorId
+            )
+          )
+        )
+      } else {
         dispatch(setSelectedSector(districtSectorsData?.data?.rows[0]?.id))
       }
     }
@@ -180,8 +201,7 @@ const CreateHousehold = ({ user }) => {
   useEffect(() => {
     if (sectorId) {
       getSectorCells({ id: sectorId })
-    }
-    else {
+    } else {
       getSectorCells({ id: selectedSector })
     }
   }, [selectedSector, sectorId])
@@ -190,9 +210,12 @@ const CreateHousehold = ({ user }) => {
     if (sectorCellsData) {
       dispatch(setCells(sectorCellsData?.data?.rows))
       if (cellId) {
-        dispatch(setSelectedCell(sectorCellsData?.data?.rows?.filter((cell) => cell.id === cellId)))
-      }
-      else {
+        dispatch(
+          setSelectedCell(
+            sectorCellsData?.data?.rows?.filter((cell) => cell.id === cellId)
+          )
+        )
+      } else {
         dispatch(setSelectedCell(sectorCellsData?.data?.rows[0]?.id))
       }
     }
@@ -211,8 +234,7 @@ const CreateHousehold = ({ user }) => {
   useEffect(() => {
     if (cellId) {
       getCellVillages({ id: cellId })
-    }
-    else {
+    } else {
       getCellVillages({ id: selectedCell })
     }
   }, [selectedCell, cellId])
@@ -220,9 +242,14 @@ const CreateHousehold = ({ user }) => {
   useEffect(() => {
     if (cellVillagesData) {
       if (villageId) {
-        dispatch(setVillages(cellVillagesData?.data?.rows?.filter((village) => village.id === villageId)))
-      }
-      else {
+        dispatch(
+          setVillages(
+            cellVillagesData?.data?.rows?.filter(
+              (village) => village.id === villageId
+            )
+          )
+        )
+      } else {
         dispatch(setVillages(cellVillagesData?.data?.rows))
       }
     }
@@ -264,6 +291,7 @@ const CreateHousehold = ({ user }) => {
     if (createHouseholdSuccess) {
       if (createHouseholdData?.conflict === true) {
         dispatch(setExistingHousehold(createHouseholdData?.data?.rows[0]))
+        setExistingHouseholdData(createHouseholdData?.data?.rows)
         dispatch(setHouseholdConflict(true))
       } else {
         dispatch(setHouseholdConflict(false))
@@ -275,11 +303,7 @@ const CreateHousehold = ({ user }) => {
   }, [createHouseholdSuccess, createHouseholdData])
 
   return (
-    <main className="flex flex-col gap-6 my-4 w-[90%] mx-auto relative">
-      <MoveHousehold
-        householdData={existingHousehold}
-        isOpen={moveHouseholdModal}
-      />
+    <main className="flex flex-col gap-6 my-4 w-[90%] relative mx-auto">
       <h1 className="text-[25px] font-bold text-primary text-center uppercase">
         Add new household
       </h1>
@@ -436,18 +460,22 @@ const CreateHousehold = ({ user }) => {
                       Select a district
                     </option>
                     {districts?.map((district) => {
-                        if (districtId) {
-                          return (
-                            <option disabled={district.id !== districtId} key={district.id} value={district.id}>
-                              {district.name}
-                            </option>
-                          )
-                        }
+                      if (districtId) {
                         return (
-                          <option key={district.id} value={district.id}>
+                          <option
+                            disabled={district.id !== districtId}
+                            key={district.id}
+                            value={district.id}
+                          >
                             {district.name}
                           </option>
                         )
+                      }
+                      return (
+                        <option key={district.id} value={district.id}>
+                          {district.name}
+                        </option>
+                      )
                     })}
                   </select>
                 )
@@ -483,7 +511,11 @@ const CreateHousehold = ({ user }) => {
                     {sectors?.map((sector) => {
                       if (sectorId) {
                         return (
-                          <option disabled = {sector.id !== sectorId} key={sector.id} value={sector.id}>
+                          <option
+                            disabled={sector.id !== sectorId}
+                            key={sector.id}
+                            value={sector.id}
+                          >
                             {sector.name || 'Sector'}
                           </option>
                         )
@@ -529,7 +561,11 @@ const CreateHousehold = ({ user }) => {
                     {cells?.map((cell) => {
                       if (cellId) {
                         return (
-                          <option disabled={cell.id !== cellId} key={cell.id} value={cell.id}>
+                          <option
+                            disabled={cell.id !== cellId}
+                            key={cell.id}
+                            value={cell.id}
+                          >
                             {cell.name}
                           </option>
                         )
@@ -574,7 +610,11 @@ const CreateHousehold = ({ user }) => {
                     {villages?.map((village) => {
                       if (villageId) {
                         return (
-                          <option disabled={village.id !== villageId} key={village.id} value={village.id}>
+                          <option
+                            disabled={village.id !== villageId}
+                            key={village.id}
+                            value={village.id}
+                          >
                             {village.name}
                           </option>
                         )
@@ -615,16 +655,24 @@ const CreateHousehold = ({ user }) => {
                 value={
                   createHouseholdLoading ? <Loading /> : 'Create Household'
                 }
-                className={`${!householdConflict ? 'flex' : 'hidden'} w-fit max-w-[50%] px-6 mx-auto`}
+                className={`${
+                  !householdConflict ? 'flex' : 'hidden'
+                } w-fit max-w-[50%] px-6 mx-auto`}
               />
             )
           }}
         />
-        <Button value='Move household' className={`${householdConflict ? 'flex' : 'hidden'}`} onClick={(e) => {
-          e.preventDefault()
-          dispatch(setMoveHouseholdModal(true))
-        }} />
       </form>
+      <section
+        className={`${
+          householdConflict ? 'flex flex-col items-center gap-4' : 'hidden'
+        } w-full mx-auto`}
+      >
+        <ExistingHouseholds
+          conflict={householdConflict}
+          households={existingHouseholdData}
+        />
+      </section>
     </main>
   )
 }
