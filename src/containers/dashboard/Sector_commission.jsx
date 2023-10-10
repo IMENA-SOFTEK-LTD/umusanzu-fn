@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
 import FaQrcode from '../../assets/qrcode.jpeg';
-import cachet from "../../assets/cachet.png"
-import signature from "../../assets/signature.png"
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import 'regenerator-runtime/runtime';
@@ -31,6 +29,7 @@ const Sector_commission = ({ user }) => {
     const [noDataMessage, setNoDataMessage] = useState('');
     const [showExportPopup, setShowExportPopup] = useState(false);
     const [reportName, setReportName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const {
         page: offset,
     } = useSelector((state) => state.pagination)
@@ -237,17 +236,30 @@ const Sector_commission = ({ user }) => {
             link.click();
         }
     };
-
-    const handleAction = async (id) => {
-        console.log(id, selectedDate);
-        // Fetch data for the selected sector and month
-        await getSingleSectorCommission({
-            departmentId: id,
-            month: selectedDate,
+    // Helper function to convert Blob to Base64
+    const convertBlobToBase64 = (blob) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                resolve(reader.result.split(',')[1]);
+            };
+            reader.readAsDataURL(blob);
         });
-
-        const sectorData = singleSectorCommisionData?.data;
+    };
+    const handleAction = async (id) => {
         const doc = new jsPDF();
+        setIsLoading(true);
+        try {
+            await getSingleSectorCommission({
+                departmentId: id,
+                month: selectedDate,
+            });
+            setIsLoading(false);
+        } catch (error) {
+            console.error("Error while fetching data:", error);
+            setIsLoading(false);
+        }
+        const sectorData = singleSectorCommisionData?.data;
         // Add the header section
         doc.addImage(logo, 'PNG', 80, 10, 30, 30);
         doc.setFontSize(24);
@@ -296,18 +308,17 @@ const Sector_commission = ({ user }) => {
         }
 
         const qrCodeHeight = 30
-        doc.addImage(FaQrcode, 'JPEG', 20,  140, 30, 30);
+        // Add the signature image here
+        const qrCodeResponse = await fetch(FaQrcode);
+        const qrCodeData = await qrCodeResponse.blob();
+        const qrCodeBase64 = await convertBlobToBase64(qrCodeData);
+        doc.addImage(qrCodeBase64, 'JPEG', 15, 140, 30, 30);
         doc.setFontSize(10)
 
-        const textY = doc.autoTable.previous.finalY + 30 + qrCodeHeight;
-
-        // Check if the calculated textY exceeds the page height
-        if (textY < doc.internal.pageSize.height) {
-            doc.text('IMENA SOFTEK LTD', 15, textY);
-            doc.text('TIN : 1123965711 ', 15, textY + 10);
-            doc.text('TEL : +250 784 368 695 ', 15, textY + 20);
-            doc.text('Kacyiru , Kigali , Rwanda ', 15, textY + 30);
-        }
+        doc.text('IMENA SOFTEK LTD', 15, 180);
+        doc.text('TIN : 1123965711 ', 15, 190);
+        doc.text('TEL : +250 784 368 695 ', 15, 200);
+        doc.text('Kacyiru , Kigali , Rwanda ', 15, 210);
 
 
         const pdfDataUrl = doc.output('datauristring');
@@ -324,7 +335,6 @@ const Sector_commission = ({ user }) => {
         // Trigger the click event on the download link to initiate the download
         downloadLink.click();
     };
-
     const columns = useMemo(
         () => [
             {
@@ -354,13 +364,19 @@ const Sector_commission = ({ user }) => {
                 Cell: ({ row }) => (
                     <Button
                         value={
-                            <span className="flex items-center gap-2">
-                                Generate Report
-                                <FontAwesomeIcon icon={faFile} />
-                            </span>
+                            isLoading ? (
+                                // Render a loading indicator while isLoading is true
+                                <span>Loading...</span>
+                            ) : (
+                                // Render the button with your content when isLoading is false
+                                <span className="flex items-center gap-2">
+                                    Generate Report
+                                    <FontAwesomeIcon icon={faFile} />
+                                </span>
+                            )
                         }
-                        onClick={() => handleAction(row.original.id)} // Replace handleAction with your actual action handler
-                        className="btn-action" // Add styling classes as needed
+                        onClick={() => handleAction(row.original.id)}
+                        className="btn-action"
                     />
 
                 ),
