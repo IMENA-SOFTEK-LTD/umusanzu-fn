@@ -70,7 +70,8 @@ const TransactionTable = ({ user }) => {
   const [totalRemaining, setTotalRemaining] = useState(0)
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [reportName, setReportName] = useState('');
-
+  const [startingMonth, setStartingMonth] = useState('2023-01');
+  const [endingMonth, setEndingMonth] = useState('2023-01');
   const openExportPopup = () => {
     setShowExportPopup(true);
   };
@@ -619,16 +620,16 @@ const TransactionTable = ({ user }) => {
     return (
       <main className="my-12 w-full">
         <div className="flex flex-col items-center gap-6">
-        <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className='flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center'>
-          <span className="w-full flex flex-col items-end justify-center">
-              <GlobalFilter
-                preGlobalFilteredRows={preGlobalFilteredRows}
-                globalFilter={state.globalFilter}
-                setGlobalFilter={setGlobalFilter}
-              />
+          <div className="search-filter flex flex-col w-full items-center gap-6">
+            <span className='flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center'>
+              <span className="w-full flex flex-col items-end justify-center">
+                <GlobalFilter
+                  preGlobalFilteredRows={preGlobalFilteredRows}
+                  globalFilter={state.globalFilter}
+                  setGlobalFilter={setGlobalFilter}
+                />
+              </span>
             </span>
-          </span>
             <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
@@ -648,18 +649,18 @@ const TransactionTable = ({ user }) => {
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-              <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
+                <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
                   {user?.departments.level_id !== 6 && (
-                  <div className="flex gap-2">
-                    <Button
-                      value={
-                        <span className="flex items-center gap-2">
-                          Export Report
-                          <FontAwesomeIcon icon={faFile} />
-                        </span>
-                      }
-                      onClick={openExportPopup}
-                    />
+                    <div className="flex gap-2">
+                      <Button
+                        value={
+                          <span className="flex items-center gap-2">
+                            Export Report
+                            <FontAwesomeIcon icon={faFile} />
+                          </span>
+                        }
+                        onClick={openExportPopup}
+                      />
                     </div>
                   )}
                   {/* Export Popup/Modal */}
@@ -674,7 +675,7 @@ const TransactionTable = ({ user }) => {
                           onChange={(e) => setReportName(e.target.value)}
                           className="border p-2 rounded-md w-full mb-4"
                         />
-                       
+
                         <div className="flex gap-3">
                           <Button
                             value={
@@ -704,70 +705,70 @@ const TransactionTable = ({ user }) => {
                               </span>
                             }
                             onClick={closeExportPopup} />
-                          </div>
-                     
+                        </div>
+
                       </div>
                     </div>
                   )}
-                <table
-                  {...getTableProps()}
-                  border="1"
-                  className="min-w-full divide-y divide-gray-200"
-                >
-                  <thead className="bg-gray-50">
-                    {headerGroups.map((headerGroup) => (
-                      <tr {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map((column) => (
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            {...column.getHeaderProps(
-                              column.getSortByToggleProps()
-                            )}
-                          >
-                            {column.render('Header')}
-                            <span>
-                              {column.isSorted
-                                ? column.isSortedDesc
-                                  ? ' ▼'
-                                  : ' ▲'
-                                : ''}
-                            </span>
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  {transactionsListIsLoading ? (
-                    <span className="w-full flex items-center justify-center my-6 mx-auto">
-                      <Loading size={4} />
-                    </span>
-                  ) : (
-                    <tbody
-                      className="bg-white divide-y divide-gray-200"
-                      {...getTableBodyProps()}
-                    >
-                      {page.map((row) => {
-                        prepareRow(row);
-                        return (
-                          <tr {...row.getRowProps()}>
-                            {row.cells.map((cell) => {
-                              return (
-                                <td
-                                  {...cell.getCellProps()}
-                                  className="px-6 py-4 whitespace-nowrap"
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  )}
-                </table>
-              </div>
+                  <table
+                    {...getTableProps()}
+                    border="1"
+                    className="min-w-full divide-y divide-gray-200"
+                  >
+                    <thead className="bg-gray-50">
+                      {headerGroups.map((headerGroup) => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                          {headerGroup.headers.map((column) => (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              {...column.getHeaderProps(
+                                column.getSortByToggleProps()
+                              )}
+                            >
+                              {column.render('Header')}
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? ' ▼'
+                                    : ' ▲'
+                                  : ''}
+                              </span>
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    {transactionsListIsLoading ? (
+                      <span className="w-full flex items-center justify-center my-6 mx-auto">
+                        <Loading size={4} />
+                      </span>
+                    ) : (
+                      <tbody
+                        className="bg-white divide-y divide-gray-200"
+                        {...getTableBodyProps()}
+                      >
+                        {page.map((row) => {
+                          prepareRow(row);
+                          return (
+                            <tr {...row.getRowProps()}>
+                              {row.cells.map((cell) => {
+                                return (
+                                  <td
+                                    {...cell.getCellProps()}
+                                    className="px-6 py-4 whitespace-nowrap"
+                                  >
+                                    {cell.render('Cell')}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    )}
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -849,7 +850,7 @@ const TransactionTable = ({ user }) => {
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
                     onClick={() => gotoPage(0)}
-                    // disabled={!canPreviousPage}
+                  // disabled={!canPreviousPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       First
@@ -888,7 +889,7 @@ const TransactionTable = ({ user }) => {
                       gotoPage(offset - 1)
                       dispatch(setPage(offset > 0 ? offset - 1 : offset))
                     }}
-                    // disabled={!canNextPage}
+                  // disabled={!canNextPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       Last
@@ -991,26 +992,47 @@ function GlobalFilter({
   const onChange = useAsyncDebounce((value) => {
     setGlobalFilter(value || undefined)
   }, 200)
+  const [startingDate, setStartingDate] = useState('2023-01-1');
+  const [endingDate, setEndingDate] = useState('2023-01-1');
 
+  console.log(startingDate, endingDate)
   return (
-    <label className="flex gap-4 items-center min-w-[25rem] mx-auto max-md:flex-col max-md:items-center max-md:min-w-full">
+    <div className="flex items-center justify-center gap-4">
+      <div className="flex flex-col items-center gap-2">
+        <input
+          type="date"
+          className="p-2 outline-none border rounded-md border-primary  focus:border-[1.5px] focus:ring focus:ring-primary focus:ring-opacity-50"
+          onChange={(e) => setStartingDate(e.target.value)}
+        />
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <input
+          type="date"
+          className="p-2 outline-none border rounded-md border-primary  focus:border-[1.5px] focus:ring focus:ring-primary focus:ring-opacity-50"
+          onChange={(e) => setEndingDate(e.target.value)}
+        />
+      </div>
       <Input
         type="text"
-        className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
+        className="p-2 outline-[2px] w-[20rem] border rounded-md border-primary outline-primary focus:outline-primary"
         value={value || ''}
         onChange={(e) => {
-          setValue(e.target.value)
-          onChange(e.target.value)
+          setValue(e.target.value);
+          onChange(e.target.value);
         }}
         placeholder={`${count} records...`}
       />
-      <Button
-        value="Search"
+      <button
+        className="p-2 bg-primary text-white rounded-md hover:bg-primary-dark focus:ring focus:ring-primary focus:ring-opacity-50"
         onClick={() => {
-          setGlobalFilter(value || undefined)
+          setGlobalFilter(value || undefined);
         }}
-      />
-    </label>
+      >
+        Search
+      </button>
+    </div>
+
+
   )
 }
 
