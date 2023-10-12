@@ -22,6 +22,7 @@ import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAnglesLeft, faAnglesRight, faChevronLeft, faChevronRight, faClose, faFile, faFileExcel, faFilePdf, } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
+import printPDF from '../../utils/Export';
 
 const Sector_commission = ({ user }) => {
     const [data, setData] = useState([]);
@@ -34,9 +35,12 @@ const Sector_commission = ({ user }) => {
         page: offset,
     } = useSelector((state) => state.pagination)
 
+    const [sectorData, setSectorData] = useState([]);
+
     const openExportPopup = () => {
         setShowExportPopup(true);
     };
+
 
     const closeExportPopup = () => {
         setShowExportPopup(false);
@@ -86,255 +90,15 @@ const Sector_commission = ({ user }) => {
         }
     }, [SectorCommisionData]);
 
-    // Helper function to convert data URL to Blob
-    function dataURLtoBlob(dataURL) {
-        const parts = dataURL.split(';base64,')
-        const contentType = parts[0].split(':')[1]
-        const raw = window.atob(parts[1])
-        const rawLength = raw.length
-        const uInt8Array = new Uint8Array(rawLength)
-        for (let i = 0; i < rawLength; ++i) {
-            uInt8Array[i] = raw.charCodeAt(i)
+    useEffect(() => {
+        if (singleSectorCommisionSuccess) {
+            setSectorData(singleSectorCommisionData?.data);
+            console.log(singleSectorCommisionData?.data)
+            printPDF({totalCommission: singleSectorCommisionData?.data[0]?.commission, reportName: singleSectorCommisionData?.data[0]?.name, monthPaid: selectedDate})
         }
-        return new Blob([uInt8Array], { type: contentType })
-    }
-    // Define a function to underline text
-    function underlineText(doc, text, x, y) {
-        const textWidth = doc.getStringUnitWidth(text) * doc.internal.getFontSize()
-        const lineLength = (textWidth / 2) * 0.75
-        doc.text(text, x, y)
-        doc.setLineWidth(0.5) // Adjust the line width as needed
-        doc.line(x, y + 1, x + lineLength, y + 1) // Draw a line under the text
-    }
-    const handleExportToPdf = async () => {
-        const doc = new jsPDF('landscape')
-        const logoResponse = await fetch(logo)
-        const logoData = await logoResponse.blob()
-        const reader = new FileReader()
-
-        reader.onload = async () => {
-            const logoBase64 = reader.result.split(',')[1]
-            doc.setFontSize(12)
-            doc.setFillColor(255, 166, 1)
-            doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
-            doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
-            doc.setTextColor(0)
-            doc.text(`${reportName}`, 50, 25)
-
-            const columnHeader = [
-                'NO',
-                'SECTOR NAME',
-                'TOTAL AMOUNT',
-                'COMMISSION',
-                'MERCHANT CODE',
-            ];
-            const headerRow = columnHeader.map((header) => ({
-                content: header,
-                styles: {
-                    fillColor: '#EDEDED',
-                    textColor: '#000000',
-                    fontStyle: 'bold',
-                    halign: 'center',
-                    valign: 'middle',
-                    fontSize: 8,
-                },
-            }));
-
-            doc.autoTable({
-                startY: 50,
-                head: [headerRow],
-                theme: 'grid',
-            });
-            // Create a separate array for "NO" values starting from 1
-            const noValues = Array.from({ length: TableInstance.rows.length }, (_, index) => index + 1);
-
-            // Combine the "NO" values with your existing data, excluding the ID
-            const exportData = TableInstance.rows.map((row, index) => {
-                const { id, ...rest } = row.original;
-                return {
-                    NO: noValues[index],
-                    ...rest,
-                };
-            });
-            doc.autoTable({
-                startY: doc.lastAutoTable.finalY + 5,
-                head: false,
-                body: exportData,
-                theme: 'grid',
-                styles: {
-                    fontSize: 8,
-
-                },
-            });
-            doc.save(`${reportName}.pdf`);
-        };
-
-        reader.readAsDataURL(logoData)
-    };
-    const handleExportToExcel = () => {
-        if (TableInstance) {
-            const filteredAndSortedData = TableInstance.rows.map((row) => row.original);
-
-            const ws = XLSX.utils.json_to_sheet(filteredAndSortedData);
-
-            const headerStyle = {
-                font: { bold: true, color: { rgb: 'FFFFFF' } },
-                fill: { fgColor: { rgb: '000000' } },
-            };
-            const range = XLSX.utils.decode_range(ws['!ref']);
-
-            for (let i = range.s.c; i <= range.e.c; i++) {
-                const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: i });
-                ws[cellAddress].s = headerStyle;
-            }
-            const columnStyles = [
-                {
-                    column: 'A', style: {
-                        fontSize: 8,
-                    }
-                },
-            ];
-            columnStyles.forEach((colStyle) => {
-                for (let i = range.s.r + 1; i <= range.e.r; i++) {
-                    const cellAddress = XLSX.utils.encode_cell({ r: i, c: XLSX.utils.decode_col(colStyle.column) });
-                    ws[cellAddress].s = colStyle.style;
-                }
-            });
-            ws['!autofilter'] = { ref: ws['!ref'] };
-            ws['!cols'] = [
-                { width: 5 },
+    }, [singleSectorCommisionData]);
 
 
-            ];
-            ws['!rows'] = [
-            ];
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(
-                wb,
-                ws,
-                `${reportName}`
-            );
-            const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-
-            const buf = new ArrayBuffer(wbBinary.length);
-            const view = new Uint8Array(buf);
-            for (let i = 0; i < wbBinary.length; i++) {
-                view[i] = wbBinary.charCodeAt(i) & 0xff;
-            }
-
-            const blob = new Blob([buf], {
-                type:
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            });
-
-            const blobUrl = URL.createObjectURL(blob);
-
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = `${reportName}.xlsx`;
-            link.click();
-        }
-    };
-    // Helper function to convert Blob to Base64
-    const convertBlobToBase64 = (blob) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                resolve(reader.result.split(',')[1]);
-            };
-            reader.readAsDataURL(blob);
-        });
-    };
-    const handleAction = async (id) => {
-        const doc = new jsPDF();
-        setIsLoading(true);
-        try {
-            await getSingleSectorCommission({
-                departmentId: id,
-                month: selectedDate,
-            });
-            setIsLoading(false);
-        } catch (error) {
-            console.error("Error while fetching data:", error);
-            setIsLoading(false);
-        }
-        const sectorData = singleSectorCommisionData?.data;
-        // Add the header section
-        doc.addImage(logo, 'PNG', 80, 10, 30, 30);
-        doc.setFontSize(24);
-        // Usage
-        underlineText(doc, 'PAYMENT RECEIPT', 50, 50);
-        doc.setFontSize(18);
-        doc.text('FROM: IMENA SOFTEK LTD', 30, 70);
-
-        if (sectorData && sectorData.length > 0) {
-            const sectorName = sectorData[0]?.name || 'Unknown Sector';
-            const commissionValue = sectorData[0]?.commission.toLocaleString() || 'N/A';
-
-            doc.text(`TO: ${sectorName} SECTOR `, 30, 80);
-            // Add the table section with styles
-            doc.autoTable({
-                startY: 90,
-                head: [['MONTH', '10 %']],
-                body: [[`${selectedDate}`, ` ${commissionValue} RWF`]],
-                theme: 'grid', // Apply a grid theme
-                headStyles: {
-                    fillColor: [0, 128, 0], // Green background color for the header
-                    textColor: 255, // White text color for the header
-                    fontSize: 12, // Font size for the header
-                },
-                styles: {
-                    fontSize: 10, // Font size for the body
-                    textColor: 0, // Black text color for the body
-                    cellPadding: 5, // Padding for each cell
-                },
-                columnStyles: {
-                    0: {
-                        // Style for the first column (MONTH)
-                        fontStyle: 'bold', // Make the text bold
-                        halign: 'center', // Align the text to the right
-                    },
-                    1: {
-                        // Style for the second column (10 %)
-                        halign: 'center', // Align the text to the right
-                    },
-                },
-            });
-        } else {
-            // Handle the case where sector data is missing or empty
-            doc.text('TO: Unknown SECTOR', 30, 80);
-            doc.text('Data not available', 30, 100);
-        }
-
-        const qrCodeHeight = 30
-        // Add the signature image here
-        const qrCodeResponse = await fetch(FaQrcode);
-        const qrCodeData = await qrCodeResponse.blob();
-        const qrCodeBase64 = await convertBlobToBase64(qrCodeData);
-        doc.addImage(qrCodeBase64, 'JPEG', 15, 140, 30, 30);
-        doc.setFontSize(10)
-
-        doc.text('IMENA SOFTEK LTD', 15, 180);
-        doc.text('TIN : 1123965711 ', 15, 190);
-        doc.text('TEL : +250 784 368 695 ', 15, 200);
-        doc.text('Kacyiru , Kigali , Rwanda ', 15, 210);
-
-
-        const pdfDataUrl = doc.output('datauristring');
-        const blob = dataURLtoBlob(pdfDataUrl);
-
-        // Create a unique file name based on the ID (you can modify this as needed)
-        const fileName = `report_${id}.pdf`;
-
-        // Create a download link element
-        const downloadLink = document.createElement('a');
-        downloadLink.href = window.URL.createObjectURL(blob);
-        downloadLink.download = fileName;
-
-        // Trigger the click event on the download link to initiate the download
-        downloadLink.click();
-    };
     const columns = useMemo(
         () => [
             {
@@ -375,7 +139,13 @@ const Sector_commission = ({ user }) => {
                                 </span>
                             )
                         }
-                        onClick={() => handleAction(row.original.id)}
+                        onClick={async (e) => {
+                            e.preventDefault();
+                            await getSingleSectorCommission({
+                                departmentId: row.original.id,
+                                month: selectedDate,
+                            })
+                        }}
                         className="btn-action"
                     />
 
