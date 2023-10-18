@@ -370,14 +370,11 @@ const HouseHoldDetailTable = ({
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="modal-overlay fixed inset-0 bg-black opacity-50"></div>
-          <div className="modal-container h-[80vh] w-full  bg-white mx-auto rounded shadow-lg z-50 ">
+          <div className="modal-container h-full sm:h-[80vh] w-full sm:w-[90%] md:w-[80%] lg:w-[60%] xl:w-[50%] bg-white mx-auto rounded shadow-lg z-50">
             <div className="modal-content py-4 text-left px-6">
               <div className="flex justify-between items-center pb-3">
                 <p className="text-2xl font-bold">Transaction History</p>
-                <button
-                  onClick={closeModal}
-                  className="modal-close cursor-pointer z-50"
-                >
+                <button onClick={closeModal} className="modal-close cursor-pointer z-50">
                   &times;
                 </button>
               </div>
@@ -392,15 +389,9 @@ const HouseHoldDetailTable = ({
                   <thead>
                     <tr>
                       <th className="py-2 px-4 border whitespace-nowrap">ID</th>
-                      <th className="py-2 px-4 border whitespace-nowrap">
-                        Amount Paid
-                      </th>
-                      <th className="py-2 px-4 border whitespace-nowrap">
-                        Paid At
-                      </th>
-                      <th className="py-2 px-4 border whitespace-nowrap">
-                        Created At
-                      </th>
+                      <th className="py-2 px-4 border whitespace-nowrap">Amount Paid</th>
+                      <th className="py-2 px-4 border whitespace-nowrap">Paid At</th>
+                      <th className="py-2 px-4 border whitespace-nowrap">Created At</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -413,14 +404,10 @@ const HouseHoldDetailTable = ({
                           {transaction.amount} RWF
                         </td>
                         <td className="py-2 px-4 border whitespace-nowrap">
-                          {moment(transaction.transaction_date).format(
-                            'YYYY-MM-DD HH:mm:ss'
-                          )}
+                          {moment(transaction.transaction_date).format('YYYY-MM-DD HH:mm:ss')}
                         </td>
                         <td className="py-2 px-4 border whitespace-nowrap">
-                          {moment(transaction.created_at).format(
-                            'YYYY-MM-DD HH:mm:ss'
-                          )}
+                          {moment(transaction.created_at).format('YYYY-MM-DD HH:mm:ss')}
                         </td>
                       </tr>
                     ))}
@@ -430,6 +417,7 @@ const HouseHoldDetailTable = ({
             </div>
           </div>
         </div>
+
       )}
     </div>
   )
