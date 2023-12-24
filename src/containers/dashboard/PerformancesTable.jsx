@@ -111,6 +111,7 @@ const PerformancesTable = ({ user }) => {
         setData(departmentPerformancesData?.data?.map((row) => {
           return {
             name: row?.name,
+            cell: row?.cellName || row?.cell,
             district: row?.districtName || row?.district,
             sector: row?.sectorName || row?.sector,
             province: row?.provinceName || row?.province,
@@ -119,8 +120,13 @@ const PerformancesTable = ({ user }) => {
             monthlyTarget: formatFunds(row?.monthlyTarget),
             monthlyCollections: formatFunds(row?.monthlyCollections),
             difference: formatFunds(row?.monthlyDifference.replace('-', '')),
+            percentage:
+              Math.round(
+                (Number(row?.monthlyCollections) / Number(row?.monthlyTarget)) *
+                  100
+              ) + '%',
             ID: row?.id,
-            staffId: row?.id
+            staffId: row?.id,
           }
         }))
       }
@@ -247,7 +253,7 @@ const PerformancesTable = ({ user }) => {
         {
           id: 'name',
           Header: 'Cell',
-          accessor: 'name',
+          accessor: 'cell',
           sortable: true
         },
         {
@@ -287,6 +293,12 @@ const PerformancesTable = ({ user }) => {
           Header: 'REMAIN',
           accessor: 'difference',
           sortable: true
+        },
+        {
+          id: 'percentage',
+          Header: 'Percentage',
+          accessor: 'percentage',
+          sortable: true
         }
       ];
     
@@ -304,7 +316,7 @@ const PerformancesTable = ({ user }) => {
           id: 'no',
           Header: 'No',
           accessor: 'id',
-          Cell: ({ row }) => <p>{row.index + 1}</p>,
+          Cell: ({ row }) => <p className="w-fit">{row.index + 1}</p>,
           sortable: true,
         },
         {
@@ -327,25 +339,25 @@ const PerformancesTable = ({ user }) => {
           sortable: true
         },
         ...columns,
-        {
-          id: 'staff',
-          Header: 'Staff',
-          accessor: 'staffId',
-          Cell: ({ row }) => {
-            if (department === 'sector') {
-              return null
-            }
-            return (
-              <Link
-              to={`/admins/${row?.original?.ID}`}
-              className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
-            >
-              <FontAwesomeIcon icon = {faUser} />
-            </Link>
-            )
-            },
-          sortable: true
-        },
+        // {
+        //   id: 'staff',
+        //   Header: 'Staff',
+        //   accessor: 'staffId',
+        //   Cell: ({ row }) => {
+        //     if (department === 'sector') {
+        //       return null
+        //     }
+        //     return (
+        //       <Link
+        //       to={`/admins/${row?.original?.ID}`}
+        //       className="flex items-center justify-center h-8 w-14 text-white bg-primary rounded-sm shadow-md"
+        //     >
+        //       <FontAwesomeIcon icon = {faUser} />
+        //     </Link>
+        //     )
+        //     },
+        //   sortable: true
+        // },
       ])
     }
   
