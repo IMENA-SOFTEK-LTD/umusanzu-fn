@@ -84,8 +84,10 @@ const SelectDepartments = ({ user }) => {
       isSuccess: countryDistrictsSuccess,
     },
   ] = useLazyGetCountryDistrictsQuery()
+
+
   useEffect(() => {
-    getCountryDistricts({ id: 1 })
+    getCountryDistricts({ id: 0 })
   }, [])
 
   useEffect(() => {
@@ -153,7 +155,7 @@ const SelectDepartments = ({ user }) => {
                   </select>
                 )
               }}
-            />
+          />
           </label>
           <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
             District

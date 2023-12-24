@@ -670,7 +670,13 @@ export const apiSlice = createApi({
           url: `/households/${id}/move/cancel`,
           method: 'PATCH',
         }),
-  }),
+      }),
+      requestMoveHousehold: builder.mutation({
+        query: ({ id }) => ({
+          url: `/households/${id}/move/request`,
+          method: 'PATCH',
+        }),
+      }),
     }
   },
 })
@@ -734,4 +740,5 @@ export const {
   useLazyGetSectorsCommissionsQuery,
   useLazyGetSingleSectorCommisionQuery,
   useCancelMoveHouseholdMutation,
+  useRequestMoveHouseholdMutation,
 } = apiSlice
