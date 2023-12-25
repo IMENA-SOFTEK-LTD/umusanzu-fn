@@ -675,6 +675,11 @@ export const apiSlice = createApi({
         query: ({ id }) => ({
           url: `/households/${id}/move/request`,
           method: 'PATCH',
+        })
+      }),  
+      getPaymentsChartInfo: builder.query({
+        query: ({ week, month, year }) => ({
+          url: `/payment/chartinfo?week=${week}&month=${month}&year=${year}`
         }),
       }),
     }
@@ -741,4 +746,5 @@ export const {
   useLazyGetSingleSectorCommisionQuery,
   useCancelMoveHouseholdMutation,
   useRequestMoveHouseholdMutation,
+  useGetPaymentsChartInfoQuery,
 } = apiSlice
