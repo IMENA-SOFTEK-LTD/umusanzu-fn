@@ -3,10 +3,13 @@ import LineChart from '../../components/LineChart'
 import { useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import axios from 'axios'
+import Loading from '../../components/Loading'
 
 const ChartDashboard = () => {
   const [viewMode, setViewMode] = useState('week')
   const [chartData, setChartData] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [chartError, setChartError] = useState('')
 
   
 
@@ -15,6 +18,8 @@ const ChartDashboard = () => {
   }
 
   const getChartData = async () => {
+    setIsLoading(true)
+    setChartError('')
     if (viewMode === 'week') {
       try {
         const response = await axios.get(`${process.env.VITE_APP_API_URL}/payment/chartinfo?week=true`)
@@ -30,9 +35,12 @@ const ChartDashboard = () => {
               backgroundColor: 'rgba(59, 130, 246, 0.2)'
             }
           ]
-        }       
+        }
+        setIsLoading(false)
         setChartData(weekPayments)
       } catch (error) {
+        setIsLoading(false)
+        setChartError('Loading payment data failed. Please try again!')
         console.log(error);
       } 
     } else if (viewMode === 'month') {
@@ -54,9 +62,12 @@ const ChartDashboard = () => {
               backgroundColor: 'rgba(59, 130, 246, 0.2)'
             }
           ]
-        }       
+        }      
+        setIsLoading(false)
         setChartData(monthPayments)
       } catch (error) {
+        setIsLoading(false)
+        setChartError('Loading payment data failed. Please try again!')
         console.log(error);
       }
     } else if (viewMode === 'year') {
@@ -79,8 +90,11 @@ const ChartDashboard = () => {
             }
           ]
         }       
+        setIsLoading(false)
         setChartData(yearPayments)
       } catch (error) {
+        setIsLoading(false)
+        setChartError('Loading payment data failed. Please try again!')
         console.log(error);
       }
     }
@@ -108,14 +122,22 @@ const ChartDashboard = () => {
               : `This year's Collections`}
         </h2>
         <div className=" rounded p-4 min-h-[500px] max-h-[500px] font-bold">
-          {Object.keys(chartData).length > 0 ? <LineChart className="w-full" data={chartData} />: ""}
-          
-        </div>
-        <div
-        className={`${
-          isOpen ? 'flex items-center gap-6' : 'flex flex-col gap-4'
-        }`}
-      >
+          {isLoading ? (
+            <span className="flex  flex-col items-center mt-20 justify-center min-h-[30vh]">
+              <Loading />
+              <h4 className="text-primary text-md text-center">
+                {'Loading payments data'}
+              </h4>
+            </span>
+          ) : (chartError ? (
+            <span className="flex flex-col items-center justify-center min-h-[30vh]">
+              <h4 className="text-primary text-md font-bold text-center">
+                {chartError}
+              </h4>
+            </span>
+          ): Object.keys(chartData).length && <LineChart className="w-full" data={chartData} /> )}
+      </div>
+      <div className='flex items-center justify-center gap-6' >
         <button
           className={`px-2 py-2 rounded ${
             viewMode === 'week' ? 'bg-primary text-white' : 'bg-gray-200'
