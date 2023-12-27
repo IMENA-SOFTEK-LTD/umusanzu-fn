@@ -682,6 +682,14 @@ export const apiSlice = createApi({
           url: `/payment/chartinfo?week=${week}&month=${month}&year=${year}`
         }),
       }),
+      // COMPLETE PENDING PAYMENT
+      completePendingPayment: builder.mutation({
+        query: ({ id, payment_phone }) => ({
+          url: `/payment/${id}/pending/complete`,
+          method: 'POST',
+          body: { payment_phone },
+        }),
+      }),
     }
   },
 })
@@ -747,4 +755,5 @@ export const {
   useCancelMoveHouseholdMutation,
   useRequestMoveHouseholdMutation,
   useGetPaymentsChartInfoQuery,
+  useCompletePendingPaymentMutation,
 } = apiSlice

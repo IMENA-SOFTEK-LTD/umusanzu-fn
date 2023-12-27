@@ -25,7 +25,7 @@ const printPDF = async ({ TableInstance, reportName, columns = [] }) => {
     doc.setFontSize(16);
     doc.setFillColor(242, 244, 245);
     doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F');
-    doc.addImage(logoBase64, logo.slice(-3), 10, 5, 50, 30);
+    doc.addImage(logoBase64, logo.slice(-3), 10, 5, 30, 30);
     doc.setTextColor(0);
     doc.setFontSize(20);
     doc.setFont('Arial', 'bold');

@@ -93,7 +93,6 @@ const Sector_commission = ({ user }) => {
     useEffect(() => {
         if (singleSectorCommisionSuccess) {
             setSectorData(singleSectorCommisionData?.data);
-            console.log(singleSectorCommisionData?.data)
             printPDF({totalCommission: singleSectorCommisionData?.data[0]?.commission, reportName: singleSectorCommisionData?.data[0]?.name, monthPaid: selectedDate})
         }
     }, [singleSectorCommisionData]);

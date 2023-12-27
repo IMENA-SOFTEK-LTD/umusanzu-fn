@@ -10,6 +10,7 @@ import modalSlice from './features/modals/modalSlice'
 import householdSlice from './features/modals/householdSlice'
 import departmentSlice from './features/departments/departmentSlice'
 import transactionSlice from './features/transactions/transactionSlice'
+import paymentSlice from './features/transactions/paymentSlice'
 
 const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ const store = configureStore({
     household: householdSlice,
     departments: departmentSlice,
     transactions: transactionSlice,
+    payment: paymentSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware)

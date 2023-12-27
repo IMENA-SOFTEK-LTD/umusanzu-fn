@@ -995,7 +995,6 @@ function GlobalFilter({
   const [startingDate, setStartingDate] = useState('2023-01-1');
   const [endingDate, setEndingDate] = useState('2023-01-1');
 
-  console.log(startingDate, endingDate)
   return (
     <div className="flex items-center justify-center gap-4">
       <div className="flex flex-col items-center gap-2">

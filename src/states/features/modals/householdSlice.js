@@ -22,6 +22,8 @@ const householdSlice = createSlice({
     updateHouseholdStatusModal: false,
     deleteTransactionModal: true,
     searchTerm: '',
+    household: null,
+    completePaymentModal: false,
   },
   reducers: {
     setProvinces: (state, action) => {
@@ -78,6 +80,12 @@ const householdSlice = createSlice({
     setSearchTerm: (state, action) => {
       state.searchTerm = action.payload
     },
+    setHousehold: (state, action) => {
+      state.household = action.payload
+    },
+    setCompletePaymentModal: (state, action) => {
+      state.completePaymentModal = action.payload
+    },
   },
 })
 
@@ -102,4 +110,6 @@ export const {
   setUpdateHouseholdModal,
   setUpdateHouseholdStatusModal,
   setSearchTerm,
+  setHousehold,
+  setCompletePaymentModal,
 } = householdSlice.actions

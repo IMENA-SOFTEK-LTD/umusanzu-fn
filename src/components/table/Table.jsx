@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { MdDownload } from "react-icons/md";
 import PropTypes from "prop-types";
 import {
   useGlobalFilter,
@@ -17,28 +16,34 @@ import printPDF from "./Export";
 import { AiOutlineSearch } from "react-icons/ai";
 import Modal from "../models/Modal";
 
-const Table = ({ columns, data, pagination = true }) => {
+const Table = ({
+  columns,
+  data,
+  pagination = true,
+  search = true,
+  report = true,
+}) => {
   const tableColumns = useMemo(
     () =>
       columns.map((column) => {
         return {
           ...column,
           Filter: column.filter ? SelectColumnFilter : undefined,
-        };
+        }
       }),
     [columns]
-  );
+  )
 
-  const [showExportPopup, setShowExportPopup] = useState(false);
-  const [reportName, setReportName] = useState("");
+  const [showExportPopup, setShowExportPopup] = useState(false)
+  const [reportName, setReportName] = useState('')
 
   const openExportPopup = () => {
-    setShowExportPopup(true);
-  };
+    setShowExportPopup(true)
+  }
 
   const closeExportPopup = () => {
-    setShowExportPopup(false);
-  };
+    setShowExportPopup(false)
+  }
 
   const TableInstance = useTable(
     {
@@ -49,7 +54,7 @@ const Table = ({ columns, data, pagination = true }) => {
     useGlobalFilter,
     useSortBy,
     usePagination
-  );
+  )
 
   const {
     getTableProps,
@@ -68,14 +73,18 @@ const Table = ({ columns, data, pagination = true }) => {
     nextPage,
     previousPage,
     setPageSize,
-  } = TableInstance;
+  } = TableInstance
 
   return (
-    <main className="my-12 w-full">
-      <main className="flex flex-col item-start gap-4">
+    <main className="w-full">
+      <main className="flex flex-col item-start">
         <section className="flex flex-col items-center gap-4">
           <section className="w-full flex flex-col items-start justify-start gap-[10px]">
-            <span className="w-full items-start flex justify-start">
+            <span
+              className={`${
+                !search && 'hidden'
+              } w-full items-start flex justify-start`}
+            >
               <GlobalFilter
                 preGlobalFilteredRows={preGlobalFilteredRows}
                 globalFilter={state.globalFilter}
@@ -98,7 +107,11 @@ const Table = ({ columns, data, pagination = true }) => {
               )}
             </span>
           </section>
-          <section className="w-full mx-auto h-fit flex flex-col items-start flex-wrap gap-4 max-md:justify-center">
+          <section
+            className={`${
+              !report && 'hidden'
+            } w-full mx-auto h-fit flex flex-col items-start flex-wrap gap-4 max-md:justify-center`}
+          >
             <span>
               <Button
                 className="!border-[1px]"
@@ -115,7 +128,9 @@ const Table = ({ columns, data, pagination = true }) => {
           {showExportPopup && (
             <Modal isOpen onClose={closeExportPopup}>
               <form className="flex flex-col gap-4 items-center">
-                <h2 className="text-lg text-primaryColor font-semibold uppercase">Print PDF</h2>
+                <h2 className="text-lg text-primaryColor font-semibold uppercase">
+                  Print PDF
+                </h2>
                 <Input
                   type="text"
                   onChange={(e) => setReportName(e.target.value)}
@@ -130,8 +145,8 @@ const Table = ({ columns, data, pagination = true }) => {
                       </span>
                     }
                     onClick={(e) => {
-                      e.preventDefault();
-                      printPDF({ TableInstance, reportName, columns });
+                      e.preventDefault()
+                      printPDF({ TableInstance, reportName, columns })
                     }}
                   />
                   <Button
@@ -174,26 +189,26 @@ const Table = ({ columns, data, pagination = true }) => {
                   </thead>
                   <tbody {...getTableBodyProps()}>
                     {page.map((row) => {
-                      prepareRow(row);
+                      prepareRow(row)
                       return (
                         <tr
                           key={row.id}
                           {...row.getRowProps()}
-                          className="bg-white text-[15px] divide-y divide-gray-200"
+                          className="bg-white text-[15px] divide-y divide-gray-200 w-full"
                         >
                           {row.cells.map((cell) => {
                             return (
                               <td
                                 key={cell.id}
                                 {...cell.getCellProps()}
-                                className="px-2 py-1"
+                                className="px-3 py-2 text-center text-ellipsis w-fit"
                               >
                                 {cell.render('Cell')}
                               </td>
-                            );
+                            )
                           })}
                         </tr>
-                      );
+                      )
                     })}
                     <tr>
                       <td></td>
@@ -226,8 +241,8 @@ const Table = ({ columns, data, pagination = true }) => {
                 onChange={(e) => {
                   const pageNumber = e.target.value
                     ? Number(e.target.value) - 1
-                    : 0;
-                  gotoPage(pageNumber);
+                    : 0
+                  gotoPage(pageNumber)
                 }}
                 className="w-10 text-center border-none py-[6px] ring-[1.5px] ring-gray-300 ring-opacity-50 rounded-md focus:ring-primaryColor"
               />
@@ -285,8 +300,8 @@ const Table = ({ columns, data, pagination = true }) => {
         </div>
       </main>
     </main>
-  );
-};
+  )
+}
 
 export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },
@@ -362,6 +377,8 @@ Table.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
   pagination: PropTypes.bool,
+  search: PropTypes.bool,
+  report: PropTypes.bool,
 };
 
 export default Table;

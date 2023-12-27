@@ -1,9 +1,10 @@
 .pagination-button {
-    background-color: #3498db;
+    background-color: #165F75;
     color: #fff;
-    border: 1px solid #3498db;
+    border: 1px solid #165F75;
     padding: 4px 10px;
     border-radius: 4px;
+    font-size: 12px;
     cursor: pointer;
     margin-right: 8px;
   }
@@ -19,9 +20,9 @@
   }
   
   .pagination-button-active {
-    background-color: #2980b9;
+    background-color: #165F75;
     color: #fff;
-    border: 1px solid #2980b9;
+    border: 1px solid #165F75;
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;

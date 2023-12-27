@@ -5,18 +5,19 @@ const Input = ({
   type,
   className,
   onChange,
-  value,
+  value = null,
   name,
   required = false,
   placeholder,
   readonly,
+  defaultValue = null,
 }) => {
   return (
     <input
       type={type || 'text'}
       name={name}
       required={required}
-      defaultValue={value}
+      defaultValue={defaultValue || value}
       readOnly={readonly ? 'readOnly' : null}
       placeholder={placeholder}
       onChange={onChange}
@@ -37,6 +38,7 @@ Input.propTypes = {
   color: PropTypes.string,
   placeholder: PropTypes.string,
   readonly: PropTypes.bool,
+  defaultValue: PropTypes.string,
 }
 
 export default Input

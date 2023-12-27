@@ -62,7 +62,6 @@ const InvoiceRequestFormModel = ({
   }
 
   const handleDownloadPdf = (data) => {
-    console.log(data)
     const doc = new jsPDF()
     // Assuming data is an array of objects
       // Add the header section

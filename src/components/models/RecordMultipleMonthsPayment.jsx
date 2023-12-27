@@ -38,9 +38,7 @@ function RecordMultipleMonthsPayment({ household }) {
     }
 
     const onSubmit = (data) => {
- 
-        console.log(transformeddate)
-        createPaymentSession({
+         createPaymentSession({
             household_id: household?.guid,
             month_paid: data?.month_paid,
             total_month_paid: data?.total_month_paid,
