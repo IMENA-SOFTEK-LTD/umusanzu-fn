@@ -144,12 +144,6 @@ const HouseholdTable = ({ user }) => {
           sector: row?.sectors[0]?.name,
           district: row?.districts[0]?.name,
           province: row?.provinces[0]?.name,         
-          ID: row?.id,
-          villageId: row?.village,
-          cellId: row?.cell,
-          sectorId: row?.sector,
-          districtId: row?.district,
-          provinceId: row?.province
         })) || []
       )
     }
@@ -183,12 +177,6 @@ const HouseholdTable = ({ user }) => {
                 sector: row?.sectors[0]?.name,
                 district: row?.districts[0]?.name,
                 province: row?.provinces[0]?.name,
-                ID: row?.id,
-                villageId: row?.village,
-                cellId: row?.cell,
-                sectorId: row?.sector,
-                districtId: row?.district,
-                provinceId: row?.province
               })) || []
             )
           })
@@ -214,8 +202,21 @@ const HouseholdTable = ({ user }) => {
       doc.setFontSize(10)
 
       // eslint-disable-next-line no-sparse-arrays
-      const columnHeader = ['NO', 'Name', , 'PHONE 1' , 'PHONE 2', 'UBUDEHE', 'STATUS', 'VILLAGE', 'CELL', 'SECTOR', 'DISTRICT', 'PROVINCE']
-      const headerRow = columnHeader.map(header => ({ content: header, styles: { halign: 'center' } }))
+      const columnHeader = [
+        { content: 'NO', cellWidth: 10 },
+        { content: 'NAME', cellWidth: 40 },
+        { content: 'PHONE 1', cellWidth: 25 },
+        { content: 'PHONE 2', cellWidth: 29 },
+        { content: 'UBUDEHE', cellWidth: 18 },
+        { content: 'STATUS', cellWidth: 20 },
+        { content: 'VILLAGE', cellWidth: 27 },
+        { content: 'CELL', cellWidth: 27 },
+        { content: 'SECTOR', cellWidth: 27 },
+        { content: 'DISTRICT', cellWidth: 25 },
+        { content: 'PROVINCE', cellWidth: 25 },
+      ]
+      const headerRow = columnHeader.map(header => ({ content: header.content, styles: { halign: 'left', cellWidth: header.cellWidth },
+    }))
       doc.autoTable({
         startY: 50,
         head: [headerRow],
@@ -228,8 +229,7 @@ const HouseholdTable = ({ user }) => {
           valign: 'middle',
           fontSize: 8,
         },
-        columnStyles: {},
-      })
+         })
       // Create a separate array for "NO" values starting from 1
       const noValues = Array.from({ length: TableInstance.rows.length }, (_, index) => index + 1);
     
@@ -246,9 +246,14 @@ const HouseholdTable = ({ user }) => {
         head: false,
         body: exportData.map((row) => Object.values(row)),
         theme: 'grid',
-        columnStyles: {
-          0: { cellWidth: 10 },
+        styles: {
+          fontSize: 9,
         },
+        /** column cellWidths generated from header cellWidths for proper horizontal alignment with header */
+        columnStyles: columnHeader.reduce((acc, value, index) => { 
+          acc[index] = { cellWidth: value.cellWidth };
+          return acc;
+        }, {}),
       })
 
 
@@ -274,7 +279,7 @@ const HouseholdTable = ({ user }) => {
         },
       };
       doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 20,
+        startY: doc.lastAutoTable.finalY + 30,
         head: false,
         body: customContent,
         ...customContentStyles,
@@ -295,7 +300,7 @@ const HouseholdTable = ({ user }) => {
       const dateNow = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
 
       doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
-      doc.text(`Date: ${dateNow}`, 15, doc.lastAutoTable.finalY + 3);
+      doc.text(` Done on: ${dateNow}`, 15, doc.lastAutoTable.finalY - 50);
 
       doc.save(`${reportName}.pdf`);
     };

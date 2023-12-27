@@ -19,7 +19,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { setMoveHouseholdModal } from '../../states/features/modals/householdSlice'
-import { useCreateDuplicateHouseHoldMutation } from '../../states/api/apiSlice'
+import { useCreateDuplicateHouseHoldMutation, useRequestMoveHouseholdMutation } from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
 
 const ExistingHouseholds = ({ conflict = false, households }) => {
@@ -53,6 +53,14 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
       isError: createDuplicateHouseholdError,
     },
   ] = useCreateDuplicateHouseHoldMutation()
+
+  // REQUEST MOVE HOUSEHOLD
+  const [requestMoveHousehold, {
+    data: requestMoveHouseholdData,
+    isLoading: requestMoveHouseholdLoading,
+    isSuccess: requestMoveHouseholdSuccess,
+    isError: requestMoveHouseholdError,
+  }] = useRequestMoveHouseholdMutation()
 
   const user = JSON.parse(localStorage.getItem('user'))
 
@@ -99,12 +107,16 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
             <Button
               className="!p-2 !text-[14px]"
               value={
+                requestMoveHouseholdLoading ? <Loading /> :
                 user?.departments?.level_id === 6
                   ? 'Saba kumwimura'
                   : 'Request move'
               }
               onClick={(e) => {
                 e.preventDefault()
+                requestMoveHousehold({
+                  id: row?.original?.ID,
+                })
                 dispatch(setMoveHouseholdModal(true))
               }}
             />
@@ -280,15 +292,34 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
           <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
-                {createDuplicateHouseholdLoading ? (
-                  <span className='flex items-center justify-center min-h-[30vh] flex-col gap4'>
+                {createDuplicateHouseholdLoading ||
+                requestMoveHouseholdLoading ? (
+                  <span className="flex items-center justify-center min-h-[30vh] flex-col gap4">
                     <Loading />
-                    <h4 className='uppercase text-primary text-center text-lg font-bold'>Creating household...</h4>
+                    <h4 className="uppercase text-primary text-center text-lg font-bold">
+                      Creating household...
+                    </h4>
                   </span>
-                ) : createDuplicateHouseholdSuccess ? (
-                  <span className='flex flex-col items-center justify-center gap-4 min-h-[50vh]'>
-                    <h4 className='uppercase text-primary text-center text-lg font-bold'>Household created successfully</h4>
-                    <Button value='View household' route={`/households/${createDuplicateHouseholdData?.data?.id}`} />
+                ) : createDuplicateHouseholdSuccess ||
+                  requestMoveHouseholdSuccess ? (
+                  <span className="flex flex-col items-center justify-center gap-4 min-h-[50vh]">
+                    <h4 className="uppercase text-primary text-center text-lg font-bold">
+                      Household{' '}
+                      {createDuplicateHouseholdSuccess ? 'created' : 'moved'}{' '}
+                      successfully
+                    </h4>
+                    {createDuplicateHouseholdSuccess && (
+                      <Button
+                        value="View household"
+                        route={`/households/${createDuplicateHouseholdData?.data?.id}`}
+                      />
+                    )}
+                    {requestMoveHouseholdSuccess && (
+                      <Button
+                        value="Return to households"
+                        route="/households"
+                      />
+                    )}
                   </span>
                 ) : (
                   <table
