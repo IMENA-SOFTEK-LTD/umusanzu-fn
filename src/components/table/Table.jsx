@@ -11,14 +11,11 @@ import {
 } from "react-table";
 import { BsFiletypePdf } from "react-icons/bs";
 import "regenerator-runtime/runtime";
-import Button from "../Inputs/Button";
-import Input from "../Inputs/Input";
+import Button from "../Button";
+import Input from "../Input";
 import printPDF from "./Export";
 import { AiOutlineSearch } from "react-icons/ai";
-import { Link } from "react-router-dom";
-import { getMimeType } from "../../hooks/Uploads";
-import Modal from "../Modal/Modal";
-
+import Modal from "../models/Modal";
 
 const Table = ({ columns, data, pagination = true }) => {
   const tableColumns = useMemo(
@@ -85,7 +82,7 @@ const Table = ({ columns, data, pagination = true }) => {
                 setGlobalFilter={setGlobalFilter}
               />
             </span>
-            <span className="flex items-center gap-4">
+            <span className="flex flex-wrap items-center gap-4">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
                   column.Filter ? (
@@ -182,42 +179,14 @@ const Table = ({ columns, data, pagination = true }) => {
                         <tr
                           key={row.id}
                           {...row.getRowProps()}
-                          className="bg-white divide-y divide-gray-200"
+                          className="bg-white text-[15px] divide-y divide-gray-200"
                         >
                           {row.cells.map((cell) => {
-                            if (
-                              /^(https?:\/\/|data:image\/[a-z]+;base64,)/i.test(
-                                cell?.value
-                              ) &&
-                              getMimeType(cell?.value) !== null
-                            ) {
-                              return (
-                                <td
-                                  key={cell.id}
-                                  {...cell.getCellProps()}
-                                  className="px-6 py-4"
-                                >
-                                  <Link
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      window?.open(cell?.value, '_blank');
-                                    }}
-                                    className="flex items-center gap-1 hover:text-primaryColor hover:scale-[1.01]"
-                                  >
-                                    {' '}
-                                    {getMimeType(cell?.value)
-                                      ?.split('/')[1]
-                                      ?.toUpperCase() || 'Shapefile'}
-                                    <MdDownload className="text-[15px] hover:sclae-[1.02]" />
-                                  </Link>
-                                </td>
-                              );
-                            }
                             return (
                               <td
                                 key={cell.id}
                                 {...cell.getCellProps()}
-                                className="px-6 py-4"
+                                className="px-2 py-1"
                               >
                                 {cell.render('Cell')}
                               </td>
@@ -331,18 +300,10 @@ export function SelectColumnFilter({
   }, [id, preFilteredRows]);
 
   return (
-    <label
-      style={{
-        whiteSpace: "nowrap",
-        display: "flex",
-        gap: "10px",
-        alignItems: "center",
-        width: "100%",
-      }}
-    >
-      <p className="text-[14px] w-fit">{render("Header")}:</p>
+    <label className="flex gap-x-2 items-baseline">
+      <span className="text-gray-1000 text-[14px]">{render('Header')}: </span>
       <select
-        className="w-full min-w-[6rem] focus:outline-none rounded-md flex items-center justify-center"
+        className="rounded-sm w-full bg-transparent outline-none border-none focus:border-none focus:outline-primary"
         name={id}
         id={id}
         value={filterValue}
@@ -354,7 +315,7 @@ export function SelectColumnFilter({
           All
         </option>
         {options.map((option, i) => (
-          <option className="text-[13px] w-fit" key={i} value={option}>
+          <option className="text-[13px]" key={i} value={option}>
             {option}
           </option>
         ))}

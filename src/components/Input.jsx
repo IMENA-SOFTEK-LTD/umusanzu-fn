@@ -20,7 +20,7 @@ const Input = ({
       readOnly={readonly ? 'readOnly' : null}
       placeholder={placeholder}
       onChange={onChange}
-      className={`text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 ${className}`}
+      className={`text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 px-4 ${className}`}
     />
   )
 }
