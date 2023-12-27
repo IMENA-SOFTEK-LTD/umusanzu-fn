@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LineChart from '../../components/LineChart'
 import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
 import axios from 'axios'
 
 const ChartDashboard = () => {
