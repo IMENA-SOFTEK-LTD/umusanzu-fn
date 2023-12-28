@@ -214,9 +214,9 @@ const TransactionTable = ({ user }) => {
           amount: row?.amount,
           month_paid: moment(row.month_paid).format('MM-YYYY'),
           payment_method: row.payment_method.split('_').join(' '),
-          agent: row?.agents?.names,
           status: row?.status,
           remain_amount: row?.remain || 0,
+          agent: row?.agents?.names,
           commission: Number(row?.amount) / 10,
           transaction_date: moment(row.created_at).format('DD-MM-YYYY'),
         }
@@ -230,7 +230,11 @@ const TransactionTable = ({ user }) => {
   }, [transactionsListIsSuccess, transactionsListIsError, queryRoute])
 
   const handleExportToPdf = async () => {
-    const doc = new jsPDF('landscape');
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      format: 'a4',
+      margins: {top: 60, right: 60, bottom: 40, left:200 }
+    });
     const logoResponse = await fetch(logo);
     const logoData = await logoResponse.blob();
     const reader = new FileReader();
@@ -247,23 +251,24 @@ const TransactionTable = ({ user }) => {
       doc.setFontSize(8);
 
       const columnHeader = [
-        'NO',
-        'NAMES',
-        'VILLAGE',
-        'CELL',
-        'SECTOR',
-        'DISTRICT',
-        'AMOUNT',
-        'MONTH PAID',
-        'STATUS',
-        'REMAINING AMOUNT',
-        'PAYMENT METHOD',
-        'AGENT',
-        'COMMISSION',
-        'DATE',
+        { content: 'NO', cellWidth: 10 },
+        { content: 'NAMES', cellWidth: 30 },
+        { content: 'VILLAGE', cellWidth: 23 },
+        { content: 'CELL', cellWidth: 20 },
+        { content: 'SECTOR', cellWidth: 20 },
+        { content: 'DISTRICT', cellWidth: 20 },
+        { content: 'AMOUNT PAID', cellWidth: 15 },
+        { content: 'MONTH PAID', cellWidth: 16 },
+        { content: 'PAYMENT METHOD', cellWidth: 23 },
+        { content: 'STATUS', cellWidth: 18 },
+        { content: 'REMAINING AMOUNT', cellWidth: 18 },
+        { content: 'AGENT', cellWidth: 30 },
+        { content: 'COMMISSION', cellWidth: 13 },
+        { content: 'DATE', cellWidth: 18 },
       ];
       const headerRow = columnHeader.map((header) => ({
-        content: header,
+        content: header.content,
+        styles: { cellWidth: header.cellWidth }
       }));
       doc.autoTable({
         startY: 50,
@@ -275,7 +280,7 @@ const TransactionTable = ({ user }) => {
           fontStyle: 'bold',
           halign: 'center',
           valign: 'middle',
-          fontSize: 8,
+          fontSize: 7,
         },
       });
 
@@ -296,8 +301,12 @@ const TransactionTable = ({ user }) => {
         body: exportData,
         theme: 'grid',
         styles: {
-          fontSize: 8,
+          fontSize: 7.5,
         },
+        columnStyles: columnHeader.reduce((acc, value, index) => { 
+          acc[index] = { cellWidth: value.cellWidth };
+          return acc;
+        }, {}),
       });
 
       // Add your custom content here
@@ -322,7 +331,7 @@ const TransactionTable = ({ user }) => {
         },
       };
       doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 20,
+        startY: doc.lastAutoTable.finalY + 140,
         head: false,
         body: customContent,
         ...customContentStyles,
@@ -343,7 +352,7 @@ const TransactionTable = ({ user }) => {
       const dateNow = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
 
       doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
-      doc.text(`Date: ${dateNow}`, 20, doc.lastAutoTable.finalY + 2);
+      doc.text(`Done on: ${dateNow}`, 20, doc.lastAutoTable.finalY - 50);
 
       doc.save(`${reportName}.pdf`);
     };
@@ -995,7 +1004,6 @@ function GlobalFilter({
   const [startingDate, setStartingDate] = useState('2023-01-1');
   const [endingDate, setEndingDate] = useState('2023-01-1');
 
-  console.log(startingDate, endingDate)
   return (
     <div className="flex items-center justify-center gap-4">
       <div className="flex flex-col items-center gap-2">
