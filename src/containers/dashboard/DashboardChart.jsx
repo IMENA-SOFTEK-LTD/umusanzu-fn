@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import axios from 'axios'
 import Loading from '../../components/Loading'
+import { LOCAL_API_URL, API_URL } from '../../constants'
 
 const ChartDashboard = () => {
   const [viewMode, setViewMode] = useState('week')
@@ -15,14 +16,15 @@ const ChartDashboard = () => {
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
+    getChartData(mode);
   };
 
-  const getChartData = async () => {
+  const getChartData = async (mode) => {
     setIsLoading(true)
     setChartError('')
-    if (viewMode === 'week') {
+    if (mode === 'week') {
       try {
-        const response = await axios.get(`${process.env.VITE_APP_API_URL}/payment/chartinfo?week=true`)
+        const response = await axios.get(`${LOCAL_API_URL || API_URL}/payment/chartinfo?week=true`)
         const weekPayments = {
           labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
           datasets: [
@@ -43,7 +45,7 @@ const ChartDashboard = () => {
         setChartError('Loading payment data failed. Please try again!')
         console.log(error);
       } 
-    } else if (viewMode === 'month') {
+    } else if (mode === 'month') {
       try {
         let todayDate = new Date();
 
@@ -70,7 +72,7 @@ const ChartDashboard = () => {
         setChartError('Loading payment data failed. Please try again!')
         console.log(error);
       }
-    } else if (viewMode === 'year') {
+    } else if (mode === 'year') {
       try {
         let todayDate = new Date();
 
@@ -100,8 +102,8 @@ const ChartDashboard = () => {
     }
   }
   useEffect(() => {
-    getChartData()    
-  }, [viewMode])
+    getChartData(viewMode)    
+  }, [])
 
   const { isOpen } = useSelector((state) => state.sidebar);
 
