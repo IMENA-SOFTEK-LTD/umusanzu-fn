@@ -14,8 +14,8 @@ const ChartDashboard = () => {
   
 
   const handleViewModeChange = (mode) => {
-    setViewMode(mode)
-  }
+    setViewMode(mode);
+  };
 
   const getChartData = async () => {
     setIsLoading(true)
@@ -103,7 +103,7 @@ const ChartDashboard = () => {
     getChartData()    
   }, [viewMode])
 
-  const { isOpen } = useSelector((state) => state.sidebar)
+  const { isOpen } = useSelector((state) => state.sidebar);
 
   return (
     <div
@@ -165,7 +165,7 @@ const ChartDashboard = () => {
       </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChartDashboard
+export default ChartDashboard;
