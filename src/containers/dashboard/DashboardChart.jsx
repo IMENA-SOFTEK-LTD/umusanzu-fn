@@ -24,7 +24,7 @@ const ChartDashboard = () => {
     setChartError('')
     if (mode === 'week') {
       try {
-        const response = await axios.get(`${LOCAL_API_URL || API_URL}/payment/chartinfo?week=true`)
+        const response = await axios.get(`${API_URL}/payment/chartinfo?week=true`)
         const weekPayments = {
           labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
           datasets: [
@@ -49,7 +49,7 @@ const ChartDashboard = () => {
       try {
         let todayDate = new Date();
 
-        const response = await axios.get(`http://localhost:3000/api/v2/payment/chartinfo?month=${todayDate.getMonth() +1 }&year=${todayDate.getFullYear()}`)
+        const response = await axios.get(`${API_URL}/payment/chartinfo?month=${todayDate.getMonth() +1 }&year=${todayDate.getFullYear()}`)
         const monthPayments = {
           labels: response.data.data.length > 0 ? response.data.data.map(data => {
             return `${data.day}`;
@@ -76,7 +76,7 @@ const ChartDashboard = () => {
       try {
         let todayDate = new Date();
 
-        const response = await axios.get(`http://localhost:3000/api/v2/payment/chartinfo?year=${todayDate.getFullYear()}`)
+        const response = await axios.get(`${API_URL}/payment/chartinfo?year=${todayDate.getFullYear()}`)
         const yearPayments = {
           labels: response.data.data.length > 0 ? response.data.data.map(data => {
             return `${data.month}`;
