@@ -1,9 +1,9 @@
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import Button from '../Button';
-import { MdOutlineCancel } from 'react-icons/md';
+import ReactDOM from 'react-dom'
+import PropTypes from 'prop-types'
+import Button from '../Button'
+import { MdOutlineCancel } from 'react-icons/md'
 
-const JSX_MODAL = ({ isOpen, children, onClose }) => {
+const JSX_MODAL = ({ isOpen, children, onClose = null }) => {
   return (
     <main
       className={`${
@@ -14,29 +14,31 @@ const JSX_MODAL = ({ isOpen, children, onClose }) => {
         <Button
           value={<MdOutlineCancel size={25} />}
           onClick={(e) => {
-            e.preventDefault();
-            onClose();
+            e.preventDefault()
+            onClose()
           }}
           background={false}
-          className="absolute flex items-center justify-center !border-none top-6 right-6 !py-0 !px-2 !rounded-full hover:!bg-transparent"
+          className={`${
+            !onClose && 'hidden'
+          } absolute flex items-center justify-center !border-none top-6 right-6 !py-0 !px-2 !rounded-full hover:!bg-transparent`}
         />
         {children}
       </section>
     </main>
-  );
-};
+  )
+}
 
 JSX_MODAL.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,
   onClose: PropTypes.func.isRequired,
-};
+}
 
 function Modal(props) {
   return ReactDOM.createPortal(
     <JSX_MODAL {...props} />,
     document.querySelector('#modal')
-  );
+  )
 }
 
-export default Modal;
+export default Modal

@@ -27,6 +27,7 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
+
     baseUrl: LOCAL_API_URL || 'https://v2.api.umusanzu.rw/api/v2/',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token')
@@ -713,6 +714,20 @@ export const apiSlice = createApi({
           body: { payment_phone },
         }),
       }),
+      // GET PAYMENT DETAILS
+      getPaymentDetails: builder.query({
+        query: ({ id }) => ({
+          url: `/payment/${id}`,
+          method: 'GET',
+        }),
+      }),
+      // DELETE PAYMENT
+      deletePayment: builder.mutation({
+        query: ({ id }) => ({
+          url: `/payment/${id}`,
+          method: 'DELETE',
+        }),
+      }),
     }
   },
 })
@@ -779,4 +794,6 @@ export const {
   useRequestMoveHouseholdMutation,
   useGetPaymentsChartInfoQuery,
   useCompletePendingPaymentMutation,
+  useLazyGetPaymentDetailsQuery,
+  useDeletePaymentMutation,
 } = apiSlice
