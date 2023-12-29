@@ -105,7 +105,7 @@ function RecordPaymentModel({ household }) {
             </article>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-4 items-center w-full px-4 md:px-6 lg:px-10"
+              className="flex flex-col gap-4 items-center w-full p-4 md:px-6 lg:px-10"
             >
               <div className="w-full flex flex-col gap-2 items-center">
                 <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
@@ -170,7 +170,7 @@ function RecordPaymentModel({ household }) {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
+                      className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                     >
                       <option value="MTN">Choose payment</option>
                       <option value="bank">Bank Transfer</option>
@@ -210,7 +210,7 @@ function RecordPaymentModel({ household }) {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
+                      className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                     >
                       <option value="rw">Kinyarwanda</option>
                       <option value="en">English</option>
@@ -235,7 +235,7 @@ function RecordPaymentModel({ household }) {
                   )
                 }}
               />
-              </form>
+            </form>
           </div>
         </section>
       )}

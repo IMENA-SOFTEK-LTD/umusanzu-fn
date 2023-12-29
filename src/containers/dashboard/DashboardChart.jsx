@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LineChart from '../../components/LineChart'
 import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
 import axios from 'axios'
 import Loading from '../../components/Loading'
 import { LOCAL_API_URL, API_URL } from '../../constants'

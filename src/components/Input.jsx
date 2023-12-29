@@ -5,22 +5,23 @@ const Input = ({
   type,
   className,
   onChange,
-  value,
+  value = null,
   name,
   required = false,
   placeholder,
   readonly,
+  defaultValue = null,
 }) => {
   return (
     <input
       type={type || 'text'}
       name={name}
       required={required}
-      defaultValue={value}
+      defaultValue={defaultValue || value}
       readOnly={readonly ? 'readOnly' : null}
       placeholder={placeholder}
       onChange={onChange}
-      className={`text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 ${className}`}
+      className={`text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 px-4 ${className}`}
     />
   )
 }
@@ -37,6 +38,7 @@ Input.propTypes = {
   color: PropTypes.string,
   placeholder: PropTypes.string,
   readonly: PropTypes.bool,
+  defaultValue: PropTypes.string,
 }
 
 export default Input

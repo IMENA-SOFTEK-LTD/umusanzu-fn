@@ -32,6 +32,7 @@ import {
   setVillageId,
 } from '../../states/features/departments/departmentSlice'
 import ExistingHouseholds from '../../containers/households/ExistingHouseholds'
+import Select from '../../components/Select'
 
 const CreateHousehold = ({ user }) => {
   const {
@@ -134,7 +135,7 @@ const CreateHousehold = ({ user }) => {
     },
   ] = useLazyGetCountryDistrictsQuery()
   useEffect(() => {
-    getCountryDistricts({ id: 1 })
+    getCountryDistricts({ id: 0 })
   }, [])
 
   useEffect(() => {
@@ -275,15 +276,15 @@ const CreateHousehold = ({ user }) => {
     createHousehold({
       name: data.name,
       nid: data.nid,
-      province: data.province,
-      district: data.district,
-      sector: data.sector,
-      cell: data.cell,
+      province: Number(data.province),
+      district: Number(data.district),
+      sector: Number(data.sector),
+      cell: Number(data.cell),
       phone1: data.phone1,
       phone2: data.phone2,
       ubudehe: data.ubudehe,
       type: data.type,
-      village: data.village,
+      village: Number(data.village),
     })
   }
 
@@ -296,8 +297,8 @@ const CreateHousehold = ({ user }) => {
       } else {
         dispatch(setHouseholdConflict(false))
         setTimeout(() => {
-          navigate('/households')
-        }, 1500)
+          navigate(`/households/${createHouseholdData?.data?.id}`)
+        }, 1000)
       }
     }
   }, [createHouseholdSuccess, createHouseholdData])
@@ -309,283 +310,263 @@ const CreateHousehold = ({ user }) => {
       </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-8 items-center w-[70%] mx-auto"
+        className="flex flex-col gap-8 items-center w-[75%] mx-auto"
       >
-        <section className="flex items-center gap-4 w-full flex-wrap">
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
-            <p>
-              Full Name <span className="text-red-500">*</span>
-            </p>
-            <Controller
-              control={control}
-              rules={{ required: "Please add the head's full names" }}
-              name="name"
-              render={({ field }) => {
-                return <Input {...field} placeholder="Full Name" />
-              }}
-            />
-            {errors.name && (
-              <span className="text-red-500 text-[12px]">
-                {errors.name.message}
-              </span>
-            )}
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
-            National ID
-            <Controller
-              control={control}
-              name="nid"
-              render={({ field }) => {
-                return <Input {...field} placeholder="1 1989 8 0133256 7 89" />
-              }}
-            />
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
-            <p>
-              Primary Phone <span className="text-red-500">*</span>
-            </p>
-            <Controller
-              control={control}
-              name="phone1"
-              rules={{ required: 'Please add the primary phone number' }}
-              render={({ field }) => {
-                return <Input {...field} placeholder="0788 000 000" />
-              }}
-            />
-            {errors.phone1 && (
-              <span className="text-red-500 text-[12px]">
-                {errors.phone1.message}
-              </span>
-            )}
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
-            Secondary phone
-            <Controller
-              control={control}
-              name="phone2"
-              render={({ field }) => {
-                return <Input {...field} placeholder="0788 111 111" />
-              }}
-            />
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
-            <p>
-              Amount <span className="text-red-500">*</span>
-            </p>
-            <Controller
-              control={control}
-              name="ubudehe"
-              rules={{ required: 'Please add the ubudehe amount' }}
-              render={({ field }) => {
-                return <Input {...field} placeholder="5000" />
-              }}
-            />
-            {errors.amount && (
-              <span className="text-red-500 text-[12px]">
-                {errors.amount.message}
-              </span>
-            )}
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Household type
-            <Controller
-              control={control}
-              name="type"
-              defaultValue={1}
-              render={({ field }) => {
-                return (
-                  <select
-                    {...field}
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                  >
-                    <option disabled value="">
-                      Select household type
-                    </option>
-                    <option value={1}>Residence</option>
-                    <option value={2}>Business</option>
-                  </select>
-                )
-              }}
-            />
-          </label>
+        {/* PERSONAL INFO */}
+        <section className="flex flex-col items-center gap-3 w-full">
+          <span className="flex items-start gap-4 w-full">
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
+              <p>
+                Full Name <span className="text-red-500">*</span>
+              </p>
+              <Controller
+                control={control}
+                rules={{ required: "Please add the head's full names" }}
+                name="name"
+                render={({ field }) => {
+                  return <Input {...field} placeholder="Full Name" />
+                }}
+              />
+              {errors.name && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.name.message}
+                </span>
+              )}
+            </label>
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
+              National ID
+              <Controller
+                control={control}
+                name="nid"
+                render={({ field }) => {
+                  return (
+                    <Input {...field} placeholder="eg. 1 1989 8 0133256 7 89" />
+                  )
+                }}
+              />
+            </label>
+          </span>
+          <span className="flex items-start gap-4 w-full">
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
+              <p>
+                Primary Phone <span className="text-red-500">*</span>
+              </p>
+              <Controller
+                control={control}
+                name="phone1"
+                rules={{ required: 'Please add the primary phone number' }}
+                render={({ field }) => {
+                  return <Input {...field} placeholder="0788 000 000" />
+                }}
+              />
+              {errors.phone1 && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.phone1.message}
+                </span>
+              )}
+            </label>
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
+              Secondary phone
+              <Controller
+                control={control}
+                name="phone2"
+                render={({ field }) => {
+                  return <Input {...field} placeholder="0788 111 111" />
+                }}
+              />
+            </label>
+          </span>
+          <span className="flex items-start gap-4 w-full">
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
+              <p>
+                Amount <span className="text-red-500">*</span>
+              </p>
+              <Controller
+                control={control}
+                name="ubudehe"
+                rules={{ required: 'Ubudehe amount is required' }}
+                render={({ field }) => {
+                  return <Input {...field} placeholder="5000" />
+                }}
+              />
+              {errors.ubudehe && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.ubudehe.message}
+                </span>
+              )}
+            </label>
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+              Household type
+              <Controller
+                control={control}
+                name="type"
+                defaultValue={'residence'}
+                render={({ field }) => {
+                  return (
+                    <Select
+                      defaultValue={'residence'}
+                      defaultLabel="Type"
+                      options={[
+                        { text: 'Residence', value: 'residence' },
+                        { text: 'Business', value: 'business' },
+                      ]}
+                      {...field}
+                    />
+                  )
+                }}
+              />
+            </label>
+          </span>
         </section>
-        <section className="flex items-center gap-4 w-full flex-wrap">
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            <p>
-              Province <span className="text-red-500">*</span>
-            </p>
-            <Controller
-              control={control}
-              name="province"
-              defaultValue={31}
-              render={({ field }) => {
-                return (
-                  <select
-                    {...field}
-                    className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
-                  >
-                    <option disabled value="">
-                      Select province
-                    </option>
-                    <option value={31}>Kigali</option>
-                  </select>
-                )
-              }}
-            />
-            {errors.province && (
-              <span className="text-red-500 text-[12px]">
-                {errors.province.message}
-              </span>
-            )}
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            <p>
-              District <span className="text-red-500">*</span>
-            </p>
-            <Controller
-              control={control}
-              name="district"
-              defaultValue={districtId || selectedDistrict}
-              render={({ field }) => {
-                return (
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedDistrict(e.target.value))
-                    }}
-                    className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
-                  >
-                    <option disabled value="">
-                      Select a district
-                    </option>
-                    {districts?.map((district) => {
-                      if (districtId) {
-                        return (
-                          <option
-                            disabled={district.id !== districtId}
-                            key={district.id}
-                            value={district.id}
-                          >
-                            {district.name}
-                          </option>
-                        )
-                      }
-                      return (
-                        <option key={district.id} value={district.id}>
-                          {district.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-            {errors.district && (
-              <span className="text-red-500 text-[12px]">
-                {errors.district.message}
-              </span>
-            )}
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            <p>
-              Sector <span className="text-red-500">*</span>
-            </p>
-            <Controller
-              control={control}
-              name="sector"
-              defaultValue={sectorId || selectedSector}
-              render={({ field }) => {
-                return (
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedSector(e.target.value))
-                    }}
-                    className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
-                  >
-                    <option disabled value="">
-                      Select a sector
-                    </option>
-                    {sectors?.map((sector) => {
-                      if (sectorId) {
-                        return (
-                          <option
-                            disabled={sector.id !== sectorId}
-                            key={sector.id}
-                            value={sector.id}
-                          >
-                            {sector.name || 'Sector'}
-                          </option>
-                        )
-                      }
-                      return (
-                        <option key={sector.id} value={sector.id}>
-                          {sector.name || 'Sector'}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-            {errors.sector && (
-              <span className="text-red-500 text-[12px]">
-                {errors.sector.message}
-              </span>
-            )}
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            <p>
-              Cell <span className="text-red-500">*</span>
-            </p>
-            <Controller
-              control={control}
-              name="cell"
-              defaultValue={cellId || selectedCell}
-              defa
-              render={({ field }) => {
-                return (
-                  <select
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedCell(e.target.value))
-                    }}
-                    className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
-                  >
-                    <option disabled value="">
-                      Select a cell
-                    </option>
-                    {cells?.map((cell) => {
-                      if (cellId) {
-                        return (
-                          <option
-                            disabled={cell.id !== cellId}
-                            key={cell.id}
-                            value={cell.id}
-                          >
-                            {cell.name}
-                          </option>
-                        )
-                      }
-                      return (
-                        <option key={cell.id} value={cell.id}>
-                          {cell.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-            {errors.cell && (
-              <span className="text-red-500 text-[12px]">
-                {errors.cell.message}
-              </span>
-            )}
-          </label>
+        {/* LOCATION */}
+        <section className="flex flex-col items-start gap-4 w-full">
+          <span className="flex items-start gap-4 w-full">
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+              <p>
+                Province <span className="text-red-500">*</span>
+              </p>
+              <Controller
+                control={control}
+                name="province"
+                rules={{ required: 'Please select a province' }}
+                defaultValue={31}
+                render={({ field }) => {
+                  return (
+                    <label className="flex flex-col gap-2 w-full">
+                      <Select
+                        defaultLabel="Province"
+                        defaultValue={31}
+                        options={[{ value: 31, text: 'Kigali' }]}
+                        {...field}
+                      />
+                      {errors.province && (
+                        <span className="text-red-500 text-[12px]">
+                          {errors.province.message}
+                        </span>
+                      )}
+                    </label>
+                  )
+                }}
+              />
+              {errors.province && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.province.message}
+                </span>
+              )}
+            </label>
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+              <p>
+                District <span className="text-red-500">*</span>
+              </p>
+              <Controller
+                control={control}
+                name="district"
+                rules={{ required: 'Please select a district' }}
+                defaultValue={districtId || selectedDistrict}
+                render={({ field }) => {
+                  return (
+                    <Select
+                      {...field}
+                      defaultLabel="District"
+                      defaultValue={districtId || selectedDistrict}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedDistrict(Number(e.target.value)))
+                      }}
+                      options={districts?.map((district) => {
+                        return {
+                          text: district.name,
+                          value: district.id,
+                          disabled: districtId
+                            ? district.id !== districtId
+                            : false,
+                        }
+                      })}
+                    />
+                  )
+                }}
+              />
+              {errors.district && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.district.message}
+                </span>
+              )}
+            </label>
+          </span>
+          <span className="flex items-start gap-4 w-full">
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+              <p>
+                Sector <span className="text-red-500">*</span>
+              </p>
+              <Controller
+                control={control}
+                name="sector"
+                rules={{ required: 'Please select a sector' }}
+                defaultValue={sectorId || selectedSector}
+                render={({ field }) => {
+                  return (
+                    <Select
+                      defaultLabel="Sector"
+                      {...field}
+                      defaultValue={sectorId || selectedSector}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedSector(Number(e.target.value)))
+                      }}
+                      options={sectors?.map((sector) => {
+                        return {
+                          text: sector.name,
+                          value: sector.id,
+                          disabled: sectorId ? sector.id !== sectorId : false,
+                        }
+                      })}
+                    />
+                  )
+                }}
+              />
+              {errors.sector && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.sector.message}
+                </span>
+              )}
+            </label>
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+              <p>
+                Cell <span className="text-red-500">*</span>
+              </p>
+              <Controller
+                control={control}
+                name="cell"
+                rules={{ required: 'Please select a cell' }}
+                defaultValue={cellId || selectedCell}
+                render={({ field }) => {
+                  return (
+                    <Select
+                      defaultLabel="Cell"
+                      defaultValue={cellId || selectedCell}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedCell(Number(e.target.value)))
+                      }}
+                      options={cells?.map((cell) => {
+                        return {
+                          text: cell.name,
+                          value: cell.id,
+                          disabled: cellId ? cell.id !== cellId : false,
+                        }
+                      })}
+                    />
+                  )
+                }}
+              />
+              {errors.cell && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.cell.message}
+                </span>
+              )}
+            </label>
+          </span>
           <label className="text-[15px] w-full flex-1 basis-[40%] max-w-[48%] flex flex-col items-start gap-2">
             <p>
               Village <span className="text-red-500">*</span>
@@ -596,36 +577,22 @@ const CreateHousehold = ({ user }) => {
               defaultValue={villageId || selectedVillage}
               render={({ field }) => {
                 return (
-                  <select
+                  <Select
+                    defaultLabel="Village"
+                    defaultValue={villageId || selectedVillage}
                     {...field}
                     onChange={(e) => {
                       field.onChange(e)
-                      dispatch(setSelectedVillage(e.target.value))
+                      dispatch(setSelectedVillage(Number(e.target.value)))
                     }}
-                    className="p-2 outline-none border-[1px] rounded-md border-primary w-[90%] focus:border-[1.5px] ease-in-out duration-150"
-                  >
-                    <option disabled value="">
-                      Select a village
-                    </option>
-                    {villages?.map((village) => {
-                      if (villageId) {
-                        return (
-                          <option
-                            disabled={village.id !== villageId}
-                            key={village.id}
-                            value={village.id}
-                          >
-                            {village.name}
-                          </option>
-                        )
+                    options={villages?.map((village) => {
+                      return {
+                        text: village.name,
+                        value: village.id,
+                        disabled: villageId ? village.id !== villageId : false,
                       }
-                      return (
-                        <option key={village.id} value={village.id}>
-                          {village.name}
-                        </option>
-                      )
                     })}
-                  </select>
+                  />
                 )
               }}
             />
@@ -644,23 +611,12 @@ const CreateHousehold = ({ user }) => {
             Household created successfully
           </p>
         </section>
-        <Controller
-          name="submit"
-          control={control}
-          render={({ field }) => {
-            return (
-              <Button
-                submit
-                {...field}
-                value={
-                  createHouseholdLoading ? <Loading /> : 'Create Household'
-                }
-                className={`${
-                  !householdConflict ? 'flex' : 'hidden'
-                } w-fit max-w-[50%] px-6 mx-auto`}
-              />
-            )
-          }}
+        <Button
+          submit
+          value={createHouseholdLoading ? <Loading /> : 'Create Household'}
+          className={`${
+            !householdConflict ? 'flex' : 'hidden'
+          } w-fit max-w-[50%] px-6 mx-auto`}
         />
       </form>
       <section

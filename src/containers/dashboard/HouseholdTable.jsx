@@ -133,6 +133,7 @@ const HouseholdTable = ({ user }) => {
       dispatch(setTotalPages(householdsListData?.data?.totalPages))
       setData(
         householdsListData?.data?.rows?.map((row, index) => ({
+          ID: row?.id,
           id: index + 1,
           name: row?.name,
           phone1: row?.phone1,
@@ -166,6 +167,7 @@ const HouseholdTable = ({ user }) => {
             dispatch(setTotalPages(data?.data?.totalPages))
             setData(
               data?.data?.rows?.map((row, index) => ({
+                ID: row?.id,
                 id: index + 1,
                 name: row?.name,
                 phone1: row?.phone1,
