@@ -1,26 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
-import {
-  useGlobalFilter,
-  useTable,
-  useAsyncDebounce,
-  useFilters,
-  useSortBy,
-  usePagination,
-} from 'react-table'
-import Input from '../../components/Input'
-import {
-  setPage,
-  setSize,
-  setTotalPages,
-} from '../../states/features/pagination/paginationSlice'
-import Button, { PageButton } from '../../components/Button'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import Button from '../../components/Button'
 import { useDispatch, useSelector } from 'react-redux'
 import { setMoveHouseholdModal } from '../../states/features/modals/householdSlice'
-import { useCreateDuplicateHouseHoldMutation, useRequestMoveHouseholdMutation } from '../../states/api/apiSlice'
+import {
+  useCreateDuplicateHouseHoldMutation,
+  useRequestMoveHouseholdMutation,
+} from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
+import Table from '../../components/table/Table'
 
 const ExistingHouseholds = ({ conflict = false, households }) => {
   const [data, setData] = useState(
@@ -55,12 +43,15 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
   ] = useCreateDuplicateHouseHoldMutation()
 
   // REQUEST MOVE HOUSEHOLD
-  const [requestMoveHousehold, {
-    data: requestMoveHouseholdData,
-    isLoading: requestMoveHouseholdLoading,
-    isSuccess: requestMoveHouseholdSuccess,
-    isError: requestMoveHouseholdError,
-  }] = useRequestMoveHouseholdMutation()
+  const [
+    requestMoveHousehold,
+    {
+      data: requestMoveHouseholdData,
+      isLoading: requestMoveHouseholdLoading,
+      isSuccess: requestMoveHouseholdSuccess,
+      isError: requestMoveHouseholdError,
+    },
+  ] = useRequestMoveHouseholdMutation()
 
   const user = JSON.parse(localStorage.getItem('user'))
 
@@ -103,14 +94,17 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
         Header: 'Details',
         accessor: 'ID',
         Cell: ({ row }) => (
-          <span className="flex flex-col items-start gap-[4px]">
+          <span className="flex flex-col items-start gap-[4px] min-w-fit">
             <Button
               className="!p-2 !text-[14px]"
               value={
-                requestMoveHouseholdLoading ? <Loading /> :
-                user?.departments?.level_id === 6
-                  ? 'Saba kumwimura'
-                  : 'Request move'
+                requestMoveHouseholdLoading ? (
+                  <Loading />
+                ) : user?.departments?.level_id === 6 ? (
+                  'Saba kumwimura'
+                ) : (
+                  'Request move'
+                )
               }
               onClick={(e) => {
                 e.preventDefault()
@@ -149,7 +143,7 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
       {
         Header: 'Status',
         accessor: 'status',
-        Filter: SelectColumnFilter,
+        filter: true,
         Cell: ({ row }) => (
           <p
             className={`${
@@ -173,7 +167,7 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
         Header: 'Amount',
         accessor: 'ubudehe',
         sortable: true,
-        Filter: SelectColumnFilter,
+        filter: true,
       },
       {
         Header: 'phone',
@@ -184,278 +178,77 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
         Header: 'Village',
         accessor: 'village',
         sortable: true,
-        Filter: SelectColumnFilter,
+        filter: true,
       },
       {
         Header: 'Cell',
         accessor: 'cell',
         sortable: true,
-        Filter: SelectColumnFilter,
+        filter: true,
       },
       {
         Header: 'Sector',
         accessor: 'sector',
         sortable: true,
-        Filter: SelectColumnFilter,
+        filter: true,
       },
       {
         Header: 'District',
         accessor: 'district',
         sortable: true,
-        Filter: SelectColumnFilter,
+        filter: true,
       },
       {
         Header: 'Province',
         accessor: 'province',
         sortable: true,
-        Filter: SelectColumnFilter,
+        filter: true,
       },
     ],
     []
   )
 
-  const tableHooks = (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      {
-        id: 'no',
-        Header: 'No',
-        accessor: 'id',
-        Cell: ({ row }) => <p>{row.index + 1}</p>,
-        sortable: true,
-      },
-      ...columns,
-    ])
-  }
-
-  const TableInstance = useTable(
-    {
-      columns,
-      data,
-    },
-    useFilters,
-    tableHooks,
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  )
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    setGlobalFilter,
-    rows,
-    prepareRow,
-    state,
-    preGlobalFilteredRows,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-  } = TableInstance
-
   return (
-    <section className={`${conflict ? 'flex' : 'hidden'} my-4 w-full mx-auto`}>
-      <div className="flex my-8 flex-col w-full items-center gap-6 relative">
-        <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <span className="w-full flex flex-col items-end justify-center">
-              <GlobalFilter
-                preGlobalFilteredRows={preGlobalFilteredRows}
-                globalFilter={state.globalFilter}
-                setGlobalFilter={setGlobalFilter}
-              />
-            </span>
-          </span>
-          <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 justify-center max-md:justify-center">
-            {headerGroups.map((headerGroup) =>
-              headerGroup.headers.map((column) =>
-                column.Filter ? (
-                  <div
-                    key={column.id}
-                    className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
-                  >
-                    <label htmlFor={column.id}></label>
-                    {column.render('Filter')}
-                  </div>
-                ) : null
-              )
-            )}
-          </span>
-        </div>
-        <div className="mt-2 flex flex-col w-[95%] mx-auto">
-          <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
-            <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-              <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
-                {createDuplicateHouseholdLoading ||
-                requestMoveHouseholdLoading ? (
-                  <span className="flex items-center justify-center min-h-[30vh] flex-col gap4">
-                    <Loading />
-                    <h4 className="uppercase text-primary text-center text-lg font-bold">
-                      Creating household...
-                    </h4>
-                  </span>
-                ) : createDuplicateHouseholdSuccess ||
-                  requestMoveHouseholdSuccess ? (
-                  <span className="flex flex-col items-center justify-center gap-4 min-h-[50vh]">
-                    <h4 className="uppercase text-primary text-center text-lg font-bold">
-                      Household{' '}
-                      {createDuplicateHouseholdSuccess ? 'created' : 'moved'}{' '}
-                      successfully
-                    </h4>
-                    {createDuplicateHouseholdSuccess && (
-                      <Button
-                        value="View household"
-                        route={`/households/${createDuplicateHouseholdData?.data?.id}`}
-                      />
-                    )}
-                    {requestMoveHouseholdSuccess && (
-                      <Button
-                        value="Return to households"
-                        route="/households"
-                      />
-                    )}
-                  </span>
-                ) : (
-                  <table
-                    {...getTableProps()}
-                    border="1"
-                    className="min-w-full divide-y divide-gray-200"
-                  >
-                    <thead className="bg-gray-50">
-                      {headerGroups.map((headerGroup) => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
-                          {headerGroup.headers.map((column) => (
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                              {...column.getHeaderProps(
-                                column.getSortByToggleProps()
-                              )}
-                            >
-                              {column.render('Header')}
-                              <span>
-                                {column.isSorted
-                                  ? column.isSortedDesc
-                                    ? ' ▼'
-                                    : ' ▲'
-                                  : ''}
-                              </span>
-                            </th>
-                          ))}
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody
-                      className="bg-white divide-y divide-gray-200"
-                      {...getTableBodyProps()}
-                    >
-                      {page.map((row) => {
-                        prepareRow(row)
-                        return (
-                          <tr {...row.getRowProps()}>
-                            {row.cells.map((cell) => {
-                              return (
-                                <td
-                                  {...cell.getCellProps()}
-                                  className="px-6 py-4 whitespace-nowrap"
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              )
-                            })}
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export function SelectColumnFilter({
-  column: { filterValue, setFilter, preFilteredRows, id, render },
-}) {
-  const options = useMemo(() => {
-    const options = new Set()
-    preFilteredRows.forEach((row) => {
-      options.add(row.values[id])
-    })
-    return [...options.values()]
-  }, [id, preFilteredRows])
-
-  return (
-    <label className="flex gap-x-2 items-baseline">
-      <span className="text-gray-1000 text-[14px]">{render('Header')}: </span>
-      <select
-        className="rounded-sm bg-transparent outline-none border-none focus:border-none focus:outline-primary"
-        name={id}
-        id={id}
-        value={filterValue}
-        onChange={(e) => {
-          setFilter(e.target.value || undefined)
-        }}
-      >
-        <option className="text-[13px]" value="">
-          All
-        </option>
-        {options.map((option, i) => (
-          <option className="text-[13px]" key={i} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
-  )
-}
-
-function GlobalFilter({
-  preGlobalFilteredRows,
-  globalFilter,
-  setGlobalFilter,
-}) {
-  const count = preGlobalFilteredRows.length
-  const [value, setValue] = useState(globalFilter)
-  const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined)
-  }, 200)
-
-  return (
-    <form className="flex gap-4 items-center w-full max-w-[20rem] mx-auto max-md:flex-col max-md:items-center">
-      <Input
-        type="text"
-        className="p-2 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
-        value={value || ''}
-        onChange={(e) => {
-          setValue(e.target.value)
-          onChange(e.target.value)
-        }}
-        placeholder={`Filter from ${count} households...`}
-      />
-      <Button
-        value={
-          <FontAwesomeIcon
-            className="p-[10px] !rounded-[50%]"
-            icon={faSearch}
-          />
-        }
-        className="!p-0 !py-0 !px-0 !rounded-[50%]"
-        onClick={() => {
-          setGlobalFilter(value || undefined)
-        }}
-      />
-    </form>
+    <main
+      className={`${
+        !conflict && 'hidden'
+      } flex items-center justify-center w-full flex-col`}
+    >
+      {createDuplicateHouseholdLoading || requestMoveHouseholdLoading ? (
+        <span className="flex items-center justify-center min-h-[30vh] flex-col gap4">
+          <Loading />
+          <h4 className="uppercase text-primary text-center text-lg font-bold">
+            Creating household...
+          </h4>
+        </span>
+      ) : createDuplicateHouseholdSuccess || requestMoveHouseholdSuccess ? (
+        <span className="flex flex-col items-center justify-center gap-4 min-h-[50vh]">
+          <h4 className="uppercase text-primary text-center text-lg font-bold">
+            Household {createDuplicateHouseholdSuccess ? 'created' : 'moved'}{' '}
+            successfully
+          </h4>
+          {createDuplicateHouseholdSuccess && (
+            <Button
+              value="View household"
+              route={`/households/${createDuplicateHouseholdData?.data?.id}`}
+            />
+          )}
+          {requestMoveHouseholdSuccess && (
+            <Button value="Return to households" route="/households" />
+          )}
+        </span>
+      ) : createDuplicateHouseholdError || requestMoveHouseholdError ? (
+        <span className="flex flex-col items-center justify-center gap-4 min-h-[50vh]">
+          <h4 className="uppercase text-primary text-center text-lg font-bold">
+            Error occurred while creating household
+          </h4>
+          <Button value="Return to households" route="/households" />
+        </span>
+      ) : null}
+      {!(createDuplicateHouseholdSuccess || requestMoveHouseholdSuccess) && (
+        <Table columns={columns} data={data} />
+      )}
+    </main>
   )
 }
 

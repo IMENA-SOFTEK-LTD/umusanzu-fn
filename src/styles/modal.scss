@@ -1,0 +1,9 @@
+.modal-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  .modal-closed {
+    opacity: 0;
+    pointer-events: none;
+  }

@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LineChart from '../../components/LineChart'
 import { useSelector } from 'react-redux'
-import { useEffect } from 'react'
 import axios from 'axios'
 import Loading from '../../components/Loading'
 import { LOCAL_API_URL, API_URL } from '../../constants'
@@ -24,7 +23,7 @@ const ChartDashboard = () => {
     setChartError('')
     if (mode === 'week') {
       try {
-        const response = await axios.get(`${LOCAL_API_URL || API_URL}/payment/chartinfo?week=true`)
+        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?week=true`)
         const weekPayments = {
           labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
           datasets: [
@@ -49,7 +48,7 @@ const ChartDashboard = () => {
       try {
         let todayDate = new Date();
 
-        const response = await axios.get(`http://localhost:3000/api/v2/payment/chartinfo?month=${todayDate.getMonth() +1 }&year=${todayDate.getFullYear()}`)
+        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?month=${todayDate.getMonth() +1 }&year=${todayDate.getFullYear()}`)
         const monthPayments = {
           labels: response.data.data.length > 0 ? response.data.data.map(data => {
             return `${data.day}`;
@@ -76,7 +75,7 @@ const ChartDashboard = () => {
       try {
         let todayDate = new Date();
 
-        const response = await axios.get(`http://localhost:3000/api/v2/payment/chartinfo?year=${todayDate.getFullYear()}`)
+        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?year=${todayDate.getFullYear()}`)
         const yearPayments = {
           labels: response.data.data.length > 0 ? response.data.data.map(data => {
             return `${data.month}`;
