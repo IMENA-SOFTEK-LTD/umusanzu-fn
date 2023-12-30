@@ -70,8 +70,8 @@ const TransactionTable = ({ user }) => {
   const [totalRemaining, setTotalRemaining] = useState(0)
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [reportName, setReportName] = useState('');
-  const [startingMonth, setStartingMonth] = useState('2023-01');
-  const [endingMonth, setEndingMonth] = useState('2023-01');
+  // const [startingMonth, setStartingMonth] = useState('2023-01');
+  // const [endingMonth, setEndingMonth] = useState('2023-01');
   const openExportPopup = () => {
     setShowExportPopup(true);
   };
@@ -141,7 +141,7 @@ const TransactionTable = ({ user }) => {
       page: offset,
     })
       .unwrap()
-      .then((data) => {
+      .then((data) => {        
         dispatch(setTotalPages(data?.data?.totalPages))
         let totalCommission = 0
         let totalPaidAmount = 0
@@ -568,6 +568,28 @@ const TransactionTable = ({ user }) => {
         Header: 'Date',
         accessor: 'transaction_date',
         sortable: true,
+        Filter: DateRangeColumnFilter, 
+        filter: (rows, id, filterValues) => {
+
+            const sd = filterValues[0] ? moment(filterValues[0]).format('DD-MM-YYYY') : undefined
+            const ed = filterValues[1] ? moment(filterValues[1]).format('DD-MM-YYYY') : undefined
+
+            if (ed || sd) {
+              return rows.filter(r => {
+                const cellDate = r.values[id]
+  
+                if (ed && sd) {
+                  return cellDate >= sd && cellDate <= ed
+                } else if (sd) {
+                  return cellDate >= sd
+                } else if (ed) {
+                  return cellDate <= ed
+                }
+              })            
+            } else {
+              return rows
+            } 
+        },
       },
     ],
     []
@@ -591,7 +613,14 @@ const TransactionTable = ({ user }) => {
       columns,
       data,
       filterTypes: {
-        dateRange: dateRangeFilter,
+        dateRange: DateRangeColumnFilter,
+      },
+      getTheadFilterThProps: (state, rowInfo, column) => {
+        return {
+          style: {
+            overflow: 'visible',
+          }
+        };
       },
     },
     useFilters,
@@ -631,7 +660,20 @@ const TransactionTable = ({ user }) => {
         <div className="flex flex-col items-center gap-6">
           <div className="search-filter flex flex-col w-full items-center gap-6">
             <span className='flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center'>
-              <span className="w-full flex flex-col items-end justify-center">
+              <span className="w-full flex flex-row gap-4 justify-end">
+                {headerGroups.map((headerGroup) =>
+                headerGroup.headers.map((column) =>
+                  column.Filter && column.id === 'transaction_date' ? (
+                    <div
+                      key={column.id}
+                      className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
+                    >
+                      <label htmlFor={column.id}></label>
+                      {column.render('Filter')}
+                    </div>
+                  ) : null
+                )
+              )}              
                 <GlobalFilter
                   preGlobalFilteredRows={preGlobalFilteredRows}
                   globalFilter={state.globalFilter}
@@ -642,7 +684,7 @@ const TransactionTable = ({ user }) => {
             <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
-                  column.Filter ? (
+                  column.Filter && column.id !== 'transaction_date' ? (
                     <div
                       key={column.id}
                       className="p-[5px] px-2 border-[1px] shadow-md rounded-md"
@@ -783,30 +825,32 @@ const TransactionTable = ({ user }) => {
           </div>
         </div>
         <table className="w-[95%] mx-auto my-6 divide-y divide-gray-200">
-          <tr className="bg-green-600 flex items-center flex-wrap">
-            <td className="px-6 py-4 text-black font-semibold">
-              Total Amout:
-            </td>
-            <td className="px-6 py-4 green font-semibold">
-              {formatFunds(totals?.totalAmount) || formatFunds(totalAmount)} RWF
-            </td>
-            <td className="px-6 py-4 green font-semibold">
-              Total Commission:
-            </td>
-            <td className="px-6 py-4 green font-semibold">
-              {formatFunds(totals?.totalCommission) ||
-                formatFunds(totalCommission)}{' '}
-              RWF
-            </td>
-            <td className="px-6 py-4 green font-semibold">
-              Total Remaining:
-            </td>
-            <td className="px-6 py-4 green font-semibold">
-              {formatFunds(totals?.remainingAmount) ||
-                formatFunds(totalRemaining)}{' '}
-              RWF
-            </td>
-          </tr>
+          <tbody>
+            <tr className="bg-green-600 flex items-center flex-wrap">
+              <td className="px-6 py-4 text-black font-semibold">
+                Total Amout:
+              </td>
+              <td className="px-6 py-4 green font-semibold">
+                {formatFunds(totals?.totalAmount) || formatFunds(totalAmount)} RWF
+              </td>
+              <td className="px-6 py-4 green font-semibold">
+                Total Commission:
+              </td>
+              <td className="px-6 py-4 green font-semibold">
+                {formatFunds(totals?.totalCommission) ||
+                  formatFunds(totalCommission)}{' '}
+                RWF
+              </td>
+              <td className="px-6 py-4 green font-semibold">
+                Total Remaining:
+              </td>
+              <td className="px-6 py-4 green font-semibold">
+                {formatFunds(totals?.remainingAmount) ||
+                  formatFunds(totalRemaining)}{' '}
+                RWF
+              </td>
+            </tr>
+          </tbody>
         </table>
         <div className="pagination w-[95%] mx-auto">
           <div className="py-3 flex items-center justify-between">
@@ -943,17 +987,67 @@ TransactionTable.propTypes = {
   user: PropTypes.shape({}),
 }
 
-function dateRangeFilter(rows, columnIds, filterValue) {
-  const { startDate, endDate } = filterValue
-  if (!startDate || !endDate) {
-    return rows
-  }
+export const DateRangeColumnFilter = ({
+  column: {
+    filterValue = [],
+    preFilteredRows,
+    setFilter,
+    id
+  } }) => {
+    const [min, max] = React.useMemo(() => {
+      let min = filterValue[0] ? moment(filterValue[0]) : undefined;
+      let max = filterValue[1] ? moment(filterValue[1]) : undefined;
+  
+      preFilteredRows.forEach(row => {
+        const rowDate = moment(row.values[id], 'DD-MM-YYYY'); 
+      
+        if (min && max) {
+          if (rowDate.isBetween(min, max, null, '[]')) {
+            
+          }
+        } else if (min) {
+          if (rowDate.isSameOrAfter(min)) {
+            
+          }
+        } else if (max) {
+          if (rowDate.isSameOrBefore(max)) {
+           
+          }
+        }
+      });
 
-  return rows.filter((row) => {
-    const date = moment(row.values[columnIds].transaction_date, 'DD-MM-YYYY')
-    return date.isBetween(startDate, endDate, null, '[]')
-  })
+      return [min, max];
+    }, [id, preFilteredRows]);
+
+  return (
+    <div>
+      <span className="mr-2">From:</span>
+      <input
+        type="date"
+        className="w-[130px] px-[5px] rounded-[5px] border border-[#165F75] "
+        min={min!== undefined ? min.format('YYYY-MM-DD') : undefined}
+        value={filterValue[0] || ''}
+        onChange={e => {
+          const val = e.target.value;
+          setFilter((old = []) => [val ? val : undefined, old[1]]);
+        }}
+      />
+      <span className="ml-4 mr-2">To:</span>
+      <input
+        type="date"
+        className="w-[130px] px-[5px] rounded-[5px] border border-[#165F75] "
+        max={max !== undefined ? max.format('YYYY-MM-DD'): undefined}
+        value={filterValue[1] || ''}
+        onChange={e => {
+          const val = e.target.value;
+          setFilter((old = []) => [old[0], val ? val : undefined]);
+        }}
+      />
+    </div>
+
+  )
 }
+
 
 export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },
@@ -1001,25 +1095,9 @@ function GlobalFilter({
   const onChange = useAsyncDebounce((value) => {
     setGlobalFilter(value || undefined)
   }, 200)
-  const [startingDate, setStartingDate] = useState('2023-01-1');
-  const [endingDate, setEndingDate] = useState('2023-01-1');
 
   return (
     <div className="flex items-center justify-center gap-4">
-      <div className="flex flex-col items-center gap-2">
-        <input
-          type="date"
-          className="p-2 outline-none border rounded-md border-primary  focus:border-[1.5px] focus:ring focus:ring-primary focus:ring-opacity-50"
-          onChange={(e) => setStartingDate(e.target.value)}
-        />
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <input
-          type="date"
-          className="p-2 outline-none border rounded-md border-primary  focus:border-[1.5px] focus:ring focus:ring-primary focus:ring-opacity-50"
-          onChange={(e) => setEndingDate(e.target.value)}
-        />
-      </div>
       <Input
         type="text"
         className="p-2 outline-[2px] w-[20rem] border rounded-md border-primary outline-primary focus:outline-primary"
