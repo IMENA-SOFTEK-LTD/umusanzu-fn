@@ -111,7 +111,7 @@ const CreateVillageModel = ({ user }) => {
                     htmlFor="fname"
                     className="block mb-2 text-sm font-medium text-black"
                   >
-                    Cell Name
+                    Village Name
                   </label>
                   <Controller
                     name="departmentName"

@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { apiSlice } from './api/apiSlice'
+import { apiSlice, rtkQueryErrorLogger } from './api/apiSlice'
 import authSlice from './features/auth/authSlice'
 import navbarSlice from './features/navigation/navbarSlice'
 import sidebarSlice from './features/navigation/sidebarSlice'
@@ -28,7 +28,7 @@ const store = configureStore({
     payment: paymentSlice,
   },
   middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware().concat(apiSlice.middleware)
+    return getDefaultMiddleware().concat(apiSlice.middleware, rtkQueryErrorLogger)
   }
 })
 
