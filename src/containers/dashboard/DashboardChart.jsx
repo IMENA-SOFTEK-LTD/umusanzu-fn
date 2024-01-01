@@ -45,14 +45,25 @@ const ChartDashboard = () => {
         console.log(error);
       } 
     } else if (mode === 'month') {
+
       try {
         let todayDate = new Date();
 
+        const monthDays = () => { 
+          const numDays = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 0).getDate();
+          
+          
+          let monthDays = [];
+          for (let i = 1; i <= numDays; i++) {
+            monthDays.push(i);
+          }
+          return monthDays;
+        }
+        const monthDaysArray = monthDays();
+
         const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?month=${todayDate.getMonth() +1 }&year=${todayDate.getFullYear()}`)
         const monthPayments = {
-          labels: response.data.data.length > 0 ? response.data.data.map(data => {
-            return `${data.day}`;
-          }) : [],
+          labels: monthDaysArray,
           datasets: [
             {
               label: 'Money paid',
@@ -75,11 +86,17 @@ const ChartDashboard = () => {
       try {
         let todayDate = new Date();
 
+        const yearMonths = () => { 
+          let months = [];
+          for (let i = 1; i <= 12; i++) {
+            months.push(i);
+          }
+          return months;
+        }
+        const monthsArray = yearMonths();
         const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?year=${todayDate.getFullYear()}`)
         const yearPayments = {
-          labels: response.data.data.length > 0 ? response.data.data.map(data => {
-            return `${data.month}`;
-          }) : [],
+          labels: monthsArray,
           datasets: [
             {
               label: 'Money paid',

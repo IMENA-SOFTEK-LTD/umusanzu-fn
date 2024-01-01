@@ -1,5 +1,29 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { LOCAL_API_URL } from '../../constants'
+import { toast } from 'react-toastify';
+import { isRejectedWithValue } from '@reduxjs/toolkit';
+import { logOut } from '../../utils/User';
+
+const showToast = (message) => {
+  toast.error(message, { position: toast.POSITION.TOP_RIGHT });
+};
+
+export const rtkQueryErrorLogger = (api) => (next) => (action) => {
+
+  if (isRejectedWithValue(action)) {
+    if (action.payload && action.payload.status === 401) {
+      showToast('Unauthorized or Access Token expired. Please login again!')
+      setTimeout(() => {
+        logOut();
+        location.reload()
+      }, 5000) 
+    } else if (action.payload && action.payload.status === 500) {
+      showToast('Error! Please try again later!')
+    }
+  }
+
+  return next(action);
+};
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -8,7 +32,7 @@ export const apiSlice = createApi({
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token')
       if (token) {
-        headers.set('authorization', token)
+        headers.set('authorization', `Bearer ${token}`)
       }
       return headers
     },

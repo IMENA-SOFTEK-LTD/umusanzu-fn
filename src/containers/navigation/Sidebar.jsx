@@ -23,6 +23,7 @@ import {
   toggleSidebar,
 } from '../../states/features/navigation/sidebarSlice'
 import { setPathName } from '../../states/features/navigation/navbarSlice'
+import Logo from '../../../public/logo.png'
 
 function Sidebar({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -215,9 +216,15 @@ function Sidebar({ user }) {
           isOpen
             ? 'max-[800px]:!w-[100%] !w-[20vw] max-sm:small-sidebar'
             : 'max-sm:!min-w-[4vw]'
-        } animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col py-10 min-h-screen`}
+        } animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col min-h-screen`}
       >
-        {isOpen && (
+        <div >
+          <div className="flex flex-row gap-2 ml-2 mt-12">
+            <img src={Logo} className='w-[45px] h-[45px]' />
+            {<h1 className={isOpen ? "text-white font-semibold text-base mt-3" : "hidden" }>UMUSANZU DIGITAL</h1>}
+                        
+          </div>
+          {isOpen && (
           <BsFillArrowLeftSquareFill
             onClick={() => {
               showLess()
@@ -225,26 +232,26 @@ function Sidebar({ user }) {
             }}
             className={`absolute ease-in-out text-white duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-[55px] rounded-none`}
           />
-        )}
-        {!isOpen && (
-          <BsFillArrowRightSquareFill
-            onClick={() => {
-              showMore()
-              dispatch(toggleSidebar(true))
-            }}
-            className="absolute ease-in-out duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-10 text-white rounded-none"
-          />
-        )}
-
+          )}
+          {!isOpen && (
+            <BsFillArrowRightSquareFill
+              onClick={() => {
+                showMore()
+                dispatch(toggleSidebar(true))
+              }}
+              className="absolute ease-in-out duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-3 top-28 text-white rounded-none"
+            />
+          )}
+        </div>
         <div
-          className={`grow ${isOpen ? 'max-sm:!min-w-[70%]' : 'max-sm:hidden'}`}
+          className={`grow ${isOpen ? 'max-sm:!min-w-[70%]' : 'mt-4 max-sm:hidden'}`}
         >
           {data.map((group, index) => (
-            <div key={index} className="pt-16 flex flex-col">
+            <div key={index} className="mt-8 flex flex-col">
               <motion.p
                 key={index}
                 animate={controlTitleText}
-                className={`mb-2 ml-4 text-md uppercase font-bold !text-black ${
+                className={`mb-1 ml-4 text-md uppercase font-bold !text-slate-300 ${
                   isOpen ? '!flex !opacity-100' : 'hidden'
                 }'`}
               >

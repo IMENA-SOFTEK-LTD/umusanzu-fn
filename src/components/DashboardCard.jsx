@@ -14,7 +14,7 @@ import Button from './Button'
 import { setMonthlyTarget } from '../states/features/dashboard/dashboardCardSlice'
 import getMonthName from '../utils/Dates'
 import formatFunds from '../utils/Funds'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { setPathRoute } from '../states/features/navigation/sidebarSlice'
 
 const DashboardCard = ({
