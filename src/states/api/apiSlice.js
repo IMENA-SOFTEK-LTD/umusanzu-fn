@@ -12,11 +12,10 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
 
   if (isRejectedWithValue(action)) {
     if (action.payload && action.payload.status === 401) {
-      showToast('Unauthorized or Access Token expired. Please login again!')
       setTimeout(() => {
         logOut();
         location.reload()
-      }, 5000) 
+      }, 5000)   
     } else if (action.payload && action.payload.status === 500) {
       showToast('Error! Please try again later!')
     }
