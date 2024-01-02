@@ -82,7 +82,6 @@ const HouseholdPayments = ({ household }) => {
                 e.preventDefault()
                 dispatch(setCompletePaymentModal(true))
                 dispatch(setPayment(row?.original))
-                setIsLoading(true)
               }}
             />
           )
@@ -140,9 +139,13 @@ const HouseholdPayments = ({ household }) => {
         const status = row?.original?.status
         return (
           <Button
-            value={status === 'PAID' ? 'Receipt' : 'Invoice'}
+            value={
+              status === 'PAID' || status === 'INITIATED'
+                ? 'Receipt'
+                : 'Invoice'
+            }
             className={`${
-              status === 'PAID'
+              status === 'PAID' || status === 'INITIATED'
                 ? '!bg-green-600'
                 : status === 'PENDING'
                 ? '!bg-red-600'
