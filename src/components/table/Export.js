@@ -278,4 +278,182 @@ export const printTransactionPDF = ({ payment }) => {
   window.open(blobUrl, "_blank");
 }
 
+export const printReceiptsPDF = ({ household, request }) => {
+  const doc = new jsPDF()
+  // Assuming data is an array of objects
+  // Add the header section
+  doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
+  doc.setFontSize(10.5)
+  doc.setFont('Times New Roman', 'bold')
+  doc.text('REPUBLIC OF RWANDA', 70, 17)
+  doc.text(`${household?.provinces[0]?.name}`, 70, 23)
+  doc.text(`${household?.districts[0]?.name} DISTRICT`, 70, 29)
+  doc.text(`${household?.sectors[0]?.name} SECTOR`, 70, 35)
+  doc.setFont('Times New Roman', 'bold')
+  doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
+
+  doc.addImage(RWline, 'PNG', 10, 45, 180, 10)
+  // Add the PAYMENT RECEIPT section
+  doc.setFontSize(11)
+
+  doc.setFontSize(18)
+  doc.setFont('Times New Roman', 'bold')
+  const text = `${household?.name} - ${request}`?.toUpperCase()
+  doc.text(text, (210 - doc.getTextWidth(text)) / 2, 65)
+
+  doc.setFont('Times New Roman', 'normal')
+  const itemsColumn1 = [
+    `Reference: ${household?.id}UMS${household?.name.split(' ')[0]}`,
+    `Names: ${household?.name}`,
+    'Service: Umutekano',
+    `Tel: ${household?.phone1}`,
+    `TIN: ${household?.tin || 'N/A'}`,
+  ]
+  const itemsColumn2 = [
+    `Date: ${moment().format('DD-MM-YYYY HH:mm')}`,
+    `Cell: ${household?.cells[0]?.name}`,
+    `Village: ${household?.villages[0]?.name}`,
+  ]
+  const startXColumn1 = 15
+  const startXColumn2 = 130
+  let currentY = 80
+
+  doc.setFontSize(12)
+
+  // Display items in column 1
+  for (let i = 0; i < itemsColumn1.length; i++) {
+    doc.text(itemsColumn1[i], startXColumn1, currentY)
+    currentY += 8
+  }
+
+  currentY = 80
+
+  // Display items in column 2
+  for (let i = 0; i < itemsColumn2.length; i++) {
+    doc.text(itemsColumn2[i], startXColumn2, currentY)
+    currentY += 8
+  }
+  // Add the table section
+  const tableData = household?.payments.map((item) => [
+    'Umuteko',
+    item?.month_paid,
+    formatFunds(household?.ubudehe),
+    formatFunds(item?.amount),
+    item?.status
+  ]);
+
+  // Add the table section
+  doc.autoTable({
+    startY: 120,
+    head: [
+      [
+        'DESCRIPTION',
+        'MONTH',
+        'UNIT PRICE',
+        `${request === 'receipt' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`,
+        'STATUS',
+      ],
+    ],
+    body: tableData,
+    theme: 'grid', // Apply a grid theme
+    headStyles: {
+      fillColor: [0, 128, 0], // Green background color for the header
+      textColor: 255, // White text color for the header
+      fontSize: 12, // Font size for the header
+      halign: 'center', // Center align the text horizontally
+    },
+    styles: {
+      fontSize: 10, // Font size for the body
+      textColor: 0, // Black text color for the body
+      cellPadding: 3, // Padding for each cell
+    },
+    columnStyles: {
+      0: {
+        // Style for the first column (DESCRIPTION)
+        halign: 'center', // Center align the text horizontally
+      },
+      1: {
+        // Style for the second column (MONTH)
+        halign: 'center', // Center align the text horizontally
+      },
+      2: {
+        // Style for the third column (UNIT PRICE)
+        halign: 'center', // Center align the text horizontally
+      },
+      3: {
+        // Style for the fourth column (AMOUNT PAID or PENDING AMOUNT)
+        halign: 'center', // Center align the text horizontally
+        fontStyle: 'bold', // Make the text bold
+      },
+    },
+  })
+  // Calculate the total amount
+  const totalAmount = tableData.reduce((sum, row) => sum + parseFloat(row[3].replace(/,/g, '')), 0);
+  // Add the TOTAL PAID section
+  doc.setFont('Times New Roman', 'bold')
+  doc.text(
+    `TOTAL ${formatFunds(totalAmount)} RWF`,
+    130,
+    doc.autoTable.previous.finalY + 15
+  )
+
+  doc.setFont('Times New Roman', 'normal')
+  doc.setFontSize(12)
+  doc.text(
+    `For more info, Please call: ${household?.phone1}`,
+    15,
+    doc.autoTable.previous.finalY + 15
+  )
+  doc.text(
+    'PAY CASHLESS DIAL: *775*3#',
+    15,
+    doc.autoTable.previous.finalY + 30
+  )
+
+  doc.setFontSize(13)
+  // Calculate the height of the image (assuming it's 10 units high)
+  const imageHeight = 20;
+
+  // Calculate the vertical position (y-coordinate) to place the image at the bottom center
+  const pageHeight = doc.internal.pageSize.height;
+  const imageY = pageHeight - imageHeight - 10; // Adjust the 10 for padding if needed
+
+  // Add the image at the bottom center
+  doc.addImage(QRCOD, 'JPEG', 95, imageY, 20, imageHeight);
+  const image = household?.sectors[0]?.stamp
+  doc.addImage(
+    image,
+    image.slice(-3),
+    130,
+    doc.autoTable.previous.finalY + 17,
+    40,
+    40
+  )
+  doc.setFont('Times New Roman', 'bold')
+  doc.text(
+    `${household?.sectors[0]?.department_infos[0]?.leader_name}`,
+    130,
+    doc.autoTable.previous.finalY + 73
+  )
+  doc.text(
+    `${household?.sectors[0]?.department_infos[0]?.leader_title},`,
+    130,
+    doc.autoTable.previous.finalY + 83
+  )
+  doc.text(
+    `${household?.sectors[0]?.name} SECTOR`,
+    130,
+    doc.autoTable.previous.finalY + 90
+  )
+  const pdfDataUrl = doc.output('datauristring')
+  const blob = dataURLtoBlob(pdfDataUrl)
+  const blobUrl = window.URL.createObjectURL(blob)
+
+  // Open the Blob URL in a new tab for download
+  const newTab = window.open(blobUrl, '_blank')
+  if (newTab) {
+    newTab.focus()
+  }
+};
+
 export default printPDF;

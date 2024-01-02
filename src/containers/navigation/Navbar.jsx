@@ -108,7 +108,7 @@ function Navbar({ user }) {
         <article
           className={`${
             !navDropdown ? 'translate-y-[-300%]' : 'translate-y-0'
-          } ease-in-out duration-500 absolute top-20 right-20 mx-auto z-50 rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[16rem] max-sm:small-dropdown`}
+          } ease-in-out duration-500 absolute top-20 right-20 mx-auto z-[1000000] rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[16rem] max-sm:small-dropdown`}
         >
           <Link
             to="/settings"

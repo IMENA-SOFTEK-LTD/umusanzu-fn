@@ -152,6 +152,7 @@ const DepartmentsTable = ({ user }) => {
       useEffect(() => {
         if (provinceChildrenIsSuccess) {
           setData(provinceChildrenData?.data?.map((row, index) => ({
+            no: index + 1,
             village: row?.name,
             cell: row?.parent?.name,
             sector: row?.parent?.parent?.name,
