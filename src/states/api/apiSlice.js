@@ -15,7 +15,7 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
       setTimeout(() => {
         logOut();
         location.reload()
-      }, 5000)   
+      }, 5000)  
     } else if (action.payload && action.payload.status === 500) {
       showToast('Error! Please try again later!')
     }
