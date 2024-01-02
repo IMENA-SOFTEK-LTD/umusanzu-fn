@@ -14,7 +14,7 @@ import {
   setReceiptsModal,
 } from '../../states/features/transactions/paymentSlice'
 import Button from '../../components/Button'
-import RecordOfflinePayment from '../../containers/households/RecordOfflinePayment'
+import RecordOfflinePayment from '../../containers/payments/RecordOfflinePayment'
 import RecordMultipleMonths from '../../containers/households/RecordMultipleMonths'
 import GenerateReceipts from '../../containers/households/GenerateReceipts'
 import { capitalizeWords } from '../../utils/Words'

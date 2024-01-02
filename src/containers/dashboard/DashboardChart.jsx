@@ -42,7 +42,6 @@ const ChartDashboard = () => {
       } catch (error) {
         setIsLoading(false)
         setChartError('Loading payment data failed. Please try again!')
-        console.log(error);
       } 
     } else if (mode === 'month') {
 
@@ -80,7 +79,6 @@ const ChartDashboard = () => {
       } catch (error) {
         setIsLoading(false)
         setChartError('Loading payment data failed. Please try again!')
-        console.log(error);
       }
     } else if (mode === 'year') {
       try {
@@ -113,7 +111,6 @@ const ChartDashboard = () => {
       } catch (error) {
         setIsLoading(false)
         setChartError('Loading payment data failed. Please try again!')
-        console.log(error);
       }
     }
   }

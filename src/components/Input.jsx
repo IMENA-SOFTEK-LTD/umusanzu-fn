@@ -11,8 +11,16 @@ const Input = ({
   placeholder,
   readonly,
   defaultValue = null,
+  label = null,
+  labelClassName = null,
 }) => {
   return (
+    <label className={`flex flex-col items-start gap-[6px] w-full ${labelClassName}`}>
+      <p className={`${label ? 'flex' : 'null'} flex text-[15px] text-lightBlack`}>
+        {label}
+        {' '}
+        <span className={required ? 'text-red-600' : 'hidden'}>*</span>
+      </p>
     <input
       type={type || 'text'}
       name={name}
@@ -23,13 +31,12 @@ const Input = ({
       onChange={onChange}
       className={`text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 px-4 ${className}`}
     />
+    </label>
   )
 }
 
 Input.propTypes = {
-  label: PropTypes.string,
   type: PropTypes.string,
-  labelClassName: PropTypes.string,
   className: PropTypes.string,
   onChange: PropTypes.func,
   value: PropTypes.string,
@@ -39,6 +46,8 @@ Input.propTypes = {
   placeholder: PropTypes.string,
   readonly: PropTypes.bool,
   defaultValue: PropTypes.string,
+  label: PropTypes.string,
+  labelClassName: PropTypes.string,
 }
 
 export default Input

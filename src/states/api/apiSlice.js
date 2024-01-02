@@ -277,7 +277,7 @@ export const apiSlice = createApi({
       getSectorVillages: builder.query({
         query: ({ id, page, size }) => {
           return {
-            url: `/department/sector/${id}/villages/?page=${page || 0}&size=${
+            url: `/department/sector/${id}/children/?page=${page || 0}&size=${
               size || 20
             }`,
             method: 'GET',
@@ -735,6 +735,14 @@ export const apiSlice = createApi({
           body: { payment_phone, agent, start_month, end_month },
         }),
       }),
+      // EDIT PAYMENT
+      editPayment: builder.mutation({
+        query: ({ id, month_paid, amount, agent, status }) => ({
+          url: `/payment/${id}`,
+          method: 'PATCH',
+          body: { month_paid, amount, agent, status },
+        }),
+      }),
     }
   },
 })
@@ -803,5 +811,6 @@ export const {
   useLazyGetPaymentDetailsQuery,
   useDeletePaymentMutation,
   useLazyGetPaymentsQuery,
-  useRecordMultiplePaymentsMutation
+  useRecordMultiplePaymentsMutation,
+  useEditPaymentMutation
 } = apiSlice

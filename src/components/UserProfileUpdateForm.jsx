@@ -217,7 +217,7 @@ function UserProfileUpdateForm ({ user, userProfile }) {
                     <input
                       type="text"
                       defaultValue={userProfile?.phone2}
-                      {...register('phone2', { required: true })}
+                      {...register('phone2')}
                       placeholder="Phone Number"
                       className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                     />
@@ -238,7 +238,7 @@ function UserProfileUpdateForm ({ user, userProfile }) {
                   <input
                     type="email"
                     defaultValue={userProfile?.email}
-                    {...register('email', { required: true })}
+                    {...register('email')}
                     placeholder="Email Address"
                     className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                   />

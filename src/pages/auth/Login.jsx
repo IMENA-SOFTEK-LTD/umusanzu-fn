@@ -53,7 +53,6 @@ const Login = () => {
   useEffect(() => {
     if (loginSuccess) {
       if (loginData.code) {
-        console.log(loginData?.data)
         localStorage.setItem('user', JSON.stringify({
           ...loginData?.data,
           department: getDepartment(loginData?.data?.departments?.level_id)

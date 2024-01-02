@@ -86,18 +86,18 @@ const Performances = () => {
         accessor: 'sector',
         sortable: true
       },
-      {
-        id: 'district',
-        Header: 'District',
-        accessor: 'district',
-        sortable: true,
-      },
-      {
-        id: 'province',
-        Header: 'Province',
-        accessor: 'province',
-        sortable: true,
-      },
+      // {
+      //   id: 'district',
+      //   Header: 'District',
+      //   accessor: 'district',
+      //   sortable: true,
+      // },
+      // {
+      //   id: 'province',
+      //   Header: 'Province',
+      //   accessor: 'province',
+      //   sortable: true,
+      // },
       {
         id: 'monthlyTarget',
         Header: 'Target',

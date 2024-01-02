@@ -94,7 +94,6 @@ const CreateHousehold = ({ user }) => {
       break
     case 5:
       department = 'country'
-      dispatch(setCellId(user?.departments?.id))
       dispatch(setSectorId(user?.departments?.parent?.id))
       dispatch(setDistrictId(user?.departments?.parent?.parent?.id))
       dispatch(setProvinceId(user?.departments?.parent?.parent?.parent?.id))

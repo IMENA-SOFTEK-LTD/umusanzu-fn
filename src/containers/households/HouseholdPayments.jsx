@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Button from '../../components/Button'
 import Table from '../../components/table/Table'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import moment from 'moment'
 import { setCompletePaymentModal } from '../../states/features/modals/householdSlice'
-import CompletePayment from './CompletePayment'
-import { setPayment } from '../../states/features/transactions/paymentSlice'
+import CompletePayment from '../payments/CompletePayment'
+import { setDeletePaymentModal, setEditPaymentModal, setPayment } from '../../states/features/transactions/paymentSlice'
 import {
   useLazyGetPaymentDetailsQuery,
   useDeletePaymentMutation,
@@ -17,6 +17,8 @@ import { toast } from 'react-toastify'
 import { printTransactionPDF } from '../../components/table/Export'
 import Loading from '../../components/Loading'
 import Modal from '../../components/models/Modal'
+import DeletePayment from '../payments/DeletePayment'
+import EditPayment from '../payments/EditPayment'
 
 const HouseholdPayments = ({ household }) => {
   // STATE VARIABLES
@@ -38,16 +40,6 @@ const HouseholdPayments = ({ household }) => {
     },
   ] = useLazyGetPaymentDetailsQuery()
 
-  // INITIATE DELETE PAYMENT REQUEST
-  const [
-    deletePayment,
-    {
-      isLoading: deletePaymentIsLoading,
-      isSuccess: deletePaymentIsSuccess,
-      isError: deletePaymentIsError,
-    },
-  ] = useDeletePaymentMutation()
-
   // COLUMN CONFIGURATION
   const columns = [
     {
@@ -58,25 +50,52 @@ const HouseholdPayments = ({ household }) => {
       Header: 'Action',
       accessor: 'action',
       Cell: ({ row }) => {
-        if (user?.departments?.id === 1) {
+        if ([5, 3]?.includes(user?.departments?.level_id)) {
+          const status = row?.original?.status
           return (
-            <Button
-              background={false}
-              value={<FontAwesomeIcon icon={faTrash} />}
-              className={`!text-white !bg-red-500 !p-2 !px-[10px] !rounded-full hover:!bg-red-600 hover:!scale-[.99] hover:!text-white`}
-              onClick={(e) => {
-                e.preventDefault()
-                deletePayment({ id: row?.original?.id })
-                setIsLoading(true)
-              }}
-            />
+            <span className="w-full flex items-center gap-2">
+              <Button
+                background={false}
+                value={<FontAwesomeIcon icon={faTrash} />}
+                className={`${
+                  status !== 'PENDING' &&
+                  user?.departments?.level_id !== 5 &&
+                  'hidden'
+                } ${
+                  ['PARTIAL', 'INITIATED', 'PENDING']?.includes(status) &&
+                  user?.departments?.level_id === 5 &&
+                  'flex'
+                } ${
+                  status === 'PAID' && 'hidden'
+                } !text-white !bg-red-500 !p-2 !px-[10px] !rounded-full hover:!bg-red-600 hover:!scale-[.99] hover:!text-white`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  dispatch(setPayment(row?.original))
+                  dispatch(setDeletePaymentModal(true))
+                }}
+              />
+              <Button
+                background={false}
+                value={<FontAwesomeIcon icon={faPenToSquare} />}
+                className={`${
+                  user?.departments?.level_id !== 5 && 'hidden'
+                } !p-2 !rounded-full !bg-primary !text-white hover:!text-white`}
+                primary
+                onClick={(e) => {
+                  e.preventDefault()
+                  dispatch(setPayment(row?.original))
+                  dispatch(setEditPaymentModal(true))
+                }}
+              />
+            </span>
           )
-        } else {
+        } else if (user?.departments?.level_id === 6) {
           return (
             <Button
               value="Pay Now"
               className={`${
-                row?.original?.status === 'PAID' && 'hidden'
+                ['PAID', 'INITIATED']?.includes(row?.original?.status) &&
+                'hidden'
               } !w-fit !min-w-full`}
               onClick={(e) => {
                 e.preventDefault()
@@ -179,34 +198,27 @@ const HouseholdPayments = ({ household }) => {
     }
   }, [paymentDetailsIsSuccess, paymentDetailsData])
 
-  // HANDLE DELETE PAYMENT REQUEST
-  useEffect(() => {
-    if (deletePaymentIsSuccess) {
-      toast.success('Payment deleted successfully')
-      setIsLoading(false)
-      window.location.reload()
-    } else if (deletePaymentIsError) {
-      toast.error('Could not delete payment. Please check your internet')
-      setIsLoading(false)
-    }
-  }, [deletePaymentIsSuccess])
-
   return (
     <main className="flex flex-col items-center min-w-[70%] p-2">
       <Table
         search={false}
         report={false}
-        data={household?.payments?.map((payment, index) => {
-          return {
-            ...payment,
-            no: index + 1,
-            month_paid: moment(payment?.month_paid).format('MMMM YYYY'),
-            date: moment(payment?.updatedAt).format('DD-MM-YYYY HH:mm'),
-          }
-        })}
+        data={household?.payments
+          ?.slice()
+          ?.sort((a, b) => moment(b?.month_paid) - moment(a?.month_paid))
+          ?.map((payment, index) => {
+            return {
+              ...payment,
+              no: index + 1,
+              month_paid: moment(payment?.month_paid).format('MMMM YYYY'),
+              date: moment(payment?.updatedAt).format('DD-MM-YYYY HH:mm'),
+            }
+          })}
         columns={columns}
       />
       <CompletePayment />
+      <DeletePayment />
+      <EditPayment />
       <Modal isOpen={isLoading}>
         <span className="flex flex-col gap-3 items-center justify-center min-h-[30vh]">
           <h1
@@ -214,11 +226,7 @@ const HouseholdPayments = ({ household }) => {
               paymentDetailsIsSuccess ? 'text-primary' : 'text-red-600'
             } flex text-center uppercasetext-lg`}
           >
-            {paymentDetailsIsSuccess
-              ? 'Printing receipt...'
-              : deletePaymentIsSuccess
-              ? 'Removing payment...'
-              : null}
+            {paymentDetailsIsSuccess ? 'Printing receipt...' : null}
           </h1>
           <Loading />
         </span>
