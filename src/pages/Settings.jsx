@@ -234,7 +234,7 @@ function Settings({ user }) {
           <EditSectorInfoModel 
            user={user || stateUser}         
           />
-          {(user.departments.level_id === 5 || user.departments.level_id === 3)
+          {(user.departments.level_id === 3)
             ? <UploadSectorStamp department={data?.data} />
             : ''}
         </div>
