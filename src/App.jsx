@@ -104,37 +104,38 @@ const App = () => {
               path="/transactions"
               element={<TransactionTable user={user || stateUser} />}
             />
+            <Route path="/households/stats" element={<HouseDetails />} />
+            <Route
+              path="/profile/:id"
+              element={<UserProfilePage user={user || stateUser} />}
+            />
+            <Route
+              path="/performances"
+              element={<Performances user={user} />}
+            />
+            <Route
+              path="/admins/:id"
+              element={<Admins user={user || stateUser} />}
+            />
+
+            <Route
+              path="/departments"
+              element={<Department user={user || stateUser} />}
+            />
+            <Route
+              path="/select-department"
+              element={<SelectDepartments user={user} />}
+            />
+            <Route
+              path="/report/sectors"
+              element={<Sector_commission user={user || stateUser} />}
+            />
+
+            <Route path="/receipt/:id" element={<PaymentReceipt />} />
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/two-fa-authentication" element={<Validate2faPage />} />
-          <Route path="/households/stats" element={<HouseDetails />} />
-          <Route
-            path="/profile/:id"
-            element={<UserProfilePage user={user || stateUser} />}
-          />
-          <Route
-            path="/performances"
-            element={<Performances user={user} />}
-          />
-          <Route
-            path="/admins/:id"
-            element={<Admins user={user || stateUser} />}
-          />
-
-          <Route
-            path="/departments"
-            element={<Department user={user || stateUser} />}
-          />
-          <Route
-            path="/select-department"
-            element={<SelectDepartments user={user} />}
-          />
-          <Route
-            path="/report/sectors"
-            element={<Sector_commission user={user || stateUser} />}
-          />
           <Route path="*" element={<NotFound />} />
-          <Route path="/receipt/:id" element={<PaymentReceipt />} />
         </Routes>
       </section>
       <ToastContainer />
