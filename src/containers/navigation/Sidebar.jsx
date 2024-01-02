@@ -81,8 +81,10 @@ function Sidebar({ user }) {
           title: 'Departments',
           icon: FaBorderAll,
           path: `${
-            department === 'country'
-              ? '/performances'
+            department === 'country' ||
+            department === 'province' ||
+            department === 'district'
+              ? '/select-department'
               : '/departments'
           }`,
           route: '/departments',

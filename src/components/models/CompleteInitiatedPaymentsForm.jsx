@@ -1,13 +1,11 @@
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../Button'
 import Input from '../Input'
-import {
-  useCompleteInitiatedPaymentsMutation,
-  useLazyGetInitiatedTransactionsQuery,
-} from '../../states/api/apiSlice'
+import { useCompleteInitiatedPaymentsMutation, useLazyGetPaymentsQuery } from '../../states/api/apiSlice'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import Loading from '../Loading'
+import { useNavigate } from 'react-router-dom'
 
 export const CompleteInitiatedPaymentsForm = ({ user }) => {
   const {
@@ -17,59 +15,76 @@ export const CompleteInitiatedPaymentsForm = ({ user }) => {
     setValue,
   } = useForm()
 
+  // STATE VARIABLES
   const [totalAmount, setTotalAmount] = useState(0)
 
-  const [
-    getInitiatedTransactions,
-    {
-      data: initiatedTransactionsData,
-      isLoading: initiatedTransactionsLoading,
-      isError: initiatedTransactionsError,
-      isSuccess: initiatedTransactionsSuccess,
-    },
-  ] = useLazyGetInitiatedTransactionsQuery()
+  // NAVIGATION
+  const navigate = useNavigate()
 
+  // INITIATE GET PAYMENTS QUERY
   const [
-    completeInitiatedPayments,
+    getPayments,
     {
-      data: completeInitiatedPaymentsData,
-      isLoading: completeInitiatedPaymentsLoading,
-      isError: completeInitiatedPaymentsError,
-      isSuccess: completeInitiatedPaymentsSuccess,
+      data: paymentsData,
+      isLoading: paymentsLoading,
+      isSuccess: paymentsSuccess,
+      isError: paymentsError,
     },
-  ] = useCompleteInitiatedPaymentsMutation()
+  ] = useLazyGetPaymentsQuery()
+
+  // INITIATE COMPLETE INITATED PAYMENT REQUEST
+  const [completeInitiatedPayments, {
+    isLoading: completeInitiatedPaymentsLoading,
+    isSuccess: completeInitiatedPaymentsSuccess,
+    isError: completeInitiatedPaymentsError,
+    data: completeInitiatedPaymentsData,
+  }] = useCompleteInitiatedPaymentsMutation()
 
   useEffect(() => {
-    getInitiatedTransactions({
+    getPayments({
       staffId: user?.id,
+      status: 'INITIATED',
     })
   }, [])
 
   useEffect(() => {
-    if (initiatedTransactionsSuccess) {
-      setValue('total_month_paid', initiatedTransactionsData?.totalAmount)
-      setTotalAmount(initiatedTransactionsData?.totalAmount)
+    if (paymentsSuccess) {
+      setValue(
+        'total_month_paid',
+        paymentsData?.data?.rows?.reduce(
+          (acc, curr) => acc + Number(curr?.amount),
+          0
+        )
+      )
+      setTotalAmount(
+        paymentsData?.data?.rows?.reduce(
+          (acc, curr) => acc + Number(curr?.amount),
+          0
+        )
+      )
     }
-  }, [initiatedTransactionsData])
+  }, [paymentsData])
 
   const onSubmit = (data) => {
     completeInitiatedPayments({
-      staffId: user?.id,
+      totalAmount,
       payment_phone: data?.payment_phone,
-      totalAmount: data?.total_month_paid,
+      staffId: user?.id,
+      payment_ids: paymentsData?.data?.rows?.map((payment) => payment?.id),
     })
   }
 
+  // HANDLE COMPLETE INITIATED PAYMENT
   useEffect(() => {
     if (completeInitiatedPaymentsSuccess) {
-      toast.success('Completed payments successfully')
+      toast.success('Initiated request successfully')
+      navigate('/dashboard')
+    } else if (completeInitiatedPaymentsError) {
+      toast.error('Could not complete payment. Please try again.')
     }
-    if (completeInitiatedPaymentsError) {
-      toast.error('Could not complete payment. Refresh and try again')
-    }
-  }, [completeInitiatedPaymentsData])
+  }, [completeInitiatedPaymentsSuccess, completeInitiatedPaymentsError])
 
-  if (initiatedTransactionsError) {
+  if (paymentsError) {
     return (
       <main className="min-h-[80vh] flex flex-col items-center justify-center gap-6">
         <h1 className="text-[20px] uppercase font-semibold">
@@ -205,9 +220,7 @@ export const CompleteInitiatedPaymentsForm = ({ user }) => {
                 <Button
                   className="w-fit"
                   submit
-                  value={
-                    completeInitiatedPaymentsLoading ? <Loading /> : 'Pay now'
-                  }
+                  value={completeInitiatedPaymentsLoading ? <Loading /> : 'Pay now'}
                 />
               )
             }}

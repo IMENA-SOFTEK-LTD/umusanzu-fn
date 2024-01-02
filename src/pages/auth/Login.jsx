@@ -8,6 +8,7 @@ import Loading from '../../components/Loading'
 import Input from '../../components/Input'
 import Logo from '../../../public/logo.png'
 import { setLoginPageLoaded, setUser } from '../../states/features/auth/authSlice'
+import { getDepartment } from '../../utils/User'
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -52,7 +53,11 @@ const Login = () => {
   useEffect(() => {
     if (loginSuccess) {
       if (loginData.code) {
-        localStorage.setItem('user', JSON.stringify(loginData?.data))
+        console.log(loginData?.data)
+        localStorage.setItem('user', JSON.stringify({
+          ...loginData?.data,
+          department: getDepartment(loginData?.data?.departments?.level_id)
+        }))
         navigate('/two-fa-authentication')
       } else {
         dispatch(setUser(loginData))
@@ -63,6 +68,10 @@ const Login = () => {
 
   useEffect(() => {
     if (loginSuccess) {
+        localStorage.setItem('user', JSON.stringify({
+          ...loginData?.data,
+          department: getDepartment(loginData?.data?.departments?.level_id)
+        }))
       navigate('/dashboard')
       window.location.reload()
     }

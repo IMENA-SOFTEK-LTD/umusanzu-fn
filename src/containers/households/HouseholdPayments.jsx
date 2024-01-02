@@ -8,11 +8,45 @@ import moment from 'moment'
 import { setCompletePaymentModal } from '../../states/features/modals/householdSlice'
 import CompletePayment from './CompletePayment'
 import { setPayment } from '../../states/features/transactions/paymentSlice'
+import {
+  useLazyGetPaymentDetailsQuery,
+  useDeletePaymentMutation,
+} from '../../states/api/apiSlice'
+import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+import { printTransactionPDF } from '../../components/table/Export'
+import Loading from '../../components/Loading'
+import Modal from '../../components/models/Modal'
 
 const HouseholdPayments = ({ household }) => {
   // STATE VARIABLES
   const { user } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
+
+  // MODAL LOADING STATE
+  const [isLoading, setIsLoading] = useState(false)
+
+  // INITIATE GET PAYMENT DETAILS REQUEST
+  const [
+    getPaymentDetails,
+    {
+      data: paymentDetailsData,
+      isLoading: paymentDetailsIsLoading,
+      isError: paymentDetailsIsError,
+      isSuccess: paymentDetailsIsSuccess,
+      reset: resetPaymentDetails,
+    },
+  ] = useLazyGetPaymentDetailsQuery()
+
+  // INITIATE DELETE PAYMENT REQUEST
+  const [
+    deletePayment,
+    {
+      isLoading: deletePaymentIsLoading,
+      isSuccess: deletePaymentIsSuccess,
+      isError: deletePaymentIsError,
+    },
+  ] = useDeletePaymentMutation()
 
   // COLUMN CONFIGURATION
   const columns = [
@@ -24,7 +58,7 @@ const HouseholdPayments = ({ household }) => {
       Header: 'Action',
       accessor: 'action',
       Cell: ({ row }) => {
-        if (user?.departments?.id === 0) {
+        if (user?.departments?.id === 1) {
           return (
             <Button
               background={false}
@@ -32,6 +66,8 @@ const HouseholdPayments = ({ household }) => {
               className={`!text-white !bg-red-500 !p-2 !px-[10px] !rounded-full hover:!bg-red-600 hover:!scale-[.99] hover:!text-white`}
               onClick={(e) => {
                 e.preventDefault()
+                deletePayment({ id: row?.original?.id })
+                setIsLoading(true)
               }}
             />
           )
@@ -103,10 +139,24 @@ const HouseholdPayments = ({ household }) => {
         const status = row?.original?.status
         return (
           <Button
-            value={status === 'PAID' ? 'Receipt' : 'Invoice'}
+            value={
+              status === 'PAID' || status === 'INITIATED'
+                ? 'Receipt'
+                : 'Invoice'
+            }
             className={`${
-              status === 'PAID' ? '!bg-green-600' : status === 'PENDING' ? '!bg-red-600' : 'bg-yellow-600'
+              status === 'PAID' || status === 'INITIATED'
+                ? '!bg-green-600'
+                : status === 'PENDING'
+                ? '!bg-red-600'
+                : 'bg-yellow-600'
             } uppercase`}
+            onClick={(e) => {
+              e.preventDefault()
+              dispatch(setPayment(row?.original))
+              getPaymentDetails({ id: row?.original?.id })
+              setIsLoading(true)
+            }}
           />
         )
       },
@@ -116,6 +166,30 @@ const HouseholdPayments = ({ household }) => {
       accessor: 'payment_method',
     },
   ]
+
+  // HANDLE GET PAYMENT DETAILS REQUEST
+  useEffect(() => {
+    if (paymentDetailsIsSuccess && paymentDetailsData) {
+      printTransactionPDF({ payment: paymentDetailsData?.data })
+      setIsLoading(false)
+    }
+    if (paymentDetailsIsError) {
+      toast.error('Could not print receipt. Please check your internet')
+      setIsLoading(false)
+    }
+  }, [paymentDetailsIsSuccess, paymentDetailsData])
+
+  // HANDLE DELETE PAYMENT REQUEST
+  useEffect(() => {
+    if (deletePaymentIsSuccess) {
+      toast.success('Payment deleted successfully')
+      setIsLoading(false)
+      window.location.reload()
+    } else if (deletePaymentIsError) {
+      toast.error('Could not delete payment. Please check your internet')
+      setIsLoading(false)
+    }
+  }, [deletePaymentIsSuccess])
 
   return (
     <main className="flex flex-col items-center min-w-[70%] p-2">
@@ -133,6 +207,22 @@ const HouseholdPayments = ({ household }) => {
         columns={columns}
       />
       <CompletePayment />
+      <Modal isOpen={isLoading}>
+        <span className="flex flex-col gap-3 items-center justify-center min-h-[30vh]">
+          <h1
+            className={`${
+              paymentDetailsIsSuccess ? 'text-primary' : 'text-red-600'
+            } flex text-center uppercasetext-lg`}
+          >
+            {paymentDetailsIsSuccess
+              ? 'Printing receipt...'
+              : deletePaymentIsSuccess
+              ? 'Removing payment...'
+              : null}
+          </h1>
+          <Loading />
+        </span>
+      </Modal>
     </main>
   )
 }
