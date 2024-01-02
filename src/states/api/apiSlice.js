@@ -27,6 +27,7 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
+
     baseUrl: LOCAL_API_URL || 'https://v2.api.umusanzu.rw/api/v2/',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token')
@@ -375,29 +376,6 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
-      recordOfflinePayment: builder.mutation({
-        query: ({
-          service,
-          amount,
-          month_paid,
-          agent,
-          household,
-          sms_phone,
-          sector,
-        }) => ({
-          url: '/transactions/offline',
-          method: 'POST',
-          body: {
-            service,
-            amount,
-            month_paid,
-            agent,
-            household,
-            sms_phone,
-            sector,
-          },
-        }),
-      }),
       getSectorVillagesPerformance: builder.query({
         query: ({ departmentId, month }) => {
           return {
@@ -652,17 +630,10 @@ export const apiSlice = createApi({
         }),
       }),
       getReceipt: builder.query({
-        query: ({ id, startingMonth, endingMonth }) => ({
-          url: `/households/${id}/receipt`,
+        query: ({ id, start_month, end_month, request }) => ({
+          url: `/households/${id}/${request}`,
           method: 'POST',
-          body: { startingMonth, endingMonth },
-        }),
-      }),
-      getInvoice: builder.query({
-        query: ({ id, startingMonth, endingMonth }) => ({
-          url: `/households/${id}/invoice`,
-          method: 'POST',
-          body: { startingMonth, endingMonth },
+          body: { start_month, end_month },
         }),
       }),
       getSectorDetails: builder.query({
@@ -674,13 +645,6 @@ export const apiSlice = createApi({
       getInitiatedTransactions: builder.query({
         query: ({ staffId }) => ({
           url: `/agent/transactions/initiated/?staffId=${staffId}`,
-        }),
-      }),
-      completeInitiatedPayments: builder.mutation({
-        query: ({ totalAmount, staffId, payment_phone }) => ({
-          url: `/payment/initiated/complete?staffId=${staffId}`,
-          method: 'POST',
-          body: { totalAmount, payment_phone },
         }),
       }),
       getDepartmentPerformances: builder.query({
@@ -711,6 +675,64 @@ export const apiSlice = createApi({
           url: `/payment/${id}/pending/complete`,
           method: 'POST',
           body: { payment_phone },
+        }),
+      }),
+      // GET PAYMENT DETAILS
+      getPaymentDetails: builder.query({
+        query: ({ id }) => ({
+          url: `/payment/${id}`,
+          method: 'GET',
+        }),
+      }),
+      // DELETE PAYMENT
+      deletePayment: builder.mutation({
+        query: ({ id }) => ({
+          url: `/payment/${id}`,
+          method: 'DELETE',
+        }),
+      }),
+      // RECORD OFFLINE PAYMENT
+      recordOfflinePayment: builder.mutation({
+        query: ({
+          service,
+          amount,
+          month_paid,
+          agent,
+          household_id,
+          sms_phone,
+        }) => ({
+          url: `/payment/offline?household_id=${household_id}`,
+          method: 'POST',
+          body: {
+            service,
+            amount,
+            month_paid,
+            agent,
+            sms_phone,
+          },
+        }),
+      }),
+      // GET PAYMENTS
+      getPayments: builder.query({
+        query: ({ page, size, status }) => ({
+          url: `/payment?page=${page || 0}&size=${size || 20}&status=${status}`,
+          method: 'GET',
+        }),
+      }),
+      // COMPLETE INITIATED PAYMENTS
+      completeInitiatedPayments: builder.mutation({
+        query: ({ totalAmount, payment_phone, staffId, payment_ids }) => ({
+          url: `/payment/initiated/complete?staffId=${staffId}`,
+          method: 'POST',
+          body: { payment_phone, payment_ids, totalAmount },
+        }),
+      }),
+      // RECORD MULTIPLE PAYMENTS
+      recordMultiplePayments: builder.mutation({
+        query: ({ payment_phone, agent, household_id, start_month, end_month }) => ({
+          url: `/payment/advance/?household_id=${household_id}`,
+          method: 'POST',
+          body: { payment_phone, agent, start_month, end_month },
         }),
       }),
     }
@@ -768,7 +790,6 @@ export const {
   useUploadDepartmentInfoStampMutation,
   useLazySearchHouseholdQuery,
   useLazyGetReceiptQuery,
-  useLazyGetInvoiceQuery,
   useLazyGetDepartmentPerformancesQuery,
   useLazyGetSectorDetailsQuery,
   useLazyGetInitiatedTransactionsQuery,
@@ -779,4 +800,8 @@ export const {
   useRequestMoveHouseholdMutation,
   useGetPaymentsChartInfoQuery,
   useCompletePendingPaymentMutation,
+  useLazyGetPaymentDetailsQuery,
+  useDeletePaymentMutation,
+  useLazyGetPaymentsQuery,
+  useRecordMultiplePaymentsMutation
 } = apiSlice

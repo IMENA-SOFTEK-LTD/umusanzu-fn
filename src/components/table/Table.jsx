@@ -179,7 +179,7 @@ const Table = ({
                             key={column.id}
                             {...column.getHeaderProps()}
                             scope="col"
-                            className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                            className="px-6 py-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
                           >
                             {column.render('Header')}
                           </th>
@@ -201,7 +201,7 @@ const Table = ({
                               <td
                                 key={cell.id}
                                 {...cell.getCellProps()}
-                                className="px-3 py-2 text-center text-ellipsis w-fit"
+                                className="px-3 py-4 text-center text-ellipsis w-fit"
                               >
                                 {cell.render('Cell')}
                               </td>

@@ -11,6 +11,7 @@ const HouseholdInfo = ({ household }) => {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
 
+
   return (
     <main className="bg-white rounded-lg shadow-lg ring-1 ring-gray-200 p-4 w-full">
       <div className="p-3">

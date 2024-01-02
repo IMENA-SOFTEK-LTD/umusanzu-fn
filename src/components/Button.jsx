@@ -17,7 +17,7 @@ const Button = ({
         type={type || 'submit'}
         className={`w-fit py-2 px-6 flex items-center justify-center rounded-sm bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99] ${
           background === false
-            ? '!bg-transparent !h-fit !min-h-fit !text-black !border-none hover:!text-primary hover:!bg-transparent hover:underline'
+            ? 'bg-transparent !h-fit !min-h-fit !text-black !border-none hover:!text-primary hover:bg-transparent hover:underline'
             : null
         } ${
           disabled
@@ -35,7 +35,7 @@ const Button = ({
       onClick={onClick}
       className={`w-fit py-2 px-6 flex items-center justify-center bg-primary cursor-pointer text-[15px] text-white rounded-sm ease-in-out duration-200 hover:scale-[.98] ${
         background === false
-          ? '!bg-transparent !h-fit !min-h-fit !text-black !border-none hover:!text-primary hover:!bg-transparent hover:underline'
+          ? 'bg-transparent !h-fit !min-h-fit !text-black !border-none hover:!text-primary hover:bg-transparent hover:underline'
           : null
       } ${
         disabled
