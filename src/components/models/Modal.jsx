@@ -9,7 +9,7 @@ const JSX_MODAL = ({ isOpen, children, onClose = null }) => {
     <main
       className={`${
         isOpen ? 'modal-open' : 'modal-closed'
-      } h-screen overflow-hidden flex items-center justify-center flex-col gap-6 absolute z-[1000] top-0 bottom-0 left-0 right-0 bg-black bg-opacity-30 transition-opacity ease-in-out duration-300`}
+      } h-screen flex items-center justify-center flex-col gap-6 absolute z-[1000] top-0 bottom-0 left-0 right-0 bg-black bg-opacity-30 transition-opacity ease-in-out duration-300`}
     >
       <section className="flex min-w-[40%] w-fit flex-col z-[100000] bg-white h-fit gap-4 p-6 relative shadow-md rounded-md">
         <Button
@@ -44,7 +44,7 @@ function Modal(props) {
     }
 
     if (props?.isOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = 'auto'
       document.addEventListener('scroll', handleScroll, { passive: false })
     } else {
       document.body.style.overflow = 'auto'

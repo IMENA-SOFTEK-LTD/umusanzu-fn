@@ -4,6 +4,8 @@ import {
   setUpdateHouseholdStatusModal,
 } from '../../states/features/modals/householdSlice'
 import Button from '../../components/Button'
+import UpdateHousehold from '../../components/models/UpdateHousehold'
+import UpdateHouseholdStatus from '../../components/models/UpdateHouseholdStatus'
 
 const HouseholdInfo = ({ household }) => {
 
@@ -108,6 +110,8 @@ const HouseholdInfo = ({ household }) => {
               />
             </span>
           )}
+          <UpdateHousehold household={household} />
+          <UpdateHouseholdStatus household={household} />
         </div>
       </div>
     </main>

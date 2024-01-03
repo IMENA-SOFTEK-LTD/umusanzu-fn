@@ -11,6 +11,7 @@ import householdSlice from './features/modals/householdSlice'
 import departmentSlice from './features/departments/departmentSlice'
 import transactionSlice from './features/transactions/transactionSlice'
 import paymentSlice from './features/transactions/paymentSlice'
+import staffSlice from './features/departments/staffSlice'
 
 const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ const store = configureStore({
     departments: departmentSlice,
     transactions: transactionSlice,
     payment: paymentSlice,
+    staff: staffSlice,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(apiSlice.middleware, rtkQueryErrorLogger)

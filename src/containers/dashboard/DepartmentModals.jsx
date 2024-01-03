@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CreateDistictModel from '../../components/models/CreateDistrictModel'
 import CreateVillageModel from '../../components/models/CreateVillageModel'
 import CreateAgentModel from '../../components/models/CreateAgentModel'
@@ -7,18 +7,31 @@ import Button from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faX } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
+import CreateAdmin from '../staff/CreateAdmin'
+import { setCreateAdminModal } from '../../states/features/departments/staffSlice'
 
 export const DepartmentModals = () => {
+
+  // STATE VARIABLES
+  const dispatch = useDispatch()
   const { user: stateUser } = useSelector((state) => state.auth)
-  const user = JSON.parse(localStorage.getItem('user'))
 
   const [showModals, setShowModals] = useState(false)
 
   let content = null
 
-  switch (user?.departments?.level_id || stateUser.departments?.level_id) {
+  switch (stateUser.departments?.level_id) {
     case 1:
-      content = <CreateDistictModel />
+      content = (
+        <main>
+          <CreateDistictModel />
+          <CreateAdmin />
+            <Button value='Create Admin' className='absolute top-28 right-6 !rounded-lg' onClick={(e) => {
+              e.preventDefault()
+              dispatch(setCreateAdminModal(true))
+            }} />
+        </main>
+      )
       break
     case 3:
       content = (
@@ -35,17 +48,29 @@ export const DepartmentModals = () => {
               showModals ? 'flex ease-in-out duration-100' : 'hidden'
             } ease-in-out duration-100 absolute top-12 right-6 w-full h-full flex flex-col gap-12`}
           >
-            <CreateVillageModel />
             <CreateAgentModel />
+            <CreateAdmin />
+            <Button value='Create Admin' className='absolute top-28 right-6 !rounded-lg' onClick={(e) => {
+              e.preventDefault()
+              dispatch(setCreateAdminModal(true))
+            }} />
           </article>
         </main>
       )
       break
     case 4:
-      content = <CreateVillageModel />
+      content = (
+        <main className="flex flex-col gap-16 relative">
+          <CreateVillageModel />
+          <CreateAdmin />
+            <Button value='Create Admin' className='absolute top-28 right-6 !rounded-lg' onClick={(e) => {
+              e.preventDefault()
+              dispatch(setCreateAdminModal(true))
+            }} />
+        </main>
+      )
       break
     case 5:
-      console.log(user?.departments?.level_id, stateUser.departments?.level_id );
       content = (
         <main className="flex flex-col gap-16 relative">
           <Button
@@ -62,7 +87,11 @@ export const DepartmentModals = () => {
           >
             <CreateVillageModel />
             <CreateAgentModel />
-            <CreateAdminModel />
+            <CreateAdmin />
+            <Button value='Create Admin' className='absolute top-28 right-6 !rounded-lg' onClick={(e) => {
+              e.preventDefault()
+              dispatch(setCreateAdminModal(true))
+            }} />
           </article>
         </main>
       )

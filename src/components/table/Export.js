@@ -287,9 +287,9 @@ export const printTransactionPDF = ({ payment }) => {
     body: [
       [
         'Umutekano',
-        `${moment(payment?.updatedAt).format('MMMM YYYY')}`,
-        `${formatFunds(payment?.household?.ubudehe)} RWF`,
+        `${moment(payment?.month_paid).format('MMMM YYYY')}`,
         `${formatFunds(payment?.amount)} RWF`,
+        `${formatFunds(payment?.remain_amount)} RWF`,
       ],
     ],
     theme: 'grid', // Apply a grid theme

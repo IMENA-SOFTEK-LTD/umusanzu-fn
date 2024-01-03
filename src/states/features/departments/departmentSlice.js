@@ -9,6 +9,7 @@ const departmentSlice = createSlice({
     districtId: null,
     provinceId: null,
     countryId: null,
+    departmentsList: [],
   },
   reducers: {
     setSectorId: (state, { payload }) => {
@@ -29,6 +30,9 @@ const departmentSlice = createSlice({
     setCountryId: (state, { payload }) => {
       state.countryId = payload
     },
+    setDepartmentsList: (state, { payload }) => {
+      state.departmentsList = payload
+    },
   },
 })
 
@@ -41,4 +45,5 @@ export const {
   setDistrictId,
   setProvinceId,
   setCountryId,
+  setDepartmentsList,
 } = departmentSlice.actions

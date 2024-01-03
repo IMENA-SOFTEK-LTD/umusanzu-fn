@@ -13,6 +13,8 @@ import {
 const CreateAgentModel = () => {
   const [showModal, setShowModal] = useState(false)
 
+  const sectorId = localStorage.getItem('sectorId')
+
   const {
     control,
     handleSubmit,
@@ -24,7 +26,7 @@ const CreateAgentModel = () => {
   const [
     getSectorVillages,
     {
-      data: sectoVillages,
+      data: sectorVillagesData,
       isLoading: sectorVillagesLoading,
       isSuccess: sectorVillagesSuccess,
       isError: sectorVillagesIsError,
@@ -73,9 +75,17 @@ const CreateAgentModel = () => {
 
   useEffect(() => {
     getSectorVillages({
-      id: stateUser?.departments?.id || user?.departments?.id
+      id: sectorId || stateUser?.departments?.id || user?.departments?.id,
     })
   }, [])
+
+  useEffect(() => {
+    if (sectorVillagesSuccess) {
+      setValue('department_id', sectorVillagesData?.data[0]?.id)
+    } else if (sectorVillagesIsError) {
+      toast.error(sectorVillagesError)
+    }
+  }, [sectorVillagesData, sectorVillagesSuccess, sectorVillagesIsError])
 
   useEffect(() => {
     if (agentSuccess || agentError) {
@@ -321,7 +331,7 @@ const CreateAgentModel = () => {
                               <option disabled>Could not load villages</option>
                             )
                             : (
-                              sectoVillages?.data?.map((village, index) => {
+                              sectorVillagesData?.data?.map((village, index) => {
                                 return (
                                   <option
                                     selected={index === 0}

@@ -15,7 +15,7 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
       setTimeout(() => {
         logOut();
         location.reload()
-      }, 5000)  
+      }, 5000)
     } else if (action.payload && action.payload.status === 500) {
       showToast('Error! Please try again later!')
     }
@@ -169,36 +169,31 @@ export const apiSlice = createApi({
       }),
       getTransactionsList: builder.query({
         query: ({ department, departmentId, route, page, size }) => ({
-          url: `/${department}/${route}/?departmentId=${departmentId}&page=${
-            page || 0
-          }&size=${size || 20}`,
+          url: `/${department}/${route}/?departmentId=${departmentId}&page=${page || 0
+            }&size=${size || 20}`,
         }),
       }),
       getHouseholdsList: builder.query({
         query: ({ department, departmentId, page, size, route, ubudehe }) => {
           if (route === '') {
             return {
-              url: `/${department}/households/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${size || 20}`,
+              url: `/${department}/households/?departmentId=${departmentId}&page=${page || 0
+                }&size=${size || 20}`,
             }
           } else if (route === 'ubudehe') {
             return {
-              url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${size || 20}&ubudehe=${ubudehe}`,
+              url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${page || 0
+                }&size=${size || 20}&ubudehe=${ubudehe}`,
             }
           } else if (route === 'monthlyTargetList') {
             return {
-              url: `/${department}/households/monthlyTargetList/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${size || 20}`,
+              url: `/${department}/households/monthlyTargetList/?departmentId=${departmentId}&page=${page || 0
+                }&size=${size || 20}`,
             }
           } else {
             return {
-              url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${size || 20}&ubudehe=${ubudehe}`,
+              url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${page || 0
+                }&size=${size || 20}&ubudehe=${ubudehe}`,
             }
           }
         },
@@ -277,9 +272,8 @@ export const apiSlice = createApi({
       getSectorVillages: builder.query({
         query: ({ id, page, size }) => {
           return {
-            url: `/department/sector/${id}/villages/?page=${page || 0}&size=${
-              size || 20
-            }`,
+            url: `/department/sector/${id}/children/?page=${page || 0}&size=${size || 20
+              }`,
             method: 'GET',
           }
         },
@@ -287,9 +281,8 @@ export const apiSlice = createApi({
       getCellVillages: builder.query({
         query: ({ id, size, page }) => {
           return {
-            url: `/department/cell/${id}/villages/?page=${page || 0}&size=${
-              size || 20
-            }`,
+            url: `/department/cell/${id}/villages/?page=${page || 0}&size=${size || 20
+              }`,
             method: 'GET',
           }
         },
@@ -297,9 +290,8 @@ export const apiSlice = createApi({
       getDistrictCells: builder.query({
         query: ({ id, page, size }) => {
           return {
-            url: `/department/district/${id}/cells/?page=${page || 0}&size=${
-              size || 20
-            }`,
+            url: `/department/district/${id}/cells/?page=${page || 0}&size=${size || 20
+              }`,
             method: 'GET',
           }
         },
@@ -307,9 +299,8 @@ export const apiSlice = createApi({
       getCountryDistricts: builder.query({
         query: ({ id, page, size }) => {
           return {
-            url: `/department/country/${id}/districts/?page=${page || 0}&size=${
-              size || 20
-            }`,
+            url: `/department/country/${id}/districts/?page=${page || 0}&size=${size || 20
+              }`,
             method: 'GET',
           }
         },
@@ -345,9 +336,8 @@ export const apiSlice = createApi({
       }),
       getStaff: builder.query({
         query: ({ department, departmentId, page, size }) => ({
-          url: `/staff/${department}/${departmentId}?page=${page || 0}&size=${
-            size || 20
-          }`,
+          url: `/staff/${department}/${departmentId}?page=${page || 0}&size=${size || 20
+            }`,
           method: 'GET',
         }),
       }),
@@ -444,17 +434,15 @@ export const apiSlice = createApi({
       }),
       getDistrictSectors: builder.query({
         query: ({ id, page, size }) => ({
-          url: `/department/district/${id}/sectors/?page=${page || 0}&size=${
-            size || 20
-          }`,
+          url: `/department/district/${id}/sectors/?page=${page || 0}&size=${size || 20
+            }`,
           method: 'GET',
         }),
       }),
       getSectorCells: builder.query({
         query: ({ id, page, size }) => ({
-          url: `/department/sector/${id}/cells/?page=${page || 0}&size=${
-            size || 20
-          }`,
+          url: `/department/sector/${id}/cells/?page=${page || 0}&size=${size || 20
+            }`,
           method: 'GET',
         }),
       }),
@@ -623,9 +611,8 @@ export const apiSlice = createApi({
       }),
       searchHousehold: builder.query({
         query: ({ search, page, size, departmentId, department }) => ({
-          url: `/${department}/search/households?search=${search}&page=${
-            page || 0
-          }&size=${size || 50}&departmentId=${departmentId || 0}`,
+          url: `/${department}/search/households?search=${search}&page=${page || 0
+            }&size=${size || 50}&departmentId=${departmentId || 0}`,
           method: 'GET',
         }),
       }),
@@ -663,7 +650,7 @@ export const apiSlice = createApi({
           url: `/households/${id}/move/request`,
           method: 'PATCH',
         })
-      }),  
+      }),
       getPaymentsChartInfo: builder.query({
         query: ({ week, month, year }) => ({
           url: `/payment/chartinfo?week=${week}&month=${month}&year=${year}`
@@ -735,6 +722,29 @@ export const apiSlice = createApi({
           body: { payment_phone, agent, start_month, end_month },
         }),
       }),
+      // EDIT PAYMENT
+      editPayment: builder.mutation({
+        query: ({ id, month_paid, amount, agent, status }) => ({
+          url: `/payment/${id}`,
+          method: 'PATCH',
+          body: { month_paid, amount, agent, status },
+        }),
+      }),
+      // LIST DEPARTMENTS
+      listDepartments: builder.query({
+        query: ({ level_id }) => ({
+          url: `/department?level_id=${level_id}`,
+          method: 'GET',
+        }),
+      }),
+      // CREATE ADMIN
+      createStaffAdmin: builder.mutation({
+        query: ({ names, username, phone1, staff_role, department_id, email, password }) => ({
+          url: `/staff/?department_id=${department_id}`,
+          method: 'POST',
+          body: { names, username, phone1, staff_role, email, password },
+        }),
+      }),
     }
   },
 })
@@ -803,5 +813,8 @@ export const {
   useLazyGetPaymentDetailsQuery,
   useDeletePaymentMutation,
   useLazyGetPaymentsQuery,
-  useRecordMultiplePaymentsMutation
+  useRecordMultiplePaymentsMutation,
+  useEditPaymentMutation,
+  useLazyListDepartmentsQuery,
+  useCreateStaffAdminMutation
 } = apiSlice
