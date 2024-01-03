@@ -43,7 +43,7 @@ Input.propTypes = {
   name: PropTypes.string,
   required: PropTypes.bool,
   color: PropTypes.string,
-  placeholder: PropTypes.string,
+  placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   readonly: PropTypes.bool,
   defaultValue: PropTypes.string,
   label: PropTypes.string,

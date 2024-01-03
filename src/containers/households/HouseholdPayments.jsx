@@ -205,6 +205,7 @@ const HouseholdPayments = ({ household }) => {
         report={false}
         data={household?.payments
           ?.slice()
+          ?.filter((payment) => payment?.status !== 'FAILED')
           ?.sort((a, b) => moment(b?.month_paid) - moment(a?.month_paid))
           ?.map((payment, index) => {
             return {

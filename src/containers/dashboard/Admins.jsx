@@ -67,7 +67,7 @@ const Admins = () => {
   return (
     <div className="w-[98%] mx-auto relative">
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 absolute top-16">
+      <div className="flex items-center justify-center min-h-[70vh]">
         {data?.rows?.length === 0
           ? (
           <div className="w-full h-screen flex items-center justify-center">
@@ -80,7 +80,7 @@ const Admins = () => {
           </div>
             )
           : (
-          <div className="grid gap-5 ">
+          <div className="flex items-start flex-wrap gap-6">
             {data?.rows?.map((admin, index) => (
               <Card
                 key={index}

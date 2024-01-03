@@ -8,7 +8,7 @@ const AwesomeCard = ({
   nationalId,
   email,
   onViewProfileClick,
-  createdAt
+  createdAt,
 }) => {
   useEffect(() => {
     document.title = `${name} | Umusanzu Digital`
@@ -19,7 +19,7 @@ const AwesomeCard = ({
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="border border-gray-200 rounded-lg shadow-xl p-6 w-80 text-gray-800"
+      className="border border-gray-200 rounded-lg shadow-xl p-6 w-[25%] text-gray-800"
     >
       <h2 className="text-xl font-extrabold mb-4">{name}</h2>
       <div className="flex mb-2">
@@ -36,7 +36,9 @@ const AwesomeCard = ({
       </div>
       <div className="flex mb-6">
         <span className="text-gray-600 font-semibold w-24">Date Added:</span>
-        <p className="text-gray-600">{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p>
+        <p className="text-gray-600">
+          {moment(createdAt).format('YYYY-MM-DD HH:mm')}
+        </p>
       </div>
       <div className="flex items-center justify-start">
         <button
