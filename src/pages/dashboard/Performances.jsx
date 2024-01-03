@@ -11,6 +11,7 @@ const Performances = () => {
 
   // STATE VARIABLES
   const { user } = useSelector((state) => state.auth);
+  const { sectorId } = useSelector((state) => state.departments)
   const [data, setData] = useState([])
 
   const [getDepartmentPerformances, {
@@ -23,8 +24,8 @@ const Performances = () => {
 
     useEffect(() => {
       getDepartmentPerformances({
-        departmentId: user?.departments?.id,
-        department: user?.department,
+        departmentId: user?.departments?.level_id === 3 ? user?.departments?.id : sectorId,
+        department: 'sector',
         month: moment().format('YYYY-MM')
       })
     }, [])

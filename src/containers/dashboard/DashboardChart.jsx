@@ -11,7 +11,7 @@ const ChartDashboard = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [chartError, setChartError] = useState('')
 
-  
+  const token = localStorage.getItem('token')
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
@@ -23,7 +23,8 @@ const ChartDashboard = () => {
     setChartError('')
     if (mode === 'week') {
       try {
-        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?week=true`)
+        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?week=true`,
+        { headers: { Authorization: `Bearer ${token}` } })
         const weekPayments = {
           labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
           datasets: [
@@ -61,7 +62,8 @@ const ChartDashboard = () => {
         }
         const monthDaysArray = monthDays();
 
-        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?month=${todayDate.getMonth() +1 }&year=${todayDate.getFullYear()}`)
+        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?month=${todayDate.getMonth() + 1}&year=${todayDate.getFullYear()}`,
+        { headers: { Authorization: `Bearer ${token}` } })
         const monthPayments = {
           labels: monthDaysArray,
           datasets: [
@@ -94,7 +96,8 @@ const ChartDashboard = () => {
           return months;
         }
         const monthsArray = yearMonths();
-        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?year=${todayDate.getFullYear()}`)
+        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?year=${todayDate.getFullYear()}`,
+          { headers: { Authorization: `Bearer ${token}` } })
         const yearPayments = {
           labels: monthsArray,
           datasets: [

@@ -70,8 +70,6 @@ const TransactionTable = ({ user }) => {
   const [totalRemaining, setTotalRemaining] = useState(0)
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [reportName, setReportName] = useState('');
-  // const [startingMonth, setStartingMonth] = useState('2023-01');
-  // const [endingMonth, setEndingMonth] = useState('2023-01');
   const openExportPopup = () => {
     setShowExportPopup(true);
   };
@@ -826,7 +824,7 @@ const TransactionTable = ({ user }) => {
         </div>
         <table className="w-[95%] mx-auto my-6 divide-y divide-gray-200">
           <tbody>
-            <tr className="bg-green-600 flex items-center flex-wrap">
+            <tr className="bg-[#F9FAFB] flex items-center flex-wrap">
               <td className="px-6 py-4 text-black font-semibold">
                 Total Amout:
               </td>
