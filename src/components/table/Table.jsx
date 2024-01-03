@@ -76,10 +76,11 @@ const Table = ({
     setPageSize,
   } = TableInstance
 
-    const calculateTotals = () => {
+  const calculateTotals = () => {
+    if (data.length > 0 && data[1].monthlyTarget) {
       const monthlyTargetTotal = data.reduce((acc, row) =>
         acc + parseFloat(row.monthlyTarget.replace(/,/g, '')),
-        0);      
+        0);
       const monthlyCollectionsTotal = data.reduce(
         (acc, row) => acc + parseFloat(row.monthlyCollections.replace(/,/g, '')), 0
       );
@@ -92,9 +93,13 @@ const Table = ({
         monthlyCollectionsTotal: formatFunds(monthlyCollectionsTotal),
         differenceTotal: formatFunds(differenceTotal),
       };
+    } else {
+      return null
+    }
+      
     };
+    let totalsCalculated = calculateTotals()
     
-    const { monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal } = calculateTotals();
     
   return (
     <main className="w-full">
@@ -234,14 +239,16 @@ const Table = ({
                     <tr>
                       <td></td>
                     </tr>
-                    <tr className="bg-white text-[15px] divide-y divide-gray-200 w-full font-bold">
-                      <td colSpan={6} className="px-3 py-4 text-center text-ellipsis w-fit">
-                        TOTALS
-                      </td>
-                      <td className="px-3 py-4 text-center text-ellipsis w-fit">{monthlyTargetTotal}</td>
-                      <td className="px-3 py-4 text-center text-ellipsis w-fit">{monthlyCollectionsTotal}</td>
-                      <td className="px-3 py-4 text-center text-ellipsis w-fit">{differenceTotal}</td>
-                    </tr>
+                    {totalsCalculated !== null ? (
+                      <tr className="bg-white text-[15px] divide-y divide-gray-200 w-full font-bold">
+                        <td colSpan={6} className="px-3 py-4 text-center text-ellipsis w-fit">
+                          TOTALS
+                        </td>
+                        <td className="px-3 py-4 text-center text-ellipsis w-fit">{totalsCalculated.monthlyTargetTotal}</td>
+                        <td className="px-3 py-4 text-center text-ellipsis w-fit">{totalsCalculated.monthlyCollectionsTotal}</td>
+                        <td className="px-3 py-4 text-center text-ellipsis w-fit">{totalsCalculated.differenceTotal}</td>
+                      </tr>
+                    ): ""}
                   </tbody>
                 </table>
               </div>
