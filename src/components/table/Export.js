@@ -7,6 +7,8 @@ import Kgl from '../../assets/kglLogo.png'
 import RWline from '../../assets/rwline.png'
 import QRCOD from '../../assets/qrcode.jpeg'
 import formatFunds from '../../utils/Funds';
+import cachet from '../../assets/cachet.png'
+import signature from '../../assets/signature.png'
 
 export const convertBlobToBase64 = (blob) => {
   return new Promise((resolve) => {
@@ -30,12 +32,22 @@ export const dataURLtoBlob = (dataURL) => {
   return new Blob([uInt8Array], { type: contentType })
 }
 
-const printPDF = async ({ TableInstance, reportName, columns = [] }) => {
+const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => {
 
   const doc = new jsPDF('landscape');
   const logoResponse = await fetch(logo);
   const logoData = await logoResponse.blob();
   const reader = new FileReader();
+
+  const convertBlobToBase64 = (blob) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result.split(',')[1]);
+      };
+      reader.readAsDataURL(blob);
+    });
+  };
 
   reader.onload = async () => {
     const logoBase64 = reader.result.split(',')[1];
@@ -54,7 +66,7 @@ const printPDF = async ({ TableInstance, reportName, columns = [] }) => {
     const noValues = Array.from(
       { length: TableInstance.rows.length },
       (_, index) => index + 1
-    );
+    ); 
 
     const exportData = TableInstance.rows.map((row, index) => {
       return {
@@ -86,14 +98,104 @@ const printPDF = async ({ TableInstance, reportName, columns = [] }) => {
         cellPadding: 3,
       },
     });
+    const { monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal } = totals
+    
+    const totalsTitle = [
+      ['TOTALS',]
+    ];
 
+    const totalsTitleStyles = {
+      theme: 'plain', 
+      styles: {
+        fontSize: 10,
+        fontStyle: 'bold', 
+      },
+        columnStyles: {
+        0: { cellWidth: 60 },
+        1: { cellWidth: 60 },
+      },
+
+    };
+
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 5,
+      head: false,
+      body: totalsTitle,
+      ...totalsTitleStyles,
+    });
+
+    const totalsGrid = [
+      ['Monthly Target Total: ', 'Monthly Collections Total (Progress): ', 'Total remaining amount (Remain): '],
+      [monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal]
+    ];
+
+    const totalsGridStyles = {
+      theme: 'grid', 
+      styles: {
+        fontSize: 10,
+        fontStyle: 'bold', 
+      },
+        columnStyles: {
+        0: { cellWidth: 60 },
+        1: { cellWidth: 80 },
+        2: { cellWidth: 80 },
+      },
+
+    };
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 0,
+      head: false,
+      body: totalsGrid,
+      ...totalsGridStyles,
+    });
+    
+    
     doc.setFontSize(12);
     doc.setFont('Arial', 'bold');
+    
     doc.text(
       `Date: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-      15,
+      16,
       doc.lastAutoTable.finalY + 10
     );
+
+    const customContent = [
+      ['BITEGUWE NA:', 'BYEMEJWE NA:'],
+      ['', ''],
+      ['TETA TAMARA', 'NDAGIJIMANA Gedeon'],
+      ['DATA MANAGEMENT', 'CEO IMENA SOFTEK LTD'],
+      ['IMENA SOFTEK LTD', ''],
+    ];
+    
+    const customContentStyles = {
+      theme: 'plain', // Use plain theme to remove table lines
+      styles: {
+        fontSize: 8,
+        fontStyle: 'normal', // Use normal font weight
+      },
+      columnStyles: {
+        0: { cellWidth: 150 },
+        1: { cellWidth: 100 },
+      },
+    };
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 25,
+      head: false,
+      body: customContent,
+      ...customContentStyles,
+    });
+    const cachetResponse = await fetch(cachet);
+      const cachetData = await cachetResponse.blob();
+      const cachetBase64 = await convertBlobToBase64(cachetData);
+
+      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+
+      // Add the signature image here
+      const signatureResponse = await fetch(signature);
+      const signatureData = await signatureResponse.blob();
+      const signatureBase64 = await convertBlobToBase64(signatureData);
+
+      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
 
     doc.save(`${reportName}.pdf`);
   };

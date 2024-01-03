@@ -15,6 +15,7 @@ import Input from "../Input";
 import printPDF from "./Export";
 import { AiOutlineSearch } from "react-icons/ai";
 import Modal from "../models/Modal";
+import formatFunds from "../../utils/Funds";
 
 const Table = ({
   columns,
@@ -75,6 +76,26 @@ const Table = ({
     setPageSize,
   } = TableInstance
 
+    const calculateTotals = () => {
+      const monthlyTargetTotal = data.reduce((acc, row) =>
+        acc + parseFloat(row.monthlyTarget.replace(/,/g, '')),
+        0);      
+      const monthlyCollectionsTotal = data.reduce(
+        (acc, row) => acc + parseFloat(row.monthlyCollections.replace(/,/g, '')), 0
+      );
+      const differenceTotal = data.reduce(
+        (acc, row) => acc + parseFloat(row.difference.replace(/,/g, '')),
+        0
+      );
+      return {
+        monthlyTargetTotal: formatFunds(monthlyTargetTotal),
+        monthlyCollectionsTotal: formatFunds(monthlyCollectionsTotal),
+        differenceTotal: formatFunds(differenceTotal),
+      };
+    };
+    
+    const { monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal } = calculateTotals();
+    
   return (
     <main className="w-full">
       <main className="flex flex-col item-start">
@@ -146,7 +167,7 @@ const Table = ({
                     }
                     onClick={(e) => {
                       e.preventDefault()
-                      printPDF({ TableInstance, reportName, columns })
+                      printPDF({ TableInstance, reportName, columns, totals : {monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal} })
                     }}
                   />
                   <Button
@@ -212,6 +233,14 @@ const Table = ({
                     })}
                     <tr>
                       <td></td>
+                    </tr>
+                    <tr className="bg-white text-[15px] divide-y divide-gray-200 w-full font-bold">
+                      <td colSpan={6} className="px-3 py-4 text-center text-ellipsis w-fit">
+                        TOTALS
+                      </td>
+                      <td className="px-3 py-4 text-center text-ellipsis w-fit">{monthlyTargetTotal}</td>
+                      <td className="px-3 py-4 text-center text-ellipsis w-fit">{monthlyCollectionsTotal}</td>
+                      <td className="px-3 py-4 text-center text-ellipsis w-fit">{differenceTotal}</td>
                     </tr>
                   </tbody>
                 </table>

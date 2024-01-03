@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
     useGlobalFilter,
     useTable,
@@ -13,9 +13,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAnglesLeft, faAnglesRight, faChevronLeft, faChevronRight, faFile } from "@fortawesome/free-solid-svg-icons";
 import Button, { PageButton } from "../../components/Button";
 import Input from "../../components/Input";
+import { useNavigate } from "react-router";
+import { setSectorId } from "../../states/features/departments/departmentSlice";
 
 const SectorsReports = ({ user }) => {
 
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [data, setData] = useState([]);
 
     const [getCountrySectors, {
@@ -101,8 +105,13 @@ const SectorsReports = ({ user }) => {
                     <article className="flex flex-col items-start gap-2">
                         <Button onClick={(e) => {
                             e.preventDefault()
+                            navigate('/performances')
+                            dispatch(setSectorId(row.original.ID))
                         }} className='py-[4px] text-[14px] !px-4' value = 'Performance' />
-                        <Button className='py-[4px] text-[14px] !px-4' value = 'Departments' />
+                        <Button className='py-[4px] text-[14px] !px-4' onClick={(e) => {
+                            e.preventDefault()
+                            navigate('/departments')
+                        }} value = 'Departments' />
                     </article>
                 )
             }),
