@@ -77,7 +77,7 @@ const Table = ({
   } = TableInstance
 
   const calculateTotals = () => {
-    if (data.length > 0 && data[1].monthlyTarget) {
+    if (data.length > 0 && data[0].hasOwnProperty('monthlyTarget')) {
       const monthlyTargetTotal = data.reduce((acc, row) =>
         acc + parseFloat(row.monthlyTarget.replace(/,/g, '')),
         0);
@@ -241,7 +241,7 @@ const Table = ({
                     </tr>
                     {totalsCalculated !== null ? (
                       <tr className="bg-white text-[15px] divide-y divide-gray-200 w-full font-bold">
-                        <td colSpan={6} className="px-3 py-4 text-center text-ellipsis w-fit">
+                        <td colSpan={4} className="px-3 py-4 text-center text-ellipsis w-fit">
                           TOTALS
                         </td>
                         <td className="px-3 py-4 text-center text-ellipsis w-fit">{totalsCalculated.monthlyTargetTotal}</td>

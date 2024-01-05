@@ -40,6 +40,17 @@ const HouseholdInfo = ({ household }) => {
                 <td className="py-2 pl-4">{household?.nid}</td>
               </tr>
               <tr className="border-b border-gray-300">
+                <td className="py-2 pr-4 font-semibold">Household type</td>
+                <td className="py-2 pl-4">
+                <td className="py-2 pl-4">{household?.type}</td>  
+                  {/* <select className="border-[2px] rounded-[2px] border-[#155E75] outline-[#155E75] w-2/3 text-xs"> 
+                    <option value='residence' className='text-xs'> {'Residence'} </option>
+                    <option value='business' className='text-xs'> {'Business'} </option>
+                              
+                  </select> */}
+                </td>
+              </tr>
+              <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Amount</td>
                 <td className="py-2 pl-4">
                   {household?.ubudehe} ({household?.currency || 'RWF'})

@@ -144,7 +144,8 @@ const HouseholdTable = ({ user }) => {
           cell: row?.cells[0]?.name,
           sector: row?.sectors[0]?.name,
           district: row?.districts[0]?.name,
-          province: row?.provinces[0]?.name,         
+          province: row?.provinces[0]?.name,
+          type: row?.type,         
         })) || []
       )
     }
@@ -179,6 +180,7 @@ const HouseholdTable = ({ user }) => {
                 sector: row?.sectors[0]?.name,
                 district: row?.districts[0]?.name,
                 province: row?.provinces[0]?.name,
+                type: row?.type,
               })) || []
             )
           })
