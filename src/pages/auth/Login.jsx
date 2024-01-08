@@ -133,10 +133,9 @@ const Login = () => {
                     defaultValue=""
                     render={({ field }) => (
                       <label className='flex flex-col gap-2'>
-                        <p>Password</p>
+                         <p className='font-medium'>Password</p>
                         <Input
                           placeholder="*******"
-                          label="Password"
                           type="password"
                           className="w-[90%] mx-auto"
                           value={field.value}

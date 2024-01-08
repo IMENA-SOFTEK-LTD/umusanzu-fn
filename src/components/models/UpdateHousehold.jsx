@@ -45,6 +45,7 @@ const UpdateHousehold = ({ household }) => {
       phone1: data?.phone1,
       phone2: data?.phone2,
       ubudehe: data?.ubudehe,
+      type: data?.type,
     })
   }
 
@@ -173,7 +174,7 @@ useEffect(() => {
               <Controller
                 control={control}
                 name="type"
-                defaultValue={1}
+                defaultValue={household?.type}
                 render={({ field }) => {
                   return (
                     <select
@@ -183,8 +184,8 @@ useEffect(() => {
                       <option disabled value="">
                         Select household type
                       </option>
-                      <option value={1}>Residence</option>
-                      <option value={2}>Business</option>
+                      <option value={'residence'}>Residence</option>
+                      <option value={'business'}>Business</option>
                     </select>
                   )
                 }}

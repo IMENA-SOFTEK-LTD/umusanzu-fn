@@ -136,7 +136,13 @@ const HouseholdDetails = () => {
             </section>
           )}
           <span className="flex w-full gap-6 items-start">
-            <HouseholdPayments household={household} />
+            {household.hasOwnProperty('payments')
+              ? <HouseholdPayments household={household} />
+              : <div className="py-[20%] text-center font-semibold text-lg min-w-[70%]">
+                <p className="mx-auto py-8 px-4 w-[60%] rounded-lg shadow-lg">This household has not made any transactions yet!</p>
+              </div>
+            }
+            
             <HouseholdInfo household={household} />
             <RecordOfflinePayment household={household} />
             <RecordMultipleMonths />

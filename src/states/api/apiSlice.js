@@ -210,6 +210,7 @@ export const apiSlice = createApi({
           sector,
           cell,
           village,
+          type,
         }) => ({
           url: `/households`,
           method: 'POST',
@@ -224,6 +225,7 @@ export const apiSlice = createApi({
             sector,
             cell,
             village,
+            type,
           },
         }),
       }),
@@ -535,7 +537,7 @@ export const apiSlice = createApi({
         }),
       }),
       updateHousehold: builder.mutation({
-        query: ({ name, nid, phone1, phone2, ubudehe, id }) => ({
+        query: ({ name, nid, phone1, phone2, ubudehe, id, type }) => ({
           url: `/households/${id}`,
           method: 'PATCH',
           body: {
@@ -544,6 +546,7 @@ export const apiSlice = createApi({
             phone1,
             phone2,
             ubudehe,
+            type,
           },
         }),
       }),
