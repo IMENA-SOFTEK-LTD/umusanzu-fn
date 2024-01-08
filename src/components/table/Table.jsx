@@ -172,7 +172,19 @@ const Table = ({
                     }
                     onClick={(e) => {
                       e.preventDefault()
-                      printPDF({ TableInstance, reportName, columns, totals : {monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal} })
+                      totalsCalculated !== null
+                        ? printPDF({
+                          TableInstance, reportName, columns,
+                          totals: {
+                            monthlyTargetTotal: totalsCalculated.monthlyTargetTotal,
+                            monthlyCollectionsTotal: totalsCalculated.monthlyCollectionsTotal,
+                            differenceTotal: totalsCalculated.differenceTotal,
+                          }
+                        })
+                        : printPDF({
+                          TableInstance, reportName, columns,
+                          totals: null
+                        })
                     }}
                   />
                   <Button

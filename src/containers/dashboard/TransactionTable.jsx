@@ -328,12 +328,35 @@ const TransactionTable = ({ user }) => {
           1: { cellWidth: 100 },
         },
       };
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 140,
-        head: false,
-        body: customContent,
-        ...customContentStyles,
-      });
+
+      if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
+        doc.addPage()        
+        doc.text(
+          `Done on: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,doc.lastAutoTable.finalY + 20
+        );
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 30,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+      } else {
+        
+        doc.text(
+          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,doc.lastAutoTable.finalY + 20
+        );
+
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 30,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+
+      }
+
 
       // Add the cachet image here
       const cachetResponse = await fetch(cachet);
@@ -346,11 +369,8 @@ const TransactionTable = ({ user }) => {
       const signatureResponse = await fetch(signature);
       const signatureData = await signatureResponse.blob();
       const signatureBase64 = await convertBlobToBase64(signatureData);
-      const date = new Date();
-      const dateNow = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
 
       doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
-      doc.text(`Done on: ${dateNow}`, 20, doc.lastAutoTable.finalY - 50);
 
       doc.save(`${reportName}.pdf`);
     };
