@@ -33,7 +33,11 @@ import {
   setSize,
   setTotalPages,
 } from '../../states/features/pagination/paginationSlice'
-import { useCancelMoveHouseholdMutation, useLazyGetHouseholdsListQuery, useMoveHouseholdMutation } from '../../states/api/apiSlice'
+import {
+  useCancelMoveHouseholdMutation,
+  useLazyGetHouseholdsListQuery,
+  useMoveHouseholdMutation,
+} from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

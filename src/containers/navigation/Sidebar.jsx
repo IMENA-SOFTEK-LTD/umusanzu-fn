@@ -22,13 +22,16 @@ import {
   setPathRoute,
   toggleSidebar,
 } from '../../states/features/navigation/sidebarSlice'
-import { setPathName } from '../../states/features/navigation/navbarSlice'
+import { setPathName, toggleNavDropdown } from '../../states/features/navigation/navbarSlice'
 import Logo from '../../../public/logo.png'
 
 function Sidebar({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const { isOpen } = useSelector((state) => state.sidebar)
   const { pathName } = useSelector((state) => state.navbar)
+
+  // VIEWPORT WIDTH
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
 
   let department = ''
 
@@ -199,6 +202,13 @@ function Sidebar({ user }) {
     showMore()
   }, [])
 
+  useEffect(() => {
+    if (viewportWidth < 600) {
+      showLess()
+      dispatch(toggleNavDropdown(false))
+    }
+  }, [viewportWidth])
+
   const pathsToHideSidebar = ['/login', '/two-fa-authentication']
 
   if (pathsToHideSidebar.includes(pathname)) {
@@ -282,6 +292,11 @@ function Sidebar({ user }) {
                       localStorage.setItem('pathName', item.title)
                       dispatch(setPathRoute(item.route))
                       localStorage.setItem('pathRoute', item.route)
+                      setViewportWidth(window.innerWidth)
+                      if (viewportWidth < 650) {
+                        showLess()
+                        dispatch(toggleNavDropdown(false))
+                      }
                       navigate(item.path)
                     }}
                   >

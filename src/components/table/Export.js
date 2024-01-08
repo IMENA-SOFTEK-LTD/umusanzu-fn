@@ -309,54 +309,39 @@ export const printTransactionPDF = ({ payment }) => {
   doc.autoTable({
     startY: 125,
     head: [
-      [
-        'DESCRIPTION',
-        'MONTH',
-        'AMOUNT',
-        `${payment?.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'
-        }`,
-      ],
+      ['DESCRIPTION', 'MONTH', 'AMOUNT', `${payment?.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`],
     ],
     body: [
-      [
-        'Umutekano',
-        `${moment(payment?.month_paid).format('MMMM YYYY')}`,
-        `${formatFunds(payment?.amount)} RWF`,
-        `${formatFunds(payment?.remain_amount)} RWF`,
-      ],
+      ['Umutekano', `${moment(payment?.month_paid).format('MMMM YYYY')}`, `${formatFunds(payment?.amount)} RWF`, `${formatFunds(payment?.remain_amount)} RWF`],
+      // Add more rows as needed
     ],
-    theme: 'grid', // Apply a grid theme
+    theme: 'grid',
     headStyles: {
-      fillColor: [0, 128, 0], // Green background color for the header
-      textColor: 255, // White text color for the header
-      fontSize: 12, // Font size for the header
-      halign: 'center', // Center align the text horizontally
+      // Styles for the table header
+      fillColor: [0, 128, 0],
+      textColor: 255,
+      fontSize: 12,
+      halign: 'center',
     },
     styles: {
-      fontSize: 10, // Font size for the body
-      textColor: 0, // Black text color for the body
-      cellPadding: 3, // Padding for each cell
+      fontSize: 10,
+      textColor: 0,
+      cellPadding: 3,
     },
     columnStyles: {
-      0: {
-        // Style for the first column (DESCRIPTION)
-        halign: 'center', // Center align the text horizontally
-      },
-      1: {
-        // Style for the second column (MONTH)
-        halign: 'center', // Center align the text horizontally
-      },
-      2: {
-        // Style for the third column (UNIT PRICE)
-        halign: 'center', // Center align the text horizontally
-      },
-      3: {
-        // Style for the fourth column (AMOUNT PAID or PENDING AMOUNT)
-        halign: 'center', // Center align the text horizontally
-        fontStyle: 'bold', // Make the text bold
-      },
+      0: { halign: 'center' },
+      1: { halign: 'center' },
+      2: { halign: 'center' },
+      3: { halign: 'center', fontStyle: 'bold' },
     },
-  })
+    didDrawPage: function (data) {
+      // Check if the table exceeds the bottom margin
+      if (currentY + data.table.height >= doc.internal.pageSize.height - 10) {
+        doc.addPage(); // Add a new page
+        currentY = 10; // Reset the Y-coordinate for the new page
+      }
+    },
+  });
   // Calculate the height of the image (assuming it's 10 units high)
   const imageHeight = 20;
 

@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import {
   setCells,
   setDistricts,
+  setDuplicateHousehold,
   setExistingHousehold,
   setHouseholdConflict,
   setSectors,
@@ -33,6 +34,7 @@ import {
 } from '../../states/features/departments/departmentSlice'
 import ExistingHouseholds from '../../containers/households/ExistingHouseholds'
 import Select from '../../components/Select'
+import { toast } from 'react-toastify'
 
 const CreateHousehold = ({ user }) => {
   const {
@@ -56,7 +58,6 @@ const CreateHousehold = ({ user }) => {
     villages,
     selectedVillage,
     householdConflict,
-    existingHousehold,
   } = useSelector((state) => state.household)
 
   const [existingHouseholdData, setExistingHouseholdData] = useState([])
@@ -285,6 +286,21 @@ const CreateHousehold = ({ user }) => {
       type: data.type,
       village: Number(data.village),
     })
+    dispatch(
+      setDuplicateHousehold({
+        name: data.name,
+        nid: data.nid,
+        province: Number(data.province),
+        district: Number(data.district),
+        sector: Number(data.sector),
+        cell: Number(data.cell),
+        phone1: data.phone1,
+        phone2: data.phone2,
+        ubudehe: data.ubudehe,
+        type: data.type,
+        village: Number(data.village),
+      })
+    )
   }
 
   useEffect(() => {
@@ -292,13 +308,19 @@ const CreateHousehold = ({ user }) => {
       if (createHouseholdData?.conflict === true) {
         dispatch(setExistingHousehold(createHouseholdData?.data?.rows[0]))
         setExistingHouseholdData(createHouseholdData?.data?.rows)
-        dispatch(setHouseholdConflict(true))
+        navigate(
+          `/households/create/conflict/?phone1=${createHouseholdData?.data?.rows[0]?.phone1}`
+        )
       } else {
         dispatch(setHouseholdConflict(false))
+        dispatch(setDuplicateHousehold(null))
         setTimeout(() => {
           navigate(`/households/${createHouseholdData?.data?.id}`)
         }, 1000)
       }
+    } else if (createHouseholdError) {
+      dispatch(setDuplicateHousehold(null))
+      toast.error(createHouseholdErrorData?.message)
     }
   }, [createHouseholdSuccess, createHouseholdData])
 

@@ -174,7 +174,7 @@ export const apiSlice = createApi({
         }),
       }),
       getHouseholdsList: builder.query({
-        query: ({ department, departmentId, page, size, route, ubudehe }) => {
+        query: ({ department, departmentId, page, size, route, ubudehe, phone1 }) => {
           if (route === '') {
             return {
               url: `/${department}/households/?departmentId=${departmentId}&page=${page || 0
@@ -193,7 +193,7 @@ export const apiSlice = createApi({
           } else {
             return {
               url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${page || 0
-                }&size=${size || 20}&ubudehe=${ubudehe}`,
+                }&size=${size || 20}&ubudehe=${ubudehe}&phone1=${phone1}`,
             }
           }
         },
