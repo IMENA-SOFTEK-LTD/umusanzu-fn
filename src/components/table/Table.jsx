@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import PropTypes from "prop-types";
+import { useState, useMemo } from 'react'
+import PropTypes from 'prop-types'
 import {
   useGlobalFilter,
   useTable,
@@ -7,15 +7,15 @@ import {
   usePagination,
   useFilters,
   useSortBy,
-} from "react-table";
-import { BsFiletypePdf } from "react-icons/bs";
-import "regenerator-runtime/runtime";
-import Button from "../Button";
-import Input from "../Input";
-import printPDF from "./Export";
-import { AiOutlineSearch } from "react-icons/ai";
-import Modal from "../models/Modal";
-import formatFunds from "../../utils/Funds";
+} from 'react-table'
+import { BsFiletypePdf } from 'react-icons/bs'
+import 'regenerator-runtime/runtime'
+import Button from '../Button'
+import Input from '../Input'
+import printPDF from './Export'
+import { AiOutlineSearch } from 'react-icons/ai'
+import Modal from '../models/Modal'
+import formatFunds from '../../utils/Funds'
 
 const Table = ({
   columns,
@@ -77,30 +77,31 @@ const Table = ({
   } = TableInstance
 
   const calculateTotals = () => {
-    if (data.length > 0 && data[0].hasOwnProperty('monthlyTarget')) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (data.length > 0 && data[0]?.hasOwnProperty('monthlyTarget')) {
       const monthlyTargetTotal = data.reduce((acc, row) =>
         acc + parseFloat(row.monthlyTarget.replace(/,/g, '')),
         0);
       const monthlyCollectionsTotal = data.reduce(
-        (acc, row) => acc + parseFloat(row.monthlyCollections.replace(/,/g, '')), 0
-      );
+        (acc, row) =>
+          acc + parseFloat(row.monthlyCollections.replace(/,/g, '')),
+        0
+      )
       const differenceTotal = data.reduce(
         (acc, row) => acc + parseFloat(row.difference.replace(/,/g, '')),
         0
-      );
+      )
       return {
         monthlyTargetTotal: formatFunds(monthlyTargetTotal),
         monthlyCollectionsTotal: formatFunds(monthlyCollectionsTotal),
         differenceTotal: formatFunds(differenceTotal),
-      };
+      }
     } else {
       return null
     }
-      
-    };
-    let totalsCalculated = calculateTotals()
-    
-    
+  }
+  const totalsCalculated = calculateTotals()
+
   return (
     <main className="w-full">
       <main className="flex flex-col item-start">
@@ -256,11 +257,19 @@ const Table = ({
                         <td colSpan={4} className="px-3 py-4 text-center text-ellipsis w-fit">
                           TOTALS
                         </td>
-                        <td className="px-3 py-4 text-center text-ellipsis w-fit">{totalsCalculated.monthlyTargetTotal}</td>
-                        <td className="px-3 py-4 text-center text-ellipsis w-fit">{totalsCalculated.monthlyCollectionsTotal}</td>
-                        <td className="px-3 py-4 text-center text-ellipsis w-fit">{totalsCalculated.differenceTotal}</td>
+                        <td className="px-3 py-4 text-center text-ellipsis w-fit">
+                          {totalsCalculated.monthlyTargetTotal}
+                        </td>
+                        <td className="px-3 py-4 text-center text-ellipsis w-fit">
+                          {totalsCalculated.monthlyCollectionsTotal}
+                        </td>
+                        <td className="px-3 py-4 text-center text-ellipsis w-fit">
+                          {totalsCalculated.differenceTotal}
+                        </td>
                       </tr>
-                    ): ""}
+                    ) : (
+                      ''
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -355,12 +364,12 @@ export function SelectColumnFilter({
   column: { filterValue, setFilter, preFilteredRows, id, render },
 }) {
   const options = useMemo(() => {
-    const options = new Set();
+    const options = new Set()
     preFilteredRows.forEach((row) => {
-      options.add(row.values[id]);
-    });
-    return [...options.values()];
-  }, [id, preFilteredRows]);
+      options.add(row.values[id])
+    })
+    return [...options.values()]
+  }, [id, preFilteredRows])
 
   return (
     <label className="flex gap-x-2 items-baseline">
@@ -371,7 +380,7 @@ export function SelectColumnFilter({
         id={id}
         value={filterValue}
         onChange={(e) => {
-          setFilter(e.target.value || undefined);
+          setFilter(e.target.value || undefined)
         }}
       >
         <option className="text-[13px]" value="">
@@ -384,7 +393,7 @@ export function SelectColumnFilter({
         ))}
       </select>
     </label>
-  );
+  )
 }
 
 function GlobalFilter({
@@ -392,21 +401,21 @@ function GlobalFilter({
   globalFilter,
   setGlobalFilter,
 }) {
-  const count = preGlobalFilteredRows.length;
-  const [value, setValue] = useState(globalFilter);
+  const count = preGlobalFilteredRows.length
+  const [value, setValue] = useState(globalFilter)
   const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
-  }, 200);
+    setGlobalFilter(value || undefined)
+  }, 200)
 
   return (
     <label className="relative max-w-[50%] min-w-[30%]">
       <Input
         type="text"
         className="w-full max-w-[20rem] !py-2 !text-[14px] pr-10"
-        value={value || ""}
+        value={value || ''}
         onChange={(e) => {
-          setValue(e.target.value);
-          onChange(e.target.value);
+          setValue(e.target.value)
+          onChange(e.target.value)
         }}
         placeholder={`${count} records...`}
       />
@@ -414,11 +423,11 @@ function GlobalFilter({
         className="absolute right-12 top-1/2 transform -translate-y-1/2 !bg-transparent !border-none !ring-none !shadow-none hover:!text-primaryColor !p-0"
         value={<AiOutlineSearch className="text-[20px] font-bold" />}
         onClick={() => {
-          setGlobalFilter(value || undefined);
+          setGlobalFilter(value || undefined)
         }}
       />
     </label>
-  );
+  )
 }
 
 Table.propTypes = {
@@ -427,6 +436,6 @@ Table.propTypes = {
   pagination: PropTypes.bool,
   search: PropTypes.bool,
   report: PropTypes.bool,
-};
+}
 
-export default Table;
+export default Table

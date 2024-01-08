@@ -33,6 +33,7 @@ import Performances from './pages/dashboard/Performances.jsx'
 import Reports from './containers/reports/Reports.jsx'
 import SectorsReports from './containers/reports/SectorsReports.jsx'
 import HouseholdDetails from './pages/households/HouseholdDetails.jsx'
+import HouseholdExists from './pages/households/HouseholdExists.jsx'
 
 const App = () => {
   
@@ -86,6 +87,7 @@ const App = () => {
               path="/households/create"
               element={<CreateHousehold user={user} />}
             />
+            <Route path='/households/create/conflict' element={<HouseholdExists  />} />
             <Route
               path="/households/search"
               element={<SearchHousehold user={user} />}

@@ -24,6 +24,7 @@ const householdSlice = createSlice({
     searchTerm: '',
     household: null,
     completePaymentModal: false,
+    duplicateHousehold: null
   },
   reducers: {
     setProvinces: (state, action) => {
@@ -86,6 +87,9 @@ const householdSlice = createSlice({
     setCompletePaymentModal: (state, action) => {
       state.completePaymentModal = action.payload
     },
+    setDuplicateHousehold: (state, action) => {
+      state.duplicateHousehold = action.payload
+    },
   },
 })
 
@@ -112,4 +116,5 @@ export const {
   setSearchTerm,
   setHousehold,
   setCompletePaymentModal,
+  setDuplicateHousehold
 } = householdSlice.actions
