@@ -21,7 +21,7 @@ const HouseholdInfo = ({ household }) => {
 
   const updateHouseHoldType = () => { 
     axios.patch(
-      `https://v2.umusanzu.rw/api/v2/households/types/${household?.id}`,
+      `https://v2.api.umusanzu.rw/api/v2/households/types/${household?.id}`,
       {
         type: selectedHouseholdType
       },
