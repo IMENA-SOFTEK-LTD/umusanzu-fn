@@ -117,12 +117,7 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
 
     };
 
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 5,
-      head: false,
-      body: totalsTitle,
-      ...totalsTitleStyles,
-    });
+
 
     const totalsGrid = [
       ['Monthly Target Total: ', 'Monthly Collections Total (Progress): ', 'Total remaining amount (Remain): '],
@@ -142,23 +137,25 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
       },
 
     };
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 0,
-      head: false,
-      body: totalsGrid,
-      ...totalsGridStyles,
-    });
-    
+
+    if (totals !== null) {
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 5,
+        head: false,
+        body: totalsTitle,
+        ...totalsTitleStyles,
+      });
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 0,
+        head: false,
+        body: totalsGrid,
+        ...totalsGridStyles,
+      });
+    }
     
     doc.setFontSize(12);
     doc.setFont('Arial', 'bold');
     
-    doc.text(
-      `Date: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-      16,
-      doc.lastAutoTable.finalY + 10
-    );
-
     const customContent = [
       ['BITEGUWE NA:', 'BYEMEJWE NA:'],
       ['', ''],
@@ -178,24 +175,60 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
         1: { cellWidth: 100 },
       },
     };
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 25,
-      head: false,
-      body: customContent,
-      ...customContentStyles,
-    });
-    const cachetResponse = await fetch(cachet);
+
+    if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
+      doc.addPage();
+
+      doc.text(
+        `Date: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+        16,40
+      );
+
+      doc.autoTable({
+        startY: 50,
+        head: false,
+        body: customContent,
+        ...customContentStyles,
+      });
+
+      const cachetResponse = await fetch(cachet);
       const cachetData = await cachetResponse.blob();
       const cachetBase64 = await convertBlobToBase64(cachetData);
-
+  
       doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
-
-      // Add the signature image here
+  
+        // Add the signature image here
       const signatureResponse = await fetch(signature);
       const signatureData = await signatureResponse.blob();
       const signatureBase64 = await convertBlobToBase64(signatureData);
-
+  
       doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+    } else {
+
+      doc.text(
+        `Date: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+        16,40
+      );
+
+      doc.autoTable({
+        startY: 50,
+        head: false,
+        body: customContent,
+        ...customContentStyles,
+      });
+      const cachetResponse = await fetch(cachet);
+      const cachetData = await cachetResponse.blob();
+      const cachetBase64 = await convertBlobToBase64(cachetData);
+  
+      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+  
+        // Add the signature image here
+      const signatureResponse = await fetch(signature);
+      const signatureData = await signatureResponse.blob();
+      const signatureBase64 = await convertBlobToBase64(signatureData);
+  
+      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+    }
 
     doc.save(`${reportName}.pdf`);
   };
