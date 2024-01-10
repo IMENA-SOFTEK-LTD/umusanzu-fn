@@ -67,7 +67,7 @@ const HouseholdInfo = ({ household }) => {
                 <td className="py-2 pl-4">{household?.nid}</td>
               </tr>
               <tr className="border-b border-gray-300">
-                <td className="py-2 pr-4 font-semibold">Household </td>
+                <td className="py-2 pr-4 font-semibold">Household type </td>
                   {user?.departments?.level_id === 6 ? 
                   <td className="py-2 pl-4">
                     {displaySave
