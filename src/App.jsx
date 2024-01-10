@@ -3,8 +3,9 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Login from './pages/auth/Login.jsx'
 import Validate2faPage from './pages/auth/Validate2faPage.jsx'
@@ -34,6 +35,8 @@ import Reports from './containers/reports/Reports.jsx'
 import SectorsReports from './containers/reports/SectorsReports.jsx'
 import HouseholdDetails from './pages/households/HouseholdDetails.jsx'
 import HouseholdExists from './pages/households/HouseholdExists.jsx'
+import { useEffect } from 'react'
+import { logOut } from './utils/User.js'
 
 const App = () => {
   
@@ -42,6 +45,52 @@ const App = () => {
 
   const { isOpen } = useSelector((state) => state.sidebar)
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const checkForInactivity = () => {
+    const expireTime = localStorage.getItem('expireTime')
+    const token = localStorage.getItem('token')
+    
+    if (token && expireTime < Date.now()) {
+      toast.info('It seems you were away, you need to log in again', {
+        position: toast.POSITION.TOP_RIGHT,
+        onClose: () => {
+          logOut();
+          navigate('/login')
+        }
+      })
+    }
+  }
+
+  const updateExpireTime = () => {
+    const expireTime = Date.now() + 5000;
+    localStorage.setItem('expireTime', expireTime)
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkForInactivity();
+    }, 300005);
+
+    return () => clearInterval(interval);
+  }, [])
+
+  useEffect(() => {
+    updateExpireTime();
+
+    window.addEventListener('click', updateExpireTime);
+    window.addEventListener('keypress', updateExpireTime);
+    window.addEventListener('scroll', updateExpireTime);
+    window.addEventListener('mousemove', updateExpireTime);
+
+    return () => {
+      window.removeEventListener('click', updateExpireTime);
+      window.removeEventListener('keypress', updateExpireTime);
+      window.removeEventListener('scroll', updateExpireTime);
+      window.removeEventListener('mousemove', updateExpireTime);
+    }
+ 
+  }, [])
 
   // eslint-disable-next-line no-undef
   const user = JSON.parse(localStorage.getItem('user'))
