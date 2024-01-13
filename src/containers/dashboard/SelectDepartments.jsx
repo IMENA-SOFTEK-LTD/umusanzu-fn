@@ -15,7 +15,8 @@ import {
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { setSectorId } from '../../states/features/departments/departmentSlice'
+import { setSectorId, setDistrictId, setProvinceId } from '../../states/features/departments/departmentSlice'
+import { setUserOrSelectedDepartmentNames } from '../../states/features/departments/departmentSlice'
 
 const SelectDepartments = ({ user }) => {
   const { handleSubmit, control } = useForm()
@@ -119,7 +120,20 @@ const SelectDepartments = ({ user }) => {
 
   const onSubmit = (data) => {
     dispatch(setSectorId(data?.sector))
+    dispatch(setDistrictId(data?.district))
+    dispatch(setProvinceId(data?.province))
     localStorage.setItem('sectorId', data?.sector)
+    dispatch(setUserOrSelectedDepartmentNames({ ['province']: 'KIGALI CITY'}))
+    for (let i = 0; i < districts.length; i++) {
+      if (String(districts[i].id) === String(data?.district)) {
+        dispatch(setUserOrSelectedDepartmentNames({ ['district']: districts[i].name}))
+      }
+    }
+    for (let i = 0; i < sectors.length; i++) {
+      if (String(sectors[i].id) === String(data?.sector)) {
+        dispatch(setUserOrSelectedDepartmentNames({ ['sector']: sectors[i].name}))
+      }
+    }
     navigate(pathRoute)
   }
 

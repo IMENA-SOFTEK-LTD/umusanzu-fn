@@ -10,6 +10,7 @@ const departmentSlice = createSlice({
     provinceId: null,
     countryId: null,
     departmentsList: [],
+    userOrSelectedDepartmentNames : {}
   },
   reducers: {
     setSectorId: (state, { payload }) => {
@@ -33,6 +34,10 @@ const departmentSlice = createSlice({
     setDepartmentsList: (state, { payload }) => {
       state.departmentsList = payload
     },
+    setUserOrSelectedDepartmentNames: (state, { payload }) => {
+      console.log(state.userOrSelectedDepartmentNames);
+      state.userOrSelectedDepartmentNames = {...state.userOrSelectedDepartmentNames, ...payload}
+    }
   },
 })
 
@@ -46,4 +51,5 @@ export const {
   setProvinceId,
   setCountryId,
   setDepartmentsList,
+  setUserOrSelectedDepartmentNames
 } = departmentSlice.actions

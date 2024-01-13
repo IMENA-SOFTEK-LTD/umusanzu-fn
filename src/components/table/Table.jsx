@@ -20,6 +20,7 @@ import formatFunds from '../../utils/Funds'
 const Table = ({
   columns,
   data,
+  reportTitleObj,
   pagination = true,
   search = true,
   report = true,
@@ -120,8 +121,8 @@ const Table = ({
             </span>
             <span className="flex flex-wrap items-center gap-4">
               {headerGroups.map((headerGroup) =>
-                headerGroup.headers.map((column) =>
-                  column.Filter ? (
+                headerGroup.headers.map((column) => {
+                 return  column.Filter ? (
                     <button
                       key={column.id}
                       className="p-[5px] px-2 border-accent ring-[1.5px] ring-gray-300 rounded-md focus:border-primaryColor hover:ring-primaryColor max-md:justify-start"
@@ -130,6 +131,7 @@ const Table = ({
                       {column.render('Filter')}
                     </button>
                   ) : null
+                }                  
                 )
               )}
             </span>
@@ -175,7 +177,7 @@ const Table = ({
                       e.preventDefault()
                       totalsCalculated !== null
                         ? printPDF({
-                          TableInstance, reportName, columns,
+                          TableInstance, reportTitleObj, reportName, columns,
                           totals: {
                             monthlyTargetTotal: totalsCalculated.monthlyTargetTotal,
                             monthlyCollectionsTotal: totalsCalculated.monthlyCollectionsTotal,
@@ -183,7 +185,7 @@ const Table = ({
                           }
                         })
                         : printPDF({
-                          TableInstance, reportName, columns,
+                          TableInstance, reportTitleObj, reportName, columns,
                           totals: null
                         })
                     }}
