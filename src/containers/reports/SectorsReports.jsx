@@ -14,7 +14,7 @@ import { faAnglesLeft, faAnglesRight, faChevronLeft, faChevronRight, faFile } fr
 import Button, { PageButton } from "../../components/Button";
 import Input from "../../components/Input";
 import { useNavigate } from "react-router";
-import { setSectorId } from "../../states/features/departments/departmentSlice";
+import { setSectorId, setUserOrSelectedDepartmentNames } from "../../states/features/departments/departmentSlice";
 
 const SectorsReports = ({ user }) => {
 
@@ -105,11 +105,22 @@ const SectorsReports = ({ user }) => {
                     <article className="flex flex-col items-start gap-2">
                         <Button onClick={(e) => {
                             e.preventDefault()
-                            navigate('/performances')
                             dispatch(setSectorId(row.original.ID))
+                            dispatch(setUserOrSelectedDepartmentNames({
+                              province: row.values.province,
+                              district: row.values.district,
+                              sector: row.values.sector,
+                            }))
+                            navigate('/performances')
                         }} className='py-[4px] text-[14px] !px-4' value = 'Performance' />
                         <Button className='py-[4px] text-[14px] !px-4' onClick={(e) => {
                             e.preventDefault()
+                            dispatch(setSectorId(row.original.ID))
+                            dispatch(setUserOrSelectedDepartmentNames({
+                              province: row.values.province,
+                              district: row.values.district,
+                              sector: row.values.sector,
+                            }))
                             navigate('/departments')
                         }} value = 'Departments' />
                     </article>

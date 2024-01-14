@@ -11,6 +11,7 @@ import Loading from '../../components/Loading'
 import Table from '../../components/table/Table'
 
 const ExistingHouseholds = ({ conflict = false, households }) => {
+  const { userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
   const [data, setData] = useState(
     households?.map((row, index) => {
       return {
@@ -246,7 +247,7 @@ const ExistingHouseholds = ({ conflict = false, households }) => {
         </span>
       ) : null}
       {!(createDuplicateHouseholdSuccess || requestMoveHouseholdSuccess) && (
-        <Table columns={columns} data={data} />
+        <Table columns={columns} data={data} report={false} />
       )}
     </main>
   )

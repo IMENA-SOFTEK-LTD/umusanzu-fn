@@ -32,7 +32,7 @@ export const dataURLtoBlob = (dataURL) => {
   return new Blob([uInt8Array], { type: contentType })
 }
 
-const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => {
+const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [], totals }) => {
 
   const doc = new jsPDF('landscape');
   const logoResponse = await fetch(logo);
@@ -51,16 +51,24 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
 
   reader.onload = async () => {
     const logoBase64 = reader.result.split(',')[1];
-    doc.setFontSize(16);
-    doc.setFillColor(242, 244, 245);
-    doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F');
-    doc.addImage(logoBase64, logo.slice(-3), 10, 5, 30, 30);
-    doc.setTextColor(0);
-    doc.setFontSize(20);
-    doc.setFont('Arial', 'bold');
-    doc.setTextColor(0, 157, 215)
-    doc.text(`${reportName.toUpperCase()}`, doc.internal.pageSize.getWidth() - 90, 20);
-    doc.setTextColor(0);
+    doc.addImage(logoBase64, 'PNG', 20, 10, 30, 30)
+    doc.setFont('Symbol', 'bold');
+    doc.setFontSize(12)
+    doc.text('IMENA SOFTEK LTD', 15, 50)
+    doc.setFontSize(10.5)
+    doc.text('REPUBLIC OF RWANDA', 220, 17)
+    doc.text(`${reportTitleObj.province}`, 220, 23)
+    doc.text(`${reportTitleObj.district} DISTRICT`, 220, 29)
+    doc.text(`${reportTitleObj.sector} SECTOR`, 220, 35)
+    if (reportTitleObj.cell !== undefined) {
+      doc.text(`${reportTitleObj.cell} CELL`, 220, 41)
+    }  
+    if (reportTitleObj.village !== undefined) {  
+      doc.text(`${reportTitleObj.village} VILLAGE`, 220, 47)
+    }
+    doc.setFontSize(12)
+    doc.text(reportTitleObj.title, 65, 65)
+    doc.line(61, 67, 220, 67)
     doc.setFontSize(10);
 
     const noValues = Array.from(
@@ -76,7 +84,7 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
     });
 
     doc.autoTable({
-      startY: 50,
+      startY: 75,
       columns: columns.filter((column) => column.accessor !== 'actions').map((column) => column.Header.toUpperCase()),
       body: exportData.map((row, index) => {
         const rowData = columns.map((header) => {
@@ -99,59 +107,39 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
       },
     });
     const { monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal } = totals
-    
-    const totalsTitle = [
-      ['TOTALS',]
-    ];
 
-    const totalsTitleStyles = {
-      theme: 'plain', 
+    const subTotalData = [
+      [
+        'TOTAL',
+        `RWF ${monthlyTargetTotal}`,
+        `RWF ${monthlyCollectionsTotal}`,
+        `RWF ${differenceTotal}`,
+        ` `
+      ],
+    ]
+    const subTotalStyles = {
+      theme: 'grid',
       styles: {
         fontSize: 10,
-        fontStyle: 'bold', 
+        fontStyle: 'bold',
       },
-        columnStyles: {
-        0: { cellWidth: 60 },
-        1: { cellWidth: 60 },
+      columnStyles: {
+        0: { cellWidth: 126 },
+        1: { cellWidth: 32 },
+        2: { cellWidth: 34 },
+        3: { cellWidth: 30 },
+        4: { cellWidth: 45 },
       },
-
-    };
-
-
-
-    const totalsGrid = [
-      ['Monthly Target Total: ', 'Monthly Collections Total (Progress): ', 'Total remaining amount (Remain): '],
-      [monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal]
-    ];
-
-    const totalsGridStyles = {
-      theme: 'grid', 
-      styles: {
-        fontSize: 10,
-        fontStyle: 'bold', 
-      },
-        columnStyles: {
-        0: { cellWidth: 60 },
-        1: { cellWidth: 80 },
-        2: { cellWidth: 80 },
-      },
-
-    };
+    }
 
     if (totals !== null) {
       doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 5,
+        startY: doc.lastAutoTable.finalY,
         head: false,
-        body: totalsTitle,
-        ...totalsTitleStyles,
-      });
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 0,
-        head: false,
-        body: totalsGrid,
-        ...totalsGridStyles,
-      });
-    }
+        body: subTotalData,
+        ...subTotalStyles,
+      })
+    } 
     
     doc.setFontSize(12);
     doc.setFont('Arial', 'bold');
@@ -180,12 +168,12 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
       doc.addPage();
 
       doc.text(
-        `Date: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+        `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
         16,40
       );
 
       doc.autoTable({
-        startY: 50,
+        startY: 60,
         head: false,
         body: customContent,
         ...customContentStyles,
@@ -206,12 +194,12 @@ const printPDF = async ({ TableInstance, reportName, columns = [], totals }) => 
     } else {
 
       doc.text(
-        `Date: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-        16,40
+        `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+        16,doc.lastAutoTable.finalY + 30
       );
 
       doc.autoTable({
-        startY: 50,
+        startY: doc.lastAutoTable.finalY + 50,
         head: false,
         body: customContent,
         ...customContentStyles,

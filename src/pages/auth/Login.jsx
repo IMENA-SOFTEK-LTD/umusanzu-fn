@@ -9,6 +9,7 @@ import Input from '../../components/Input'
 import Logo from '../../../public/logo.png'
 import { setLoginPageLoaded, setUser } from '../../states/features/auth/authSlice'
 import { getDepartment } from '../../utils/User'
+import { setPathName } from '../../states/features/navigation/navbarSlice'
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -59,22 +60,18 @@ const Login = () => {
         }))
         navigate('/two-fa-authentication')
       } else {
-        dispatch(setUser(loginData))
-        navigate('/dashboard')
-      }
-    }
-  }, [loginData, loginSuccess])
-
-  useEffect(() => {
-    if (loginSuccess) {
         localStorage.setItem('user', JSON.stringify({
           ...loginData?.data,
           department: getDepartment(loginData?.data?.departments?.level_id)
         }))
-      navigate('/dashboard')
-      window.location.reload()
+        dispatch(setUser(loginData))
+        dispatch(setPathName('Dashboard'))
+        localStorage.setItem('pathName', 'Dashboard')
+        navigate('/dashboard')
+        window.location.reload()
+      }
     }
-  }, [user])
+  }, [loginData, loginSuccess])  
 
   useEffect(() => {
     dispatch(setLoginPageLoaded(true))

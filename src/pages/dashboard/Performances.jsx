@@ -11,7 +11,7 @@ const Performances = () => {
 
   // STATE VARIABLES
   const { user } = useSelector((state) => state.auth);
-  const { sectorId } = useSelector((state) => state.departments)
+  const { sectorId, userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
   const [data, setData] = useState([])
 
   const [getDepartmentPerformances, {
@@ -21,7 +21,7 @@ const Performances = () => {
     isSuccess: departmentPerformancesSuccess
   }] = useLazyGetDepartmentPerformancesQuery();
 
-
+  let currentMonth = moment().format('MMMM')
     useEffect(() => {
       getDepartmentPerformances({
         departmentId: user?.departments?.level_id === 3 ? user?.departments?.id : sectorId,
@@ -87,18 +87,6 @@ const Performances = () => {
         accessor: 'sector',
         sortable: true
       },
-      // {
-      //   id: 'district',
-      //   Header: 'District',
-      //   accessor: 'district',
-      //   sortable: true,
-      // },
-      // {
-      //   id: 'province',
-      //   Header: 'Province',
-      //   accessor: 'province',
-      //   sortable: true,
-      // },
       {
         id: 'monthlyTarget',
         Header: 'Target',
@@ -137,7 +125,19 @@ const Performances = () => {
         </span>
       )}
       {departmentPerformancesSuccess && (
-        <Table data={data} columns={columns} user={user} />
+        <Table data={data} columns={columns} user={user} reportTitleObj={
+          {
+            title: `UMUSANZU  DIGITAL'S  ${
+              userOrSelectedDepartmentNames.village !== undefined
+                ? userOrSelectedDepartmentNames.village + '  VILLAGE'
+                : userOrSelectedDepartmentNames.cell !== undefined
+                  ? userOrSelectedDepartmentNames.cell + '  CELL'
+                  : userOrSelectedDepartmentNames.sector + '  SECTOR'}  ${currentMonth.toUpperCase()}  PERFORMANCES`,
+            province: userOrSelectedDepartmentNames.province,
+            district: userOrSelectedDepartmentNames.district,
+            sector: userOrSelectedDepartmentNames.sector,
+          }
+        } />
       )}
     </main>
   )
