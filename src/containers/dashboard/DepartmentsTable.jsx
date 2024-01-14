@@ -44,6 +44,7 @@ import {
 import Input from '../../components/Input'
 import { Link } from 'react-router-dom'
 import { DepartmentModals } from './DepartmentModals'
+import moment from 'moment'
 
 const DepartmentsTable = ({ user }) => {
   const [data, setData] = useState([])
@@ -112,7 +113,7 @@ const DepartmentsTable = ({ user }) => {
     totalPages
   } = useSelector((state) => state.pagination)
 
-  const { sectorId } = useSelector((state) => state.departments)
+  const { sectorId, userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
 
   let department = ''
 
@@ -232,27 +233,28 @@ const DepartmentsTable = ({ user }) => {
       }, [cellChildrenIsSuccess])
       break
     case 5:
-      department = 'country'
-      useEffect(() => {
-        getCountryChildren({
-          departmentId: user?.departments?.id,
-        })
-      }, [])
+      if (sectorId !== null) {
+        department = 'sector'
+        useEffect(() => {
+          getSectorChildren({
+            departmentId: sectorId,
+          })
+        }, [])
+        useEffect(() => {
+          if (sectorChildrenIsSuccess) {
+            setData(sectorChildrenData?.data?.map((row, index) => ({
+              village: row?.name,
+              cell: row?.parent?.name,
+              sector: row?.parent?.parent?.name,
+              district: row?.parent?.parent?.parent?.name,
+              merchantCode: row?.parent?.parent?.merchant_code,
+              phone: row?.phone1,
+              ID: row?.id,
+            })) || [])
+          }
+        }, [sectorChildrenIsSuccess])
+      }
 
-      useEffect(() => {
-        if (countryChildrenIsSuccess) {
-          setData(countryChildrenData?.data?.map((row, index) => ({
-            village: row?.name,
-            cell: row?.parent?.name,
-            sector: row?.parent?.parent?.name,
-            province: row?.parent?.parent?.parent?.name,
-            district: row?.parent?.parent?.parent?.parent?.name,
-            merchantCode: row?.parent?.parent?.merchant_code,
-            phone: row?.phone1,
-            ID: row?.id,
-          })) || [])
-        }
-      }, [countryChildrenIsSuccess])
       break
     case 6:
       department = 'agent'
@@ -270,12 +272,27 @@ const DepartmentsTable = ({ user }) => {
 
     reader.onload = async () => {
       const logoBase64 = reader.result.split(',')[1]
-      doc.setFontSize(16)
-      doc.setFillColor(255, 166, 1)
-      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
-      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
-      doc.setTextColor(0)
-      doc.text(`${reportName}`, 50, 25)
+      doc.addImage(logoBase64, 'PNG', 20, 10, 30, 30)
+      doc.setFont('Symbol', 'bold');
+      doc.setFontSize(12)
+      doc.text('IMENA SOFTEK LTD', 15, 50)
+      doc.setFontSize(10.5)
+      doc.text('REPUBLIC OF RWANDA', 220, 17)
+      doc.text(`${userOrSelectedDepartmentNames?.province}`, 220, 23)
+      doc.text(`${userOrSelectedDepartmentNames?.district} DISTRICT`, 220, 29)
+      doc.text(`${userOrSelectedDepartmentNames?.sector} SECTOR`, 220, 35)
+      if (userOrSelectedDepartmentNames?.cell !== undefined) {
+        doc.text(`${userOrSelectedDepartmentNames.cell} CELL`, 220, 41)
+      }  
+      if (userOrSelectedDepartmentNames?.village !== undefined) {  
+        doc.text(`${userOrSelectedDepartmentNames?.village} VILLAGE`, 220, 47)
+        doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.village}  VILLAGE  REGISTERED  DEPARTMENTS`, 65, 65)
+      } else if (userOrSelectedDepartmentNames?.cell !== undefined && userOrSelectedDepartmentNames?.village === undefined) {
+        doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.cell}  CELL  REGISTERED  DEPARTMENTS`, 65, 65)
+      } else {
+        doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.sector}  SECTOR  REGISTERED  DEPARTMENTS`, 65, 65)
+      }
+      doc.line(61, 67, 210, 67)
 
       doc.setFontSize(10)
       const columnHeader = ['NO', 'VILLAGE', 'CELL', ' SECTOR', ' DISTRICT', ' MERCHANT CODE',' PHONE']
@@ -283,7 +300,7 @@ const DepartmentsTable = ({ user }) => {
         content: header,
       }));
       doc.autoTable({
-        startY: 50,
+        startY: 75,
         head: [headerRow],
         theme: 'grid',
         styles: {
@@ -308,7 +325,7 @@ const DepartmentsTable = ({ user }) => {
         };
       });
       doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 5,
+        startY: doc.lastAutoTable.finalY,
         head: false,
         body: exportData,
         theme: 'grid',
@@ -343,29 +360,59 @@ const DepartmentsTable = ({ user }) => {
           1: { cellWidth: 100 },
         },
       };
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 20,
-        head: false,
-        body: customContent,
-        ...customContentStyles,
-      });
 
-      // Add the cachet image here
-      const cachetResponse = await fetch(cachet);
-      const cachetData = await cachetResponse.blob();
-      const cachetBase64 = await convertBlobToBase64(cachetData);
-
-      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
-
-      // Add the signature image here
-      const signatureResponse = await fetch(signature);
-      const signatureData = await signatureResponse.blob();
-      const signatureBase64 = await convertBlobToBase64(signatureData);
-      const date = new Date();
-      const dateNow = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
-
-      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
-      doc.text(`Date: ${dateNow}`, 20, doc.lastAutoTable.finalY + 2);
+      if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
+        doc.addPage();
+        doc.text(
+          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,30
+        );
+  
+        doc.autoTable({
+          startY: 50,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+  
+        const cachetResponse = await fetch(cachet);
+        const cachetData = await cachetResponse.blob();
+        const cachetBase64 = await convertBlobToBase64(cachetData);
+    
+        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+    
+          // Add the signature image here
+        const signatureResponse = await fetch(signature);
+        const signatureData = await signatureResponse.blob();
+        const signatureBase64 = await convertBlobToBase64(signatureData);
+    
+        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      } else {
+  
+        doc.text(
+          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,doc.lastAutoTable.finalY + 20
+        );
+  
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 40,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+        const cachetResponse = await fetch(cachet);
+        const cachetData = await cachetResponse.blob();
+        const cachetBase64 = await convertBlobToBase64(cachetData);
+    
+        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+    
+          // Add the signature image here
+        const signatureResponse = await fetch(signature);
+        const signatureData = await signatureResponse.blob();
+        const signatureBase64 = await convertBlobToBase64(signatureData);
+    
+        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      }
 
       doc.save(`${reportName}.pdf`);
     };

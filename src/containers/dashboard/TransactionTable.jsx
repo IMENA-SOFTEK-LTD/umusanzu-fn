@@ -79,7 +79,7 @@ const TransactionTable = ({ user }) => {
   };
   const dispatch = useDispatch()
 
-  const { sectorId } = useSelector((state) => state.departments)
+  const { sectorId, userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
 
   let department = ''
 
@@ -238,13 +238,30 @@ const TransactionTable = ({ user }) => {
     const reader = new FileReader();
 
     reader.onload = async () => {
-      const logoBase64 = reader.result.split(',')[1];
-      doc.setFontSize(12);
-      doc.setFillColor(255, 166, 1);
-      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F');
-      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30);
-      doc.setTextColor(0);
-      doc.text(`${reportName}`, 50, 25);
+      const logoBase64 = reader.result.split(',')[1]
+      doc.addImage(logoBase64, 'PNG', 20, 10, 30, 30)
+      doc.setFont('Symbol', 'bold');
+      doc.setFontSize(12)
+      doc.text('IMENA SOFTEK LTD', 15, 50)
+      doc.setFontSize(10.5)
+      doc.text('REPUBLIC OF RWANDA', 220, 17)
+      doc.text(`${userOrSelectedDepartmentNames.province}`, 220, 23)
+      doc.text(`${userOrSelectedDepartmentNames.district} DISTRICT`, 220, 29)
+      doc.text(`${userOrSelectedDepartmentNames.sector} SECTOR`, 220, 35)
+      doc.setFontSize(12)
+      let currentMonth = moment().format('MMMM')
+      if (userOrSelectedDepartmentNames?.cell !== undefined) {
+        doc.text(`${userOrSelectedDepartmentNames.cell} CELL`, 220, 41)
+      }  
+      if (userOrSelectedDepartmentNames?.village !== undefined) {  
+        doc.text(`${userOrSelectedDepartmentNames?.village} VILLAGE`, 220, 47)
+        doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.village}  VILLAGE  ${currentMonth.toUpperCase()}  TRANSACTIONS`, 65, 65)
+      }else if (userOrSelectedDepartmentNames?.cell !== undefined && userOrSelectedDepartmentNames?.village === undefined) {
+        doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.cell}  CELL  ${currentMonth.toUpperCase()}  TRANSACTIONS`, 65, 65)
+      } else {
+        doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.sector}  SECTOR  ${currentMonth.toUpperCase()}  TRANSACTIONS`, 65, 65)
+      }
+      doc.line(61, 67, 220, 67)
 
       doc.setFontSize(8);
 
@@ -269,7 +286,7 @@ const TransactionTable = ({ user }) => {
         styles: { cellWidth: header.cellWidth }
       }));
       doc.autoTable({
-        startY: 50,
+        startY: 75,
         head: [headerRow],
         theme: 'grid',
         styles: {

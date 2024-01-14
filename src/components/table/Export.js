@@ -60,8 +60,13 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
     doc.text(`${reportTitleObj.province}`, 220, 23)
     doc.text(`${reportTitleObj.district} DISTRICT`, 220, 29)
     doc.text(`${reportTitleObj.sector} SECTOR`, 220, 35)
+    if (reportTitleObj.cell !== undefined) {
+      doc.text(`${reportTitleObj.cell} CELL`, 220, 41)
+    }  
+    if (reportTitleObj.village !== undefined) {  
+      doc.text(`${reportTitleObj.village} VILLAGE`, 220, 47)
+    }
     doc.setFontSize(12)
-    let currentMonth = moment().format('MMMM')
     doc.text(reportTitleObj.title, 65, 65)
     doc.line(61, 67, 220, 67)
     doc.setFontSize(10);
@@ -79,7 +84,7 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
     });
 
     doc.autoTable({
-      startY: 50,
+      startY: 75,
       columns: columns.filter((column) => column.accessor !== 'actions').map((column) => column.Header.toUpperCase()),
       body: exportData.map((row, index) => {
         const rowData = columns.map((header) => {
@@ -102,74 +107,39 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
       },
     });
     const { monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal } = totals
-    
-    const totalsTitle = [
-      ['TOTALS',]
-    ];
 
-    const totalsTitleStyles = {
-      theme: 'plain', 
+    const subTotalData = [
+      [
+        'TOTAL',
+        `RWF ${monthlyTargetTotal}`,
+        `RWF ${monthlyCollectionsTotal}`,
+        `RWF ${differenceTotal}`,
+        ` `
+      ],
+    ]
+    const subTotalStyles = {
+      theme: 'grid',
       styles: {
         fontSize: 10,
-        fontStyle: 'bold', 
+        fontStyle: 'bold',
       },
-        columnStyles: {
-        0: { cellWidth: 60 },
-        1: { cellWidth: 60 },
+      columnStyles: {
+        0: { cellWidth: 126 },
+        1: { cellWidth: 32 },
+        2: { cellWidth: 34 },
+        3: { cellWidth: 30 },
+        4: { cellWidth: 45 },
       },
-
-    };
-
-
-
-    const totalsGrid = [
-      ['Monthly Target Total: ', 'Monthly Collections Total (Progress): ', 'Total remaining amount (Remain): '],
-      [monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal]
-    ];
-
-    const totalsGridStyles = {
-      theme: 'grid', 
-      styles: {
-        fontSize: 10,
-        fontStyle: 'bold', 
-      },
-        columnStyles: {
-        0: { cellWidth: 60 },
-        1: { cellWidth: 80 },
-        2: { cellWidth: 80 },
-      },
-
-    };
-
-    if (totals !== null && doc.lastAutoTable.finalY + 60 > doc.internal.pageSize.height) {
-      doc.addPage();
-
-      doc.autoTable({
-        startY: 15,
-        head: false,
-        body: totalsTitle,
-        ...totalsTitleStyles,
-      });
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY ,
-        head: false,
-        body: totalsGrid,
-        ...totalsGridStyles,
-      });
-    } else if (totals !== null && doc.lastAutoTable.finalY + 60 < doc.internal.pageSize.height) {
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 20,
-        head: false,
-        body: totalsTitle,
-        ...totalsTitleStyles,
-      });
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY ,
-        head: false,
-        body: totalsGrid,
-        ...totalsGridStyles,
-      });
     }
+
+    if (totals !== null) {
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY,
+        head: false,
+        body: subTotalData,
+        ...subTotalStyles,
+      })
+    } 
     
     doc.setFontSize(12);
     doc.setFont('Arial', 'bold');

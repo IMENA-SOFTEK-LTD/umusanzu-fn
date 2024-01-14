@@ -69,7 +69,7 @@ const VillagesReport = ({ user }) => {
     },
   ] = useLazyGetSectorVillagesPerformanceQuery()
 
-  const { sectorId } = useSelector((state) => state.departments)
+  const { sectorId, userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
   const sector = localStorage.getItem('sectorId')
 
   useEffect(() => {
@@ -111,25 +111,32 @@ const VillagesReport = ({ user }) => {
 
     reader.onload = async () => {
       const logoBase64 = reader.result.split(',')[1]
+      doc.addImage(logoBase64, 'PNG', 20, 10, 30, 30)
+      doc.setFont('Symbol', 'bold');
       doc.setFontSize(12)
-      doc.setFillColor(255, 166, 1)
-      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
-      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
-      doc.setTextColor(0)
-      doc.text(`${reportName}`, 50, 25)
+      doc.text('IMENA SOFTEK LTD', 15, 50)
+      doc.setFontSize(10.5)
+      doc.text('REPUBLIC OF RWANDA', 220, 17)
+      doc.text(`${userOrSelectedDepartmentNames.province}`, 220, 23)
+      doc.text(`${userOrSelectedDepartmentNames.district} DISTRICT`, 220, 29)
+      doc.text(`${userOrSelectedDepartmentNames.sector} SECTOR`, 220, 35)
+      doc.setFontSize(12)
+      let currentMonth = moment().format('MMMM')
+      doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.sector}  SECTOR  ${currentMonth.toUpperCase()}  VILLAGE  PERFORMANCES`, 65, 65)
+      doc.line(61, 67, 240, 67)
 
       const columnHeader = [
-        'NO',
-        'AGENT NAME',
-        'CELL',
-        'VILLAGE',
-        'TOTAL',
-        'BANK TRANSFER',
-        '10% COMMISSION',
-        'BANK SLIPS / CHEQUES',
+        { content: 'NO', cellWidth: 10 },
+        { content: 'VILLAGE', cellWidth: 35 },
+        { content: 'CELL', cellWidth: 35 },
+        { content: 'AGENT NAME', cellWidth: 50 },
+        { content: 'TOTAL', cellWidth: 30 },
+        { content: 'BANK TRANSFER', cellWidth: 35 },
+        { content: '10% COMMISSION', cellWidth: 35 },
+        { content: 'BANK SLIPS / CHEQUES', cellWidth: 35 },
       ]
       const headerRow = columnHeader.map((header) => ({
-        content: header,
+        content: header.content,
         styles: {
           fillColor: '#EDEDED',
           textColor: '#000000',
@@ -137,11 +144,12 @@ const VillagesReport = ({ user }) => {
           halign: 'center',
           valign: 'middle',
           fontSize: 8,
+          cellWidth: header.cellWidth
         },
       }))
 
       doc.autoTable({
-        startY: 50,
+        startY: 75,
         head: [headerRow],
         theme: 'grid',
       })
@@ -153,29 +161,29 @@ const VillagesReport = ({ user }) => {
 
       // Combine the "NO" values with your existing data, excluding the ID
       const exportData = TableInstance.rows.map((row, index) => {
-        const { id, ...rest } = row.original
         return {
           NO: noValues[index],
-          ...rest,
+          village: row.original.village,
+          cell: row.original.cell,
+          agent: row.original.agent,
+          total: row.original.total,
+          bank_transfer: row.original.bank_transfer,
+          commission: row.original.commission,
+          bank_slips: row.original.bank_slip,
         }
       })
       doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 5,
+        startY: doc.lastAutoTable.finalY,
         head: false,
         body: exportData,
         theme: 'grid',
         styles: {
           fontSize: 8,
         },
-        columnStyles: {
-          0: { cellWidth: 10 },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 20 },
-          3: { cellWidth: 30 },
-          4: { cellWidth: 26 },
-          5: { cellWidth: 45 },
-          6: { cellWidth: 50 },
-        },
+        columnStyles: columnHeader.reduce((acc, value, index) => { 
+          acc[index] = { cellWidth: value.cellWidth };
+          return acc;
+        }, {}),
       })
       // total of BANK TRANSFER  of data
       const totalBankTransfer = TableInstance.rows
@@ -215,10 +223,11 @@ const VillagesReport = ({ user }) => {
           fontStyle: 'bold',
         },
         columnStyles: {
-          0: { cellWidth: 100 },
-          1: { cellWidth: 26 },
-          2: { cellWidth: 45 },
-          3: { cellWidth: 50 },
+          0: { cellWidth: 130 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 35 },
+          4: { cellWidth: 35 },
         },
       }
       doc.autoTable({
@@ -249,44 +258,60 @@ const VillagesReport = ({ user }) => {
           1: { cellWidth: 100 },
         },
       }
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 20,
-        head: false,
-        body: customContent,
-        ...customContentStyles,
-      })
 
-      // Add the cachet image here
-      const cachetResponse = await fetch(cachet)
-      const cachetData = await cachetResponse.blob()
-      const cachetBase64 = await convertBlobToBase64(cachetData)
-
-      doc.addImage(
-        cachetBase64,
-        'PNG',
-        200,
-        doc.lastAutoTable.finalY - 50,
-        50,
-        50
-      )
-
-      // Add the signature image here
-      const signatureResponse = await fetch(signature)
-      const signatureData = await signatureResponse.blob()
-      const signatureBase64 = await convertBlobToBase64(signatureData)
-      const date = new Date()
-      const dateNow =
-        date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear()
-
-      doc.addImage(
-        signatureBase64,
-        'PNG',
-        20,
-        doc.lastAutoTable.finalY - 50,
-        50,
-        50
-      )
-      doc.text(`Date: ${dateNow}`, 15, doc.lastAutoTable.finalY + 3)
+      if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
+        doc.addPage();
+  
+        doc.text(
+          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,40
+        );
+  
+        doc.autoTable({
+          startY: 60,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+  
+        const cachetResponse = await fetch(cachet);
+        const cachetData = await cachetResponse.blob();
+        const cachetBase64 = await convertBlobToBase64(cachetData);
+    
+        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+    
+          // Add the signature image here
+        const signatureResponse = await fetch(signature);
+        const signatureData = await signatureResponse.blob();
+        const signatureBase64 = await convertBlobToBase64(signatureData);
+    
+        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      } else {
+  
+        doc.text(
+          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,doc.lastAutoTable.finalY + 20
+        );
+  
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 35,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+        const cachetResponse = await fetch(cachet);
+        const cachetData = await cachetResponse.blob();
+        const cachetBase64 = await convertBlobToBase64(cachetData);
+    
+        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+    
+          // Add the signature image here
+        const signatureResponse = await fetch(signature);
+        const signatureData = await signatureResponse.blob();
+        const signatureBase64 = await convertBlobToBase64(signatureData);
+    
+        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      }
 
       doc.save(`${reportName}.pdf`)
     }

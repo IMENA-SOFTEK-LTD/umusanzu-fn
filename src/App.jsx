@@ -37,6 +37,9 @@ import HouseholdDetails from './pages/households/HouseholdDetails.jsx'
 import HouseholdExists from './pages/households/HouseholdExists.jsx'
 import { useEffect } from 'react'
 import { logOut } from './utils/User.js'
+import { useDispatch } from 'react-redux'
+import { setUserOrSelectedDepartmentNames } from './states/features/departments/departmentSlice.js'
+import axios from 'axios'
 
 const App = () => {
   
@@ -46,6 +49,7 @@ const App = () => {
   const { isOpen } = useSelector((state) => state.sidebar)
   const location = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const checkForInactivity = () => {
     const expireTime = localStorage.getItem('expireTime')
@@ -95,6 +99,51 @@ const App = () => {
   // eslint-disable-next-line no-undef
   const user = JSON.parse(localStorage.getItem('user'))
   const { user: stateUser } = useSelector((state) => state.auth)
+
+  const token = localStorage.getItem('token')
+    
+  const getDepartmentName = (department, id) => {
+    axios.get(`https://v2.api.umusanzu.rw/api/v2/department/${department}/${String(id)}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ).then((response) => {
+      dispatch(setUserOrSelectedDepartmentNames({ [`${department}`]: response.data.data.name}))
+    }).catch((error) => console.log(error))
+  }  
+  useEffect(() => {
+
+    if (stateUser !== null) {
+
+      switch (stateUser?.departments?.level_id) {
+        case 1:
+          getDepartmentName('province', stateUser?.departments?.id)
+          break;
+        case 2:
+          getDepartmentName('province', stateUser?.departments?.parent?.id)
+          getDepartmentName('district', stateUser?.departments?.id)
+          break;
+        case 3:
+          getDepartmentName('province', stateUser?.departments?.parent?.parent?.id)
+          getDepartmentName('district', stateUser?.departments?.parent?.id)
+          getDepartmentName('sector', stateUser?.departments?.id)
+          break;
+        case 4:
+          getDepartmentName('province', stateUser?.departments?.parent?.parent?.parent?.id)
+          getDepartmentName('district', stateUser?.departments?.parent?.parent?.id)
+          getDepartmentName('sector', stateUser?.departments?.parent?.id)
+          getDepartmentName('cell', stateUser?.departments?.id)
+          break;
+        case 6:
+          getDepartmentName('province', stateUser?.departments?.parent?.parent?.parent?.parent?.id)
+          getDepartmentName('district', stateUser?.departments?.parent?.parent?.parent?.id)
+          getDepartmentName('sector', stateUser?.departments?.parent?.parent?.id)
+          getDepartmentName('cell', stateUser?.departments?.parent?.id)
+          getDepartmentName('village', stateUser?.departments?.id)
+          break;
+        default:
+          break;
+      }
+    }
+  }, [stateUser])
   return (
     <main className={`relative h-full`}>
       <section className="absolute">

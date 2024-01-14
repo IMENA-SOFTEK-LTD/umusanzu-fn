@@ -35,7 +35,6 @@ const departmentSlice = createSlice({
       state.departmentsList = payload
     },
     setUserOrSelectedDepartmentNames: (state, { payload }) => {
-      console.log(state.userOrSelectedDepartmentNames);
       state.userOrSelectedDepartmentNames = {...state.userOrSelectedDepartmentNames, ...payload}
     }
   },

@@ -43,6 +43,7 @@ import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import Input from '../../components/Input'
+import moment from 'moment'
 
 const HouseholdTable = ({ user }) => {
 
@@ -89,7 +90,7 @@ const HouseholdTable = ({ user }) => {
 
   const dispatch = useDispatch()
 
-  const { sectorId } = useSelector((state) => state.departments)
+  const { sectorId, userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
 
   const queryRoute = queryString.parse(location.search)
 
@@ -193,40 +194,57 @@ const HouseholdTable = ({ user }) => {
   }, [householdsListData])
 
   const handleExportToPdf = async () => {
-    const doc = new jsPDF('landscape')
-    const logoResponse = await fetch(logo)
-    const logoData = await logoResponse.blob()
-    const reader = new FileReader()
+      const doc = new jsPDF('landscape')
+      const logoResponse = await fetch(logo)
+      const logoData = await logoResponse.blob()
+      const reader = new FileReader()
 
-    reader.onload = async () => {
-      const logoBase64 = reader.result.split(',')[1]
-      doc.setFontSize(16)
-      doc.setFillColor(255, 166, 1)
-      doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F')
-      doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30)
-      doc.setTextColor(0)
-      doc.text(`${reportName}`, 50, 25)
+      reader.onload = async () => {
+        const logoBase64 = reader.result.split(',')[1]
+        doc.addImage(logoBase64, 'PNG', 20, 10, 30, 30)
+        doc.setFont('Symbol', 'bold');
+        doc.setFontSize(12)
+        doc.text('IMENA SOFTEK LTD', 15, 50)
+        doc.setFontSize(10.5)
+        doc.text('REPUBLIC OF RWANDA', 220, 17)
+        doc.text(`${userOrSelectedDepartmentNames?.province}`, 220, 23)
+        doc.text(`${userOrSelectedDepartmentNames?.district} DISTRICT`, 220, 29)
+        doc.text(`${userOrSelectedDepartmentNames?.sector} SECTOR`, 220, 35)
+        if (userOrSelectedDepartmentNames?.cell !== undefined) {
+          doc.text(`${userOrSelectedDepartmentNames.cell} CELL`, 220, 41)
+        }  
+        if (userOrSelectedDepartmentNames?.village !== undefined) {  
+          doc.text(`${userOrSelectedDepartmentNames?.village} VILLAGE`, 220, 47)
+          doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.village}  VILLAGE  REGISTERED  HOUSEHOLDS`, 65, 65)
+        }else if (userOrSelectedDepartmentNames?.cell !== undefined && userOrSelectedDepartmentNames?.village === undefined) {
+          doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.cell}  CELL  REGISTERED  HOUSEHOLDS`, 65, 65)
+        } else {
+          doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.sector}  SECTOR  REGISTERED  HOUSEHOLDS`, 65, 65)
+        }
+        doc.setFontSize(12)
+        doc.line(61, 67, 210, 67)
+      
 
-      doc.setFontSize(10)
+        doc.setFontSize(10)
 
       // eslint-disable-next-line no-sparse-arrays
       const columnHeader = [
         { content: 'NO', cellWidth: 10 },
         { content: 'NAME', cellWidth: 40 },
-        { content: 'PHONE 1', cellWidth: 25 },
-        { content: 'PHONE 2', cellWidth: 29 },
+        { content: 'PHONE', cellWidth: 25 },
         { content: 'UBUDEHE', cellWidth: 18 },
-        { content: 'STATUS', cellWidth: 20 },
+        { content: 'STATUS', cellWidth: 18 },
         { content: 'VILLAGE', cellWidth: 27 },
         { content: 'CELL', cellWidth: 27 },
         { content: 'SECTOR', cellWidth: 27 },
         { content: 'DISTRICT', cellWidth: 25 },
         { content: 'PROVINCE', cellWidth: 25 },
+        { content: 'HOUSEHOLD TYPE', cellWidth: 25 }
       ]
       const headerRow = columnHeader.map(header => ({ content: header.content, styles: { halign: 'left', cellWidth: header.cellWidth },
     }))
       doc.autoTable({
-        startY: 50,
+        startY: 75,
         head: [headerRow],
         theme: 'grid',
         styles: {
@@ -235,7 +253,7 @@ const HouseholdTable = ({ user }) => {
           fontStyle: 'bold',
           halign: 'center',
           valign: 'middle',
-          fontSize: 8,
+          fontSize: 7.5,
         },
          })
       // Create a separate array for "NO" values starting from 1
@@ -252,10 +270,16 @@ const HouseholdTable = ({ user }) => {
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
-        body: exportData.map((row) => Object.values(row)),
+        body: exportData.map((row) => {
+          row.phone2 ? (
+            row.phone1 += ` /\n${row.phone2}`
+          ) : ''
+          delete row['phone2']
+          return Object.values(row)
+        } ),
         theme: 'grid',
         styles: {
-          fontSize: 9,
+          fontSize: 8,
         },
         /** column cellWidths generated from header cellWidths for proper horizontal alignment with header */
         columnStyles: columnHeader.reduce((acc, value, index) => { 
@@ -286,29 +310,61 @@ const HouseholdTable = ({ user }) => {
           1: { cellWidth: 100 },
         },
       };
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 30,
-        head: false,
-        body: customContent,
-        ...customContentStyles,
-      });
+        
 
-      // Add the cachet image here
-      const cachetResponse = await fetch(cachet);
-      const cachetData = await cachetResponse.blob();
-      const cachetBase64 = await convertBlobToBase64(cachetData);
-
-      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
-
-      // Add the signature image here
-      const signatureResponse = await fetch(signature);
-      const signatureData = await signatureResponse.blob();
-      const signatureBase64 = await convertBlobToBase64(signatureData);
-      const date = new Date();
-      const dateNow = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
-
-      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
-      doc.text(` Done on: ${dateNow}`, 15, doc.lastAutoTable.finalY - 50);
+      if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
+        doc.addPage();
+  
+        doc.text(
+          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,30
+        );
+  
+        doc.autoTable({
+          startY: 50,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+  
+        const cachetResponse = await fetch(cachet);
+        const cachetData = await cachetResponse.blob();
+        const cachetBase64 = await convertBlobToBase64(cachetData);
+    
+        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+    
+          // Add the signature image here
+        const signatureResponse = await fetch(signature);
+        const signatureData = await signatureResponse.blob();
+        const signatureBase64 = await convertBlobToBase64(signatureData);
+    
+        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      } else {
+  
+        doc.text(
+          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
+          16,doc.lastAutoTable.finalY + 30
+        );
+  
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 50,
+          head: false,
+          body: customContent,
+          ...customContentStyles,
+        });
+        const cachetResponse = await fetch(cachet);
+        const cachetData = await cachetResponse.blob();
+        const cachetBase64 = await convertBlobToBase64(cachetData);
+    
+        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
+    
+          // Add the signature image here
+        const signatureResponse = await fetch(signature);
+        const signatureData = await signatureResponse.blob();
+        const signatureBase64 = await convertBlobToBase64(signatureData);
+    
+        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      }  
 
       doc.save(`${reportName}.pdf`);
     };
