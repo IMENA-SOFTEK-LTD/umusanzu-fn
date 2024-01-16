@@ -238,7 +238,7 @@ const CreateAdmin = () => {
                   options={adminLevels?.map((level) => {
                     return {
                       ...level,
-                      disabled: level?.value <= user?.departments?.level_id,
+                      disabled: level?.value <= user?.departments?.level_id && user?.departments?.level_id !== 5,
                     }
                   })}
                   label="Administration Level"
@@ -261,7 +261,7 @@ const CreateAdmin = () => {
                         text: department?.name,
                         value: department?.id,
                         disabled:
-                          department?.level_id <= user?.departments?.level_id,
+                          department?.level_id <= user?.departments?.level_id && user?.departments?.level_id !== 5,
                       }
                     })}
                     label="Administration Department"
@@ -287,9 +287,9 @@ const CreateAdmin = () => {
               return (
                 <label className="flex flex-col gap-1 items-start w-full">
                   <Input
-                    placeholder="07XX XXX XXX"
+                    placeholder="********"
                     type={'password'}
-                    label="Confirm Password"
+                    label="Password"
                     {...field}
                   />
                   {errors?.password && (
@@ -313,7 +313,7 @@ const CreateAdmin = () => {
               return (
                 <label className="flex flex-col gap-1 items-start w-full">
                   <Input
-                    placeholder="Confirm Password"
+                    placeholder="********"
                     label="Confirm Password"
                     {...field}
                   />
