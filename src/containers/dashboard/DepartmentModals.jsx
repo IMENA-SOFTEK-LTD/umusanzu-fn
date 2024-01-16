@@ -50,7 +50,7 @@ export const DepartmentModals = () => {
           >
             <CreateAgentModel />
             <CreateAdmin />
-            <Button value='Create Admin' className='absolute top-28 right-6 !rounded-lg' onClick={(e) => {
+            <Button value='Create Admin' className='absolute top-16 right-6 !rounded-lg' onClick={(e) => {
               e.preventDefault()
               dispatch(setCreateAdminModal(true))
             }} />
