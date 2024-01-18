@@ -124,11 +124,11 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
         fontStyle: 'bold',
       },
       columnStyles: {
-        0: { cellWidth: 126 },
-        1: { cellWidth: 32 },
-        2: { cellWidth: 34 },
-        3: { cellWidth: 30 },
-        4: { cellWidth: 45 },
+        0: { cellWidth: 131 },
+        1: { cellWidth: 29 },
+        2: { cellWidth: 37 },
+        3: { cellWidth: 28.5 },
+        4: { cellWidth: 43 },
       },
     }
 
