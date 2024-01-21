@@ -51,22 +51,10 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
 
   reader.onload = async () => {
     const logoBase64 = reader.result.split(',')[1];
-    doc.addImage(logoBase64, 'PNG', 20, 10, 30, 30)
+    doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
     doc.setFont('Symbol', 'bold');
     doc.setFontSize(12)
-    doc.text('IMENA SOFTEK LTD', 15, 50)
-    doc.setFontSize(10.5)
-    doc.text('REPUBLIC OF RWANDA', 220, 17)
-    doc.text(`${reportTitleObj.province}`, 220, 23)
-    doc.text(`${reportTitleObj.district} DISTRICT`, 220, 29)
-    doc.text(`${reportTitleObj.sector} SECTOR`, 220, 35)
-    if (reportTitleObj.cell !== undefined) {
-      doc.text(`${reportTitleObj.cell} CELL`, 220, 41)
-    }  
-    if (reportTitleObj.village !== undefined) {  
-      doc.text(`${reportTitleObj.village} VILLAGE`, 220, 47)
-    }
-    doc.setFontSize(12)
+    doc.text('IMENA SOFTEK LTD', 125, 50)
     doc.text(reportTitleObj.title, 65, 65)
     doc.line(61, 67, 220, 67)
     doc.setFontSize(10);

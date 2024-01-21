@@ -201,20 +201,12 @@ const HouseholdTable = ({ user }) => {
 
       reader.onload = async () => {
         const logoBase64 = reader.result.split(',')[1]
-        doc.addImage(logoBase64, 'PNG', 20, 10, 30, 30)
+        doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
         doc.setFont('Symbol', 'bold');
         doc.setFontSize(12)
-        doc.text('IMENA SOFTEK LTD', 15, 50)
-        doc.setFontSize(10.5)
-        doc.text('REPUBLIC OF RWANDA', 220, 17)
-        doc.text(`${userOrSelectedDepartmentNames?.province}`, 220, 23)
-        doc.text(`${userOrSelectedDepartmentNames?.district} DISTRICT`, 220, 29)
-        doc.text(`${userOrSelectedDepartmentNames?.sector} SECTOR`, 220, 35)
-        if (userOrSelectedDepartmentNames?.cell !== undefined) {
-          doc.text(`${userOrSelectedDepartmentNames.cell} CELL`, 220, 41)
-        }  
-        if (userOrSelectedDepartmentNames?.village !== undefined) {  
-          doc.text(`${userOrSelectedDepartmentNames?.village} VILLAGE`, 220, 47)
+        doc.text('IMENA SOFTEK LTD', 125, 50)
+
+        if (userOrSelectedDepartmentNames?.village !== undefined) {
           doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.village}  VILLAGE  REGISTERED  HOUSEHOLDS`, 65, 65)
         }else if (userOrSelectedDepartmentNames?.cell !== undefined && userOrSelectedDepartmentNames?.village === undefined) {
           doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.cell}  CELL  REGISTERED  HOUSEHOLDS`, 65, 65)

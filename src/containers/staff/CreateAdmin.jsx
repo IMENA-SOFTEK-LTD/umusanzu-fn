@@ -53,19 +53,19 @@ const CreateAdmin = () => {
       data: createStaffAdminData,
       isLoading: createStaffAdminIsLoading,
       isError: createStaffAdminIsError,
+      // Error: createStaffAdminError,
       isSuccess: createStaffAdminIsSuccess,
     },
   ] = useCreateStaffAdminMutation()
 
   // LIST DEPARTMENT LEVELS ON LEVEL CHANGE
   useEffect(() => {
-    if (watch('level_id')) {
+    if (watch('level_id') === 6) {
+      setSubmitButton('Create Agent')
+    } else if (watch('level_id') && watch('level_id') !== 5) {
       listDepartments({
         level_id: watch('level_id'),
       })
-    }
-    if (watch('level_id') === 6) {
-      setSubmitButton('Create Agent')
     }
   }, [watch('level_id')])
 
@@ -84,11 +84,12 @@ const CreateAdmin = () => {
 
   // HANDLE FORM SUBMISSION
   const onSubmit = (data) => {
+    const departmentId = data?.level_id === 5 ? 1 : data?.department_id
     createStaffAdmin({
       names: data?.names,
       username: data?.username,
       password: data?.password,
-      department_id: data?.department_id,
+      department_id: departmentId,
       email: data?.email,
       phone1: data?.phone1,
       staff_role: data?.staff_role,
@@ -114,6 +115,10 @@ const CreateAdmin = () => {
       value: 4,
     },
     {
+      text: 'Country',
+      value: 5,
+    },
+    {
       text: 'Village',
       value: 6,
     },
@@ -125,8 +130,6 @@ const CreateAdmin = () => {
       toast.success('Admin created successfully')
       navigate(`/admins/${createStaffAdminData?.data?.department_id}`)
       dispatch(setCreateAdminModal(false))
-    } else if (createStaffAdminIsError) {
-      toast.error('Failed to create admin. Please try again later.')
     }
   }, [createStaffAdminIsSuccess, createStaffAdminIsError])
 
@@ -238,7 +241,7 @@ const CreateAdmin = () => {
                   options={adminLevels?.map((level) => {
                     return {
                       ...level,
-                      disabled: level?.value <= user?.departments?.level_id && user?.departments?.level_id !== 5,
+                      disabled: level?.value <= user?.departments?.level_id && level?.value === 5 && user?.departments?.level_id !== 5,
                     }
                   })}
                   label="Administration Level"
@@ -314,6 +317,7 @@ const CreateAdmin = () => {
                 <label className="flex flex-col gap-1 items-start w-full">
                   <Input
                     placeholder="********"
+                    type={'password'}
                     label="Confirm Password"
                     {...field}
                   />

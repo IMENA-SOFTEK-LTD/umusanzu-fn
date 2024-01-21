@@ -55,7 +55,7 @@ const App = () => {
     const expireTime = localStorage.getItem('expireTime')
     const token = localStorage.getItem('token')
     
-    if (token && expireTime < Date.now()) {
+    if (token !== null && expireTime < Date.now()) {
       toast.info('It seems you were away, you need to log in again', {
         position: toast.POSITION.TOP_RIGHT,
         onClose: () => {
