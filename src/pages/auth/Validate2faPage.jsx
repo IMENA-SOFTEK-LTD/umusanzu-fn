@@ -5,6 +5,9 @@ import Loading from '../../components/Loading'
 import { useVerifyOtpMutation } from '../../states/api/apiSlice'
 import { setUser } from '../../states/features/auth/authSlice'
 import Button from '../../components/Button'
+import { setPathName } from '../../states/features/navigation/navbarSlice'
+import { getDepartment } from '../../utils/User'
+import Logo from '../../../public/logo.png'
 
 const Validate2faPage = () => {
   const user = JSON.parse(localStorage.getItem('user'))
@@ -79,7 +82,13 @@ const Validate2faPage = () => {
 
   useEffect(() => {
     if (otpIsSuccess) {
+      localStorage.setItem('user', JSON.stringify({
+        ...otpData?.data,
+        department: getDepartment(otpData?.data?.departments?.level_id)
+      }))
       dispatch(setUser(otpData))
+      dispatch(setPathName('Dashboard'))
+      localStorage.setItem('pathName', 'Dashboard')
       navigate('/dashboard')
       window.location.reload()
     }
@@ -91,19 +100,33 @@ const Validate2faPage = () => {
 
   return (
     <>
-      <main className="container mx-auto w-full h-screen max-h-[80vh] bg-slate-50 flex items-center justify-center">
+      <main className="container mx-auto w-full h-screen bg-slate-50 flex items-center justify-center">
         <form className="flex flex-col items-center gap-6 p-8 bg-white shadow-lg w-full max-w-[50%] mx-auto max-md:max-w-[70%] max-sm:max-w-[85%]">
+          <div className="flex flex-col items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 " >
+            <h3 className='uppercase text-primary font-bold'>
+              Imena Softek
+            </h3>
+            <img className="w-32 h-32" src={Logo} alt="logo" />
+            <h3 className='uppercase text-[20px] text-primary font-bold'>
+              Umusanzu Digital
+            </h3>
+          </div>
           <h1 className="text-[25px] uppercase font-bold text-center">
             OTP Confirmation
           </h1>
-          <span className="w-full max-w-[80%] mx-auto flex flex-col items-center gap-4">
-            <p className="text-center">
-              Please enter a One-Time Password (OTP) you received on your email
-              address below.
-            </p>
-            <p className="text-center text-[1.5rem] font-bold">
-              {user?.email}
-            </p>
+          <span className="w-full max-w-[80%] mx-auto flex flex-col items-center gap-4">            
+            {user?.phone1
+              ? <>
+                <p className="text-center">
+                  Please enter a One-Time Password (OTP) you received on your phone number.
+                </p>
+                <p className="text-center text-[1.5rem] font-bold">
+                  {`07******${user?.phone1.slice(-2)}`}
+                </p>
+              </>
+              : <p className="text-center">
+                  Please contact your administrator for a One-Time Password (OTP) sent to his phone number.
+                </p>}
           </span>
           <article
             id="otp"

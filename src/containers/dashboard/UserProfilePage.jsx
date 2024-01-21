@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
 import UpdateAdminStatusModel from '../../components/models/UpdateAdminStatusModel'
 import moment from 'moment'
+import { getUserDepartmentsInfoByLevelId } from '../../utils/userByLevelId'
 
 const UserProfilePage = () => {
   const localStorageUser = JSON.parse(localStorage.getItem('user'))
@@ -37,10 +38,15 @@ const UserProfilePage = () => {
   ] = useLazyLogActivitiesQuery()
   const [data, setData] = useState(staffDetailsData?.data || [])
   const [activities, setActivities] = useState(logActivitiesData?.data || [])
+  let userDepartmentsInfoByLevelId = {}
+  const [departmentNames, setDepartmentNames] = useState({})
 
   useEffect(() => {
     if (staffDetailsSuccess) {
       setData(staffDetailsData?.data || [])
+      setDepartmentNames(() => {
+        return getUserDepartmentsInfoByLevelId(staffDetailsData?.data, null)
+      })
     }
   }, [staffDetailsSuccess, staffDetailsData])
 
@@ -76,7 +82,8 @@ const UserProfilePage = () => {
       { id: 1, activity: 'Logged in', date: '2023-08-18' },
 
     ]
-  })
+ })
+  console.log(user, data, userDepartmentsInfoByLevelId);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing)
@@ -160,16 +167,6 @@ const UserProfilePage = () => {
                 <td className="py-2 pl-4">{data?.status}</td>
               </tr>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
-                  Village:
-                </td>
-                <td className="py-2 pl-4">{data?.village}</td>
-              </tr>
-              <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">Cell:</td>
-                <td className="py-2 pl-4">{data?.departments?.parent?.name}</td>
-              </tr>
-              <tr className="border-t">
                 <td
                   colSpan="2"
                   className="py-4 text-xl font-semibold text-gray-900"
@@ -179,21 +176,31 @@ const UserProfilePage = () => {
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  Village:
+                </td>
+                <td className="py-2 pl-4">{departmentNames?.village}</td>
+              </tr>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">Cell:</td>
+                <td className="py-2 pl-4">{departmentNames?.cell}</td>
+              </tr>
+              <tr className="border-t">
+                <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Sector:
                 </td>
-                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.name}</td>
+                <td className="py-2 pl-4">{departmentNames?.sector}</td>
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   District:
                 </td>
-                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.parent?.name}</td>
+                <td className="py-2 pl-4">{departmentNames?.district}</td>
               </tr>
               <tr className="border-t">
                 <td className="py-2 pr-4 text-gray-800 font-semibold">
                   Province:
                 </td>
-                <td className="py-2 pl-4">{data?.departments?.parent?.parent?.parent?.parent?.name}</td>
+                <td className="py-2 pl-4">{departmentNames?.province}</td>
               </tr>
             </tbody>
           </table>

@@ -36,6 +36,7 @@ const Sector_commission = ({ user }) => {
     const {
         page: offset,
     } = useSelector((state) => state.pagination)
+    const { userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
 
     const [sectorData, setSectorData] = useState([]);
 
@@ -95,7 +96,17 @@ const Sector_commission = ({ user }) => {
     useEffect(() => {
         if (singleSectorCommisionSuccess) {
             setSectorData(singleSectorCommisionData?.data);
-            printPDF({totalCommission: singleSectorCommisionData?.data[0]?.commission, reportName: singleSectorCommisionData?.data[0]?.name, monthPaid: selectedDate})
+            let currentMonth = moment().format('MMMM')
+            let titleObject = {
+                title: `UMUSANZU DIGITAL ${userOrSelectedDepartmentNames.sector} SECTOR ${currentMonth} COMMISSIONS.`,
+                ...userOrSelectedDepartmentNames,
+            }
+            printPDF({
+                totalCommission: singleSectorCommisionData?.data[0]?.commission,
+                reportName: singleSectorCommisionData?.data[0]?.name,
+                monthPaid: selectedDate,
+                reportTitleObj: titleObject,
+            })
         }
     }, [singleSectorCommisionData]);
 
@@ -107,13 +118,14 @@ const Sector_commission = ({ user }) => {
 
         reader.onload = async () => {
             const logoBase64 = reader.result.split(',')[1];
-            doc.setFontSize(12);
-            doc.setFillColor(255, 166, 1);
-            doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F');
-            doc.addImage(logoBase64, 'PNG', 10, 5, 30, 30);
-            doc.setTextColor(0);
-            doc.text(`${reportName}`, 50, 25);
-            doc.setFontSize(8);
+            doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
+            doc.setFont('Symbol', 'bold');
+            doc.setFontSize(12)
+            doc.text('IMENA SOFTEK LTD', 125, 50)
+            let currentMonth = moment().format('MMMM')
+            doc.text(`UMUSANZU DIGITAL'S ${userOrSelectedDepartmentNames.sector} SECTOR ${currentMonth.toUpperCase()} COMMISSIONS`, 65, 65)
+            doc.line(61, 67, 220, 67)
+            doc.setFontSize(10);
 
             const columnHeader = [
                 'NO',
@@ -126,7 +138,7 @@ const Sector_commission = ({ user }) => {
                 content: header,
             }));
             doc.autoTable({
-                startY: 50,
+                startY: 75,
                 head: [headerRow],
                 theme: 'grid',
                 styles: {

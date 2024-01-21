@@ -9,7 +9,6 @@ import Input from '../../components/Input'
 import Logo from '../../../public/logo.png'
 import { setLoginPageLoaded, setUser } from '../../states/features/auth/authSlice'
 import { getDepartment } from '../../utils/User'
-import { setPathName } from '../../states/features/navigation/navbarSlice'
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -52,25 +51,14 @@ const Login = () => {
   }
 
   useEffect(() => {
-    if (loginSuccess) {
-      if (loginData.code) {
-        localStorage.setItem('user', JSON.stringify({
-          ...loginData?.data,
-          department: getDepartment(loginData?.data?.departments?.level_id)
-        }))
-        navigate('/two-fa-authentication')
-      } else {
+    if (loginSuccess && loginData?.data) {
         localStorage.setItem('user', JSON.stringify({
           ...loginData?.data,
           department: getDepartment(loginData?.data?.departments?.level_id)
         }))
         dispatch(setUser(loginData))
-        dispatch(setPathName('Dashboard'))
-        localStorage.setItem('pathName', 'Dashboard')
-        navigate('/dashboard')
-        window.location.reload()
-      }
-    }
+        navigate('/two-fa-authentication')
+    } 
   }, [loginData, loginSuccess])  
 
   useEffect(() => {
@@ -108,7 +96,7 @@ const Login = () => {
                       <label className='flex flex-col gap-2'>
                         <p className='font-medium'>Username</p>
                         <Input
-                          placeholder="Agent"
+                          placeholder="Username"
                           type="text"
                           value={field.value}
                           className="w-[90%] mx-auto"

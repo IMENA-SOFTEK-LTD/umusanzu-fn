@@ -35,7 +35,7 @@ function Navbar({ user }) {
 
   const navigate = useNavigate()
 
-  if (pathname === '/login') return null
+  if (pathname === '/login' || pathname === '/two-fa-authentication') return null
 
   return (
     <nav
