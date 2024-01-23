@@ -16,8 +16,10 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
         logOut();
         location.reload()
       }, 5000)
-    } else if (action.payload && action.payload.status !== 200) {
+    } else if (action.payload && action.payload.status !== 200 && action.payload.status !== 500) {
       showToast(action?.payload?.data?.message)
+    } else if (action.payload && action.payload.status === 500) {
+      showToast("An error occured! Try Again.")
     }
   }
 
@@ -742,10 +744,10 @@ export const apiSlice = createApi({
       }),
       // CREATE ADMIN
       createStaffAdmin: builder.mutation({
-        query: ({ names, username, phone1, staff_role, department_id, email, password }) => ({
+        query: ({ names, username, phone1, phone2, staff_role, department_id, email, password }) => ({
           url: `/staff/?department_id=${department_id}`,
           method: 'POST',
-          body: { names, username, phone1, staff_role, email, password },
+          body: { names, username, phone1, phone2, staff_role, email, password },
         }),
       }),
     }

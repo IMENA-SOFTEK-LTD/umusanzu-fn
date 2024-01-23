@@ -67,7 +67,7 @@ const Admins = () => {
   return (
     <div className="w-[98%] mx-auto relative">
 
-      <div className="flex items-center justify-center min-h-[70vh]">
+      <div className="flex pt-8 min-h-[70vh]">
         {data?.rows?.length === 0
           ? (
           <div className="w-full h-screen flex items-center justify-center">

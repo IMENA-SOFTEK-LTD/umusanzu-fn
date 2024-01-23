@@ -92,6 +92,7 @@ const CreateAdmin = () => {
       department_id: departmentId,
       email: data?.email,
       phone1: data?.phone1,
+      phone2: data?.phone2,
       staff_role: data?.staff_role,
     })
   }
@@ -219,15 +220,32 @@ const CreateAdmin = () => {
             }}
           />
           <Controller
-            name="email"
+            name="phone2"
             control={control}
             render={({ field }) => {
               return (
                 <label className="flex flex-col gap-1 items-start w-full">
-                  <Input placeholder="Email" label="Email Address" {...field} />
+                  <Input
+                    placeholder="07XX XXX XXX"
+                    label="Secondary Phone (Optional)"
+                    {...field}
+                  />
                 </label>
               )
             }}
+          />
+        </span>
+        <span className="w-full flex items-start gap-4">
+          <Controller
+              name="email"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <label className="flex flex-col gap-1 items-start w-full">
+                    <Input placeholder="Email" label="Email Address" {...field} />
+                  </label>
+                )
+              }}
           />
         </span>
         <span className="flex items-start gap-4 w-full">

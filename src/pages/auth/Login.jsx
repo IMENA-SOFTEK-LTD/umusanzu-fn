@@ -45,7 +45,7 @@ const Login = () => {
 
     const response = await login({ username, password })
 
-    if (response.error) {
+    if (response.error || loginError) {
       setInvalidLogin(true)
     }
   }
@@ -136,14 +136,14 @@ const Login = () => {
                     )}
                   />
                 </span>
-                {invalidLogin && (
+                {loginError  && (
                 <div className="flex justify-center items-center">
                   <div
                     className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
                     role="alert"
                   >
                     <span className="block sm:inline text-red-500">
-                      Invalid login, please try again
+                      {loginErrorMessage.data.message}
                     </span>
                   </div>
                 </div>
