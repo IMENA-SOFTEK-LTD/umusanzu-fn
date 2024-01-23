@@ -19,7 +19,7 @@ const AwesomeCard = ({
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="border border-gray-200 rounded-lg shadow-xl p-6 w-[25%] text-gray-800"
+      className="border border-gray-200 rounded-lg shadow-xl p-6 text-gray-800"
     >
       <h2 className="text-xl font-extrabold mb-4">{name}</h2>
       <div className="flex mb-2">
