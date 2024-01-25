@@ -39,7 +39,7 @@ function Navbar({ user }) {
 
   return (
     <nav
-      className={'w-full bg-white drop-shadow-md z-20 py-2 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between'}
+      className={'w-full bg-white drop-shadow-md z-50 py-2 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between'}
     >
       <section className='hidden max-sm:flex'>
       <Button
@@ -105,7 +105,7 @@ function Navbar({ user }) {
             alt="avatar"
           />
         </figure>
-        <article
+        <div
           className={`${
             !navDropdown ? 'translate-y-[-300%]' : 'translate-y-0'
           } ease-in-out duration-500 absolute top-20 right-20 mx-auto z-[1000000] rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[16rem] max-sm:small-dropdown`}
@@ -127,7 +127,7 @@ function Navbar({ user }) {
           >
             Logout
           </Link>
-        </article>
+        </div>
       </section>
       <section className="hidden max-sm:flex">
         <Button

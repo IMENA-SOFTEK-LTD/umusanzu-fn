@@ -152,12 +152,10 @@ function Sidebar({ user }) {
     },
   ]
 
-  const [active, setActive] = useState(isOpen)
   const controls = useAnimation()
   const controlText = useAnimation()
   const controlTitleText = useAnimation()
 
-  const { pathname } = useLocation()
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -183,7 +181,7 @@ function Sidebar({ user }) {
   const showLess = () => {
     controls.start({
       width: '4vw',
-      transition: { duration: 0.001 },
+      transition: { duration: 0 },
     })
 
     controlText.start({
@@ -198,6 +196,7 @@ function Sidebar({ user }) {
     dispatch(toggleSidebar(false))
   }
 
+
   useEffect(() => {
     showMore()
   }, [])
@@ -208,13 +207,6 @@ function Sidebar({ user }) {
       dispatch(toggleNavDropdown(false))
     }
   }, [viewportWidth])
-
-  const pathsToHideSidebar = ['/login', '/two-fa-authentication']
-
-  if (pathsToHideSidebar.includes(pathname)) {
-    dispatch(toggleSidebar(false))
-    return <div>{''}</div>
-  }
 
   return (
     <aside

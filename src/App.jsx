@@ -40,6 +40,7 @@ import { logOut } from './utils/User.js'
 import { useDispatch } from 'react-redux'
 import { setUserOrSelectedDepartmentNames } from './states/features/departments/departmentSlice.js'
 import axios from 'axios'
+import AppLayout from './pages/mainPage.jsx'
 
 const App = () => {
   
@@ -145,101 +146,89 @@ const App = () => {
     }
   }, [stateUser])
   return (
-    <main className={`relative h-full`}>
-      <section className="absolute">
-        <Sidebar user={user} />
-      </section>
-      <section
-        className={`absolute ${
-          isOpen
-            ? 'w-[80vw] left-[20vw]'
-            : loginPageLoaded
-            ? 'w-full grid grid-cols-[0vw, 100vw]'
-            : 'w-[96vw] left-[4vw]'
-        }`}
-      >
-        <Navbar user={user || stateUser} />
+
         <Routes>
-          <Route element={<IsLoggedIn />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-              path="/households"
-              element={<HouseholdTable user={user || stateUser} />}
-            />
-            <Route
-              path="/reports/villages"
-              element={<VillagesReport user={user || stateUser} />}
-            />
-            <Route
-              path="/reports/sectors"
-              element={<SectorsReports user={user || stateUser} />}
-            />
-            <Route
-              path="/reports"
-              element={<Reports user={user || stateUser} />}
-            />
-            <Route path="/createVillage" element={<CreateVillageModel />} />
-            <Route path="/households/:id" element={<HouseholdDetails />} />
-            <Route
-              path="/households/create"
-              element={<CreateHousehold user={user} />}
-            />
-            <Route path='/households/create/conflict' element={<HouseholdExists  />} />
-            <Route
-              path="/households/search"
-              element={<SearchHousehold user={user} />}
-            />
+          <Route element={<AppLayout 
+            user={user || stateUser} 
+            isOpen={isOpen} />} >
+            <Route element={<IsLoggedIn />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/households"
+                element={<HouseholdTable user={user || stateUser} />}
+              />
+              <Route
+                path="/reports/villages"
+                element={<VillagesReport user={user || stateUser} />}
+              />
+              <Route
+                path="/reports/sectors"
+                element={<SectorsReports user={user || stateUser} />}
+              />
+              <Route
+                path="/reports"
+                element={<Reports user={user || stateUser} />}
+              />
+              <Route path="/createVillage" element={<CreateVillageModel />} />
+              <Route path="/households/:id" element={<HouseholdDetails />} />
+              <Route
+                path="/households/create"
+                element={<CreateHousehold user={user} />}
+              />
+              <Route path='/households/create/conflict' element={<HouseholdExists  />} />
+              <Route
+                path="/households/search"
+                element={<SearchHousehold user={user} />}
+              />
 
-            <Route
-              path="/settings"
-              element={<Settings user={user || stateUser} />}
-            />
-            <Route
-              path="/agent/transactions/initiated"
-              element={<CompleteInitiatedPaymentsForm user={user} />}
-            />
+              <Route
+                path="/settings"
+                element={<Settings user={user || stateUser} />}
+              />
+              <Route
+                path="/agent/transactions/initiated"
+                element={<CompleteInitiatedPaymentsForm user={user} />}
+              />
 
-            <Route
-              path="/transactions"
-              element={<TransactionTable user={user || stateUser} />}
-            />
-            <Route path="/households/stats" element={<HouseDetails />} />
-            <Route
-              path="/profile/:id"
-              element={<UserProfilePage user={user || stateUser} />}
-            />
-            <Route
-              path="/performances"
-              element={<Performances user={user} />}
-            />
-            <Route
-              path="/admins/:id"
-              element={<Admins user={user || stateUser} />}
-            />
+              <Route
+                path="/transactions"
+                element={<TransactionTable user={user || stateUser} />}
+              />
+              <Route path="/households/stats" element={<HouseDetails />} />
+              <Route
+                path="/profile/:id"
+                element={<UserProfilePage user={user || stateUser} />}
+              />
+              <Route
+                path="/performances"
+                element={<Performances user={user} />}
+              />
+              <Route
+                path="/admins/:id"
+                element={<Admins user={user || stateUser} />}
+              />
 
-            <Route
-              path="/departments"
-              element={<Department user={user || stateUser} />}
-            />
-            <Route
-              path="/select-department"
-              element={<SelectDepartments user={user} />}
-            />
-            <Route
-              path="/report/sectors"
-              element={<Sector_commission user={user || stateUser} />}
-            />
+              <Route
+                path="/departments"
+                element={<Department user={user || stateUser} />}
+              />
+              <Route
+                path="/select-department"
+                element={<SelectDepartments user={user} />}
+              />
+              <Route
+                path="/report/sectors"
+                element={<Sector_commission user={user || stateUser} />}
+              />
 
-            <Route path="/receipt/:id" element={<PaymentReceipt />} />
-          </Route>
-          <Route path="/login" element={<Login />} />
+              <Route path="/receipt/:id" element={<PaymentReceipt />} />
+            </Route>
+          </Route>         
+          <Route path="/login" index element={<Login />} />
           <Route path="/two-fa-authentication" element={<Validate2faPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </section>
-      <ToastContainer />
-    </main>
   )
 }
 
