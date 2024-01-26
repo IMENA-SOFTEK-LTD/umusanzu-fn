@@ -15,7 +15,7 @@ const Button = ({
     return (
       <button
         type={type || 'submit'}
-        className={`w-fit py-2 px-6 flex items-center justify-center rounded-sm bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99] ${
+        className={`w-fit py-2 px-6 flex items-center justify-center rounded-md bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99] ${
           background === false
             ? 'bg-transparent !h-fit !min-h-fit !text-black !border-none hover:!text-primary hover:bg-transparent hover:underline'
             : null

@@ -99,7 +99,7 @@ const Validate2faPage = () => {
 
   return (
     <>
-      <main className="w-full h-screen bg-slate-50 flex items-center justify-center">
+      <main className="w-full absolute h-screen bg-slate-50 flex items-center justify-center">
         <form className="flex flex-col items-center gap-6 p-8 bg-white shadow-lg w-full max-w-[50%] mx-auto max-md:max-w-[70%] max-sm:max-w-[85%]">
           <div className="flex flex-col items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 " >
             <h3 className='uppercase text-primary font-bold'>

@@ -67,7 +67,7 @@ const Login = () => {
   }, [])
 
   return (
-    <main className={`bg-primary relative max-h-screen overflow-clip flx flex-col items-start`}>
+    <main className={`bg-primary absolute top-0 left-0 w-full max-h-screen overflow-clip flx flex-col items-start`}>
       <div className="flex flex-col items-start h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
         <div className="flex flex-col items-center justify-center min-h-[100vh] h-full my-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row">
           <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
