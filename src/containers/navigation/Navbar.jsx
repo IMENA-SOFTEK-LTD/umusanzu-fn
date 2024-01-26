@@ -39,7 +39,7 @@ function Navbar({ user }) {
 
   return (
     <nav
-      className={'w-full bg-white drop-shadow-md z-20 py-2 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between'}
+      className={'w-full relative bg-white drop-shadow-md z-50 py-2 my-2 px-8 border-l-none border-b border-gray-200 flex items-center justify-between'}
     >
       <section className='hidden max-sm:flex'>
       <Button
@@ -75,49 +75,50 @@ function Navbar({ user }) {
           navResponsive
             ? 'max-sm:translate-y-[-200%]'
             : 'max-sm:translate-y-[100%] max-sm:py-2'
-        } ease-in-out duration-500 flex items-center gap-2 bg-white content-start w-fit px-8 divide-x-2 divide-gray-200 max-sm:small-navbar`}
+        } ease-in-out duration-500 relative bg-white content-start w-fit px-8 divide-x-2 divide-gray-200 max-sm:small-navbar`}
       >
-        <span className="flex flex-col items-center">
-          <Button
-            value={
-              <span className="flex items-center gap-4">
-                <p className="text-black text-[18px]">{user?.names}</p>
-                <FontAwesomeIcon
-                  icon={navDropdown ? faCaretUp : faCaretDown}
-                  className="hover:scale-[1.02] ease-in-out duration-500 text-black"
-                />
-              </span>
-            }
-            className="bg-transparent hover:scale-[1.01] ease-in-out duration-300 text-black"
-            onClick={(e) => {
-              e.preventDefault()
-              dispatch(toggleNavDropdown(!navDropdown))
-            }}
-          />
-          <p className="text-gray-400 uppercase">
-            {user?.departments?.name || user?.department}
-          </p>
-        </span>
-        <figure className="ml-2 w-fit">
-          <img
-            className="inline-block h-10 w-10 rounded-full ring-2 ring-white ml-2"
-            src={CoatOFArms}
-            alt="avatar"
-          />
-        </figure>
-        <article
-          className={`${
+        <div className='flex items-center gap-2'>
+          <span className="flex flex-col items-center">
+            <Button
+              value={
+                <span className="flex items-center gap-4">
+                  <p className="text-black text-[18px]">{user?.names}</p>
+                  <FontAwesomeIcon
+                    icon={navDropdown ? faCaretUp : faCaretDown}
+                    className="hover:scale-[1.02] ease-in-out duration-500 text-black"
+                  />
+                </span>
+              }
+              className="bg-transparent hover:scale-[1.01] ease-in-out duration-300 text-black"
+              onClick={(e) => {
+                e.preventDefault()
+                dispatch(toggleNavDropdown(!navDropdown))
+              }}
+            />
+            <p className="text-gray-400 uppercase">
+              {user?.departments?.name || user?.department}
+            </p>
+          </span>
+          <figure className="ml-2 w-fit">
+            <img
+              className="inline-block h-10 w-10 rounded-full ring-2 ring-white ml-2"
+              src={CoatOFArms}
+              alt="avatar"
+            />
+          </figure>
+          <article
+            className={`${
             !navDropdown ? 'translate-y-[-300%]' : 'translate-y-0'
-          } ease-in-out duration-500 absolute top-20 right-20 mx-auto z-[1000000] rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[16rem] max-sm:small-dropdown`}
+          } ease-in-out duration-500 absolute top-[4.4rem] right-20 mx-auto z-50 rounded-md shadow-lg flex flex-col items-center gap-2 bg-white min-w-[16rem] max-sm:small-dropdown border-2`}
         >
           <Link
             to="/settings"
-            className="bg-white text-[15px] w-full py-4 px-8 flex items-center z-[999] justify-center hover:scale-[1.01] hover:bg-cyan-800 hover:text-white"
+            className="bg-white text-[15px] w-full py-4 px-8 rounded-tl-md rounded-tr-md flex items-center z-[999] justify-center hover:scale-[1.01] hover:bg-cyan-800 hover:text-white"
           >
             Settings
           </Link>
           <Link
-            className="bg-white text-[15px] w-full py-4 px-8 flex items-center z-[999] justify-center hover:scale-[1.01] hover:bg-cyan-800 hover:text-white"
+            className="bg-white text-[15px] w-full py-4 px-8 rounded-bl-md rounded-br-md flex items-center z-[999] justify-center hover:scale-[1.01] hover:bg-cyan-800 hover:text-white"
             onClick={(e) => {
               e.preventDefault()
               logOut()
@@ -127,7 +128,8 @@ function Navbar({ user }) {
           >
             Logout
           </Link>
-        </article>
+          </article>
+        </div>        
       </section>
       <section className="hidden max-sm:flex">
         <Button
