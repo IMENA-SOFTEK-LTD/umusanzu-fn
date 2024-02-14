@@ -12,6 +12,8 @@ const ChartDashboard = () => {
   const [chartError, setChartError] = useState('')
 
   const token = localStorage.getItem('token')
+  const { isOpen } = useSelector((state) => state.sidebar)
+  const { level_id, id: departmentId } = useSelector((state) => state.auth.user.departments)
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
@@ -23,7 +25,7 @@ const ChartDashboard = () => {
     setChartError('')
     if (mode === 'week') {
       try {
-        const response = await axios.get(`${API_URL}/payment/chartinfo?week=true`,
+        const response = await axios.get(`${API_URL}/payment/chartinfo?level_id=${level_id}&departmentId=${departmentId}&week=true`,
         { headers: { Authorization: `Bearer ${token}` } })
         const weekPayments = {
           labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
@@ -61,7 +63,7 @@ const ChartDashboard = () => {
         }
         const monthDaysArray = monthDays();
 
-        const response = await axios.get(`${API_URL}/payment/chartinfo?month=${todayDate.getMonth() + 1}&year=${todayDate.getFullYear()}`,
+        const response = await axios.get(`${API_URL}/payment/chartinfo?level_id=${level_id}&departmentId=${departmentId}&month=${todayDate.getMonth() + 1}&year=${todayDate.getFullYear()}`,
         { headers: { Authorization: `Bearer ${token}` } })
         const monthPayments = {
           labels: monthDaysArray,
@@ -94,7 +96,7 @@ const ChartDashboard = () => {
           return months;
         }
         const monthsArray = yearMonths();
-        const response = await axios.get(`${API_URL}/payment/chartinfo?year=${todayDate.getFullYear()}`,
+        const response = await axios.get(`${API_URL}/payment/chartinfo?level_id=${level_id}&departmentId=${departmentId}&year=${todayDate.getFullYear()}`,
           { headers: { Authorization: `Bearer ${token}` } })
         const yearPayments = {
           labels: monthsArray,
@@ -121,7 +123,6 @@ const ChartDashboard = () => {
     getChartData(viewMode)    
   }, [])
 
-  const { isOpen } = useSelector((state) => state.sidebar);
 
   return (
     <div
