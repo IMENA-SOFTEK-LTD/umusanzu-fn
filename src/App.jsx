@@ -41,6 +41,7 @@ import { useDispatch } from 'react-redux'
 import { setUserOrSelectedDepartmentNames } from './states/features/departments/departmentSlice.js'
 import axios from 'axios'
 import AppLayout from './pages/mainPage.jsx'
+import API_URL from './constants/index.js'
 
 const App = () => {
   
@@ -104,7 +105,7 @@ const App = () => {
   const token = localStorage.getItem('token')
     
   const getDepartmentName = (department, id) => {
-    axios.get(`https://v2.api.umusanzu.rw/api/v2/department/${department}/${String(id)}`,
+    axios.get(`${API_URL}/department/${department}/${String(id)}`,
       { headers: { Authorization: `Bearer ${token}` } }
     ).then((response) => {
       dispatch(setUserOrSelectedDepartmentNames({ [`${department}`]: response.data.data.name}))
