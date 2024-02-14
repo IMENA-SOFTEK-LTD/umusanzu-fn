@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { LOCAL_API_URL } from '../../constants'
+import API_URL from '../../constants'
 import { toast } from 'react-toastify';
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import { logOut } from '../../utils/User';
@@ -30,7 +30,7 @@ export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
 
-    baseUrl: LOCAL_API_URL || 'https://v2.api.umusanzu.rw/api/v2/',
+    baseUrl: API_URL,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token')
       if (token) {

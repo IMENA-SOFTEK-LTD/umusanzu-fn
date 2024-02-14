@@ -9,6 +9,7 @@ import Button from '../../components/Button'
 import UpdateHousehold from '../../components/models/UpdateHousehold'
 import UpdateHouseholdStatus from '../../components/models/UpdateHouseholdStatus'
 import { toast } from 'react-toastify'
+import API_URL from '../../constants'
 
 const HouseholdInfo = ({ household }) => {
 
@@ -21,7 +22,7 @@ const HouseholdInfo = ({ household }) => {
 
   const updateHouseHoldType = () => { 
     axios.patch(
-      `https://v2.api.umusanzu.rw/api/v2/households/types/${household?.id}`,
+      `${API_URL}/households/types/${household?.id}`,
       {
         type: selectedHouseholdType
       },

@@ -3,7 +3,7 @@ import LineChart from '../../components/LineChart'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 import Loading from '../../components/Loading'
-import { LOCAL_API_URL, API_URL } from '../../constants'
+import API_URL from '../../constants'
 
 const ChartDashboard = () => {
   const [viewMode, setViewMode] = useState('week')
@@ -23,7 +23,7 @@ const ChartDashboard = () => {
     setChartError('')
     if (mode === 'week') {
       try {
-        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?week=true`,
+        const response = await axios.get(`${API_URL}/payment/chartinfo?week=true`,
         { headers: { Authorization: `Bearer ${token}` } })
         const weekPayments = {
           labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
@@ -61,7 +61,7 @@ const ChartDashboard = () => {
         }
         const monthDaysArray = monthDays();
 
-        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?month=${todayDate.getMonth() + 1}&year=${todayDate.getFullYear()}`,
+        const response = await axios.get(`${API_URL}/payment/chartinfo?month=${todayDate.getMonth() + 1}&year=${todayDate.getFullYear()}`,
         { headers: { Authorization: `Bearer ${token}` } })
         const monthPayments = {
           labels: monthDaysArray,
@@ -94,7 +94,7 @@ const ChartDashboard = () => {
           return months;
         }
         const monthsArray = yearMonths();
-        const response = await axios.get(`https://v2.api.umusanzu.rw/api/v2/payment/chartinfo?year=${todayDate.getFullYear()}`,
+        const response = await axios.get(`${API_URL}/payment/chartinfo?year=${todayDate.getFullYear()}`,
           { headers: { Authorization: `Bearer ${token}` } })
         const yearPayments = {
           labels: monthsArray,
