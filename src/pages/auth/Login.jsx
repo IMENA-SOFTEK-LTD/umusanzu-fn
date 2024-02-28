@@ -136,7 +136,7 @@ const Login = () => {
                     )}
                   />
                 </span>
-                {loginError  && (
+                {loginError  ? (
                 <div className="flex justify-center items-center">
                   <div
                     className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
@@ -147,7 +147,7 @@ const Login = () => {
                     </span>
                   </div>
                 </div>
-              )}
+              ) : "" }
               {successMessage && (
                 <span className="block sm:inline text-green-500">
                   {successMessage}
