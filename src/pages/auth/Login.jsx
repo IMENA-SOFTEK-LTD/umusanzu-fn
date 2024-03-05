@@ -143,7 +143,7 @@ const Login = () => {
                     role="alert"
                   >
                     <span className="block sm:inline text-red-500">
-                      {loginErrorMessage.data.message}
+                      {loginErrorMessage?.data?.message}
                     </span>
                   </div>
                 </div>
