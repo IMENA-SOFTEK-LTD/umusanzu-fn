@@ -1,32 +1,29 @@
-# Create image based on the official Node 6 image from the dockerhub
-FROM node:20.18.0
+# Stage 1: Build the Node.js application
+FROM node:20.18.0 AS build
 
-# Create a directory where our app will be placed
-RUN mkdir -p /usr/src/umusanzu_fn
-
-# Change directory so that our commands run inside this new directory
+# Create a directory where the app will be placed
 WORKDIR /usr/src/umusanzu_fn
 
 # Copy dependency definitions
-COPY ["package.json","package-lock.json*", "/usr/src/umusanzu_fn/"]
+COPY ["package.json", "package-lock.json*", "/usr/src/umusanzu_fn/"]
 
-# Install dependecies
+# Install dependencies
 RUN npm install
 
-# Get all the code needed to run the app
+# Copy all application code
 COPY . /usr/src/umusanzu_fn
 
+# Build the application (assuming you have a build script)
 RUN npm run build
 
-
-# Use Nginx as the base image
+# Stage 2: Serve the built assets using Nginx
 FROM nginx:latest
 
-# Copy the dist folder to the Nginx HTML directory
-COPY dist /usr/share/nginx/html
+# Copy the dist folder from the build stage to the Nginx HTML directory
+COPY --from=build /usr/src/umusanzu_fn/dist /usr/share/nginx/html
 
-# Expose port 80
+# Expose port 80 for the application
 EXPOSE 80
 
-# Start Nginx
+# Start Nginx (it will serve the application)
 CMD ["nginx", "-g", "daemon off;"]
