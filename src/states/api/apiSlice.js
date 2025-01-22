@@ -5,7 +5,7 @@ import { isRejectedWithValue } from '@reduxjs/toolkit';
 import { logOut } from '../../utils/User';
 
 const showToast = (message) => {
-  toast.error(message, { position: toast.POSITION.TOP_RIGHT });
+  toast.error(message, { position: toast?.POSITION?.TOP_RIGHT || 'top-right' });
 };
 
 export const rtkQueryErrorLogger = (api) => (next) => (action) => {

@@ -1,0 +1,61 @@
+name: Deploy Umusanzu Frontend Server
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Install sshpass for password-based SSH
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      # Add the server's SSH key to known_hosts
+      - name: Add server's SSH key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.DO_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Umusanzu Frontend Server
+        run: |
+          sshpass -p "${{ secrets.DO_SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.DO_SERVER_USER }}@${{ secrets.DO_SERVER_IP }} << 'EOF'
+            # Navigate to the root directory
+            cd /
+            # Clone the repository if it doesn't exist
+            if [ ! -d "/umusanzu_fn" ]; then
+               git config --global user.email "respinho2014@gmail.com"
+                git config --global user.name "Ganza"
+               GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git clone ${{ secrets.DO_API_REPO }} umusanzu_fn  # Replace with your repository URL
+            fi
+            cd /umusanzu_fn
+           
+            # Delete existing .env file if it exists
+            if [ -f .env ]; then
+              rm .env
+            fi
+
+            # Create the .env file from GitHub Secrets
+
+            echo "VITE_APP_API_URL=${{ secrets.API_URL }}" >> .env
+            echo "VITE_APP_LOCAL_API_URL=${{ secrets.API_URL }}" >> .env
+          
+            # Add more environment variables as needed
+            git add .
+            git commit -m".env added"
+            git pull origin main
+            sudo docker image prune -f
+            sudo docker rmi $(sudo docker images -q) --force
+            sudo docker volume rm $(sudo docker volume ls -q)
+            sudo docker network prune -f
+            sudo docker builder prune -a --force
+            sudo docker-compose down --volumes --remove-orphans  # Remove old containers and volumes
+            sudo docker-compose build --no-cache  # Rebuild images without using cache
+            sudo docker-compose up -d --build  # Start the containers again with the new build
+          EOF
