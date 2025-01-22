@@ -13,6 +13,8 @@ RUN npm install
 # Copy all application code
 COPY . /usr/src/umusanzu_fn
 
+WORKDIR /usr/src/umusanzu_fn
+
 # Build the application (assuming you have a build script)
 RUN npm run build
 
