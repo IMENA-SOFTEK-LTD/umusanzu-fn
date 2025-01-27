@@ -11,6 +11,7 @@ RUN npm install && npx update-browserslist-db@latest
 
 # Copy all application code
 COPY . .
+
 # Build the application
 RUN npm run build
 
