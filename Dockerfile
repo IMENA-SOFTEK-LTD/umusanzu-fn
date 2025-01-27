@@ -1,13 +1,13 @@
 # Stage 1: Build the Node.js application
-FROM node:14.18.2 AS build
+FROM node:20.18.0 AS build
 
 WORKDIR /usr/src/umusanzu_fn
 
 # Copy dependency definitions
 COPY ["package.json", "package-lock.json*", "./"]
 
-# Install dependencies and update Browserslist database
-RUN npm install react@18 react-dom@18
+# Install all dependencies (including Vite)
+RUN npm install
 
 # Copy all application code
 COPY . .
