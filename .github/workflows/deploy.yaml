@@ -40,7 +40,7 @@ jobs:
             if [ -f .env ]; then
               rm .env
             fi
-            
+
             # Create the .env file from GitHub Secrets
 
             echo "VITE_APP_API_URL=${{ secrets.API_URL }}" >> .env
@@ -50,11 +50,11 @@ jobs:
             git add .
             git commit -m".env added"
             git pull
-            sudo docker image prune -f
-            sudo docker rmi $(sudo docker images -q) --force
-            sudo docker volume rm $(sudo docker volume ls -q)
-            sudo docker network prune -f
-            sudo docker builder prune -a --force
+            # docker image prune -f
+            # sudo docker rmi $(sudo docker images -q) --force
+            # docker volume rm $(sudo docker volume ls -q)
+            # sudo docker network prune -f
+            # docker builder prune -a --force
             sudo docker-compose down --volumes --remove-orphans  # Remove old containers and volumes
             sudo docker-compose build --no-cache  # Rebuild images without using cache
             sudo docker-compose up -d --build  # Start the containers again with the new build
