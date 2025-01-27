@@ -1,5 +1,5 @@
 # Stage 1: Build the Node.js application
-FROM node:20.18.0 AS build
+FROM node:14.18.2 AS build
 
 WORKDIR /usr/src/umusanzu_fn
 
