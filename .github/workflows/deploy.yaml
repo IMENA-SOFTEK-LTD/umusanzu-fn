@@ -40,7 +40,6 @@ jobs:
             if [ -f .env ]; then
               rm .env
             fi
-
             
             # Create the .env file from GitHub Secrets
 
