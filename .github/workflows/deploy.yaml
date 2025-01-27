@@ -49,7 +49,7 @@ jobs:
             # Add more environment variables as needed
             git add .
             git commit -m".env added"
-            git pull origin main
+            git pull
             sudo docker image prune -f
             sudo docker rmi $(sudo docker images -q) --force
             sudo docker volume rm $(sudo docker volume ls -q)
