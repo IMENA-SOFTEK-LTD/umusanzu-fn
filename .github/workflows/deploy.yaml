@@ -41,6 +41,7 @@ jobs:
               rm .env
             fi
 
+            
             # Create the .env file from GitHub Secrets
 
             echo "VITE_APP_API_URL=${{ secrets.API_URL }}" >> .env
