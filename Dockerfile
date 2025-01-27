@@ -13,7 +13,7 @@ RUN npm install
 COPY . .
 
 # Build the application
-RUN npm run build
+# RUN npm run build
 
 # Stage 2: Serve the built assets using Nginx
 FROM nginx:latest
