@@ -7,7 +7,7 @@ WORKDIR /usr/src/umusanzu_fn
 COPY ["package.json", "package-lock.json*", "./"]
 
 # Install dependencies and update Browserslist database
-RUN npm install && npx update-browserslist-db@latest
+RUN npm install react@18 react-dom@18
 
 # Copy all application code
 COPY . .
