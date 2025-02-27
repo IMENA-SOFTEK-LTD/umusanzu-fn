@@ -55,7 +55,7 @@ jobs:
             # docker volume rm $(sudo docker volume ls -q)
             # sudo docker network prune -f
             # docker builder prune -a --force
-            sudo docker-compose down --volumes --remove-orphans  # Remove old containers and volumes
+            sudo docker-compose -p umusanzu_fn down --volumes --remove-orphans  # Remove old containers and volumes
             sudo docker-compose build --no-cache  # Rebuild images without using cache
             sudo docker-compose up -d --build  # Start the containers again with the new build
           EOF

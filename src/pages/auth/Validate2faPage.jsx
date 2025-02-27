@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import Loading from '../../components/Loading'
 import { useVerifyOtpMutation } from '../../states/api/apiSlice'
 import { setUser } from '../../states/features/auth/authSlice'
@@ -15,7 +15,12 @@ const Validate2faPage = () => {
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', ''])
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
+  console.log(user)
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+    }
+  }, [user])
   const [
     verifyOtp,
     {
@@ -82,10 +87,13 @@ const Validate2faPage = () => {
 
   useEffect(() => {
     if (otpIsSuccess) {
-      localStorage.setItem('user', JSON.stringify({
-        ...otpData?.data,
-        department: getDepartment(otpData?.data?.departments?.level_id)
-      }))
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          ...otpData?.data,
+          department: getDepartment(otpData?.data?.departments?.level_id),
+        })
+      )
       dispatch(setUser(otpData))
       dispatch(setPathName('Dashboard'))
       localStorage.setItem('pathName', 'Dashboard')
@@ -101,32 +109,35 @@ const Validate2faPage = () => {
     <>
       <main className="w-full absolute h-screen bg-slate-50 flex items-center justify-center">
         <form className="flex flex-col items-center gap-6 p-8 bg-white shadow-lg w-full max-w-[50%] mx-auto max-md:max-w-[70%] max-sm:max-w-[85%]">
-          <div className="flex flex-col items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 " >
-            <h3 className='uppercase text-primary font-bold'>
-              Imena Softek
-            </h3>
+          <div className="flex flex-col items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 ">
+            <h3 className="uppercase text-primary font-bold">Imena Softek</h3>
             <img className="w-32 h-32" src={Logo} alt="logo" />
-            <h3 className='uppercase text-[20px] text-primary font-bold'>
+            <h3 className="uppercase text-[20px] text-primary font-bold">
               Umusanzu Digital
             </h3>
           </div>
           <h1 className="text-[25px] uppercase font-bold text-center">
             OTP Confirmation
           </h1>
-          <span className="w-full max-w-[80%] mx-auto flex flex-col items-center gap-4">            
-            {user?.phone1
-              ? <>
+          <span className="w-full max-w-[80%] mx-auto flex flex-col items-center gap-4">
+            {user?.phone1 ? (
+              <>
                 <p className="text-center">
-                  Please enter a One-Time Password (OTP) you received on your phone number.
+                  Please enter a One-Time Password (OTP) you received on your
+                  email.
                 </p>
                 <p className="text-center text-[1.5rem] font-bold">
                   {`07******${user?.phone1.slice(-2)}`}
                 </p>
               </>
-              : <p className="text-center">
-                  Please contact your administrator for a One-Time Password (OTP) sent to his phone number.
-                </p>}
+            ) : (
+              <p className="text-center">
+                Please contact your administrator for a One-Time Password (OTP)
+                sent to his phone number.
+              </p>
+            )}
           </span>
+         
           <article
             id="otp"
             className="flex flex-row justify-center text-center"
@@ -145,12 +156,32 @@ const Validate2faPage = () => {
               />
             ))}
           </article>
+          {otpIsError === true ? (
+                <div className="flex justify-center items-center">
+                  <div
+                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
+                    role="alert"
+                  >
+                    <span className="block sm:inline text-red-500">
+                      {otpError?.data?.message}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                ''
+              )}
 
           <Button
             value={otpLoading ? <Loading /> : 'Confirm OTP'}
             onClick={handleOtpVerification}
             className="mx-auto w-full max-w-[50%] flex items-center justify-center text-center max-md:max-w-[70%] max-sm:max-w-[85%]"
           />
+          <Link
+            to="/login"
+            className="flex flex-col items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 "
+          >
+            Back to Login
+          </Link>
         </form>
       </main>
     </>

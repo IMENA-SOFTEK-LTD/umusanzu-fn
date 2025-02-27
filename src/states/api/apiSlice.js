@@ -79,10 +79,11 @@ export const apiSlice = createApi({
           departmentId,
           route,
           username,
+          two_fa
         }) => ({
           url: `/userProfile/${route}/${id}/?departmentId=${departmentId}`,
           method: 'PUT',
-          body: { names, email, phone1, phone2, username },
+          body: { names, email, phone1, phone2, username,two_fa },
         }),
       }),
 
@@ -176,29 +177,36 @@ export const apiSlice = createApi({
         }),
       }),
       getHouseholdsList: builder.query({
-        query: ({ department, departmentId, page, size, route, ubudehe, phone1 }) => {
+        query: ({ department, departmentId, page, size, route, ubudehe, phone1, searchTerm, 
+          status,
+          village, cell , sector ,district, province
+
+         }) => {
           if (route === '') {
             return {
               url: `/${department}/households/?departmentId=${departmentId}&page=${page || 0
-                }&size=${size || 20}`,
+                }&size=${size || 20}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
             }
           } else if (route === 'ubudehe') {
             return {
               url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${page || 0
-                }&size=${size || 20}&ubudehe=${ubudehe}`,
+                }&size=${size || 20}&ubudehe=${ubudehe}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
             }
           } else if (route === 'monthlyTargetList') {
             return {
               url: `/${department}/households/monthlyTargetList/?departmentId=${departmentId}&page=${page || 0
-                }&size=${size || 20}`,
+                }&size=${size || 20}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
             }
           } else {
             return {
               url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${page || 0
-                }&size=${size || 20}&ubudehe=${ubudehe}&phone1=${phone1}`,
+                }&size=${size || 20}&ubudehe=${ubudehe}&phone1=${phone1}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
             }
           }
         },
+          // Add refetchOnMountOrArgChange here:
+      keepUnusedDataFor: 0, // So that data is not cached too long
+      refetchOnMountOrArgChange: true,
       }),
       createHouseHold: builder.mutation({
         query: ({

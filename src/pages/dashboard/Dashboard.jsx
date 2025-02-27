@@ -11,7 +11,7 @@ const Dashboard = () => {
 
   return (
     <main className="flex flex-col items-center gap-12 w-[95%] mx-auto">
-      <section className="w-full p-4 mx-auto flex items-center flex-wrap gap-4 justify-center">
+      <section className="w-full p-4 mx-auto flex items-center flex-wrap gap-3 justify-center">
         {Array.from({ length: 12 }, (_, i) => {
           const props = {
             index: i + 1,

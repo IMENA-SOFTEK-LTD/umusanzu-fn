@@ -2,9 +2,9 @@ import 'core-js/stable'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import jsPDF from 'jspdf'
-import cachet from "../../assets/cachet.png"
-import signature from "../../assets/signature.png"
-import * as XLSX from 'xlsx';
+import cachet from '../../assets/cachet.png'
+import signature from '../../assets/signature.png'
+import * as XLSX from 'xlsx'
 import 'regenerator-runtime/runtime'
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
@@ -30,6 +30,7 @@ import {
   usePagination,
 } from 'react-table'
 import {
+  setPage,
   setSize,
   setTotalPages,
 } from '../../states/features/pagination/paginationSlice'
@@ -44,19 +45,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import Input from '../../components/Input'
 import moment from 'moment'
+import HouseHoldFilter from './HouseHoldFilter'
 
 const HouseholdTable = ({ user }) => {
-
-  const [showExportPopup, setShowExportPopup] = useState(false);
-  const [reportName, setReportName] = useState('');
+  const [showExportPopup, setShowExportPopup] = useState(false)
+  const [reportName, setReportName] = useState('')
 
   const openExportPopup = () => {
-    setShowExportPopup(true);
-  };
+    setShowExportPopup(true)
+  }
 
   const closeExportPopup = () => {
-    setShowExportPopup(false);
-  };
+    setShowExportPopup(false)
+  }
   const [
     getHouseholdsList,
     {
@@ -66,21 +67,28 @@ const HouseholdTable = ({ user }) => {
       isError: householdsListIsError,
       error: householdsListError,
     },
+    refetch,
   ] = useLazyGetHouseholdsListQuery()
 
-  const [moveHousehold, {
-    data: moveHouseholdData,
-    isLoading: moveHouseholdIsLoading,
-    isSuccess: moveHouseholdIsSuccess,
-    isError: moveHouseholdIsError,
-  }] = useMoveHouseholdMutation();
+  const [
+    moveHousehold,
+    {
+      data: moveHouseholdData,
+      isLoading: moveHouseholdIsLoading,
+      isSuccess: moveHouseholdIsSuccess,
+      isError: moveHouseholdIsError,
+    },
+  ] = useMoveHouseholdMutation()
 
-  const [cancelMoveHousehold, {
-    data: cancelMoveHouseholdData,
-    isLoading: cancelMoveHouseholdIsLoading,
-    isSuccess: cancelMoveHouseholdIsSuccess,
-    isError: cancelMoveHouseholdIsError,
-  }] = useCancelMoveHouseholdMutation();
+  const [
+    cancelMoveHousehold,
+    {
+      data: cancelMoveHouseholdData,
+      isLoading: cancelMoveHouseholdIsLoading,
+      isSuccess: cancelMoveHouseholdIsSuccess,
+      isError: cancelMoveHouseholdIsError,
+    },
+  ] = useCancelMoveHouseholdMutation()
 
   const {
     page: offset,
@@ -90,7 +98,9 @@ const HouseholdTable = ({ user }) => {
 
   const dispatch = useDispatch()
 
-  const { sectorId, userOrSelectedDepartmentNames } = useSelector((state) => state.departments)
+  const { sectorId, userOrSelectedDepartmentNames } = useSelector(
+    (state) => state.departments
+  )
 
   const queryRoute = queryString.parse(location.search)
 
@@ -98,10 +108,12 @@ const HouseholdTable = ({ user }) => {
 
   switch (user?.departments?.level_id) {
     case 1:
-      department = 'sector'
+      department = 'province'
+      dispatch(setSelectedProvince(user?.departments?.id))
       break
     case 2:
-      department = 'sector'
+      department = 'district'
+      dispatch(setSelectedDistrict(user?.departments?.id))
       break
     case 3:
       department = 'sector'
@@ -110,7 +122,7 @@ const HouseholdTable = ({ user }) => {
       department = 'cell'
       break
     case 5:
-      department = 'sector'
+      department = 'country'
       break
     case 6:
       department = 'agent'
@@ -118,20 +130,53 @@ const HouseholdTable = ({ user }) => {
     default:
       department = 'agent'
   }
+  // switch (user?.departments?.level_id) {
+  //   case 1:
+  //     // department = 'sector'
+  //      department = 'province'
+  //     break
+  //   case 2:
+  //     // department = 'sector'
+  //         department = 'district'
+  //     break
+  //   case 3:
+  //     department = 'sector'
+  //     break
+  //   case 4:
+  //     department = 'cell'
+  //     break
+  //   case 5:
+  //     department = 'sector'
+  //     break
+  //   case 6:
+  //     department = 'agent'
+  //     break
+  //   default:
+  //     department = 'agent'
+  // }
 
   const [data, setData] = useState(householdsListData?.data || [])
-
+  const [queries, setQueries] = useState({
+    departmentId: sectorId || user?.departments?.id,
+    searchTerm: '',
+    ubudehe: queryRoute?.ubudehe || '',
+    route: queryRoute?.query || '',
+    id: sectorId || user?.departments?.id,
+    status: 'ACTIVE',
+    village: queryRoute?.village || '',
+    cell: queryRoute?.cell || '',
+    sector: queryRoute?.sector || '',
+    district: queryRoute?.district || '',
+    province: queryRoute?.province || '',
+  })
   useEffect(() => {
     getHouseholdsList({
       department,
-      departmentId: sectorId || user?.departments?.id,
-      id: sectorId || user?.departments?.id,
       size,
-      route: queryRoute?.query || '',
       page: offset,
-      ubudehe: queryRoute?.ubudehe,
+      ...queries,
     })
-  }, [])
+  }, [size, offset, queries])
 
   useEffect(() => {
     if (householdsListIsSuccess) {
@@ -144,80 +189,94 @@ const HouseholdTable = ({ user }) => {
           phone1: row?.phone1,
           phone2: row?.phone2,
           ubudehe: row?.ubudehe,
-          status: row?.status, 
+          status: row?.status,
           village: row?.villages[0]?.name,
           cell: row?.cells[0]?.name,
           sector: row?.sectors[0]?.name,
           district: row?.districts[0]?.name,
           province: row?.provinces[0]?.name,
-          type: row?.type,         
+          type: row?.type,
         })) || []
       )
     }
   }, [householdsListData, householdsListIsSuccess])
 
-  useEffect(() => {
-    if (householdsListIsSuccess) {
-      setTimeout(() => {
-        getHouseholdsList({
-          department,
-          departmentId: sectorId || user?.departments?.id,
-          id: sectorId || user?.departments?.id,
-          size: 1000000,
-          page: offset,
-          ubudehe: queryRoute?.ubudehe,
-          route: queryRoute?.query || '',
-        })
-          .unwrap()
-          .then((data) => {
-            dispatch(setTotalPages(data?.data?.totalPages))
-            setData(
-              data?.data?.rows?.map((row, index) => ({
-                ID: row?.id,
-                id: index + 1,
-                name: row?.name,
-                phone1: row?.phone1,
-                phone2: row?.phone2,
-                ubudehe: row?.ubudehe,
-                status: row?.status,
-                village: row?.villages[0]?.name,
-                cell: row?.cells[0]?.name,
-                sector: row?.sectors[0]?.name,
-                district: row?.districts[0]?.name,
-                province: row?.provinces[0]?.name,
-                type: row?.type,
-              })) || []
-            )
-          })
-      }, 2000);
-    }
-  }, [householdsListData])
+  // useEffect(() => {
+  //   if (householdsListIsSuccess) {
+  //     setTimeout(() => {
+  //       getHouseholdsList({
+  //         department,
+  //         departmentId: sectorId || user?.departments?.id,
+  //         id: sectorId || user?.departments?.id,
+  //         size: size,
+  //         page: offset,
+  //         ubudehe: queryRoute?.ubudehe,
+  //         route: queryRoute?.query || '',
+  //       })
+  //         .unwrap()
+  //         .then((data) => {
+  //           dispatch(setTotalPages(data?.data?.totalPages))
+  //           setData(
+  //             data?.data?.rows?.map((row, index) => ({
+  //               ID: row?.id,
+  //               id: index + 1,
+  //               name: row?.name,
+  //               phone1: row?.phone1,
+  //               phone2: row?.phone2,
+  //               ubudehe: row?.ubudehe,
+  //               status: row?.status,
+  //               village: row?.villages[0]?.name,
+  //               cell: row?.cells[0]?.name,
+  //               sector: row?.sectors[0]?.name,
+  //               district: row?.districts[0]?.name,
+  //               province: row?.provinces[0]?.name,
+  //               type: row?.type,
+  //             })) || []
+  //           )
+  //         })
+  //     }, 2000);
+  //   }
+  // }, [householdsListData])
 
   const handleExportToPdf = async () => {
-      const doc = new jsPDF('landscape')
-      const logoResponse = await fetch(logo)
-      const logoData = await logoResponse.blob()
-      const reader = new FileReader()
+    const doc = new jsPDF('landscape')
+    const logoResponse = await fetch(logo)
+    const logoData = await logoResponse.blob()
+    const reader = new FileReader()
 
-      reader.onload = async () => {
-        const logoBase64 = reader.result.split(',')[1]
-        doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
-        doc.setFont('Symbol', 'bold');
-        doc.setFontSize(12)
-        doc.text('IMENA SOFTEK LTD', 125, 50)
+    reader.onload = async () => {
+      const logoBase64 = reader.result.split(',')[1]
+      doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
+      doc.setFont('Symbol', 'bold')
+      doc.setFontSize(12)
+      doc.text('IMENA SOFTEK LTD', 125, 50)
 
-        if (userOrSelectedDepartmentNames?.village !== undefined) {
-          doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.village}  VILLAGE  REGISTERED  HOUSEHOLDS`, 65, 65)
-        }else if (userOrSelectedDepartmentNames?.cell !== undefined && userOrSelectedDepartmentNames?.village === undefined) {
-          doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.cell}  CELL  REGISTERED  HOUSEHOLDS`, 65, 65)
-        } else {
-          doc.text(`UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.sector}  SECTOR  REGISTERED  HOUSEHOLDS`, 65, 65)
-        }
-        doc.setFontSize(12)
-        doc.line(61, 67, 210, 67)
-      
+      if (userOrSelectedDepartmentNames?.village !== undefined) {
+        doc.text(
+          `UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.village}  VILLAGE  REGISTERED  HOUSEHOLDS`,
+          65,
+          65
+        )
+      } else if (
+        userOrSelectedDepartmentNames?.cell !== undefined &&
+        userOrSelectedDepartmentNames?.village === undefined
+      ) {
+        doc.text(
+          `UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.cell}  CELL  REGISTERED  HOUSEHOLDS`,
+          65,
+          65
+        )
+      } else {
+        doc.text(
+          `UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.sector}  SECTOR  REGISTERED  HOUSEHOLDS`,
+          65,
+          65
+        )
+      }
+      doc.setFontSize(12)
+      doc.line(61, 67, 210, 67)
 
-        doc.setFontSize(10)
+      doc.setFontSize(10)
 
       // eslint-disable-next-line no-sparse-arrays
       const columnHeader = [
@@ -231,10 +290,12 @@ const HouseholdTable = ({ user }) => {
         { content: 'SECTOR', cellWidth: 27 },
         { content: 'DISTRICT', cellWidth: 25 },
         { content: 'PROVINCE', cellWidth: 25 },
-        { content: 'HOUSEHOLD TYPE', cellWidth: 25 }
+        { content: 'HOUSEHOLD TYPE', cellWidth: 25 },
       ]
-      const headerRow = columnHeader.map(header => ({ content: header.content, styles: { halign: 'left', cellWidth: header.cellWidth },
-    }))
+      const headerRow = columnHeader.map((header) => ({
+        content: header.content,
+        styles: { halign: 'left', cellWidth: header.cellWidth },
+      }))
       doc.autoTable({
         startY: 75,
         head: [headerRow],
@@ -247,39 +308,39 @@ const HouseholdTable = ({ user }) => {
           valign: 'middle',
           fontSize: 7.5,
         },
-         })
+      })
       // Create a separate array for "NO" values starting from 1
-      const noValues = Array.from({ length: TableInstance.rows.length }, (_, index) => index + 1);
-    
+      const noValues = Array.from(
+        { length: TableInstance.rows.length },
+        (_, index) => index + 1
+      )
+
       // Combine the "NO" values with your existing data, excluding the ID
       const exportData = TableInstance.rows.map((row, index) => {
-        const { id,ID, ...rest } = row.original;
+        const { id, ID, ...rest } = row.original
         return {
           NO: noValues[index],
           ...rest,
-        };
-      });
+        }
+      })
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 5,
         head: false,
         body: exportData.map((row) => {
-          row.phone2 ? (
-            row.phone1 += ` /\n${row.phone2}`
-          ) : ''
+          row.phone2 ? (row.phone1 += ` /\n${row.phone2}`) : ''
           delete row['phone2']
           return Object.values(row)
-        } ),
+        }),
         theme: 'grid',
         styles: {
           fontSize: 8,
         },
         /** column cellWidths generated from header cellWidths for proper horizontal alignment with header */
-        columnStyles: columnHeader.reduce((acc, value, index) => { 
-          acc[index] = { cellWidth: value.cellWidth };
-          return acc;
+        columnStyles: columnHeader.reduce((acc, value, index) => {
+          acc[index] = { cellWidth: value.cellWidth }
+          return acc
         }, {}),
       })
-
 
       // Add your custom content here
       const customContent = [
@@ -288,7 +349,7 @@ const HouseholdTable = ({ user }) => {
         ['TETA TAMARA', 'NDAGIJIMANA Gedeon'],
         ['DATA MANAGEMENT', 'CEO IMENA SOFTEK LTD'],
         ['IMENA SOFTEK LTD', ''],
-      ];
+      ]
 
       // Define custom styles for the custom content (no lines and normal font weight)
       const customContentStyles = {
@@ -301,79 +362,103 @@ const HouseholdTable = ({ user }) => {
           0: { cellWidth: 150 },
           1: { cellWidth: 100 },
         },
-      };
-        
+      }
 
       if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
-        doc.addPage();
-  
-        doc.text(
-          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-          16,30
-        );
-  
+        doc.addPage()
+
+        doc.text(`Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`, 16, 30)
+
         doc.autoTable({
           startY: 50,
           head: false,
           body: customContent,
           ...customContentStyles,
-        });
-  
-        const cachetResponse = await fetch(cachet);
-        const cachetData = await cachetResponse.blob();
-        const cachetBase64 = await convertBlobToBase64(cachetData);
-    
-        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
-    
-          // Add the signature image here
-        const signatureResponse = await fetch(signature);
-        const signatureData = await signatureResponse.blob();
-        const signatureBase64 = await convertBlobToBase64(signatureData);
-    
-        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+        })
+
+        const cachetResponse = await fetch(cachet)
+        const cachetData = await cachetResponse.blob()
+        const cachetBase64 = await convertBlobToBase64(cachetData)
+
+        doc.addImage(
+          cachetBase64,
+          'PNG',
+          200,
+          doc.lastAutoTable.finalY - 50,
+          50,
+          50
+        )
+
+        // Add the signature image here
+        const signatureResponse = await fetch(signature)
+        const signatureData = await signatureResponse.blob()
+        const signatureBase64 = await convertBlobToBase64(signatureData)
+
+        doc.addImage(
+          signatureBase64,
+          'PNG',
+          20,
+          doc.lastAutoTable.finalY - 50,
+          50,
+          50
+        )
       } else {
-  
         doc.text(
           `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-          16,doc.lastAutoTable.finalY + 30
-        );
-  
+          16,
+          doc.lastAutoTable.finalY + 30
+        )
+
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 50,
           head: false,
           body: customContent,
           ...customContentStyles,
-        });
-        const cachetResponse = await fetch(cachet);
-        const cachetData = await cachetResponse.blob();
-        const cachetBase64 = await convertBlobToBase64(cachetData);
-    
-        doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
-    
-          // Add the signature image here
-        const signatureResponse = await fetch(signature);
-        const signatureData = await signatureResponse.blob();
-        const signatureBase64 = await convertBlobToBase64(signatureData);
-    
-        doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
-      }  
+        })
+        const cachetResponse = await fetch(cachet)
+        const cachetData = await cachetResponse.blob()
+        const cachetBase64 = await convertBlobToBase64(cachetData)
 
-      doc.save(`${reportName}.pdf`);
-    };
+        doc.addImage(
+          cachetBase64,
+          'PNG',
+          200,
+          doc.lastAutoTable.finalY - 50,
+          50,
+          50
+        )
+
+        // Add the signature image here
+        const signatureResponse = await fetch(signature)
+        const signatureData = await signatureResponse.blob()
+        const signatureBase64 = await convertBlobToBase64(signatureData)
+
+        doc.addImage(
+          signatureBase64,
+          'PNG',
+          20,
+          doc.lastAutoTable.finalY - 50,
+          50,
+          50
+        )
+      }
+
+      doc.save(`${reportName}.pdf`)
+    }
 
     reader.readAsDataURL(logoData)
-  };
+  }
 
   // Helper function to convert Blob to Base64
   const convertBlobToBase64 = (blob) => {
     return new Promise((resolve) => {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        resolve(reader.result.split(',')[1]);
-      };
-      reader.readAsDataURL(blob);
-    });
-  };
+        resolve(reader.result.split(',')[1])
+      }
+      reader.readAsDataURL(blob)
+    })
+  }
 
   const handleExportToExcel = () => {
     if (TableInstance) {
@@ -433,14 +518,10 @@ const HouseholdTable = ({ user }) => {
       XLSX.utils.book_append_sheet(wb, ws, 'REPORTS ')
       const wbBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
 
-      XLSX.utils.book_append_sheet(
-        wb,
-        ws,
-        `${reportName}`
-      );
+      XLSX.utils.book_append_sheet(wb, ws, `${reportName}`)
 
-      const buf = new ArrayBuffer(wbBinary.length);
-      const view = new Uint8Array(buf);
+      const buf = new ArrayBuffer(wbBinary.length)
+      const view = new Uint8Array(buf)
       for (let i = 0; i < wbBinary.length; i++) {
         view[i] = wbBinary.charCodeAt(i) & 0xff
       }
@@ -451,12 +532,12 @@ const HouseholdTable = ({ user }) => {
 
       const blobUrl = URL.createObjectURL(blob)
 
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = `${reportName}.xlsx`;
-      link.click();
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = `${reportName}.xlsx`
+      link.click()
     }
-  };
+  }
 
   const columns = useMemo(
     () => [
@@ -497,45 +578,49 @@ const HouseholdTable = ({ user }) => {
             >
               {row?.original?.status}
             </p>
-            <span className='flex items-center gap-[3px]'>
-            <Button
-              value="Approve"
-              className={
-                row?.original?.status === 'REQUESTED'
-                  ? '!bg-green-600'
-                  : '!hidden'
-              }
-              onClick={(e) => {
-                e.preventDefault()
-                moveHousehold({
-                  name: row?.original?.name,
-                  ubudehe: row?.original?.ubudehe,
-                  nid: row?.original?.nid,
-                  phone1: row?.original?.phone1,
-                  phone2: row?.original?.phone2,
-                  village: row?.original?.villageId,
-                  cell: row?.original?.cellId,
-                  sector: row?.original?.sectorId,
-                  district: row?.original?.districtId,
-                  province: row?.original?.provinceId,
-                  existingHouseholdId: row?.original?.ID
-                })
-              }}
-            />
-            <Button
-              value={`${row?.original?.status === 'REQUESTED' ? 'Deny' : 'Return'}`}
-              className={
-                row?.original?.status === 'REQUESTED'
-                  ? '!bg-red-600'
-                  : row?.original?.status === 'MOVED' ? '!bg-green-600' : '!hidden'
-              }
-              onClick={(e) => {
-                e.preventDefault()
-                cancelMoveHousehold({
-                  id: row?.original?.ID
-                })
-              }}
-            />
+            <span className="flex items-center gap-[3px]">
+              <Button
+                value="Approve"
+                className={
+                  row?.original?.status === 'REQUESTED'
+                    ? '!bg-green-600'
+                    : '!hidden'
+                }
+                onClick={(e) => {
+                  e.preventDefault()
+                  moveHousehold({
+                    name: row?.original?.name,
+                    ubudehe: row?.original?.ubudehe,
+                    nid: row?.original?.nid,
+                    phone1: row?.original?.phone1,
+                    phone2: row?.original?.phone2,
+                    village: row?.original?.villageId,
+                    cell: row?.original?.cellId,
+                    sector: row?.original?.sectorId,
+                    district: row?.original?.districtId,
+                    province: row?.original?.provinceId,
+                    existingHouseholdId: row?.original?.ID,
+                  })
+                }}
+              />
+              <Button
+                value={`${
+                  row?.original?.status === 'REQUESTED' ? 'Deny' : 'Return'
+                }`}
+                className={
+                  row?.original?.status === 'REQUESTED'
+                    ? '!bg-red-600'
+                    : row?.original?.status === 'MOVED'
+                    ? '!bg-green-600'
+                    : '!hidden'
+                }
+                onClick={(e) => {
+                  e.preventDefault()
+                  cancelMoveHousehold({
+                    id: row?.original?.ID,
+                  })
+                }}
+              />
             </span>
           </span>
         ),
@@ -640,9 +725,15 @@ const HouseholdTable = ({ user }) => {
     document.title = 'Households | Umusanzu Digital'
   }, [])
 
+  const gotoPage1 = (newPage) => {
+    if (newPage < 0 || newPage >= totalPages) return
+    dispatch(setPage(Number(newPage)))
+    // Optionally trigger your API fetch here if it's not automatically triggered by page change
+  }
   if (householdsListIsSuccess) {
     return (
       <main className={`my-12`}>
+        {householdsListIsLoading && <Loading />}
         <div className="flex my-8 flex-col w-full items-center gap-6 relative">
           <div className="search-filter flex flex-col w-full items-center gap-6">
             <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
@@ -656,15 +747,60 @@ const HouseholdTable = ({ user }) => {
                 }
                 route="/households/create"
               />
+              <div className="flex gap-2 max-md:pl-2">
+                Total records:{householdsListData?.data?.count || 0}
+              </div>
+              <div className="flex gap-2 max-md:pl-2">
+                <Button
+                  value={
+                    <span className="flex items-center gap-2">
+                      Export Report
+                      <FontAwesomeIcon icon={faFile} />
+                    </span>
+                  }
+                  onClick={openExportPopup}
+                />
+              </div>
               <span className="w-full flex flex-col items-end justify-center">
-                <GlobalFilter
+                <HouseHoldFilter
+                  user={user}
+                  fieldEnabled={{
+                    province: ['country'].includes(department),
+                    district: ['country', 'province'].includes(department),
+                    sector: ['country', 'province', 'district'].includes(
+                      department
+                    ),
+                    cell: true,
+                    village: true,
+                    status: true,
+                    searchTerm: true,
+                  }}
+                  isLoading={householdsListIsLoading}
+                  onChange={(query) => {
+                    gotoPage1(0)
+                    let departmentId =
+                      query.village ||
+                      query.cell ||
+                      query.sector ||
+                      query.district ||
+                      query.province ||
+                      null
+                    setQueries({
+                      ...queries,
+                      ...query,
+                      departmentId: departmentId,
+                    })
+                  }}
+                />
+                {/* <GlobalFilter
                   preGlobalFilteredRows={preGlobalFilteredRows}
                   globalFilter={state.globalFilter}
-                  setGlobalFilter={setGlobalFilter}
-                />
+                  setGlobalFilter={setSearchTerm}
+                  count={totalPages}
+                /> */}
               </span>
             </span>
-            <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
+            {/* <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
               {headerGroups.map((headerGroup) =>
                 headerGroup.headers.map((column) =>
                   column.Filter ? (
@@ -678,23 +814,12 @@ const HouseholdTable = ({ user }) => {
                   ) : null
                 )
               )}
-            </span>
+            </span> */}
           </div>
           <div className="mt-2 flex flex-col w-[95%] mx-auto">
             <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
-                  <div className="flex gap-2 max-md:pl-2">
-                    <Button
-                      value={
-                        <span className="flex items-center gap-2">
-                          Export Report
-                          <FontAwesomeIcon icon={faFile} />
-                        </span>
-                      }
-                      onClick={openExportPopup}
-                    />
-                  </div>
                   {/* Export Popup/Modal */}
                   {showExportPopup && (
                     <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
@@ -751,72 +876,86 @@ const HouseholdTable = ({ user }) => {
                     <span className="flex flex-col items-center justify-center min-h-[30vh]">
                       <Loading />
                       <h4 className="uppercase text-primary text-md font-bold text-center">
-                        {moveHouseholdIsLoading ? 'Moving Household...' : 'Cancelling request...'}
+                        {moveHouseholdIsLoading
+                          ? 'Moving Household...'
+                          : 'Cancelling request...'}
                       </h4>
                     </span>
                   ) : moveHouseholdIsSuccess || cancelMoveHouseholdIsSuccess ? (
                     <span className="flex flex-col items-center justify-center gap-4 min-h-[30vh]">
                       <h4 className="uppercase text-primary text-md font-bold text-center">
-                        {moveHouseholdIsSuccess ? 'Household moved successfully' : 'Request cancelled successfully'}
+                        {moveHouseholdIsSuccess
+                          ? 'Household moved successfully'
+                          : 'Request cancelled successfully'}
                       </h4>
                       <Button
-                        value={`${moveHouseholdIsSuccess ? 'View household' : 'Go to dashboard'}`}
-                        route={moveHouseholdIsSuccess ? `/households/${moveHouseholdData?.data?.id}` : '/dashboard'}
+                        value={`${
+                          moveHouseholdIsSuccess
+                            ? 'View household'
+                            : 'Go to dashboard'
+                        }`}
+                        route={
+                          moveHouseholdIsSuccess
+                            ? `/households/${moveHouseholdData?.data?.id}`
+                            : '/dashboard'
+                        }
                       />
                     </span>
                   ) : (
-                    <table
-                      {...getTableProps()}
-                      border="1"
-                      className="min-w-full divide-y divide-gray-200"
-                    >
-                      <thead className="bg-gray-50">
-                        {headerGroups.map((headerGroup) => (
-                          <tr {...headerGroup.getHeaderGroupProps()}>
-                            {headerGroup.headers.map((column) => (
-                              <th
-                                scope="col"
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                {...column.getHeaderProps(
-                                  column.getSortByToggleProps()
-                                )}
-                              >
-                                {column.render('Header')}
-                                <span>
-                                  {column.isSorted
-                                    ? column.isSortedDesc
-                                      ? ' ▼'
-                                      : ' ▲'
-                                    : ''}
-                                </span>
-                              </th>
-                            ))}
-                          </tr>
-                        ))}
-                      </thead>
-                      <tbody
-                        className="bg-white divide-y divide-gray-200"
-                        {...getTableBodyProps()}
+                    <>
+                      <table
+                        {...getTableProps()}
+                        border="1"
+                        className="min-w-full divide-y divide-gray-200"
                       >
-                        {page.map((row) => {
-                          prepareRow(row)
-                          return (
-                            <tr {...row.getRowProps()}>
-                              {row.cells.map((cell) => {
-                                return (
-                                  <td
-                                    {...cell.getCellProps()}
-                                    className="px-6 py-4 whitespace-nowrap"
-                                  >
-                                    {cell.render('Cell')}
-                                  </td>
-                                )
-                              })}
+                        <thead className="bg-gray-50">
+                          {headerGroups.map((headerGroup) => (
+                            <tr {...headerGroup.getHeaderGroupProps()}>
+                              {headerGroup.headers.map((column) => (
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  {...column.getHeaderProps(
+                                    column.getSortByToggleProps()
+                                  )}
+                                >
+                                  {column.render('Header')}
+                                  <span>
+                                    {column.isSorted
+                                      ? column.isSortedDesc
+                                        ? ' ▼'
+                                        : ' ▲'
+                                      : ''}
+                                  </span>
+                                </th>
+                              ))}
                             </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
+                          ))}
+                        </thead>
+                        <tbody
+                          className="bg-white divide-y divide-gray-200"
+                          {...getTableBodyProps()}
+                        >
+                          {page.map((row) => {
+                            prepareRow(row)
+                            return (
+                              <tr {...row.getRowProps()}>
+                                {row.cells.map((cell) => {
+                                  return (
+                                    <td
+                                      {...cell.getCellProps()}
+                                      className="px-6 py-4 whitespace-nowrap"
+                                    >
+                                      {cell.render('Cell')}
+                                    </td>
+                                  )
+                                })}
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </>
                   )}
                 </div>
               </div>
@@ -827,15 +966,15 @@ const HouseholdTable = ({ user }) => {
           <div className="py-3 flex items-center justify-between">
             <div className="flex-1 flex justify-between sm:hidden">
               <Button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
+                onClick={() => gotoPage1(Number(offset) - 1)}
+                disabled={offset === 0 || householdsListIsLoading}
                 value="Previous"
               >
                 Previous
               </Button>
               <Button
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
+                onClick={() => gotoPage1(Number(offset) + 1)}
+                disabled={offset >= totalPages - 1}
                 value="Next"
               >
                 Next
@@ -846,7 +985,8 @@ const HouseholdTable = ({ user }) => {
                 <span className="text-sm text-gray-700 p-2">
                   {' '}
                   <span className="font-medium">{offset + 1}</span> of{' '}
-                  <span className="font-medium">{pageCount}</span>
+                  <span className="font-medium">{totalPages}</span>
+                  
                 </span>
                 <label>
                   <span className="sr-only">Items Per Page</span>
@@ -873,7 +1013,8 @@ const HouseholdTable = ({ user }) => {
                 >
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
-                    onClick={() => gotoPage(0)}
+                    disabled={offset === 0 || householdsListIsLoading}
+                    onClick={() => gotoPage1(0)}
                     // disabled={!canPreviousPage}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
@@ -882,10 +1023,8 @@ const HouseholdTable = ({ user }) => {
                     <FontAwesomeIcon icon={faAnglesLeft} />
                   </PageButton>
                   <PageButton
-                    onClick={() => {
-                      previousPage()
-                    }}
-                    // disabled={!canPreviousPage}
+                    onClick={() => gotoPage1(Number(offset) - 1)}
+                    disabled={offset === 0 || householdsListIsLoading}
                     className="px-4 cursor-pointer hover:scale-[1.02] p-2 shadow-md"
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
@@ -894,10 +1033,10 @@ const HouseholdTable = ({ user }) => {
                     <FontAwesomeIcon icon={faChevronLeft} />
                   </PageButton>
                   <PageButton
-                    onClick={() => {
-                      nextPage()
-                    }}
-                    // disabled={!canNextPage}
+                    onClick={() => gotoPage1(Number(offset) + 1)}
+                    disabled={
+                      offset >= totalPages - 1 || householdsListIsLoading
+                    }
                     className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
@@ -907,10 +1046,10 @@ const HouseholdTable = ({ user }) => {
                   </PageButton>
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
-                    onClick={() => {
-                      gotoPage(page - 1)
-                    }}
-                    // disabled={!canNextPage}
+                    onClick={() => gotoPage1(Number(totalPages) - 1)}
+                    disabled={
+                      offset >= totalPages - 1 || householdsListIsLoading
+                    }
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       Last
@@ -937,13 +1076,6 @@ const HouseholdTable = ({ user }) => {
     )
   }
 
-  if (householdsListIsLoading) {
-    return (
-      <main className="w-full min-h-[80vh] flex items-center justify-center">
-        <Loading />
-      </main>
-    )
-  }
   return (
     <main className="w-full min-h-[80vh] flex items-center justify-center">
       <Loading />
@@ -991,12 +1123,7 @@ export function SelectColumnFilter({
   )
 }
 
-function GlobalFilter({
-  preGlobalFilteredRows,
-  globalFilter,
-  setGlobalFilter,
-}) {
-  const count = preGlobalFilteredRows.length
+function GlobalFilter({ globalFilter, setGlobalFilter, count }) {
   const [value, setValue] = useState(globalFilter)
   const onChange = useAsyncDebounce((value) => {
     setGlobalFilter(value || undefined)

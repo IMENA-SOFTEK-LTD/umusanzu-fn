@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons'
 
-function UserProfileUpdateForm ({ user, userProfile }) {
+function UserProfileUpdateForm ({ user, userProfile, onUpdateProfile }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [updateUserProfile] = useUpdateUserProfileMutation()
@@ -51,7 +51,8 @@ function UserProfileUpdateForm ({ user, userProfile }) {
       username: userProfile.username,
       phone1: userProfile.phone1,
       phone2: userProfile.phone2,
-      email: userProfile.email
+      email: userProfile.email,
+      two_fa: Boolean(userProfile?.two_fa) 
     }
   })
 
@@ -75,10 +76,12 @@ function UserProfileUpdateForm ({ user, userProfile }) {
         email: values.email,
         phone1: values.phone1,
         phone2: values.phone2,
-        username: values.username
+        username: values.username,
+        two_fa: values.two_fa, 
       })
         .unwrap()
         .then(() => {
+          onUpdateProfile(true)
           toast.success('Profile updated successfully!')
           closeModal()
         })
@@ -246,6 +249,24 @@ function UserProfileUpdateForm ({ user, userProfile }) {
                     <span className="text-red-500">{errors.email.message}</span>
                   )}
                 </div>
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block mb-2 text-sm font-medium text-black"
+                  >
+                    2 Factor Authentication  <input
+                    type="checkbox"
+                    defaultChecked={Boolean(userProfile?.two_fa)}
+                    {...register('two_fa')}
+                    placeholder="two_fa"
+                    className="mx-3 mt-1  text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg"
+                  />
+                  </label>
+                 
+                  {errors.two_fa && (
+                    <span className="text-red-500">{errors.two_fa.message}</span>
+                  )}
+                </div>
                 <Button
                   submit
                   name="submit"
@@ -265,6 +286,7 @@ UserProfileUpdateForm.propTypes = {
     phone1: PropTypes.string,
     phone2: PropTypes.string,
     email: PropTypes.string,
+    two_fa: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
     department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   })
 }

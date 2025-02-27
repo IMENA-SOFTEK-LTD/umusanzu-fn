@@ -24,9 +24,13 @@ const householdSlice = createSlice({
     searchTerm: '',
     household: null,
     completePaymentModal: false,
-    duplicateHousehold: null
+    duplicateHousehold: null,
+    selectedStatus: null,
   },
   reducers: {
+    setSelectedStatus: (state, action) => {
+      state.selectedStatus = action.payload
+    },
     setProvinces: (state, action) => {
       state.provinces = action.payload
     },
@@ -116,5 +120,6 @@ export const {
   setSearchTerm,
   setHousehold,
   setCompletePaymentModal,
-  setDuplicateHousehold
+  setDuplicateHousehold,
+  setSelectedStatus,
 } = householdSlice.actions

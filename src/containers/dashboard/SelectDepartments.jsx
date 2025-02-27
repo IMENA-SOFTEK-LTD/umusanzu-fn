@@ -15,8 +15,14 @@ import {
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { setSectorId, setDistrictId, setProvinceId } from '../../states/features/departments/departmentSlice'
+import {
+  setSectorId,
+  setDistrictId,
+  setProvinceId,
+} from '../../states/features/departments/departmentSlice'
 import { setUserOrSelectedDepartmentNames } from '../../states/features/departments/departmentSlice'
+import HouseHoldFilter from './HouseHoldFilter'
+import { toast } from 'react-toastify'
 
 const SelectDepartments = ({ user }) => {
   const { handleSubmit, control } = useForm()
@@ -35,8 +41,6 @@ const SelectDepartments = ({ user }) => {
     existingHousehold,
     moveHouseholdModal,
   } = useSelector((state) => state.household)
-
-  const { pathName } = useSelector((state) => state.navbar)
 
   const { pathRoute } = useSelector((state) => state.sidebar)
 
@@ -76,194 +80,38 @@ const SelectDepartments = ({ user }) => {
    * FETCHING DEPARTMENTS CHILDREN
    */
 
-  // GET DISTRICTS
-  const [
-    getCountryDistricts,
-    {
-      data: countryDistrictsData,
-      isLoading: countryDistrictsLoading,
-      isSuccess: countryDistrictsSuccess,
-    },
-  ] = useLazyGetCountryDistrictsQuery()
-
-
-  useEffect(() => {
-    getCountryDistricts({ id: 0 })
-  }, [])
-
-  useEffect(() => {
-    if (countryDistrictsData) {
-      dispatch(setDistricts(countryDistrictsData?.data?.rows))
-      dispatch(setSelectedDistrict(countryDistrictsData?.data?.rows[0]?.id))
-    }
-  }, [countryDistrictsData])
-
-  // GET SECTORS
-  const [
-    getDistrictSectors,
-    {
-      data: districtSectorsData,
-      isLoading: districtSectorsLoading,
-      isSuccess: districtSectorsSuccess,
-    },
-  ] = useLazyGetDistrictSectorsQuery()
-  useEffect(() => {
-    getDistrictSectors({ id: selectedDistrict })
-  }, [selectedDistrict])
-
-  useEffect(() => {
-    if (districtSectorsData) {
-      dispatch(setSectors(districtSectorsData?.data?.rows))
-      dispatch(setSelectedSector(districtSectorsData?.data?.rows[0]?.id))
-    }
-  }, [districtSectorsData])
-
-  const onSubmit = (data) => {
-    dispatch(setSectorId(data?.sector))
-    dispatch(setDistrictId(data?.district))
-    dispatch(setProvinceId(data?.province))
-    localStorage.setItem('sectorId', data?.sector)
-    dispatch(setUserOrSelectedDepartmentNames({ ['province']: 'KIGALI CITY'}))
-    for (let i = 0; i < districts.length; i++) {
-      if (String(districts[i].id) === String(data?.district)) {
-        dispatch(setUserOrSelectedDepartmentNames({ ['district']: districts[i].name}))
-      }
-    }
-    for (let i = 0; i < sectors.length; i++) {
-      if (String(sectors[i].id) === String(data?.sector)) {
-        dispatch(setUserOrSelectedDepartmentNames({ ['sector']: sectors[i].name}))
-      }
-    }
-    navigate(pathRoute)
-  }
-
   return (
-    <main className="h-[80vh] flex flex-col items-center justify-center gap-6">
+    <main className="h-[80vh] flex flex-col items-center justify-center gap-2">
       <h1 className="text-center text-[25px]">
         Please select a sector before proceeding
       </h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-8 items-center w-[70%] h-fit py-8 mx-auto"
-      >
-        <article className="flex w-full items-center gap-6">
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Province
-            <Controller
-              control={control}
-              name="province"
-              defaultValue={selectedProvince || 31}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                    }}
-                  >
-                    <option disabled value={1}>
-                      Select Province
-                    </option>
-                    <option value={31}>Kigali City</option>
-                  </select>
-                )
-              }}
-          />
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            District
-            <Controller
-              control={control}
-              name="district"
-              defaultValue={selectedDistrict || 0}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedDistrict(e.target.value))
-                    }}
-                  >
-                    <option disabled value={0}>
-                      Select district
-                    </option>
-                    {districts?.map((district) => {
-                      if (!selectedProvince) {
-                        return (
-                          <option
-                            disabled={
-                              department !== 'country' &&
-                              district.id !== selectedDistrict
-                            }
-                            key={district.id}
-                            value={district.id}
-                          >
-                            {countryDistrictsLoading ? '...' : district.name}
-                          </option>
-                        )
-                      }
-                      return (
-                        <option key={district.id} value={district.id}>
-                          {countryDistrictsLoading ? '...' : district.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-          </label>
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Sector
-            <Controller
-              control={control}
-              name="sector"
-              defaultValue={0}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                    }}
-                  >
-                    <option disabled value={0}>
-                      Select sector
-                    </option>
-                    {sectors?.map((sector) => {
-                      return (
-                        <option key={sector.id} value={sector.id}>
-                          {sector.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-          </label>
-        </article>
-        <section>
-          <Controller
-            name="submit"
-            control={control}
-            render={({ field }) => {
-              return (
-                <Button
-                  submit
-                  {...field}
-                  value={`Continue to ${pathName}`}
-                  route={pathRoute}
-                />
-              )
-            }}
-          />
-        </section>
-      </form>
+      <HouseHoldFilter
+        user={user}
+        fieldEnabled={{
+          province: ['country'].includes(department),
+          district: ['country', 'province'].includes(department),
+          sector: ['country', 'province', 'district'].includes(department),
+          cell: true,
+          village: true,
+          status: false,
+          searchTerm: false,
+        }}
+        onChange={(query) => {
+          if (
+            query.province ||
+            query.district ||
+            query.sector ||
+            query.cell ||
+            query.village ||
+            query.status ||
+            query.searchTerm
+          ) {
+            navigate(pathRoute + '?' + new URLSearchParams(query).toString())
+          } else {
+            toast.info('Please search anything...')
+          }
+        }}
+      />
     </main>
   )
 }

@@ -11,7 +11,10 @@ import { useLazyDashboardCardQuery } from '../states/api/apiSlice'
 import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Button from './Button'
-import { setMonthlyTarget } from '../states/features/dashboard/dashboardCardSlice'
+import {
+  setMonthlyTarget,
+  setLastMonthlyTarget,
+} from '../states/features/dashboard/dashboardCardSlice'
 import getMonthName from '../utils/Dates'
 import formatFunds from '../utils/Funds'
 import { Navigate, useNavigate } from 'react-router-dom'
@@ -50,6 +53,7 @@ const DashboardCard = ({
   const navigate = useNavigate()
 
   const { monthlyTarget } = useSelector((state) => state.dashboardCard)
+  const { lastMonthlyTarget } = useSelector((state) => state.dashboardCard)
   const { isOpen } = useSelector((state) => state.sidebar)
 
   let newProps = { ...props, viewMore: true }
@@ -78,6 +82,14 @@ const DashboardCard = ({
       department = 'agent'
   }
 
+  const getIncreaseValue = (number1, number2) => {
+    let increaseValue = 0
+    if (number1 && number1 !== 0 && number2 && number2 !== 0) {
+      const calculatedValue = ((number1 - number2) / number2) * 100
+      increaseValue = Math.round(calculatedValue,2) //Math.min(calculatedValue, 100)
+    }
+    return increaseValue
+  }
   switch (props.index) {
     case 1:
       newProps = {
@@ -87,9 +99,16 @@ const DashboardCard = ({
         viewMore: true,
         bg_color: 'bg-[#013B47]',
         text_color: 'text-white',
+        increase:
+          dashboardCardData?.data?.monthlyTarget >
+          dashboardCardData?.data?.lastMonthlyTarget,
+        increaseValue: getIncreaseValue(
+          dashboardCardData?.data?.monthlyTarget,
+          dashboardCardData?.data?.lastMonthlyTarget
+        ),
         progress:
           Math.round(
-            (dashboardCardData?.data[0]?.monthlyTarget / monthlyTarget).toFixed(
+            (dashboardCardData?.data?.monthlyTarget / monthlyTarget).toFixed(
               2
             ) * 100
           ) || 0,
@@ -98,7 +117,7 @@ const DashboardCard = ({
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.monthlyTarget || 0
+          dashboardCardData?.data?.monthlyTarget || 0
         ),
       }
       useEffect(() => {
@@ -361,7 +380,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-      case 11:
+    case 11:
       newProps = {
         ...props,
         title: 'Moved Households',
@@ -385,7 +404,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-      case 12:
+    case 12:
       newProps = {
         ...props,
         title: 'Requests to move',
@@ -414,8 +433,9 @@ const DashboardCard = ({
   }
 
   useEffect(() => {
-    if (dashboardCardIsSuccess && dashboardCardData.data[0].monthlyTarget) {
-      dispatch(setMonthlyTarget(dashboardCardData?.data[0]?.monthlyTarget))
+    if (dashboardCardIsSuccess && dashboardCardData.data?.monthlyTarget) {
+      dispatch(setMonthlyTarget(dashboardCardData?.data?.monthlyTarget))
+      dispatch(setLastMonthlyTarget(dashboardCardData?.data?.lastMonthlyTarget))
     }
   }, [dashboardCardIsSuccess])
 
@@ -426,7 +446,8 @@ const DashboardCard = ({
       } ${
         newProps.text_color
       } max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01] max-[1200px]:p1200-dashboardCard ${
-        (department !== 'sector' && department !== 'country') &&
+        department !== 'sector' &&
+        department !== 'country' &&
         (newProps?.route === 'moved' || newProps?.route === 'requested')
           ? 'hidden'
           : 'flex'
@@ -539,16 +560,16 @@ const DashboardCard = ({
                 dispatch(
                   setPathRoute(`/transactions/?query=${newProps?.route}`)
                 )
-                navigate('/select-department')
+                navigate(`/transactions/?query=${newProps?.route}`)
               } else if (
                 newProps.funds &&
                 newProps.title === `${getMonthName()}'s Target`
               ) {
                 dispatch(setPathRoute(`/households/?query=${newProps?.route}`))
-                navigate('/select-department')
+                navigate(`/households/?query=${newProps?.route}`)
               } else {
                 dispatch(setPathRoute(`/households/?query=${newProps?.route}`))
-                navigate('/select-department')
+                navigate(`/households/?query=${newProps?.route}`)
               }
             }
           }}

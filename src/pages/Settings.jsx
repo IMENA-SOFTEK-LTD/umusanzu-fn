@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react'
 import Loading from '../components/Loading'
 import UserProfileUpdateForm from '../components/UserProfileUpdateForm'
 import UpdatePasswordModel from '../components/models/UpdatePasswordModel'
-import { useLazyGetUserProfileQuery, useLazyGetDepartmentProfileQuery } from '../states/api/apiSlice'
+import {
+  useLazyGetUserProfileQuery,
+  useLazyGetDepartmentProfileQuery,
+} from '../states/api/apiSlice'
 import EditSectorInfoModel from '../components/models/EditSectorInfoModel'
 import UploadSectorStamp from '../components/models/UploadSectorStamp'
 import { getUserDepartmentsInfoByLevelId } from '../utils/userByLevelId'
@@ -17,18 +20,17 @@ function Settings({ user }) {
 
   const [userProfile, setUserProfile] = useState([])
   const dispatch = useDispatch()
- 
 
   const [
     getUserProfile,
-    { data: userProfileData, isLoading, isError, isSuccess }
+    { data: userProfileData, isLoading, isError, isSuccess },
   ] = useLazyGetUserProfileQuery()
 
   useEffect(() => {
     if (user || stateUser) {
       getUserProfile({
         id: user?.id || stateUser?.id,
-        departmentId: user?.department_id || stateUser?.department_id
+        departmentId: user?.department_id || stateUser?.department_id,
       })
     }
   }, [user, stateUser, getUserProfile])
@@ -42,27 +44,30 @@ function Settings({ user }) {
   const [
     getDepartmentProfile,
     { data, isLoadingData, isErrors, isSuccessful },
-  ] = useLazyGetDepartmentProfileQuery();
-  
-  useEffect(() => {    
+  ] = useLazyGetDepartmentProfileQuery()
+
+  useEffect(() => {
     getDepartmentProfile({
       id: user.department_id || stateUser?.department_id,
-    });       
-  
-  }, []);
+    })
+  }, [])
 
   const userDepartmentsInfo = getUserDepartmentsInfoByLevelId(user, stateUser)
-  
+
   return (
     <main className="flex flex-col gap-10 mt-10 max-[900px]:p900-settings max-[100px]:p100-settings max-[150px]:p150-settings max-[200px]:p200-settings max-[250px]:p250-settings max-[300px]:p300-settings max-[350px]:p350-settings max-[400px]:p400-settings max-[450px]:p450-settings max-[500px]:p500-settings max-[600px]:p600-settings max-[700px]:p700-settings max-[800px]:p800-settings max-[1000px]:p1000-settings max-[1100px]:p1100-settings max-[1200px]:p1200-settings max-[1300px]:p1300-settings max-[2000px]:p2000-settings">
-      <div className='w-full relative pb-20'>
+      <div className="w-full relative pb-20">
         <CreateAdmin />
-        <Button value='Create New Admin' className='absolute top-8 right-0 !rounded-lg' onClick={(e) => {
-          e.preventDefault()
-          dispatch(setCreateAdminModal(true))
-        }} />
+        <Button
+          value="Create New Admin"
+          className="absolute top-8 right-0 !rounded-lg"
+          onClick={(e) => {
+            e.preventDefault()
+            dispatch(setCreateAdminModal(true))
+          }}
+        />
       </div>
-      <div className='flex flex-row justify-between'>
+      <div className="flex flex-row justify-between">
         <div className="bg-white overflow-hidden p-2 shadow rounded-lg border">
           <div className="px-4 py-5 sm:px-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -74,13 +79,13 @@ function Settings({ user }) {
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Full name</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {isLoading ? <Loading /> : userProfileData?.data?.names}
+                  {isLoading ? <Loading /> : userProfileData?.data?.names}
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Username</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {isLoading ? <Loading /> : userProfileData?.data?.username}{' '}
+                  {isLoading ? <Loading /> : userProfileData?.data?.username}{' '}
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -116,35 +121,41 @@ function Settings({ user }) {
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Sector
-                </dt>
+                <dt className="text-sm font-medium text-gray-500">Sector</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   {isLoading ? <Loading /> : userDepartmentsInfo.sector}
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  District
-                </dt>
+                <dt className="text-sm font-medium text-gray-500">District</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {isLoading ? <Loading /> : userDepartmentsInfo.district}
+                  {isLoading ? <Loading /> : userDepartmentsInfo.district}
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Province
-                </dt>
+                <dt className="text-sm font-medium text-gray-500">Province</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {isLoading ? <Loading /> : userDepartmentsInfo.province}
+                  {isLoading ? <Loading /> : userDepartmentsInfo.province}
+                </dd>
+              </div>
+              <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt className="text-sm font-medium text-gray-500">Status</dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  {isLoading ? <Loading /> : userProfileData?.data?.status}
                 </dd>
               </div>
               <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">
-                  Status
+                  2 FACT AUTH
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {isLoading ? <Loading /> : userProfileData?.data?.status}
+                  {isLoading ? (
+                    <Loading />
+                  ) : userProfileData?.data?.two_fa ? (
+                    'Enabled'
+                  ) : (
+                    'Disabled'
+                  )}
                 </dd>
               </div>
             </dl>
@@ -155,6 +166,15 @@ function Settings({ user }) {
             <UserProfileUpdateForm
               user={user || stateUser}
               userProfile={userProfile}
+              onUpdateProfile={() => {
+                if (user || stateUser) {
+                  getUserProfile({
+                    id: user?.id || stateUser?.id,
+                    departmentId:
+                      user?.department_id || stateUser?.department_id,
+                  })
+                }
+              }}
             />
             <UpdatePasswordModel user={user || stateUser} />
           </div>
@@ -162,7 +182,7 @@ function Settings({ user }) {
         <div className="bg-white overflow-hidden p-2 mb-4 shadow rounded-lg border">
           <div className="px-4 py-5 sm:px-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
-            {`${userDepartmentsInfo.department} Profile`}
+              {`${userDepartmentsInfo.department} Profile`}
             </h3>
           </div>
           <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
@@ -190,17 +210,13 @@ function Settings({ user }) {
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Email
-                </dt>
+                <dt className="text-sm font-medium text-gray-500">Email</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   {data?.data?.email}
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Service
-                </dt>
+                <dt className="text-sm font-medium text-gray-500">Service</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   {data?.data?.department_infos[0]?.service_offer}
                 </dd>
@@ -218,7 +234,7 @@ function Settings({ user }) {
                   Representative Position
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {data?.data?.department_infos[0]?.leader_title}
+                  {data?.data?.department_infos[0]?.leader_title}
                 </dd>
               </div>
               <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -234,26 +250,27 @@ function Settings({ user }) {
                   Bank Account Name
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {data?.data?.department_infos[0]?.account_name}
+                  {data?.data?.department_infos[0]?.account_name}
                 </dd>
               </div>
             </dl>
           </div>
-          <div className="flex items-center justify-center
+          <div
+            className="flex items-center justify-center
             bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse
             gap-5
 
-          ">
-            <EditSectorInfoModel 
-            user={user || stateUser}         
-            />
-            {(user.departments.level_id === 3)
-              ? <UploadSectorStamp department={data?.data} />
-              : ''}
+          "
+          >
+            <EditSectorInfoModel user={user || stateUser} />
+            {user.departments.level_id === 3 ? (
+              <UploadSectorStamp department={data?.data} />
+            ) : (
+              ''
+            )}
           </div>
         </div>
       </div>
-
     </main>
   )
 }
@@ -266,8 +283,9 @@ Settings.propTypes = {
     email: PropTypes.string,
     password: PropTypes.string,
     department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    username: PropTypes.string
-  })
+    username: PropTypes.string,
+    two_fa: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
+  }),
 }
 
 export default Settings

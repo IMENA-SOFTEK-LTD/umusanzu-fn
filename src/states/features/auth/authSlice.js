@@ -4,20 +4,30 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     token: null,
-    user: JSON.parse(localStorage.getItem('user')),
-    loginPageLoaded: false
+    user:
+    localStorage.getItem('user') && localStorage.getItem('user') !== "undefined"
+    && localStorage.getItem('user') !== undefined
+    ? JSON.parse(localStorage.getItem('user'))
+    : null,
+    loginPageLoaded: false,
   },
   reducers: {
     setUser: (state, { payload }) => {
-      localStorage.setItem('token', payload.token)
-      localStorage.setItem('user', JSON.stringify(payload.data))
-      state.token = payload.token
-      state.user = payload.data
+      console.log(payload)
+      if (payload?.token) {
+        localStorage.setItem('token', payload.token)
+      }
+      if (payload?.data) {
+        localStorage.setItem('user', JSON.stringify(payload.data))
+      }
+
+      state.token = payload?.token || null
+      state.user = payload?.data || null
     },
     setLoginPageLoaded: (state, { payload }) => {
       state.loginPageLoaded = payload
-    }
-  }
+    },
+  },
 })
 
 export const { setUser, setLoginPageLoaded } = authSlice.actions

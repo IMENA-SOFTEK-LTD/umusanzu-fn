@@ -49,61 +49,53 @@ const App = () => {
   const { loginPageLoaded } = useSelector((state) => state.auth)
 
   const { isOpen } = useSelector((state) => state.sidebar)
-  const location = useLocation()
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const checkForInactivity = () => {
-    const expireTime = localStorage.getItem('expireTime')
-    const token = localStorage.getItem('token')
-    
-    if (token !== null && expireTime < Date.now()) {
-      toast.info('It seems you were away, you need to log in again', {
-        position: toast.POSITION.TOP_RIGHT,
-        onClose: () => {
-          logOut();
-          navigate('/login')
-        }
-      })
-    }
-  }
+  const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes
 
   const updateExpireTime = () => {
-    const expireTime = Date.now() + 5000;
-    localStorage.setItem('expireTime', expireTime)
-  }
-
+    const expireTime = Date.now() + INACTIVITY_LIMIT;
+    localStorage.setItem('expireTime', expireTime);
+  };
+  
+  const checkForInactivity = () => {
+    const expireTime = localStorage.getItem('expireTime');
+    if (expireTime && Date.now() > Number(expireTime)) {
+      toast.info('It seems you were away, you need to log in again', {
+        onClose: () => {
+          logOut();
+          navigate('/login');
+        }
+      });
+    }
+  };
+  
   useEffect(() => {
-    const interval = setInterval(() => {
-      checkForInactivity();
-    }, 300005);
-
+    const interval = setInterval(checkForInactivity, 60 * 1000); // Check every 1 minute
+  
     return () => clearInterval(interval);
-  }, [])
-
+  }, []);
+  
   useEffect(() => {
     updateExpireTime();
-
-    window.addEventListener('click', updateExpireTime);
-    window.addEventListener('keypress', updateExpireTime);
-    window.addEventListener('scroll', updateExpireTime);
-    window.addEventListener('mousemove', updateExpireTime);
-
+  
+    const events = ['click', 'keypress', 'scroll', 'mousemove'];
+    events.forEach(event => window.addEventListener(event, updateExpireTime));
+  
     return () => {
-      window.removeEventListener('click', updateExpireTime);
-      window.removeEventListener('keypress', updateExpireTime);
-      window.removeEventListener('scroll', updateExpireTime);
-      window.removeEventListener('mousemove', updateExpireTime);
-    }
- 
-  }, [])
+      events.forEach(event => window.removeEventListener(event, updateExpireTime));
+    };
+  }, []);
+
 
   // eslint-disable-next-line no-undef
-  const user = JSON.parse(localStorage.getItem('user'))
+  const userStr = localStorage.getItem('user');
+  const user = userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
+
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const token = localStorage.getItem('token')
-    
   const getDepartmentName = (department, id) => {
     axios.get(`${API_URL}/department/${department}/${String(id)}`,
       { headers: { Authorization: `Bearer ${token}` } }
