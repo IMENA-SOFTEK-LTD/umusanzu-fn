@@ -12,34 +12,37 @@ import { toast } from 'react-toastify'
 import API_URL from '../../constants'
 
 const HouseholdInfo = ({ household }) => {
-
   // STATE VARIABLES
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
-  const [ selectedHouseholdType, setSelectedHouseholdType ] = useState(household?.type)
-  const [displaySave, setDisplaySave] = useState(false) 
+  const [selectedHouseholdType, setSelectedHouseholdType] = useState(
+    household?.type
+  )
+  const [displaySave, setDisplaySave] = useState(false)
 
-
-  const updateHouseHoldType = () => { 
-    axios.patch(
-      `${API_URL}/households/types/${household?.id}`,
-      {
-        type: selectedHouseholdType
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+  const updateHouseHoldType = async() => {
+    await axios
+      .patch(
+        `${API_URL}/households/types/${household?.id}`,
+        {
+          type: selectedHouseholdType,
         },
-      }
-    ).then(response => {
-      response.data.message === 'Success'
-        ? toast.success('Household type updated successfully!', { position: toast.POSITION.TOP_RIGHT })
-        : toast.error('Unable to update household type. Try again.', { position: toast.POSITION.TOP_RIGHT })
-      setDisplaySave(false)
-    }).catch(error => {
-      setSelectedHouseholdType(household?.type)
-      toast.error('Unable to update household type. Try again.', { position: toast.POSITION.TOP_RIGHT })
-    })    
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      )
+      .then((response) => {
+        response.data.message === 'Success'
+          ? toast.success('Household type updated successfully!')
+          : toast.error('Unable to update household type. Try again.')
+        setDisplaySave(false)
+      })
+      .catch((error) => {
+        setSelectedHouseholdType(household?.type)
+        toast.error('Unable to update household type. Try again.')
+      })
   }
 
   return (
@@ -60,6 +63,10 @@ const HouseholdInfo = ({ household }) => {
                 <td className="py-2 pl-4">{household?.phone1}</td>
               </tr>
               <tr className="border-b border-gray-300">
+                <td className="py-2 pr-4 font-semibold">Email</td>
+                <td className="py-2 pl-4">{household?.email}</td>
+              </tr>
+              <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">TIN number</td>
                 <td className="py-2 pl-4">{household?.phone2}</td>
               </tr>
@@ -69,40 +76,52 @@ const HouseholdInfo = ({ household }) => {
               </tr>
               <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Household type </td>
-                  {user?.departments?.level_id === 6 ? 
+                {user?.departments?.level_id === 6 ? (
                   <td className="py-2 pl-4">
-                    {displaySave
-                      ? <select
-                          defaultValue={household?.type}
-                          className="border-[2px] rounded-[2px] border-[#155E75] outline-[#155E75] w-2/3 text-xs"
-                          onChange={(e) => {
-                            e.preventDefault();
-                            setSelectedHouseholdType(e.target.value)
-                          }}
-                        > 
-                          <option value='residence' className='text-xs'> {'Residence'} </option>
-                          <option value='business' className='text-xs'> {'Business'} </option>
-                                    
-                        </select>
-                        : selectedHouseholdType}
-                    
-                    {displaySave
-                      ? <button
-                          className="bg-[#e5e7eb] hover:bg-[#d1d5db] text-black py-1 px-2 ml-1 text-xs font-semibold rounded-md"
-                          onClick={updateHouseHoldType}
-                        >Save</button>
-                      : <button
-                          className="bg-[#e5e7eb] hover:bg-[#d1d5db] text-black py-1 px-2 ml-2 text-xs font-semibold rounded-md"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            setDisplaySave(true)
-                          }}
-                        >Edit</button>
-                    }
-                    
-                    
-                  </td>    
-                  : <td className="py-2 pl-4">{household?.type}</td>}
+                    {displaySave ? (
+                      <select
+                        defaultValue={household?.type}
+                        className="border-[2px] rounded-[2px] border-[#155E75] outline-[#155E75] w-2/3 text-xs"
+                        onChange={(e) => {
+                          e.preventDefault()
+                          setSelectedHouseholdType(e.target.value)
+                        }}
+                      >
+                        <option value="residence" className="text-xs">
+                          {' '}
+                          {'Residence'}{' '}
+                        </option>
+                        <option value="business" className="text-xs">
+                          {' '}
+                          {'Business'}{' '}
+                        </option>
+                      </select>
+                    ) : (
+                      selectedHouseholdType
+                    )}
+
+                    {displaySave ? (
+                      <button
+                        className="bg-[#e5e7eb] hover:bg-[#d1d5db] text-black py-1 px-2 ml-1 text-xs font-semibold rounded-md"
+                        onClick={updateHouseHoldType}
+                      >
+                        Save
+                      </button>
+                    ) : (
+                      <button
+                        className="bg-[#e5e7eb] hover:bg-[#d1d5db] text-black py-1 px-2 ml-2 text-xs font-semibold rounded-md"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setDisplaySave(true)
+                        }}
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </td>
+                ) : (
+                  <td className="py-2 pl-4">{household?.type}</td>
+                )}
               </tr>
               <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Amount</td>
@@ -165,18 +184,26 @@ const HouseholdInfo = ({ household }) => {
                   dispatch(setUpdateHouseholdModal(true))
                 }}
               />
-              <Button
-                className="bg-yellow-600"
-                value="Change status"
-                onClick={(e) => {
-                  e.preventDefault()
-                  dispatch(setUpdateHouseholdStatusModal(true))
-                }}
-              />
+              {['INACTIVE', 'ACTIVE'].includes(
+                household?.status?.toUpperCase()
+              ) && (
+                <Button
+                  className="bg-yellow-600"
+                  value="Change status"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    dispatch(setUpdateHouseholdStatusModal(true))
+                  }}
+                />
+              )}
             </span>
           )}
-          <UpdateHousehold household={household} />
-          <UpdateHouseholdStatus household={household} />
+          {household && (
+            <>
+              <UpdateHousehold household={household} />
+              <UpdateHouseholdStatus household={household} />
+            </>
+          )}
         </div>
       </div>
     </main>

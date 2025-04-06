@@ -10,6 +10,7 @@ import {
 import {
   setCells,
   setDistricts,
+  setSelectedLevel,
   setSearchTerm,
   setSectors,
   setSelectedCell,
@@ -20,7 +21,7 @@ import {
   setSelectedVillage,
   setVillages,
 } from '../../states/features/modals/householdSlice'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -34,7 +35,31 @@ import { setUserOrSelectedDepartmentNames } from '../../states/features/departme
 import queryString from 'query-string'
 import Input from '../../components/Input'
 
-const HouseHoldFilter = ({ user, fieldEnabled, onChange }) => {
+const levels = [
+  { id: 1, name: 'Country' },
+  { id: 2, name: 'Province' },
+  { id: 3, name: 'District' },
+  { id: 4, name: 'Sector' },
+  { id: 5, name: 'Cell' },
+  { id: 6, name: 'Village' },
+]
+
+const provinces = [
+  { id: 31, name: 'Kigali City' },
+  { id: 1540, name: 'Western Province' },
+  { id: 1678, name: 'Northern Province' },
+  { id: 1836, name: 'Eastern Province' },
+  { id: 1986, name: 'Southern Province' },
+]
+
+const HouseHoldFilter = ({
+  user,
+  fieldEnabled,
+  onChange,
+  onSearch,
+  exportButton,
+  placeholder,
+}) => {
   const { handleSubmit, control } = useForm()
 
   const {
@@ -50,6 +75,7 @@ const HouseHoldFilter = ({ user, fieldEnabled, onChange }) => {
     selectedStatus,
     searchTerm,
     isLoading,
+    selectedLevel,
   } = useSelector((state) => state.household)
 
   const queryRoute = queryString.parse(location.search)
@@ -73,9 +99,11 @@ const HouseHoldFilter = ({ user, fieldEnabled, onChange }) => {
       break
     case 3:
       department = 'sector'
+      dispatch(setSelectedSector(queryRoute?.sector || user?.departments?.id))
       break
     case 4:
       department = 'cell'
+      dispatch(setSelectedCell(queryRoute?.cell || user?.departments?.id))
       break
     case 5:
       department = 'country'
@@ -98,13 +126,24 @@ const HouseHoldFilter = ({ user, fieldEnabled, onChange }) => {
     dispatch(setCellId(+queryRoute?.cell || ''))
     dispatch(setVillageId(+queryRoute?.village || ''))
 
-    dispatch(setSelectedStatus(+queryRoute?.status || ''))
+    dispatch(setSelectedStatus(+queryRoute?.status || 'ACTIVE'))
     dispatch(setSelectedVillage(+queryRoute?.village || ''))
     dispatch(setSelectedProvince(+queryRoute?.province || ''))
     dispatch(setSelectedDistrict(+queryRoute?.district || ''))
     dispatch(setSelectedSector(+queryRoute?.sector || ''))
     dispatch(setSelectedCell(+queryRoute?.cell || ''))
-  }, [])
+    dispatch(
+      setSelectedLevel(
+        +queryRoute?.level || (['country'].includes(department) ? 1 : '')
+      )
+    )
+  }, [
+    queryRoute?.level,
+    queryRoute?.province,
+    queryRoute?.district,
+    queryRoute?.sector,
+    queryRoute?.cell,
+  ])
   // GET DISTRICTS
   const [
     getCountryDistricts,
@@ -191,12 +230,67 @@ const HouseHoldFilter = ({ user, fieldEnabled, onChange }) => {
     }
   }, [cellVillagesData])
 
+  useEffect(() => {
+    onChange({
+      sector: selectedSector || '',
+      district: selectedDistrict || '',
+      province: selectedProvince || '',
+      cell: selectedCell || '',
+      village: selectedVillage || '',
+      status: selectedStatus || '',
+      searchTerm: searchTerm || '',
+      level: selectedLevel || '',
+    })
+  }, [
+    selectedSector,
+    selectedDistrict,
+    selectedProvince,
+    selectedCell,
+    selectedVillage,
+    selectedStatus,
+    searchTerm,
+    selectedLevel,
+  ])
+
+  useEffect(() => {
+    let updates = {}
+    // console.log("queryRoute",queryRoute);
+    if (queryRoute.province) {
+      const province = provinces.find(
+        ({ id }) => id === parseInt(queryRoute.province)
+      )
+      if (province) updates['province'] = province.name
+    }
+
+    if (queryRoute.district) {
+      const district = districts.find(
+        ({ id }) => id === parseInt(queryRoute.district)
+      )
+      if (district) updates['district'] = district.name
+    }
+    if (queryRoute.sector) {
+      const sector = sectors.find(
+        ({ id }) => id === parseInt(queryRoute.sector)
+      )
+      if (sector) updates['sector'] = sector.name
+    }
+    if (queryRoute.cell) {
+      const cell = cells.find(({ id }) => id === parseInt(queryRoute.cell))
+      if (cell) updates['cell'] = cell.name
+    }
+    // Prevent unnecessary dispatches
+    if (Object.keys(updates).length > 0) {
+      dispatch(setUserOrSelectedDepartmentNames(updates))
+    }
+  }, [provinces, districts, cells, sectors]) // Ensure dependencies are correctly listed
+
   const onSubmit = (data) => {
     dispatch(setSectorId(data?.sector))
     dispatch(setDistrictId(data?.district))
     dispatch(setProvinceId(data?.province))
     dispatch(setCellId(data?.cell))
     dispatch(setVillageId(data?.village))
+    dispatch(setSelectedLevel(data?.selectedLevel))
 
     localStorage.setItem('sectorId', data?.sector)
     dispatch(setUserOrSelectedDepartmentNames({ ['province']: 'KIGALI CITY' }))
@@ -226,266 +320,436 @@ const HouseHoldFilter = ({ user, fieldEnabled, onChange }) => {
         )
       }
     }
-    onChange({
-      sector: data?.sector || '',
-      district: data?.district || '',
-      province: data?.province || '',
-      cell: data?.cell || '',
-      village: data?.village || '',
-      status: data?.status || '',
+    onSearch({
+      sector: data?.sector || selectedSector || '',
+      district: data?.district || selectedDistrict || '',
+      province: data?.province || selectedProvince || '',
+      cell: data?.cell || selectedCell || '',
+      village: data?.village || selectedVillage || '',
+      status: data?.status || selectedStatus || '',
       searchTerm: data?.searchTerm || '',
+      level: data?.level || '',
     })
     // navigate(pathRoute)
   }
- 
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col items-center w-100 h-fit py-8 mx-auto"
+      className="w-100 h-fit py-0 mx-auto"
     >
-      <article className="flex w-full items-center gap-2">
+      <article className="grid grid-cols-5 gap-4 relative inline-block">
+        {fieldEnabled?.level && (
+          // <label className="text-[15px]  col-auto items-start gap-2">
+          //   Level
+          <Controller
+            control={control}
+            name="level"
+            defaultValue={selectedLevel}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedLevel}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedLevel(e.target.value))
+                      }}
+                    >
+                      <option value={''}>Select Level</option>
+                      {levels?.map((level) => {
+                        return (
+                          <option key={level.id} value={level.id}>
+                            {level.name}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
+          // </label>
+        )}
         {fieldEnabled?.status && (
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Status
-            <Controller
-              control={control}
-              name="status"
-              defaultValue={selectedStatus || 'ACTIVE'}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(selectedStatus(e.target.value))
-                    }}
-                  >
-                    <option value={''}>Select Status</option>
-                    <option value={'ACTIVE'}>Active</option>
-                    <option value={'INACTIVE'}>Inactive</option>
-                    <option value={'MOVED'}>Moved</option>
-                    <option value={'REQUESTED'}>Requested</option>
-                  </select>
-                )
-              }}
-            />
-          </label>
+          <Controller
+            control={control}
+            name="status"
+            defaultValue={selectedStatus}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedStatus}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(selectedStatus(e.target.value))
+                      }}
+                    >
+                      <option value={''}>Select Status</option>
+                      <option value={'ACTIVE'}>Active</option>
+                      <option value={'INACTIVE'}>Inactive</option>
+                      <option value={'MOVED'}>Moved</option>
+                      <option value={'REQUESTED'}>Requested</option>
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
         )}
 
         {fieldEnabled?.province && (
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Province
-            <Controller
-              control={control}
-              name="province"
-              defaultValue={selectedProvince}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    value={selectedProvince} // Set the value dynamically
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedProvince(e.target.value))
-                    }}
-                  >
-                    <option value={''}>Select Province</option>
-                    <option value={31}>Kigali City</option>
-                    <option value={1540}>Western Province</option>
-                    <option value={1678}>Northern Province</option>
-                    <option value={1836}>Eastern Province</option>
-                    <option value={1986}>Southern Province</option>
-                  </select>
-                )
-              }}
-            />
-          </label>
+          <Controller
+            control={control}
+            name="province"
+            defaultValue={selectedProvince}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedProvince} // Set the value dynamically
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedProvince(e.target.value))
+                      }}
+                    >
+                      <option value={''}>Select Province</option>
+                      {provinces?.map((p) => {
+                        return (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
         )}
         {fieldEnabled?.district && (
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            District {countryDistrictsLoading ? 'loading..' : ''}
-            <Controller
-              control={control}
-              name="district"
-              defaultValue={selectedDistrict}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    value={selectedDistrict}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedDistrict(e.target.value))
-                    }}
-                  >
-                    <option value={''}>Select district</option>
-                    {districts?.map((district) => {
-                      if (!selectedProvince) {
+          // <label className="text-[15px]  col-3 items-start gap-2">
+          //   District {countryDistrictsLoading ? 'loading..' : ''}
+          <Controller
+            control={control}
+            name="district"
+            defaultValue={selectedDistrict}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedDistrict}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedDistrict(e.target.value))
+                      }}
+                    >
+                      <option value={''}>
+                        {' '}
+                        {countryDistrictsLoading
+                          ? 'loading..'
+                          : 'Select district'}{' '}
+                      </option>
+                      {districts?.map((district) => {
+                        if (!selectedProvince) {
+                          return (
+                            <option
+                              disabled={
+                                department !== 'country' &&
+                                district.id !== selectedDistrict
+                              }
+                              key={district.id}
+                              value={district.id}
+                            >
+                              {countryDistrictsLoading ? '...' : district.name}
+                            </option>
+                          )
+                        }
                         return (
-                          <option
-                            disabled={
-                              department !== 'country' &&
-                              district.id !== selectedDistrict
-                            }
-                            key={district.id}
-                            value={district.id}
-                          >
+                          <option key={district.id} value={district.id}>
                             {countryDistrictsLoading ? '...' : district.name}
                           </option>
                         )
-                      }
-                      return (
-                        <option key={district.id} value={district.id}>
-                          {countryDistrictsLoading ? '...' : district.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-          </label>
+                      })}
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
+          // </label>
         )}
         {fieldEnabled?.sector && (
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Sector {districtSectorsLoading ? 'loading..' : ''}
-            <Controller
-              control={control}
-              name="sector"
-              defaultValue={selectedSector}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    value={selectedSector}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedSector(e.target.value))
-                    }}
-                  >
-                    <option value={''}>Select sector</option>
-                    {sectors?.map((sector) => {
-                      return (
-                        <option key={sector.id} value={sector.id}>
-                          {sector.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-          </label>
+          // <label className="text-[15px]  col-3 items-start gap-2">
+          //   Sector {districtSectorsLoading ? 'loading..' : ''}
+          <Controller
+            control={control}
+            name="sector"
+            defaultValue={selectedSector}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedSector}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedSector(e.target.value))
+                      }}
+                    >
+                      <option value={''}>
+                        {districtSectorsLoading ? 'loading..' : 'Select sector'}
+                      </option>
+                      {sectors?.map((sector) => {
+                        return (
+                          <option key={sector.id} value={sector.id}>
+                            {sector.name}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
+          // </label>
         )}
         {fieldEnabled?.cell && (
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Cell {sectorCellsLoading ? 'loading..' : ''}
-            <Controller
-              control={control}
-              name="cell"
-              defaultValue={selectedCell}
-              value={selectedCell}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedCell(e.target.value))
-                    }}
-                  >
-                    <option value={''}>Select cell</option>
-                    {cells?.map((cell) => {
-                      return (
-                        <option key={cell.id} value={cell.id}>
-                          {cell.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-          </label>
+          <Controller
+            control={control}
+            name="cell"
+            defaultValue={selectedCell}
+            value={selectedCell}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedCell}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedCell(e.target.value))
+                      }}
+                    >
+                      <option value={''}>
+                        {sectorCellsLoading ? 'loading..' : 'Select cell'}
+                      </option>
+                      {cells?.map((cell) => {
+                        return (
+                          <option key={cell.id} value={cell.id}>
+                            {cell.name}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
         )}
         {fieldEnabled?.village && (
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-            Village {cellVillagesDataLoading ? 'loading..' : ''}
-            <Controller
-              control={control}
-              name="village"
-              defaultValue={selectedVillage}
-              value={selectedVillage}
-              render={({ field }) => {
-                return (
-                  <select
-                    className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSelectedVillage(e.target.value))
-                    }}
-                  >
-                    <option value={''}>Select village</option>
-                    {villages?.map((village) => {
-                      return (
-                        <option key={village.id} value={village.id}>
-                          {village.name}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )
-              }}
-            />
-          </label>
+          <Controller
+            control={control}
+            name="village"
+            defaultValue={selectedVillage}
+            value={selectedVillage}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedVillage(e.target.value))
+                      }}
+                    >
+                      <option value={''}>
+                        {' '}
+                        {cellVillagesDataLoading
+                          ? 'loading..'
+                          : 'Select village'}
+                      </option>
+                      {villages?.map((village) => {
+                        return (
+                          <option key={village.id} value={village.id}>
+                            {village.name}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
+          //  </label>
         )}
-        {fieldEnabled?.searchTerm && (
-          <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+        <div className="relative flex items-center">
+          {fieldEnabled?.searchTerm && (
             <Controller
               control={control}
               name="searchTerm"
               defaultValue={searchTerm}
+              value={searchTerm}
               render={({ field }) => {
                 return (
-                  <Input
-                    {...field}
-                    type="text"
-                    className=" mt-5 outline-[2px] w-full max-w-[20rem] border-[1px] border-primary rounded-md outline-primary focus:outline-primary"
-                    value={searchTerm || ''}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      dispatch(setSearchTerm(e.target.value))
-                    }}
-                    placeholder={`Search`}
-                  />
+                  <>
+                    <input
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                      placeholder={placeholder}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSearchTerm(e.target.value))
+                      }}
+                    />
+                  </>
                 )
               }}
             />
-          </label>
-        )}
-        <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-          <Controller
-            name="submit"
-            control={control}
-            disabled={isLoading}
-            render={({ field }) => {
-              return (
-                <Button
-                  className="mt-6"
-                  submit
-                  {...field}
-                  value={isLoading ? `Waiting...` : `Search`}
-                />
-              )
-            }}
-          />
-        </label>
+          )}
+
+          <button
+            className="rounded-md ml-2 bg-slate-800 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            type="submit"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+         
+        </div>
+
+        {/* {exportButton && <>{exportButton}</>} */}
       </article>
     </form>
   )
@@ -494,6 +758,7 @@ const HouseHoldFilter = ({ user, fieldEnabled, onChange }) => {
 HouseHoldFilter.propTypes = {
   user: PropTypes.object.isRequired,
   fieldEnabled: PropTypes.object.isRequired,
+  exportButton: PropTypes.any.isRequired,
 }
 
 export default HouseHoldFilter

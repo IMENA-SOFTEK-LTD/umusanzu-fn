@@ -22,16 +22,20 @@ import {
   setPathRoute,
   toggleSidebar,
 } from '../../states/features/navigation/sidebarSlice'
-import { setPathName, toggleNavDropdown } from '../../states/features/navigation/navbarSlice'
+import {
+  setPathName,
+  toggleNavDropdown,
+} from '../../states/features/navigation/navbarSlice'
 import Logo from '../../../public/logo.png'
+import queryString from 'query-string'
 
 function Sidebar({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const { isOpen } = useSelector((state) => state.sidebar)
   const { pathName } = useSelector((state) => state.navbar)
-
+  const queryRoute = queryString.parse(location.search)
   // VIEWPORT WIDTH
-  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth)
 
   let department = ''
 
@@ -71,26 +75,14 @@ function Sidebar({ user }) {
         {
           title: 'Households',
           icon: BsHousesFill,
-          path: `${
-            department === 'country' ||
-            department === 'province' ||
-            department === 'district'
-              ? '/select-department'
-              : '/households'
-          }`,
+          path: `${'/households'}`,
           route: '/households',
         },
         {
           title: 'Departments',
           icon: FaBorderAll,
-          path: `${
-            department === 'country' ||
-            department === 'province' ||
-            department === 'district'
-              ? '/select-department'
-              : '/departments'
-          }`,
-          route: '/departments',
+          path: `/departments`,
+          route: `/departments`,
         },
         {
           title: 'Performances',
@@ -148,14 +140,23 @@ function Sidebar({ user }) {
           icon: MdOutlineSettingsSuggest,
           path: '/settings',
         },
-      ],
+        // Conditionally adding the 'Approvers' item based on the user's role and department level
+        stateUser &&
+        stateUser?.staff_role === 1 &&
+        [5].includes(stateUser?.departments?.level_id)
+          ? {
+              title: 'Approvers',
+              icon: MdOutlineSettingsSuggest,
+              path: '/approvers',
+            }
+          : null, // If conditions are not met, don't add the item to the array
+      ].filter((item) => item !== null), // Filter out any null values
     },
   ]
 
   const controls = useAnimation()
   const controlText = useAnimation()
   const controlTitleText = useAnimation()
-
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -196,7 +197,6 @@ function Sidebar({ user }) {
     dispatch(toggleSidebar(false))
   }
 
-
   useEffect(() => {
     showMore()
   }, [])
@@ -222,20 +222,27 @@ function Sidebar({ user }) {
             : 'max-sm:!min-w-[4vw]'
         } animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col min-h-screen`}
       >
-        <div >
+        <div>
           <div className="flex flex-row gap-2 ml-2 mt-12">
-            <img src={Logo} className='w-[45px] h-[45px]' />
-            {<h1 className={isOpen ? "text-white font-semibold text-base mt-3" : "hidden" }>UMUSANZU DIGITAL</h1>}
-                        
+            <img src={Logo} className="w-[45px] h-[45px]" />
+            {
+              <h1
+                className={
+                  isOpen ? 'text-white font-semibold text-base mt-3' : 'hidden'
+                }
+              >
+                UMUSANZU DIGITAL
+              </h1>
+            }
           </div>
           {isOpen && (
-          <BsFillArrowLeftSquareFill
-            onClick={() => {
-              showLess()
-              dispatch(toggleSidebar(false))
-            }}
-            className={`absolute ease-in-out text-white duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-[55px] rounded-none`}
-          />
+            <BsFillArrowLeftSquareFill
+              onClick={() => {
+                showLess()
+                dispatch(toggleSidebar(false))
+              }}
+              className={`absolute ease-in-out text-white duration-200 hover:scale-[1.02] text-3xl cursor-pointer right-2 top-[55px] rounded-none`}
+            />
           )}
           {!isOpen && (
             <BsFillArrowRightSquareFill
@@ -248,7 +255,9 @@ function Sidebar({ user }) {
           )}
         </div>
         <div
-          className={`grow ${isOpen ? 'max-sm:!min-w-[70%]' : 'mt-4 max-sm:hidden'}`}
+          className={`grow ${
+            isOpen ? 'max-sm:!min-w-[70%]' : 'mt-4 max-sm:hidden'
+          }`}
         >
           {data.map((group, index) => (
             <div key={index} className="mt-8 flex flex-col">
@@ -262,15 +271,17 @@ function Sidebar({ user }) {
                 {group.name}
               </motion.p>
 
-              {group.items.map((item, index2) => {
+              {group?.items.map((item, index2) => {
                 if (
                   (item.title === 'Departments' && department === 'agent') ||
                   (item.title === 'Complete Initiated Payments' &&
                     department !== 'agent') ||
                   (item.title === 'Reports' && department !== 'country') ||
                   (item.title === 'Performances' && department !== 'sector') ||
-                  (item.title === 'Approve Move Households' && department === 'agent') ||
-                  (item.title === 'Approve Move Households' && department === 'cell')
+                  (item.title === 'Approve Move Households' &&
+                    department === 'agent') ||
+                  (item.title === 'Approve Move Households' &&
+                    department === 'cell')
                 ) {
                   return null
                 }
@@ -280,6 +291,7 @@ function Sidebar({ user }) {
                     to={item.path}
                     onClick={(e) => {
                       e.preventDefault()
+
                       dispatch(setPathName(item.title))
                       localStorage.setItem('pathName', item.title)
                       dispatch(setPathRoute(item.route))
@@ -289,7 +301,11 @@ function Sidebar({ user }) {
                         showLess()
                         dispatch(toggleNavDropdown(false))
                       }
-                      navigate(item.path)
+                      if (['Departments'].includes(item.title) && !!queryRoute?.province) {
+                        window.location.href = item.path
+                      } else {
+                        navigate(item.path)
+                      }
                     }}
                   >
                     <figure

@@ -12,7 +12,7 @@ import {
   useDeleteAdminMutation,
 } from '../../states/api/apiSlice'
 
-const UpdateAdminStatusModel = ({ user }) => {
+const UpdateAdminStatusModel = ({ user,admin, setData }) => {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isUpdateLoading, setIsUpdateLoading] = useState(false)
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
@@ -20,7 +20,8 @@ const UpdateAdminStatusModel = ({ user }) => {
   const [updateAdminStatus] = useUpdateAdminStatusMutation()
   const [deleteAdmin] = useDeleteAdminMutation()
 
-  const { id } = useParams()
+  const params = useParams()
+  const id = params?.id || admin?.id
 
   let department = ''
 
@@ -72,12 +73,13 @@ const UpdateAdminStatusModel = ({ user }) => {
         status: values.toUpperCase(),
       })
         .unwrap()
-        .then((data) => {
+        .then((res) => {
+          setData(res?.data);
           toast.success('Admin status updated successfully!')
           closeModal()
         })
         .catch((error) => {
-          console.error(error)
+          // console.error(error)
           if (error.data && error.data.message) {
             toast.error(error.data.message)
           } else {
@@ -107,7 +109,7 @@ const UpdateAdminStatusModel = ({ user }) => {
           closeModal()
         })
         .catch((error) => {
-          console.error(error)
+          // console.error(error)
           if (error.data && error.data.message) {
             toast.error(error.data.message)
           } else {

@@ -25,7 +25,8 @@ const householdSlice = createSlice({
     household: null,
     completePaymentModal: false,
     duplicateHousehold: null,
-    selectedStatus: null,
+    selectedStatus: "ACTIVE",
+    selectedLevel:''
   },
   reducers: {
     setSelectedStatus: (state, action) => {
@@ -94,6 +95,9 @@ const householdSlice = createSlice({
     setDuplicateHousehold: (state, action) => {
       state.duplicateHousehold = action.payload
     },
+    setSelectedLevel: (state, action) => {
+      state.selectedLevel = action.payload
+    },
   },
 })
 
@@ -122,4 +126,5 @@ export const {
   setCompletePaymentModal,
   setDuplicateHousehold,
   setSelectedStatus,
+  setSelectedLevel
 } = householdSlice.actions

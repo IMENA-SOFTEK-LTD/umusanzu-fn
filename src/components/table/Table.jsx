@@ -106,7 +106,7 @@ const Table = ({
   return (
     <main className="w-full">
       <main className="flex flex-col item-start">
-        <section className="flex flex-col items-center gap-4">
+        {/* <section className="flex flex-col items-center gap-4">
           <section className="w-full flex flex-col items-start justify-start gap-[10px]">
             <span
               className={`${
@@ -153,7 +153,6 @@ const Table = ({
               />
             </span>
           </section>
-          {/* Export Popup/Modal */}
           {showExportPopup && (
             <Modal isOpen onClose={closeExportPopup}>
               <form className="flex flex-col gap-4 items-center">
@@ -200,7 +199,7 @@ const Table = ({
               </form>
             </Modal>
           )}
-        </section>
+        </section> */}
         <div className="mt-2 flex flex-col w-full mx-auto">
           <div className="-my-1 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-1">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-1">

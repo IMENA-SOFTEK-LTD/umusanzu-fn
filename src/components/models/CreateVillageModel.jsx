@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { BsFillHouseAddFill } from 'react-icons/bs'
 import { useForm, Controller } from 'react-hook-form'
 import { ToastContainer, toast } from 'react-toastify'
@@ -7,21 +7,131 @@ import 'react-toastify/dist/ReactToastify.css'
 import Button from '../Button'
 import { useCreateDepartmentMutation } from '../../states/api/apiSlice'
 import Loading from '../Loading'
+import {
+  setCells,
+  setDistricts,
+  setSectors,
+  setSelectedCell,
+  setSelectedDistrict,
+  setSelectedSector,
+} from '../../states/features/modals/householdSlice'
+import {
+  useLazyGetCountryDistrictsQuery,
+  useLazyGetDistrictSectorsQuery,
+  useLazyGetSectorCellsQuery,
+} from '../../states/api/apiSlice'
 const CreateVillageModel = ({ user }) => {
   const [showModal, setShowModal] = useState(false)
   const {
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm()
 
+  const dispatch = useDispatch()
+  const [selectedProvince, setSelectedProvince] = useState(null)
+  const {
+    districts,
+    sectors,
+    selectedDistrict,
+    selectedSector,
+    cells,
+    selectedCell,
+  } = useSelector((state) => state.household)
+
+  let department = ''
+  switch (user?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
+  }
   const openModal = () => {
     setShowModal(true)
   }
-
   const closeModal = () => {
     setShowModal(false)
   }
+
+  // GET DISTRICTS
+  const [
+    getCountryDistricts,
+    {
+      data: countryDistrictsData,
+      isLoading: countryDistrictsLoading,
+      isSuccess: countryDistrictsSuccess,
+    },
+  ] = useLazyGetCountryDistrictsQuery()
+
+  useEffect(() => {
+    if (selectedProvince) getCountryDistricts({ id: selectedProvince })
+  }, [selectedProvince])
+
+  useEffect(() => {
+    if (countryDistrictsData) {
+      dispatch(setDistricts(countryDistrictsData?.data?.rows))
+    }
+  }, [countryDistrictsData])
+
+  // GET SECTORS
+  const [
+    getDistrictSectors,
+    {
+      data: districtSectorsData,
+      isLoading: districtSectorsLoading,
+      isSuccess: districtSectorsSuccess,
+    },
+  ] = useLazyGetDistrictSectorsQuery()
+
+  useEffect(() => {
+    if (selectedDistrict) getDistrictSectors({ id: selectedDistrict })
+  }, [selectedDistrict])
+
+  useEffect(() => {
+    if (districtSectorsData) {
+      dispatch(setSectors(districtSectorsData?.data?.rows))
+      // dispatch(setSelectedSector(districtSectorsData?.data?.rows[0]?.id))
+    }
+  }, [districtSectorsData])
+
+  // GET CELLS
+  const [
+    getSectorCells,
+    {
+      data: sectorCellsData,
+      isLoading: sectorCellsLoading,
+      isSuccess: sectorCellsSuccess,
+    },
+  ] = useLazyGetSectorCellsQuery()
+  useEffect(() => {
+    if (selectedSector) getSectorCells({ id: selectedSector })
+  }, [selectedSector])
+
+  useEffect(() => {
+    if (sectorCellsData) {
+      dispatch(setCells(sectorCellsData?.data?.rows))
+      // dispatch(setSelectedCell(sectorCellsData?.data?.rows[0]?.id))
+    }
+  }, [sectorCellsData])
+
+  // GET CELLS
 
   const [
     createDepartment,
@@ -29,8 +139,8 @@ const CreateVillageModel = ({ user }) => {
       isLoading: departmentLoading,
       isSuccess: departmentSuccess,
       isError: departmentError,
-      data: departmentData
-    }
+      data: departmentData,
+    },
   ] = useCreateDepartmentMutation()
 
   const { user: stateUser } = useSelector((state) => state.auth)
@@ -38,19 +148,25 @@ const CreateVillageModel = ({ user }) => {
   const onSubmit = (data) => {
     createDepartment({
       name: data.departmentName,
-      department_id: user?.department_id || stateUser.department_id,
+      department_id:
+        data?.cell || user?.department_id || stateUser.department_id,
       level_id: 6,
       phone1: data.phone1,
       phone2: data.phone2,
       email: data.email,
-      department: 'village'
+      department: 'village',
     })
   }
 
   useEffect(() => {
     if (departmentSuccess) {
-      closeModal()
-      toast.success('Village created successfully')
+      setTimeout(() => {
+        toast.success('Village created successfully', {
+          onClose: () => {
+            window.location.reload()
+          },
+        })
+      }, 1200)
     }
     if (departmentError) {
       toast.error('An error occurred while creating the village')
@@ -104,7 +220,6 @@ const CreateVillageModel = ({ user }) => {
               </h3>
             </div>
             <div className="px-6 py-6 lg:px-8">
-
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
                   <label
@@ -116,12 +231,12 @@ const CreateVillageModel = ({ user }) => {
                   <Controller
                     name="departmentName"
                     control={control}
-                    rules={{ required: 'Cell name is required' }}
+                    rules={{ required: 'Village name is required' }}
                     render={({ field }) => (
                       <input
                         type="text"
                         {...field}
-                        placeholder="Cell Name"
+                        placeholder="Village Name"
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
                     )}
@@ -198,8 +313,8 @@ const CreateVillageModel = ({ user }) => {
                       required: 'Email Address is required',
                       pattern: {
                         value: /^\S+@\S+$/i,
-                        message: 'Invalid email address'
-                      }
+                        message: 'Invalid email address',
+                      },
                     }}
                     render={({ field }) => (
                       <input
@@ -214,6 +329,212 @@ const CreateVillageModel = ({ user }) => {
                     <span className="text-red-500">{errors.email.message}</span>
                   )}
                 </div>
+                <section className="flex flex-col items-start gap-4 w-full">
+                  <span className="flex items-start gap-4 w-full">
+                    {['country'].includes(department) && (
+                      <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                        <p>
+                          Province <span className="text-red-500">*</span>
+                        </p>
+                        <Controller
+                          control={control}
+                          name="province"
+                          defaultValue={selectedProvince}
+                          rules={{ required: 'Please select a province' }}
+                          render={({ field }) => {
+                            return (
+                              <select
+                                className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
+                                {...field}
+                                value={selectedProvince} // Set the value dynamically
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  dispatch(setSelectedSector(null))
+                                  dispatch(setSelectedCell(null))
+                                  setSelectedProvince(Number(e.target.value))
+                                }}
+                              >
+                                <option value={''}>Select Province</option>
+                                <option value={31}>Kigali City</option>
+                                <option value={1540}>Western Province</option>
+                                <option value={1678}>Northern Province</option>
+                                <option value={1836}>Eastern Province</option>
+                                <option value={1986}>Southern Province</option>
+                              </select>
+                            )
+                          }}
+                        />
+                        {errors.province && (
+                          <span className="text-red-500 text-[12px]">
+                            {errors.province.message}
+                          </span>
+                        )}
+                      </label>
+                    )}
+
+                    {['country', 'province'].includes(department) && (
+                      <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                        <p>
+                          District <span className="text-red-500">*</span>
+                          {countryDistrictsLoading && 'Loading....'}
+                        </p>
+                        <Controller
+                          control={control}
+                          name="district"
+                          defaultValue={selectedDistrict}
+                          rules={{ required: 'Please select a district' }}
+                          render={({ field }) => {
+                            return (
+                              <select
+                                className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
+                                {...field}
+                                value={selectedDistrict}
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  dispatch(setSelectedDistrict(e.target.value))
+                                }}
+                              >
+                                <option value={''}>
+                                  Please select a district
+                                </option>
+                                {districts?.map((district) => {
+                                  if (!selectedProvince) {
+                                    return (
+                                      <option
+                                        disabled={
+                                          department !== 'country' &&
+                                          district.id !== selectedDistrict
+                                        }
+                                        key={district.id}
+                                        value={district.id}
+                                      >
+                                        {countryDistrictsLoading
+                                          ? '...'
+                                          : district.name}
+                                      </option>
+                                    )
+                                  }
+                                  return (
+                                    <option
+                                      key={district.id}
+                                      value={district.id}
+                                    >
+                                      {countryDistrictsLoading
+                                        ? '...'
+                                        : district.name}
+                                    </option>
+                                  )
+                                })}
+                              </select>
+                            )
+                          }}
+                        />
+
+                        {errors.district && (
+                          <span className="text-red-500 text-[12px]">
+                            {errors.district.message}
+                          </span>
+                        )}
+                      </label>
+                    )}
+                  </span>
+                  <span className="flex items-start gap-4 w-full">
+                    {['country', 'province', 'district'].includes(
+                      department
+                    ) && (
+                      <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                        <p>
+                          Sector <span className="text-red-500">*</span>{' '}
+                          {districtSectorsLoading && 'Loading...'}
+                        </p>
+                        <Controller
+                          control={control}
+                          name="sector"
+                          defaultValue={selectedSector}
+                          rules={{ required: 'Please select a sector' }}
+                          render={({ field }) => {
+                            return (
+                              <select
+                                className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
+                                {...field}
+                                value={selectedSector}
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  dispatch(setSelectedCell(null))
+                                  dispatch(
+                                    setSelectedSector(Number(e.target.value))
+                                  )
+                                }}
+                              >
+                                <option value={''}>
+                                  Please select a sector
+                                </option>
+                                {sectors?.map((sector) => {
+                                  return (
+                                    <option key={sector.id} value={sector.id}>
+                                      {sector.name}
+                                    </option>
+                                  )
+                                })}
+                              </select>
+                            )
+                          }}
+                        />
+
+                        {errors.sector && (
+                          <span className="text-red-500 text-[12px]">
+                            {errors.sector.message}
+                          </span>
+                        )}
+                      </label>
+                    )}
+                    {['country', 'province', 'district', 'sector'].includes(
+                      department
+                    ) && (
+                      <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                        <p>
+                          Cell <span className="text-red-500">*</span>
+                          {sectorCellsLoading && 'Loading...'}
+                        </p>
+                        <Controller
+                          control={control}
+                          name="cell"
+                          rules={{ required: 'Please select a cell' }}
+                          defaultValue={selectedCell}
+                          render={({ field }) => {
+                            return (
+                              <select
+                                className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
+                                {...field}
+                                value={selectedCell}
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  dispatch(
+                                    setSelectedCell(Number(e.target.value))
+                                  )
+                                }}
+                              >
+                                <option value={''}>Select cell</option>
+                                {cells?.map((cell) => {
+                                  return (
+                                    <option key={cell.id} value={cell.id}>
+                                      {cell.name}
+                                    </option>
+                                  )
+                                })}
+                              </select>
+                            )
+                          }}
+                        />
+                        {errors.cell && (
+                          <span className="text-red-500 text-[12px]">
+                            {errors.cell.message}
+                          </span>
+                        )}
+                      </label>
+                    )}
+                  </span>
+                </section>
                 <Controller
                   name="submit"
                   control={control}

@@ -7,20 +7,24 @@ import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
 import { useParams } from 'react-router-dom'
-import { useLazyGetSingleStaffDetailsQuery, useUpdateStaffDetailsMutation } from '../../states/api/apiSlice'
+import {
+  useLazyGetSingleStaffDetailsQuery,
+  useUpdateStaffDetailsMutation,
+} from '../../states/api/apiSlice'
 import Loading from '../Loading'
 
-function UpdateStaff({ toggleButton = true }) {
+function UpdateStaff({admin, setData, toggleButton = true }) {
   const [showModal, setShowModal] = useState(false)
-  const { id } = useParams()
+  const params = useParams()
+  const id = params?.id || admin?.id
   const [
     updateStaffDetails,
     {
       data: updateStaffDetailsData,
       isLoading: updateStaffDetailsLoading,
       isSuccess: updateStaffDetailsSuccess,
-      isError: updateStaffDetailsIsError
-    }
+      isError: updateStaffDetailsIsError,
+    },
   ] = useUpdateStaffDetailsMutation()
   const [
     getSingleStaffDetails,
@@ -29,14 +33,15 @@ function UpdateStaff({ toggleButton = true }) {
       isLoading: staffDetailsLoading,
       isSuccess: staffDetailsSuccess,
       isError: staffDetailsError,
-      error: staffError
-    }
+      error: staffError,
+    },
   ] = useLazyGetSingleStaffDetailsQuery()
-  const [data, setData] = useState(staffDetailsData?.data || [])
+  const [data, setData2] = useState(staffDetailsData?.data || [])
 
   useEffect(() => {
     if (staffDetailsSuccess) {
-      setData(staffDetailsData?.data || [])
+      setData2(staffDetailsData?.data || [])
+      setData(staffDetailsData?.data || []);
     }
   }, [staffDetailsSuccess, staffDetailsData])
 
@@ -54,7 +59,7 @@ function UpdateStaff({ toggleButton = true }) {
   const {
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm()
 
   const openModal = () => {
@@ -89,7 +94,7 @@ function UpdateStaff({ toggleButton = true }) {
       email: formData.email,
       phone1: formData.phone1,
       phone2: formData.phone2,
-      id
+      id,
     })
   }
 
@@ -261,13 +266,11 @@ function UpdateStaff({ toggleButton = true }) {
                         <Button
                           submit
                           value={
-                            updateStaffDetailsLoading
-                              ? (
-                                <Loading />
-                              )
-                              : (
-                                'Save changes'
-                              )
+                            updateStaffDetailsLoading ? (
+                              <Loading />
+                            ) : (
+                              'Save changes'
+                            )
                           }
                         />
                       )
@@ -283,11 +286,11 @@ function UpdateStaff({ toggleButton = true }) {
 }
 
 UpdateStaff.propTypes = {
-  toggleButton: PropTypes.bool
+  toggleButton: PropTypes.bool,
 }
 
 UpdateStaff.defaultProps = {
-  toggleButton: true
+  toggleButton: true,
 }
 
 export default UpdateStaff

@@ -10,6 +10,7 @@ import { useEffect, useMemo } from 'react'
 import Loading from '../../components/Loading'
 import Table from '../../components/table/Table'
 import Button from '../../components/Button'
+import { toast } from 'react-toastify'
 
 const HouseholdExists = () => {
   const location = useLocation()
@@ -113,8 +114,22 @@ const HouseholdExists = () => {
                 value="Fungura irindi shami"
                 onClick={(e) => {
                   e.preventDefault()
+                  const conflictReqPayload = JSON.parse(
+                    localStorage.getItem('conflictReqPayload')
+                  )
+                  if (
+                    !conflictReqPayload ||
+                    conflictReqPayload === undefined ||
+                    conflictReqPayload === 'undefined'
+                  ) {
+                    toast.info(
+                      'Request failed,Please try to create a new household'
+                    )
+                    navigate(`/households/create`)
+                    return
+                  }
                   createDuplicateHousehold({
-                    ...duplicateHousehold,
+                    ...conflictReqPayload
                   })
                 }}
               />
@@ -122,8 +137,23 @@ const HouseholdExists = () => {
                 value="Saba kumwimura"
                 onClick={(e) => {
                   e.preventDefault()
+                  const conflictReqPayload = JSON.parse(
+                    localStorage.getItem('conflictReqPayload')
+                  )
+                  if (
+                    !conflictReqPayload ||
+                    conflictReqPayload === undefined ||
+                    conflictReqPayload === 'undefined'
+                  ) {
+                    toast.info(
+                      'Request failed,Please try to create a new household'
+                    )
+                    navigate(`/households/create`)
+                    return
+                  }
                   requestMoveHousehold({
                     id: row?.original?.id,
+                    params: conflictReqPayload,
                   })
                 }}
               />
@@ -157,6 +187,12 @@ const HouseholdExists = () => {
       {
         Header: 'Amount',
         accessor: 'ubudehe',
+        sortable: true,
+        filter: true,
+      },
+      {
+        Header: 'Type',
+        accessor: 'type',
         sortable: true,
         filter: true,
       },
@@ -211,20 +247,23 @@ const HouseholdExists = () => {
         ) : householdsListSuccess &&
           !requestMoveHouseholdSuccess &&
           !createDuplicateHouseholdSuccess ? (
-          <Table
-            columns={columns}
-            data={householdsListData?.data?.rows?.map((household, index) => {
-              return {
-                ...household,
-                no: index + 1,
-                village: household?.villages[0]?.name,
-                cell: household?.cells[0]?.name,
-                sector: household?.sectors[0]?.name,
-                district: household?.districts[0]?.name,
-                province: household?.provinces[0]?.name,
-              }
-            })}
-          />
+          <>
+            <Button value={'Go to back'} route={`/households/create`} />
+            <Table
+              columns={columns}
+              data={householdsListData?.data?.rows?.map((household, index) => {
+                return {
+                  ...household,
+                  no: index + 1,
+                  village: household?.villages[0]?.name,
+                  cell: household?.cells[0]?.name,
+                  sector: household?.sectors[0]?.name,
+                  district: household?.districts[0]?.name,
+                  province: household?.provinces[0]?.name,
+                }
+              })}
+            />
+          </>
         ) : (
           (requestMoveHouseholdSuccess || createDuplicateHouseholdSuccess) && (
             <span className="flex flex-col items-center justify-center gap-4 min-h-[50vh]">

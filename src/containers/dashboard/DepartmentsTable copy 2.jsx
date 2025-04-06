@@ -7,7 +7,6 @@ import jsPDF from 'jspdf'
 import ExcelJS from 'exceljs'
 import { useLazyGetDepartmentListsQuery } from '../../states/api/apiSlice'
 import PropTypes from 'prop-types'
-import Button, { PageButton } from '../../components/Button'
 import { FaEye } from 'react-icons/fa'
 import {
   useGlobalFilter,
@@ -24,7 +23,7 @@ import {
   setTotalPages,
 } from '../../states/features/pagination/paginationSlice'
 import { useDispatch, useSelector } from 'react-redux'
-// import Button, { PageButton } from '../../components/Button'
+import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faAnglesLeft,
@@ -50,13 +49,9 @@ import {
   setSelectedVillage,
 } from '../../states/features/modals/householdSlice'
 import HouseHoldFilter from './HouseHoldFilter'
-import UDialog from '../../components/models/UDialog'
-import Admins from './Admins'
 
 const DepartmentsTable = ({ user }) => {
   const [isExporting, setIsExporting] = useState(false)
-  const [openAdmins, setOpenAdmins] = useState(false)
-  const [selectDepartment, setSelectDepartment] = useState(null)
   const [reportName, setReportName] = useState(
     "UMUSANZU DIGITAL'S  REGISTERED HOUSEHOLDS"
   )
@@ -120,7 +115,11 @@ const DepartmentsTable = ({ user }) => {
       +queryRoute?.province ||
       user?.departments?.id,
     searchTerm: '',
-    level_id: +queryRoute?.level || (['country'].includes(department) ? 1 : ''),
+    level_id:
+      +queryRoute?.level ||
+      (['country'].includes(department)
+        ? 1
+        : ''),
   })
   // console.log(queryRoute);
   const {
@@ -129,12 +128,16 @@ const DepartmentsTable = ({ user }) => {
     totalPages,
   } = useSelector((state) => state.pagination)
 
-  const [data, setData] = useState(departmentListData?.data?.rows || [])
+  const [data, setData] = useState(departmentListData?.data || [])
   useEffect(() => {
+
     setQueries({
       ...queries,
       level_id:
-        +queryRoute?.level || (['country'].includes(department) ? 1 : ''),
+        +queryRoute?.level ||
+        (['country'].includes(department)
+          ? 1
+          : ''),
       departmentId:
         queryRoute?.cell ||
         +queryRoute?.sector ||
@@ -467,6 +470,167 @@ const DepartmentsTable = ({ user }) => {
     })
   }
 
+  const columns = useMemo(
+    () => [
+      // {
+      //   id: 'level',
+      //   Header: 'Level',
+      //   accessor: 'level',
+      //   sortable: true,
+      //   Filter: SelectColumnFilter,
+      // },
+      {
+        id: 'name',
+        Header: 'Name',
+        accessor: 'name',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+
+      {
+        Header: 'Phone',
+        accessor: 'phone1',
+        sortable: true,
+      },
+      {
+        Header: 'Phone2',
+        accessor: 'phone2',
+        sortable: true,
+      },
+      {
+        Header: 'Email',
+        accessor: 'email',
+        sortable: true,
+      },
+    ],
+    []
+  )
+
+  const tableHooks = (hooks) => {
+    hooks.visibleColumns.push((columns) => [
+      {
+        id: 'no',
+        Header: 'No',
+        accessor: 'id',
+        Cell: ({ row }) => <p>{row.index + 1}</p>,
+        sortable: true,
+      },
+      {
+        id: 'ID',
+        Header: 'Action',
+        accessor: 'ID',
+        Cell: ({ row }) => (
+          <>
+            <div className="flex items-center justify-start">
+              <Link
+                to={`/admins/${row?.original?.ID}`}
+                className="mx-2 px-2 py-1  w-25 text-white bg-primary rounded-sm shadow-md"
+              >
+                Admins
+              </Link>
+              {/* Manage District */}
+              {row?.original?.level_id === 1 && (
+                <Link
+                  to={`/departments?level=2&province=${row?.original?.ID || user?.myAddress?.province?.id}`}
+                  className="mx-2 px-2 py-1 w-30 text-white bg-primary rounded-sm shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent React Router from handling the navigation
+                    window.location.href = e.currentTarget.href; // Force a full-page reload
+                  }}
+                >
+                  Manage Districts
+                </Link>
+              )}
+              {row?.original?.level_id === 2 && (
+                <Link
+                  to={`/departments?level=3&province=${queryRoute?.province || user?.myAddress?.province?.id}&district=${row?.original?.ID || user?.myAddress?.district?.id}`}
+                  className="mx-2 px-2 py-1 w-30 text-white bg-primary rounded-sm shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent React Router from handling the navigation
+                    window.location.href = e.currentTarget.href; // Force a full-page reload
+                  }}
+                >
+                  Manage Sectors
+                </Link>
+              )}
+              {row?.original?.level_id === 3 && (
+                <Link
+                  to={`/departments?level=4&province=${queryRoute?.province || user?.myAddress?.province?.id}&district=${queryRoute?.district || user?.myAddress?.district?.id}&sector=${row?.original?.ID || user?.myAddress?.sector?.id}`}
+                  className="mx-2 px-2 py-1 w-30 text-white bg-primary rounded-sm shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent React Router from handling the navigation
+                    window.location.href = e.currentTarget.href; // Force a full-page reload
+                  }}
+                >
+                  Manage Cells
+                </Link>
+              )}
+              {row?.original?.level_id === 4 && (
+                <Link
+                  to={`/departments?level=6&province=${queryRoute?.province || user?.myAddress?.province?.id}&district=${queryRoute?.district || user?.myAddress?.district?.id}&sector=${queryRoute?.sector || user?.myAddress?.sector?.id}&cell=${row?.original?.ID || user?.myAddress?.cell?.id}`}
+                  className="mx-2 px-2 py-1 w-30 text-white bg-primary rounded-sm shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent React Router from handling the navigation
+                    window.location.href = e.currentTarget.href; // Force a full-page reload
+                  }}
+                >
+                  Manage Villages
+                </Link>
+              )}
+
+              {row?.original?.level_id === 6 && (
+                <Link
+                  to={`/agents`}
+                  className="mx-2 px-2 py-1 w-30 text-white bg-primary rounded-sm shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent React Router from handling the navigation
+                    window.location.href = e.currentTarget.href; // Force a full-page reload
+                  }}
+                >
+                  Manage Agents
+                </Link>
+              )}
+            </div>
+          </>
+        ),
+        sortable: true,
+      },
+      ...columns,
+    ])
+  }
+
+  const TableInstance = useTable(
+    {
+      columns,
+      data,
+      queryRoute,
+    },
+    useFilters,
+    tableHooks,
+    useGlobalFilter,
+    useSortBy,
+    usePagination
+  )
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    setGlobalFilter,
+    rows,
+    prepareRow,
+    state,
+    preGlobalFilteredRows,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+  } = TableInstance
   useEffect(() => {
     document.title = 'Departments | Umusanzu Digital'
   }, [])
@@ -477,10 +641,10 @@ const DepartmentsTable = ({ user }) => {
   }
 
   const order = ['province', 'district', 'sector', 'cell']
-
-  return (
-    <main className={`my-12`}>
-      {/* {departmentListIsLoading && <Loading />}
+  if (departmentListIsSuccess) {
+    return (
+      <main className={`my-12`}>
+        {departmentListIsLoading && <Loading />}
         {showExportPopup && (
           <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
             <div className="bg-white p-4 rounded-lg shadow-lg">
@@ -531,379 +695,210 @@ const DepartmentsTable = ({ user }) => {
               </div>
             </div>
           </div>
-        )} */}
+        )}
 
-      <div className="flex my-8 flex-col w-full items-center gap-6 relative">
-        <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <div className="flex gap-2 max-md:pl-0">
-              <dl className="mt-1 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
-                <div className="relative pl-0">
-                  <dt className="inline font-semibold text-gray-900">
-                    {!!Object.entries(userOrSelectedDepartmentNames).length ? (
-                      <nav className="flex" aria-label="Breadcrumb">
-                        <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                          {order
-                            .filter((key) => userOrSelectedDepartmentNames[key]) // Ensure key exists
-                            .map((key) => (
-                              <li key={key}>
-                                <a
-                                  href="#"
-                                  className="inline-flex items-center text-gray-500 hover:text-gray-700"
-                                >
-                                  {userOrSelectedDepartmentNames[key]}
-                                  <svg
-                                    className="w-5 h-5 text-gray-400 mx-1"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
+        <div className="flex my-8 flex-col w-full items-center gap-6 relative">
+          <div className="search-filter flex flex-col w-full items-center gap-6">
+            <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
+              <div className="flex gap-2 max-md:pl-0">
+                <dl className="mt-1 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
+                  <div className="relative pl-0">
+                    <dt className="inline font-semibold text-gray-900">
+                      {!!Object.entries(userOrSelectedDepartmentNames)
+                        .length ? (
+                        <nav className="flex" aria-label="Breadcrumb">
+                          <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                            {order
+                              .filter(
+                                (key) => userOrSelectedDepartmentNames[key]
+                              ) // Ensure key exists
+                              .map((key) => (
+                                <li key={key}>
+                                  <a
+                                    href="#"
+                                    className="inline-flex items-center text-gray-500 hover:text-gray-700"
                                   >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                      clipRule="evenodd"
-                                    ></path>
-                                  </svg>
-                                </a>
+                                    {userOrSelectedDepartmentNames[key]}
+                                    <svg
+                                      className="w-5 h-5 text-gray-400 mx-1"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                        clipRule="evenodd"
+                                      ></path>
+                                    </svg>
+                                  </a>
+                                </li>
+                              ))}
+                            {queryRoute?.level && (
+                              <li>
+                                <div className="flex items-center">
+                                  <span className="ml-1 text-gray-700 md:ml-2">
+                                    {+queryRoute?.level === 2 ? (
+                                      <>Districts</>
+                                    ) : +queryRoute?.level === 3 ? (
+                                      <>Sectors</>
+                                    ) : +queryRoute?.level === 4 ? (
+                                      <>Cells</>
+                                    ) : +queryRoute?.level === 6 ? (
+                                      <>Villages</>
+                                    ) : (
+                                      <></>
+                                    )}
+                                    ({departmentListData?.data?.count || 0})
+                                  </span>
+                                </div>
                               </li>
-                            ))}
-                          {queryRoute?.level && (
-                            <li>
-                              <div className="flex items-center">
-                                <span className="ml-1 text-gray-700 md:ml-2">
-                                  {+queryRoute?.level === 2 ? (
-                                    <>Districts</>
-                                  ) : +queryRoute?.level === 3 ? (
-                                    <>Sectors</>
-                                  ) : +queryRoute?.level === 4 ? (
-                                    <>Cells</>
-                                  ) : +queryRoute?.level === 6 ? (
-                                    <>Villages</>
-                                  ) : (
-                                    <></>
-                                  )}
-                                  ({departmentListData?.data?.count || 0})
-                                </span>
-                              </div>
-                            </li>
-                          )}
-                        </ol>
-                      </nav>
-                    ) : (
-                      <>Departments({departmentListData?.data?.count || 0})</>
-                    )}
-                  </dt>
-                </div>
-              </dl>
-            </div>
-          </span>
-        </div>
-        <UDialog
-          size="sm"
-          title={
-            <>
-              <nav className="flex" aria-label="Breadcrumb">
-                <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                  <li>
-                    <a
-                      href="#"
-                      className="inline-flex items-center text-gray-500 hover:text-gray-700"
-                    >
-                      {selectDepartment && selectDepartment?.name}
-                      <svg
-                        className="w-5 h-5 text-gray-400 mx-1"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                          clipRule="evenodd"
-                        ></path>
-                      </svg>
-                    </a>
-                  </li>
+                            )}
+                          </ol>
+                        </nav>
+                      ) : (
+                        <>Departments({departmentListData?.data?.count || 0})</>
+                      )}
+                      
+                    </dt>
+                  </div>
+                </dl>
+              </div>
 
-                  <li>
-                    <div className="flex items-center">
-                      <span className="ml-1 text-gray-700 md:ml-2">Admins</span>
-                    </div>
-                  </li>
-                </ol>
-              </nav>
-            </>
-          }
-          open={openAdmins}
-          onClose={() => {
-            setOpenAdmins(false)
-            setSelectDepartment(null)
-          }}
-          children={
-            <>
-              {selectDepartment && (
-                <Admins
-                  selectDepartment={{ id: selectDepartment?.ID }}
+              <span className="w-full flex flex-col items-end justify-end mt-4">
+                <HouseHoldFilter
                   user={user}
+                  fieldEnabled={{
+                    level: ['country'].includes(department),
+                    province: ['country'].includes(department),
+                    district: ['country', 'province'].includes(department),
+                    sector: ['country', 'province', 'district'].includes(
+                      department
+                    ),
+                    cell: [
+                      'country',
+                      'province',
+                      'district',
+                      'sector',
+                    ].includes(department),
+                    village: false,
+                    status: false,
+                    searchTerm: true,
+                  }}
+                  isLoading={departmentListIsLoading}
+                  onChange={(query) => {
+                    const queries2 = {
+                      departmentId:
+                        query.village ||
+                        query.cell ||
+                        query.sector ||
+                        query.district ||
+                        query.province ||
+                        user?.departments?.id,
+                      searchTerm: query.searchTerm,
+                      level_id: query.level,
+                    }
+                    setQueries({ ...queries2 })
+                  }}
+                  onSearch={(query) => {
+                    gotoPage1(0)
+                    const queries2 = {
+                      departmentId:
+                        query.village ||
+                        query.cell ||
+                        query.sector ||
+                        query.district ||
+                        query.province ||
+                        user?.departments?.id,
+                      searchTerm: query.searchTerm,
+                      level_id: query.level,
+                    }
+                    setQueries({ ...queries2 })
+                    getDepartmentLists({
+                      ...queries2,
+                      size,
+                      page: offset,
+                    })
+                  }}
+                  exportButton={
+                    <>
+                      <Button
+                        // className="mt-6"
+                        value={
+                          <span className="flex items-center">
+                            Export Report
+                            <FontAwesomeIcon icon={faFile} />
+                          </span>
+                        }
+                        route={'#'}
+                        onClick={openExportPopup}
+                      />
+                    </>
+                  }
                 />
-              )}
-            </>
-          }
-        />
-
-        <div className="mt-2 flex flex-col w-[95%] mx-auto">
-          <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
-            <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-              <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <caption className="caption-top p-2">
-                    <HouseHoldFilter
-                      user={user}
-                      fieldEnabled={{
-                        level: false, //['country'].includes(department),
-                        province: ['country'].includes(department),
-                        district: ['country', 'province'].includes(department),
-                        sector: ['country', 'province', 'district'].includes(
-                          department
-                        ),
-                        cell: [
-                          'country',
-                          'province',
-                          'district',
-                          'sector',
-                        ].includes(department),
-                        village: false,
-                        status: false,
-                        searchTerm: true,
-                      }}
-                      isLoading={departmentListIsLoading}
-                      onChange={(query) => {
-                        const queries2 = {
-                          departmentId:
-                            query.village ||
-                            query.cell ||
-                            query.sector ||
-                            query.district ||
-                            query.province ||
-                            user?.departments?.id,
-                          searchTerm: query.searchTerm,
-                          level_id: query.level,
-                        }
-                        setQueries({ ...queries2 })
-                      }}
-                      onSearch={(query) => {
-                        gotoPage1(0)
-                        const queries2 = {
-                          departmentId:
-                            query.village ||
-                            query.cell ||
-                            query.sector ||
-                            query.district ||
-                            query.province ||
-                            user?.departments?.id,
-                          searchTerm: query.searchTerm,
-                          level_id: query.level,
-                        }
-                        setQueries({ ...queries2 })
-                        getDepartmentLists({
-                          ...queries2,
-                          size,
-                          page: offset,
-                        })
-                      }}
-                      placeholder={'Search for department....'}
-                      exportButton={
-                        <>
-                          <Button
-                            value={
-                              <span className="flex items-center">
-                                Export Report
-                                <FontAwesomeIcon icon={faFile} />
-                              </span>
-                            }
-                            onClick={openExportPopup}
-                          />
-                        </>
-                      }
-                    />
-                  </caption>
-                  <thead className="bg-gray-50">
-                    <tr role="row">
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Action
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Phone
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Phone2
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Email
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    className="bg-white divide-y divide-gray-200"
-                    role="rowgroup"
+              </span>
+            </span>
+          </div>
+          <div className="mt-2 flex flex-col w-[95%] mx-auto">
+            <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
+              <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
+                  <table
+                    {...getTableProps()}
+                    border="1"
+                    className="min-w-full divide-y divide-gray-200"
                   >
-                    {data.map((row, index) => (
-                      <tr key={index} role="row">
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
-                          {row?.level_id !== 6 && (
-                            <>
-                              <Link
-                                // to={`/admins/${row?.ID}`}
-                                onClick={() => {
-                                  setOpenAdmins(true)
-                                  setSelectDepartment(row)
-                                }}
-                                className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
-                              >
-                                Admins
-                              </Link>
-                            </>
-                          )}
-                          {/* Manage District */}
-                          {row?.level_id === 1 && (
-                            <Link
-                              to={`/departments?level=2&province=${
-                                row?.ID || user?.myAddress?.province?.id
-                              }`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
+                    <thead className="bg-gray-50">
+                      {headerGroups.map((headerGroup) => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                          {headerGroup.headers.map((column) => (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              {...column.getHeaderProps(
+                                column.getSortByToggleProps()
+                              )}
                             >
-                              Manage Districts
-                            </Link>
-                          )}
-                          {row?.level_id === 2 && (
-                            <Link
-                              to={`/departments?level=3&province=${
-                                queryRoute?.province ||
-                                user?.myAddress?.province?.id
-                              }&district=${
-                                row?.ID || user?.myAddress?.district?.id
-                              }`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage Sectors
-                            </Link>
-                          )}
-                          {row?.level_id === 3 && (
-                            <Link
-                              to={`/departments?level=4&province=${
-                                queryRoute?.province ||
-                                user?.myAddress?.province?.id
-                              }&district=${
-                                queryRoute?.district ||
-                                user?.myAddress?.district?.id
-                              }&sector=${
-                                row?.ID || user?.myAddress?.sector?.id
-                              }`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage Cells
-                            </Link>
-                          )}
-                          {row?.level_id === 4 && (
-                            <Link
-                              to={`/departments?level=6&province=${
-                                queryRoute?.province ||
-                                user?.myAddress?.province?.id
-                              }&district=${
-                                queryRoute?.district ||
-                                user?.myAddress?.district?.id
-                              }&sector=${
-                                queryRoute?.sector ||
-                                user?.myAddress?.sector?.id
-                              }&cell=${row?.ID || user?.myAddress?.cell?.id}`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage Villages
-                            </Link>
-                          )}
-
-                          {row?.level_id === 6 && (
-                            <Link
-                              to={`/agents`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage Agents
-                            </Link>
-                          )}
-                        </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
-                          {row.name}
-                        </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
-                          {row.phone1}
-                        </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
-                          {row.phone2}
-                        </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
-                          {row.email}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {departmentListIsLoading && (
-                  <main className="w-full min-h-[10vh] flex items-center justify-center">
-                    <Loading />
-                  </main>
-                )}
-
-                {departmentListError && (
-                  <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
-                    <h1 className="text-[25px] font-medium text-center">
-                      Could not load department records
-                    </h1>
-                    <Button value="Go to dashboard" route="/dashboard" />
-                  </main>
-                )}
+                              {column.render('Header')}
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? ' ▼'
+                                    : ' ▲'
+                                  : ''}
+                              </span>
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody
+                      className="bg-white divide-y divide-gray-200"
+                      {...getTableBodyProps()}
+                    >
+                      {page.map((row) => {
+                        prepareRow(row)
+                        return (
+                          <tr {...row.getRowProps()}>
+                            {row.cells.map((cell) => {
+                              return (
+                                <td
+                                  {...cell.getCellProps()}
+                                  className="px-6 py-4 whitespace-nowrap"
+                                >
+                                  {cell.render('Cell')}
+                                </td>
+                              )
+                            })}
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      {departmentListIsSuccess && (
         <div className="pagination w-[95%] mx-auto">
           <div className="py-3 flex items-center justify-between">
             <div className="flex-1 flex justify-between sm:hidden">
@@ -933,7 +928,7 @@ const DepartmentsTable = ({ user }) => {
                   <span className="sr-only">Items Per Page</span>
                   <select
                     className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    value={size}
+                    value={state.pageSize}
                     onChange={(e) => {
                       setPageSize(Number(e.target.value))
                       dispatch(setSize(Number(e.target.value)))
@@ -975,7 +970,9 @@ const DepartmentsTable = ({ user }) => {
                   </PageButton>
                   <PageButton
                     onClick={() => gotoPage1(Number(offset) + 1)}
-                    disabled={offset >= totalPages || departmentListIsLoading}
+                    disabled={
+                      offset >= totalPages || departmentListIsLoading
+                    }
                     className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
@@ -1000,13 +997,66 @@ const DepartmentsTable = ({ user }) => {
             </div>
           </div>
         </div>
-      )}
+      </main>
+    )
+  }
+
+  if (departmentListError) {
+    return (
+      <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
+        <h1 className="text-[25px] font-medium text-center">
+          Could not load department records
+        </h1>
+        <Button value="Go to dashboard" route="/dashboard" />
+      </main>
+    )
+  }
+
+  return (
+    <main className="w-full min-h-[80vh] flex items-center justify-center">
+      <Loading />
     </main>
   )
 }
 
 DepartmentsTable.propTypes = {
   user: PropTypes.shape({}),
+}
+
+export function SelectColumnFilter({
+  column: { filterValue, setFilter, preFilteredRows, id, render },
+}) {
+  const options = useMemo(() => {
+    const options = new Set()
+    preFilteredRows.forEach((row) => {
+      options.add(row.values[id])
+    })
+    return [...options.values()]
+  }, [id, preFilteredRows])
+
+  return (
+    <label className="flex gap-x-2 items-baseline">
+      <span className="text-gray-1000 text-[14px]">{render('Header')}: </span>
+      <select
+        className="rounded-sm bg-transparent outline-none border-none focus:border-none focus:outline-primary"
+        name={id}
+        id={id}
+        value={filterValue}
+        onChange={(e) => {
+          setFilter(e.target.value || undefined)
+        }}
+      >
+        <option className="text-[13px]" value="">
+          All
+        </option>
+        {options.map((option, i) => (
+          <option className="text-[13px]" key={i} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
 }
 
 export default DepartmentsTable

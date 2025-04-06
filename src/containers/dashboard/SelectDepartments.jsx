@@ -108,7 +108,7 @@ const SelectDepartments = ({ user }) => {
           ) {
             navigate(pathRoute + '?' + new URLSearchParams(query).toString())
           } else {
-            toast.info('Please search anything...')
+            navigate(pathRoute)
           }
         }}
       />

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useLazyGetSingleStaffDetailsQuery, useLazyLogActivitiesQuery } from '../../states/api/apiSlice'
+import {
+  useLazyGetSingleStaffDetailsQuery,
+  useLazyLogActivitiesQuery,
+} from '../../states/api/apiSlice'
 import UpdateStaff from '../../components/models/UpdateStaff'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
@@ -8,13 +11,14 @@ import UpdateAdminStatusModel from '../../components/models/UpdateAdminStatusMod
 import moment from 'moment'
 import { getUserDepartmentsInfoByLevelId } from '../../utils/userByLevelId'
 
-const UserProfilePage = () => {
+const UserProfilePage = ({ selectProfile }) => {
   const localStorageUser = JSON.parse(localStorage.getItem('user'))
   const [isEditing, setIsEditing] = useState(false)
   const dispatch = useDispatch()
   const { updateStaff } = useSelector((state) => state.modals)
-  const { id } = useParams()
 
+  const params = useParams()
+  const id = params?.id || selectProfile?.id
   const [
     getSingleStaffDetails,
     {
@@ -22,8 +26,8 @@ const UserProfilePage = () => {
       isLoading: staffDetailsLoading,
       isSuccess: staffDetailsSuccess,
       isError: staffDetailsError,
-      error: staffError
-    }
+      error: staffError,
+    },
   ] = useLazyGetSingleStaffDetailsQuery()
   // log activities
   const [
@@ -33,8 +37,8 @@ const UserProfilePage = () => {
       isLoading: logActivitiesLoading,
       isSuccess: logActivitiesSuccess,
       isError: logActivitiesError,
-      error: logActivitiesErrorr
-    }
+      error: logActivitiesErrorr,
+    },
   ] = useLazyLogActivitiesQuery()
   const [data, setData] = useState(staffDetailsData?.data || [])
   const [activities, setActivities] = useState(logActivitiesData?.data || [])
@@ -54,19 +58,17 @@ const UserProfilePage = () => {
     getSingleStaffDetails({ id })
   }, [getSingleStaffDetails])
 
-
   useEffect(() => {
     if (logActivitiesSuccess) {
       setActivities(logActivitiesData?.data || [])
     }
   }, [logActivitiesSuccess, logActivitiesData])
-  
+
   useEffect(() => {
-    logActivities({ staffId: id})
+    logActivities({ staffId: id })
   }, [])
 
-  
- const [user, setUser] = useState({
+  const [user, setUser] = useState({
     name: data?.names,
     username: data?.username,
     phone1: data?.phone1,
@@ -75,15 +77,11 @@ const UserProfilePage = () => {
     email: data?.email,
     cell: data?.departments?.name,
     sector: data?.departments?.parent?.name,
-    district: data?.departments?.parent?.parent?.name,    
+    district: data?.departments?.parent?.parent?.name,
     province: data?.departments?.parent?.parent?.parent?.name,
     status: 'Active',
-    recentActivities: [
-      { id: 1, activity: 'Logged in', date: '2023-08-18' },
-
-    ]
- })
-  console.log(user, data, userDepartmentsInfoByLevelId);
+    recentActivities: [{ id: 1, activity: 'Logged in', date: '2023-08-18' }],
+  })
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing)
@@ -98,10 +96,9 @@ const UserProfilePage = () => {
     // Handle delete user functionality here
   }
 
-
   return (
     <div className="flex items-start gap-4 mx-auto">
-      <UpdateStaff toggleButton={false} />
+      <UpdateStaff toggleButton={false} setData={setData} admin={data} />
       <div className="w-full max-w-[60%] bg-white  p-6 space-y-4">
         <div className="flex justify-between items-center p-4 border rounded-lg shadow-md">
           <h1 className="text-[18px] font-semibold">{data?.names}</h1>
@@ -114,8 +111,7 @@ const UserProfilePage = () => {
             >
               Edit
             </button>
-            <UpdateAdminStatusModel user={localStorageUser} />
-
+            <UpdateAdminStatusModel user={localStorageUser} setData={setData} admin={data} />
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -224,10 +220,11 @@ const UserProfilePage = () => {
               </li>
             ))
           ) : (
-              <li className="text-gray-800">No activities found for {data.names}</li>
+            <li className="text-gray-800">
+              No activities found for {data.names}
+            </li>
           )}
         </ul>
-
       </div>
     </div>
   )

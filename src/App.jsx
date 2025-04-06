@@ -42,6 +42,7 @@ import { setUserOrSelectedDepartmentNames } from './states/features/departments/
 import axios from 'axios'
 import AppLayout from './pages/mainPage.jsx'
 import API_URL from './constants/index.js'
+import Approvers from './pages/Approvers.jsx'
 
 const App = () => {
   
@@ -96,8 +97,8 @@ const App = () => {
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const token = localStorage.getItem('token')
-  const getDepartmentName = (department, id) => {
-    axios.get(`${API_URL}/department/${department}/${String(id)}`,
+  const getDepartmentName = async(department, id) => {
+    await axios.get(`${API_URL}/department/${department}/${String(id)}`,
       { headers: { Authorization: `Bearer ${token}` } }
     ).then((response) => {
       dispatch(setUserOrSelectedDepartmentNames({ [`${department}`]: response.data.data.name}))
@@ -179,6 +180,11 @@ const App = () => {
                 path="/settings"
                 element={<Settings user={user || stateUser} />}
               />
+              <Route
+                path="/approvers"
+                element={<Approvers user={user || stateUser} />}
+              />
+              
               <Route
                 path="/agent/transactions/initiated"
                 element={<CompleteInitiatedPaymentsForm user={user} />}

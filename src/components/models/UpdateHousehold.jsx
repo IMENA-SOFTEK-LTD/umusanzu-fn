@@ -18,12 +18,15 @@ const UpdateHousehold = ({ household }) => {
     setValue,
   } = useForm()
 
-  const [updateHousehold, {
-    data: updateHouseholdData,
-    isLoading: updateHouseholdLoading,
-    isSuccess: updateHouseholdSuccess,
-    isError: updateHouseholdError,
-  }] = useUpdateHouseholdMutation()
+  const [
+    updateHousehold,
+    {
+      data: updateHouseholdData,
+      isLoading: updateHouseholdLoading,
+      isSuccess: updateHouseholdSuccess,
+      isError: updateHouseholdError,
+    },
+  ] = useUpdateHouseholdMutation()
 
   const dispatch = useDispatch()
   const { updateHouseholdModal } = useSelector((state) => state.household)
@@ -35,6 +38,7 @@ const UpdateHousehold = ({ household }) => {
     setValue('phone2', household?.phone2)
     setValue('ubudehe', household?.ubudehe)
     setValue('type', household?.type)
+    setValue('email', household?.email)
   }, [updateHouseholdModal])
 
   const onSubmit = (data) => {
@@ -46,17 +50,17 @@ const UpdateHousehold = ({ household }) => {
       phone2: data?.phone2,
       ubudehe: data?.ubudehe,
       type: data?.type,
+      email: data?.email,
     })
   }
 
-useEffect(() => {
-  if (updateHouseholdSuccess) {
-    setTimeout(() => {
-      window.location.reload()
-    }, 800);
-  }
-}, [updateHouseholdData, updateHouseholdSuccess, updateHouseholdError])
-
+  useEffect(() => {
+    if (updateHouseholdSuccess) {
+      setTimeout(() => {
+        window.location.reload()
+      }, 800)
+    }
+  }, [updateHouseholdData, updateHouseholdSuccess, updateHouseholdError])
 
   return (
     <main
@@ -65,24 +69,24 @@ useEffect(() => {
       } fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-800 bg-opacity-60`}
     >
       <section className="bg-white w-fit relative max-w-[50%] flex flex-col gap-6">
-      <article className="bg-primary relative flex flex-row-reverse items-center justify-center py-4 px-4">
-              <Button
-                onClick={(e) => {
-                  e.preventDefault()
-                  dispatch(setUpdateHouseholdModal(false))
-                }}
-                className="absolute right-4 top-4 !px-0 !py-0"
-                value={
-                  <FontAwesomeIcon
-                    icon={faX}
-                    className="bg-white text-primary hover:bg-white hover:text-primary p-2 px-[10px] rounded-md"
-                  />
-                }
+        <article className="bg-primary relative flex flex-row-reverse items-center justify-center py-4 px-4">
+          <Button
+            onClick={(e) => {
+              e.preventDefault()
+              dispatch(setUpdateHouseholdModal(false))
+            }}
+            className="absolute right-4 top-4 !px-0 !py-0"
+            value={
+              <FontAwesomeIcon
+                icon={faX}
+                className="bg-white text-primary hover:bg-white hover:text-primary p-2 px-[10px] rounded-md"
               />
-              <h4 className="text-[20px] text-center font-medium uppercase text-white">
-                Edit Household
-              </h4>
-            </article>
+            }
+          />
+          <h4 className="text-[20px] text-center font-medium uppercase text-white">
+            Edit Household
+          </h4>
+        </article>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-8 items-center w-fit mx-auto bg-white p-8"
@@ -151,6 +155,17 @@ useEffect(() => {
               />
             </label>
             <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
+              Email
+              <Controller
+                control={control}
+                name="email"
+                defaultValue={household?.email}
+                render={({ field }) => {
+                  return <Input {...field} placeholder="info@example.com" />
+                }}
+              />
+            </label>
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
               <p>
                 Amount <span className="text-red-500">*</span>
               </p>
@@ -192,9 +207,27 @@ useEffect(() => {
               />
             </label>
           </section>
-          <section className={updateHouseholdSuccess || updateHouseholdError ? 'flex text-center mx-auto' : 'hidden'}>
-            <p className={updateHouseholdSuccess ? 'text-green-600 text-center' : 'hidden'}>Household updated successfully</p>
-            <p className={updateHouseholdError ? 'text-red-600 text-center' : 'hidden'}>Could not update household. Please refresh and try again</p>
+          <section
+            className={
+              updateHouseholdSuccess || updateHouseholdError
+                ? 'flex text-center mx-auto'
+                : 'hidden'
+            }
+          >
+            <p
+              className={
+                updateHouseholdSuccess ? 'text-green-600 text-center' : 'hidden'
+              }
+            >
+              Household updated successfully
+            </p>
+            <p
+              className={
+                updateHouseholdError ? 'text-red-600 text-center' : 'hidden'
+              }
+            >
+              Could not update household. Please refresh and try again
+            </p>
           </section>
           <Controller
             name="submit"
