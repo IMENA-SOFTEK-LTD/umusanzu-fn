@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
-import { DepartmentModals } from '../../containers/dashboard/DepartmentModals'
 import DepartmentsTable from '../../containers/dashboard/DepartmentsTable'
-import Button from '../../components/Button'
+import { DepartmentModals } from '../../containers/dashboard/DepartmentModals'
 
 const Department = () => {
   const user = JSON.parse(localStorage.getItem('user'))
@@ -11,8 +10,7 @@ const Department = () => {
   }, [])
 
   return (
-    <main className='relative'>
-      <DepartmentModals />
+    <main className='relative w-full'>
       <DepartmentsTable user={user} />
     </main>
   )

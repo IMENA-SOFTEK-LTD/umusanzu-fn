@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import 'jspdf-autotable'
 import logo from '../../assets/LOGO.png'
 import cachet from '../../assets/cachet.png'
@@ -8,38 +8,28 @@ import ExcelJS from 'exceljs'
 import { useLazyGetDepartmentListsQuery } from '../../states/api/apiSlice'
 import PropTypes from 'prop-types'
 import Button, { PageButton } from '../../components/Button'
-import { FaEye } from 'react-icons/fa'
-import {
-  useGlobalFilter,
-  useTable,
-  useAsyncDebounce,
-  useFilters,
-  useSortBy,
-  usePagination,
-} from 'react-table'
+import { DepartmentModals } from '../../containers/dashboard/DepartmentModals'
 import Loading from '../../components/Loading'
+import {
+  faClose,
+  faFileExcel,
+  faFilePdf,
+} from '@fortawesome/free-solid-svg-icons'
 import {
   setPage,
   setSize,
   setTotalPages,
 } from '../../states/features/pagination/paginationSlice'
 import { useDispatch, useSelector } from 'react-redux'
-// import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faAnglesLeft,
   faAnglesRight,
   faChevronLeft,
   faChevronRight,
-  faClose,
   faFile,
-  faFileExcel,
-  faFilePdf,
-  faHouse,
 } from '@fortawesome/free-solid-svg-icons'
-import Input from '../../components/Input'
 import { Link } from 'react-router-dom'
-import { DepartmentModals } from './DepartmentModals'
 import moment from 'moment'
 import queryString from 'query-string'
 import {
@@ -50,15 +40,16 @@ import {
   setSelectedVillage,
 } from '../../states/features/modals/householdSlice'
 import HouseHoldFilter from './HouseHoldFilter'
-import UDialog from '../../components/models/UDialog'
+import CustomDialog from '../../components/models/CustomDialog'
 import Admins from './Admins'
 
 const DepartmentsTable = ({ user }) => {
   const [isExporting, setIsExporting] = useState(false)
   const [openAdmins, setOpenAdmins] = useState(false)
   const [selectDepartment, setSelectDepartment] = useState(null)
+
   const [reportName, setReportName] = useState(
-    "UMUSANZU DIGITAL'S  REGISTERED HOUSEHOLDS"
+    `UMUSANZU DIGITAL'S  REGISTERED DEPARTMENTS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
   )
   const [showExportPopup, setShowExportPopup] = useState(false)
   const { sectorId, userOrSelectedDepartmentNames } = useSelector(
@@ -480,177 +471,186 @@ const DepartmentsTable = ({ user }) => {
 
   return (
     <main className={`my-12`}>
-      {/* {departmentListIsLoading && <Loading />}
-        {showExportPopup && (
-          <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
-            <div className="bg-white p-4 rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold mb-4">Export Report</h2>
-              <input
-                type="text"
-                disabled={isExporting}
-                placeholder="Enter report name"
-                value={reportName}
-                onChange={(e) => setReportName(e.target.value)}
-                className="border p-2 rounded-md w-full mb-4"
+      <CustomDialog
+        size="sm"
+        title={
+          <>
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                <li>
+                  <a href="#" className="inline-flex items-center ">
+                    {selectDepartment && selectDepartment?.name}
+                    <svg
+                      className="w-5 h-5 text-gray-400 mx-3 mt-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clipRule="evenodd"
+                      ></path>
+                    </svg>
+                  </a>
+                </li>
+
+                <li>
+                  <div className="flex">
+                    <span>Admins</span>
+                  </div>
+                </li>
+              </ol>
+            </nav>
+          </>
+        }
+        open={openAdmins}
+        onClose={() => {
+          setOpenAdmins(false)
+          setSelectDepartment(null)
+        }}
+        children={
+          <>
+            {selectDepartment && (
+              <Admins
+                selectDepartment={{ id: selectDepartment?.ID }}
+                user={user}
               />
-              <div className="flex gap-3">
-                <Button
-                  disabled={isExporting}
-                  value={
-                    <span className="flex items-center gap-2">
-                      {isExporting ? 'Wait...' : 'Export PDF'}
-                      <FontAwesomeIcon icon={faFilePdf} />
-                    </span>
-                  }
-                  onClick={handleExportToPdf}
-                />
-                <Button
-                  disabled={isExporting}
-                  value={
-                    <span className="flex items-center gap-2">
-                      {isExporting ? 'Wait...' : 'Export Excel'}
-                      <FontAwesomeIcon icon={faFileExcel} />
-                    </span>
-                  }
-                  // className={
-                  //   user?.departments?.level_id === 5
-                  //     ? 'flex'
-                  //     : 'hidden'
-                  // }
-                  onClick={() => handleExportToExcel(queries)}
-                />
-                <Button
-                  value={
-                    <span className="flex items-center gap-2">
-                      Close
-                      <FontAwesomeIcon icon={faClose} />
-                    </span>
-                  }
-                  onClick={closeExportPopup}
-                />
-              </div>
+            )}
+          </>
+        }
+      />
+      {showExportPopup && (
+        <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
+          <div className="bg-white p-4 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Export Report</h2>
+            <input
+              type="text"
+              disabled={isExporting}
+              placeholder="Enter report name"
+              value={reportName}
+              onChange={(e) => setReportName(e.target.value)}
+              className="border p-2 rounded-md w-full mb-4"
+            />
+            <div className="flex gap-3">
+              <Button
+                disabled={isExporting}
+                value={
+                  <span className="flex items-center gap-2">
+                    {isExporting ? 'Wait...' : 'Export PDF'}
+                    <FontAwesomeIcon icon={faFilePdf} />
+                  </span>
+                }
+                onClick={handleExportToPdf}
+              />
+              <Button
+                disabled={isExporting}
+                value={
+                  <span className="flex items-center gap-2">
+                    {isExporting ? 'Wait...' : 'Export Excel'}
+                    <FontAwesomeIcon icon={faFileExcel} />
+                  </span>
+                }
+                // className={
+                //   user?.departments?.level_id === 5
+                //     ? 'flex'
+                //     : 'hidden'
+                // }
+                onClick={() => handleExportToExcel(queries)}
+              />
+              <Button
+                value={
+                  <span className="flex items-center gap-2">
+                    Close
+                    <FontAwesomeIcon icon={faClose} />
+                  </span>
+                }
+                onClick={closeExportPopup}
+              />
             </div>
           </div>
-        )} */}
-
-      <div className="flex my-8 flex-col w-full items-center gap-6 relative">
-        <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <div className="flex gap-2 max-md:pl-0">
-              <dl className="mt-1 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
-                <div className="relative pl-0">
-                  <dt className="inline font-semibold text-gray-900">
-                    {!!Object.entries(userOrSelectedDepartmentNames).length ? (
-                      <nav className="flex" aria-label="Breadcrumb">
-                        <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                          {order
-                            .filter((key) => userOrSelectedDepartmentNames[key]) // Ensure key exists
-                            .map((key) => (
-                              <li key={key}>
-                                <a
-                                  href="#"
-                                  className="inline-flex items-center text-gray-500 hover:text-gray-700"
-                                >
-                                  {userOrSelectedDepartmentNames[key]}
-                                  <svg
-                                    className="w-5 h-5 text-gray-400 mx-1"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                      clipRule="evenodd"
-                                    ></path>
-                                  </svg>
-                                </a>
-                              </li>
-                            ))}
-                          {queryRoute?.level && (
-                            <li>
-                              <div className="flex items-center">
-                                <span className="ml-1 text-gray-700 md:ml-2">
-                                  {+queryRoute?.level === 2 ? (
-                                    <>Districts</>
-                                  ) : +queryRoute?.level === 3 ? (
-                                    <>Sectors</>
-                                  ) : +queryRoute?.level === 4 ? (
-                                    <>Cells</>
-                                  ) : +queryRoute?.level === 6 ? (
-                                    <>Villages</>
-                                  ) : (
-                                    <></>
-                                  )}
-                                  ({departmentListData?.data?.count || 0})
-                                </span>
-                              </div>
-                            </li>
-                          )}
-                        </ol>
-                      </nav>
-                    ) : (
-                      <>Departments({departmentListData?.data?.count || 0})</>
-                    )}
-                  </dt>
-                </div>
-              </dl>
-            </div>
-          </span>
         </div>
-        <UDialog
-          size="sm"
-          title={
-            <>
-              <nav className="flex" aria-label="Breadcrumb">
-                <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                  <li>
-                    <a
-                      href="#"
-                      className="inline-flex items-center text-gray-500 hover:text-gray-700"
-                    >
-                      {selectDepartment && selectDepartment?.name}
-                      <svg
-                        className="w-5 h-5 text-gray-400 mx-1"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                          clipRule="evenodd"
-                        ></path>
-                      </svg>
-                    </a>
-                  </li>
+      )}
 
+      <div className="flex items-center  justify-between mx-4">
+        <dt className=" font-semibold text-gray-900 ">
+          {!!Object.entries(userOrSelectedDepartmentNames).length ? (
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                {order
+                  .filter((key) => userOrSelectedDepartmentNames[key]) // Ensure key exists
+                  .map((key) => (
+                    <li key={key}>
+                      <a
+                        href="#"
+                        className="inline-flex items-center text-gray-500 hover:text-gray-700 text-truncate"
+                      >
+                        {userOrSelectedDepartmentNames[key]
+                          ?.charAt(0)
+                          .toUpperCase() +
+                          userOrSelectedDepartmentNames[key]
+                            ?.slice(1)
+                            .toLowerCase()}
+                        <svg
+                          className="w-5 h-5 text-gray-400 mx-1"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clipRule="evenodd"
+                          ></path>
+                        </svg>
+                      </a>
+                    </li>
+                  ))}
+                {queryRoute?.level && (
                   <li>
                     <div className="flex items-center">
-                      <span className="ml-1 text-gray-700 md:ml-2">Admins</span>
+                      <span className="ml-1 text-gray-700 md:ml-2">
+                        {+queryRoute?.level === 2 ? (
+                          <>Districts</>
+                        ) : +queryRoute?.level === 3 ? (
+                          <>Sectors</>
+                        ) : +queryRoute?.level === 4 ? (
+                          <>Cells</>
+                        ) : +queryRoute?.level === 6 ? (
+                          <>Villages</>
+                        ) : (
+                          <></>
+                        )}
+                        ({departmentListData?.data?.count || 0})
+                      </span>
                     </div>
                   </li>
-                </ol>
-              </nav>
-            </>
-          }
-          open={openAdmins}
-          onClose={() => {
-            setOpenAdmins(false)
-            setSelectDepartment(null)
-          }}
-          children={
-            <>
-              {selectDepartment && (
-                <Admins
-                  selectDepartment={{ id: selectDepartment?.ID }}
-                  user={user}
-                />
-              )}
-            </>
-          }
-        />
+                )}
+              </ol>
+            </nav>
+          ) : (
+            <>Departments({departmentListData?.data?.count || 0})</>
+          )}
+        </dt>
 
-        <div className="mt-2 flex flex-col w-[95%] mx-auto">
-          <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
+        <div className="pr-0">
+          <div className="flex items-center  justify-between">
+            <Button
+              className="mr-2 py-2 px-2 bg-primary text-white rounded-[50%]"
+              value={
+                <>
+                  <FontAwesomeIcon icon={faFile} />
+                  <span className="px-1">Export Report</span>
+                </>
+              }
+              route={'#'}
+              onClick={openExportPopup}
+            />
+            <DepartmentModals />
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center  justify-between mx-4">
+        <div className="mt-0 flex flex-col w-[100%] mx-auto">
+          <div className="mx-4 sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -765,19 +765,34 @@ const DepartmentsTable = ({ user }) => {
                   >
                     {data.map((row, index) => (
                       <tr key={index} role="row">
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
+                        <td
+                          role="cell"
+                          className="px-6 py-4 whitespace-nowrap flex items-center "
+                        >
                           {row?.level_id !== 6 && (
                             <>
-                              <Link
-                                // to={`/admins/${row?.ID}`}
+                              <button
+                                className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                type="button"
                                 onClick={() => {
                                   setOpenAdmins(true)
                                   setSelectDepartment(row)
                                 }}
-                                className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
                               >
-                                Admins
-                              </Link>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                <span className="pl-2">Admins</span>
+                              </button>
                             </>
                           )}
                           {/* Manage District */}
@@ -786,13 +801,40 @@ const DepartmentsTable = ({ user }) => {
                               to={`/departments?level=2&province=${
                                 row?.ID || user?.myAddress?.province?.id
                               }`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
+                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                               onClick={(e) => {
                                 e.preventDefault() // Prevent React Router from handling the navigation
                                 window.location.href = e.currentTarget.href // Force a full-page reload
                               }}
                             >
-                              Manage Districts
+                              Manage{' '}
+                              {row?.name?.charAt(0).toUpperCase() +
+                                row?.name?.slice(1).toLowerCase()}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                              Districts
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
                             </Link>
                           )}
                           {row?.level_id === 2 && (
@@ -803,13 +845,40 @@ const DepartmentsTable = ({ user }) => {
                               }&district=${
                                 row?.ID || user?.myAddress?.district?.id
                               }`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
+                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                               onClick={(e) => {
                                 e.preventDefault() // Prevent React Router from handling the navigation
                                 window.location.href = e.currentTarget.href // Force a full-page reload
                               }}
                             >
-                              Manage Sectors
+                              Manage{' '}
+                              {row?.name?.charAt(0).toUpperCase() +
+                                row?.name?.slice(1).toLowerCase()}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                              Sectors
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
                             </Link>
                           )}
                           {row?.level_id === 3 && (
@@ -823,13 +892,40 @@ const DepartmentsTable = ({ user }) => {
                               }&sector=${
                                 row?.ID || user?.myAddress?.sector?.id
                               }`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
+                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                               onClick={(e) => {
                                 e.preventDefault() // Prevent React Router from handling the navigation
                                 window.location.href = e.currentTarget.href // Force a full-page reload
                               }}
                             >
-                              Manage Cells
+                              Manage{' '}
+                              {row?.name?.charAt(0).toUpperCase() +
+                                row?.name?.slice(1).toLowerCase()}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                              Cells
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
                             </Link>
                           )}
                           {row?.level_id === 4 && (
@@ -844,27 +940,79 @@ const DepartmentsTable = ({ user }) => {
                                 queryRoute?.sector ||
                                 user?.myAddress?.sector?.id
                               }&cell=${row?.ID || user?.myAddress?.cell?.id}`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
+                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                               onClick={(e) => {
                                 e.preventDefault() // Prevent React Router from handling the navigation
                                 window.location.href = e.currentTarget.href // Force a full-page reload
                               }}
                             >
-                              Manage Villages
+                              Manage{' '}
+                              {row?.name?.charAt(0).toUpperCase() +
+                                row?.name?.slice(1).toLowerCase()}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                              Villages
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="w-4 h-4 ml-1.5"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
                             </Link>
                           )}
 
                           {row?.level_id === 6 && (
-                            <Link
+                            <>
+                              <button
+                                className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                type="button"
+                                onClick={() => {
+                                  setOpenAdmins(true)
+                                  setSelectDepartment(row)
+                                }}
+                              >
+                                {/* <Link
                               to={`/agents`}
-                              className="mx-2 px-2 py-1 text-white bg-primary rounded-sm shadow-md"
+                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                               onClick={(e) => {
                                 e.preventDefault() // Prevent React Router from handling the navigation
                                 window.location.href = e.currentTarget.href // Force a full-page reload
                               }}
                             >
-                              Manage Agents
-                            </Link>
+                             Agents
+                            </Link> */}
+
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                <span className="pl-2">Agents</span>
+                              </button>
+                            </>
                           )}
                         </td>
                         <td role="cell" className="px-6 py-4 whitespace-nowrap">
@@ -891,11 +1039,11 @@ const DepartmentsTable = ({ user }) => {
                 )}
 
                 {departmentListError && (
-                  <main className="min-h-[80vh] flex items-center justify-center flex-col gap-6">
+                  <main className="min-h-[40vh] flex items-center justify-center flex-col gap-6">
                     <h1 className="text-[25px] font-medium text-center">
                       Could not load department records
                     </h1>
-                    <Button value="Go to dashboard" route="/dashboard" />
+                    {/* <Button value="Go to dashboard" route="/dashboard" /> */}
                   </main>
                 )}
               </div>

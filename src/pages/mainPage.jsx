@@ -5,12 +5,12 @@ import { ToastContainer } from "react-toastify";
 
 const AppLayout = ({user, isOpen}) => {
     return (
-        <main className={`relative h-full`}>
-            <section className="absolute">
+        <main className={`h-full`}>
+            <section className="relative">
                 <Sidebar user={user} />
             </section>
             <section
-                className={`absolute ${
+                className={`relative ${
                 isOpen
                     ? 'w-[80vw] left-[20vw]'
                     : 'w-[96vw] left-[4vw]'

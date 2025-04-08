@@ -57,7 +57,7 @@ const HouseholdTable = ({ user }) => {
   const [showExportPopup, setShowExportPopup] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [reportName, setReportName] = useState(
-    "UMUSANZU DIGITAL'S  REGISTERED HOUSEHOLDS"
+    `UMUSANZU DIGITAL'S REGISTERED HOUSEHOLDS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
   )
   const location = useLocation()
   const openExportPopup = () => {

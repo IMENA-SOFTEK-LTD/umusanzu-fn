@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react' // Import React and necessary hooks
 import Card from '../../components/Card'
-import CreateAdminModel from '../../components/models/CreateAdminModel'
 import { useLazyGetStaffQuery } from '../../states/api/apiSlice'
 import { useParams, useNavigate } from 'react-router-dom'
-import Button from '../../components/Button'
 import Loading from '../../components/Loading'
-import UDialog from '../../components/models/UDialog'
-import UserProfilePage from './UserProfilePage'
+
 const Admins = ({ selectDepartment }) => {
   const user = JSON.parse(localStorage.getItem('user'))
   const params = useParams()

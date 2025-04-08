@@ -3,10 +3,9 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
-  Button,
 } from '@material-tailwind/react'
 
-const UDialog = ({
+const CustomDialog = ({
   open,
   title,
   subTitle,
@@ -16,11 +15,11 @@ const UDialog = ({
   children,
 }) => {
   return (
-    <Dialog open={open} size={size || 'sm'} animate>
-      <DialogHeader>
+    <Dialog open={open} size={size || 'sm'}   className="fixed  shadow-lg rounded-lg">
+      <DialogHeader className='bg-primary text-white'>
         <div className="flex justify-between items-start w-full">
           <div>
-            <h5 className="text-xl font-medium text-slate-800">{title}</h5>
+            <h5 className="text-xl font-medium text-slate-800 text-white">{title}</h5>
             {subTitle && (
               <p className="text-slate-500 text-sm font-light">{subTitle}</p>
             )}
@@ -58,4 +57,4 @@ const UDialog = ({
   )
 }
 
-export default UDialog
+export default CustomDialog
