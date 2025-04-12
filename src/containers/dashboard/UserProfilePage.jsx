@@ -10,8 +10,9 @@ import { toggleUpdateStaff } from '../../states/features/modals/modalSlice'
 import UpdateAdminStatusModel from '../../components/models/UpdateAdminStatusModel'
 import moment from 'moment'
 import { getUserDepartmentsInfoByLevelId } from '../../utils/userByLevelId'
+import { Typography } from '@material-tailwind/react'
 
-const UserProfilePage = ({ selectProfile }) => {
+const UserProfilePage = ({ selectProfile, type }) => {
   const localStorageUser = JSON.parse(localStorage.getItem('user'))
   const [isEditing, setIsEditing] = useState(false)
   const dispatch = useDispatch()
@@ -83,35 +84,36 @@ const UserProfilePage = ({ selectProfile }) => {
     recentActivities: [{ id: 1, activity: 'Logged in', date: '2023-08-18' }],
   })
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing)
-  }
-
-  const handleStatusChange = () => {
-    const newStatus = user.status === 'Active' ? 'Inactive' : 'Active'
-    setUser((prevUser) => ({ ...prevUser, status: newStatus }))
-  }
-
-  const handleDelete = () => {
-    // Handle delete user functionality here
-  }
-
   return (
     <div className="flex items-start gap-4 mx-auto">
-      <UpdateStaff toggleButton={false} setData={setData} admin={data} />
+      <UpdateStaff
+        toggleButton={false}
+        setData={setData}
+        type={type}
+        admin={data}
+      />
       <div className="w-full max-w-[60%] bg-white  p-6 space-y-4">
         <div className="flex justify-between items-center p-4 border rounded-lg shadow-md">
           <h1 className="text-[18px] font-semibold">{data?.names}</h1>
           <div className="flex gap-4">
-            <button
-              className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-primary hover:scale-[0.98]"
-              onClick={() => {
-                dispatch(toggleUpdateStaff(!updateStaff))
-              }}
-            >
-              Edit
-            </button>
-            <UpdateAdminStatusModel user={localStorageUser} setData={setData} admin={data} />
+            {localStorageUser?.staff_role === 1 && (
+              <>
+                <button
+                  className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-primary hover:scale-[0.98]"
+                  onClick={() => {
+                    dispatch(toggleUpdateStaff(!updateStaff))
+                  }}
+                >
+                  Edit
+                </button>
+                <UpdateAdminStatusModel
+                  type={type}
+                  user={localStorageUser}
+                  setData={setData}
+                  admin={data}
+                />
+              </>
+            )}
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -209,15 +211,28 @@ const UserProfilePage = ({ selectProfile }) => {
         <ul className="space-y-2">
           {logActivitiesData?.data.length > 0 ? (
             logActivitiesData.data.map((activity) => (
-              <li
-                key={activity.id}
-                className="flex justify-between items-center border-b border-gray-200 py-2"
-              >
-                <div className="text-gray-800">{activity.activity}</div>
-                <div className="text-gray-500">
-                  {moment(activity.createdAt).fromNow()}
+              <>
+                <div
+                  key={activity.id}
+                  className="mt-3 flex items-center justify-between"
+                >
+                  <Typography color="blue-gray" className="font-medium">
+                    {activity.action}
+                  </Typography>
+                  <Typography color="blue-gray" className="font-medium">
+                    <div className="text-gray-500">
+                      {moment(activity.createdAt).fromNow()}
+                    </div>
+                  </Typography>
                 </div>
-              </li>
+                <Typography
+                  variant="small"
+                  color="gray"
+                  className="font-normal opacity-75"
+                >
+                  <pre>{activity.activity}</pre>
+                </Typography>
+              </>
             ))
           ) : (
             <li className="text-gray-800">

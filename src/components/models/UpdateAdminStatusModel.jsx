@@ -12,7 +12,7 @@ import {
   useDeleteAdminMutation,
 } from '../../states/api/apiSlice'
 
-const UpdateAdminStatusModel = ({ user,admin, setData }) => {
+const UpdateAdminStatusModel = ({ user, admin, setData, type }) => {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isUpdateLoading, setIsUpdateLoading] = useState(false)
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
@@ -67,14 +67,17 @@ const UpdateAdminStatusModel = ({ user,admin, setData }) => {
   const handleUpdateStatus = async (values) => {
     setIsUpdateLoading(true)
     try {
+      if (!values.toUpperCase()) {
+        setIsUpdateLoading(false)
+        return toast.error('Please select status')
+      }
       await updateAdminStatus({
         id,
-        route: department,
         status: values.toUpperCase(),
       })
         .unwrap()
         .then((res) => {
-          setData(res?.data);
+          setData(res?.data)
           toast.success('Admin status updated successfully!')
           closeModal()
         })
@@ -167,19 +170,19 @@ const UpdateAdminStatusModel = ({ user,admin, setData }) => {
                 <span className="sr-only">Close modal</span>
               </button>
               <h3 className="mb-4 mt-2 text-xl text-center font-medium text-white">
-                Delete Admin
+                Update Status {type}
               </h3>
             </div>
             <div className="px-6 py-6 lg:px-42">
               <form className="space-y-8">
-                <div className="flex justify-center items-center">
+                {/* <div className="flex justify-center items-center">
                   <div className="w-[300px] text-center text-md">
                     <p>
-                      Dear<span> {user?.names},</span> before you delete Admin
+                      Dear<span> {user?.names},</span> before you delete {type}
                       consider disabling their account instead
                     </p>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="flex-1">
                   <label
@@ -203,6 +206,7 @@ const UpdateAdminStatusModel = ({ user,admin, setData }) => {
                         }}
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 px-28"
                       >
+                        <option value=""></option>
                         <option value="ACTIVE">ACTIVE</option>
                         <option value="INACTIVE">INACTIVE</option>
                       </select>
@@ -235,7 +239,7 @@ const UpdateAdminStatusModel = ({ user,admin, setData }) => {
                       )
                     }}
                   />
-                  <Controller
+                  {/* <Controller
                     name="submitDeleteAdmin"
                     control={control}
                     render={() => {
@@ -247,11 +251,13 @@ const UpdateAdminStatusModel = ({ user,admin, setData }) => {
                           onClick={() => {
                             handleDeleteAdmin()
                           }}
-                          value={isDeleteLoading ? <Loading /> : 'Delete Admin'}
+                          value={
+                            isDeleteLoading ? <Loading /> : 'Delete ' + type
+                          }
                         />
                       )
                     }}
-                  />
+                  /> */}
                 </div>
               </form>
             </div>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { Button as MButton } from '@material-tailwind/react'
 
 const Button = ({
   value,
@@ -10,24 +11,56 @@ const Button = ({
   onClick,
   disabled = false,
   background = true,
+  material,
+  size,
+
+  variant,
+  color,
+  fullWidth,
+  ripple,
+  loading= false
 }) => {
   if (submit) {
     return (
-      <button
-        type={type || 'submit'}
-        onClick={onClick}
-        className={`w-fit py-2 px-6 flex items-center justify-center rounded-md bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99] ${
-          background === false
-            ? 'bg-transparent !h-fit !min-h-fit !text-black !border-none hover:!text-primary hover:bg-transparent hover:underline'
-            : null
-        } ${
-          disabled
-            ? '!bg-slate-200 text-white cursor-default hover:scale-[1] bg-opacity-25 hover:bg-accent border-none'
-            : null
-        } ${className}`}
-      >
-        {value}
-      </button>
+      <>
+        {material ? (
+          <>
+            <MButton
+              type={type || 'submit'}
+              variant={variant}
+              color={color}
+              fullWidth={fullWidth}
+              ripple={ripple}
+              className={className}
+              loading={loading}
+              size={size}
+              children={value}
+              style={{textTransform:"none"}}
+              onClick={onClick}
+            >
+              {value}
+            </MButton>
+          </>
+        ) : (
+          <>
+            <button
+              type={type || 'submit'}
+              onClick={onClick}
+              className={`w-fit py-2 px-6 flex items-center justify-center rounded-md bg-primary text-[15px] text-white ease-in-out duration-200 hover:scale-[.99] ${
+                background === false
+                  ? 'bg-transparent !h-fit !min-h-fit !text-black !border-none hover:!text-primary hover:bg-transparent hover:underline'
+                  : null
+              } ${
+                disabled
+                  ? '!bg-slate-200 text-white cursor-default hover:scale-[1] bg-opacity-25 hover:bg-accent border-none'
+                  : null
+              } ${className}`}
+            >
+              {value}
+            </button>
+          </>
+        )}
+      </>
     )
   }
   return (

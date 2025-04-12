@@ -15,7 +15,7 @@ const CustomDialog = ({
   children,
 }) => {
   return (
-    <Dialog open={open} size={size || 'sm'}   className="fixed  shadow-lg rounded-lg">
+    <Dialog open={open} size={size || 'sm'}>
       <DialogHeader className='bg-primary text-white'>
         <div className="flex justify-between items-start w-full">
           <div>

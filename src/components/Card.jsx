@@ -13,7 +13,8 @@ const AwesomeCard = ({
   onViewProfileClick,
   createdAt,
   enabledDialog,
-  user
+  user,
+  type
 }) => {
   useEffect(() => {
     document.title = `${name} | Umusanzu Digital`
@@ -68,7 +69,7 @@ const AwesomeCard = ({
         }}
         children={
           <>
-            <UserProfilePage selectProfile={{ id }} user={user} />
+            <UserProfilePage type={type} selectProfile={{ id }} user={user} />
           </>
         }
       />

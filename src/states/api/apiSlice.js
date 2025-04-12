@@ -90,8 +90,8 @@ export const apiSlice = createApi({
       }),
 
       updateAdminStatus: builder.mutation({
-        query: ({ id, status, route }) => ({
-          url: `/${route}/status/${id}`,
+        query: ({ id, status }) => ({
+          url: `/staff/status/${id}`,
           method: 'PUT',
           body: { status },
         }),
@@ -159,10 +159,9 @@ export const apiSlice = createApi({
           level_id,
           phone1,
           phone2,
-          email,
-          department,
+          email
         }) => ({
-          url: `/department/${department}`,
+          url: `/department`,
           method: 'POST',
           body: {
             name,
@@ -839,6 +838,7 @@ export const apiSlice = createApi({
             staff_role,
             email,
             password,
+            department_id
           },
         }),
       }),

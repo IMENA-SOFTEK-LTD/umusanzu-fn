@@ -57,7 +57,7 @@ function Settings({ user }) {
   return (
     <main className="flex flex-col gap-10 mt-10 max-[900px]:p900-settings max-[100px]:p100-settings max-[150px]:p150-settings max-[200px]:p200-settings max-[250px]:p250-settings max-[300px]:p300-settings max-[350px]:p350-settings max-[400px]:p400-settings max-[450px]:p450-settings max-[500px]:p500-settings max-[600px]:p600-settings max-[700px]:p700-settings max-[800px]:p800-settings max-[1000px]:p1000-settings max-[1100px]:p1100-settings max-[1200px]:p1200-settings max-[1300px]:p1300-settings max-[2000px]:p2000-settings">
       <div className="w-full relative pb-20">
-        <CreateAdmin />
+        {/* <CreateAdmin />
         {stateUser?.staff_role === 1 &&
           [3,5].includes(stateUser?.departments?.level_id) && (
             <Button
@@ -68,7 +68,7 @@ function Settings({ user }) {
                 dispatch(setCreateAdminModal(true))
               }}
             />
-          )}
+          )} */}
       </div>
       <div className="flex flex-row justify-between">
         <div className="bg-white overflow-hidden p-2 shadow rounded-lg border">

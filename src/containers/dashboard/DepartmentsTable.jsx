@@ -11,6 +11,7 @@ import Button, { PageButton } from '../../components/Button'
 import { DepartmentModals } from '../../containers/dashboard/DepartmentModals'
 import Loading from '../../components/Loading'
 import {
+  faAdd,
   faClose,
   faFileExcel,
   faFilePdf,
@@ -42,17 +43,22 @@ import {
 import HouseHoldFilter from './HouseHoldFilter'
 import CustomDialog from '../../components/models/CustomDialog'
 import Admins from './Admins'
+import CreateDepartmentModel from '../../components/models/CreateDepartmentModel'
 
 const DepartmentsTable = ({ user }) => {
   const [isExporting, setIsExporting] = useState(false)
   const [openAdmins, setOpenAdmins] = useState(false)
+  const [showDepartmentModal, setShowDepartmentModal] = useState(false)
   const [selectDepartment, setSelectDepartment] = useState(null)
-
+  const [selectedLevelId, setSelectedLevelId] = useState('')
+  const [selectedDepartmentName, setSelectedDepartmentName] = useState('')
+  const { user: stateUser } = useSelector((state) => state.auth)
+  //  console.log(stateUser);
   const [reportName, setReportName] = useState(
     `UMUSANZU DIGITAL'S  REGISTERED DEPARTMENTS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
   )
   const [showExportPopup, setShowExportPopup] = useState(false)
-  const { sectorId, userOrSelectedDepartmentNames } = useSelector(
+  const { userOrSelectedDepartmentNames } = useSelector(
     (state) => state.departments
   )
   const openExportPopup = () => {
@@ -472,7 +478,7 @@ const DepartmentsTable = ({ user }) => {
   return (
     <main className={`my-12`}>
       <CustomDialog
-        size="sm"
+        size="xl"
         title={
           <>
             <nav className="flex" aria-label="Breadcrumb">
@@ -496,7 +502,7 @@ const DepartmentsTable = ({ user }) => {
 
                 <li>
                   <div className="flex">
-                    <span>Admins</span>
+                    <span>{selectDepartment?.level_id === 6 ? 'Agents' : 'Admins'}</span>
                   </div>
                 </li>
               </ol>
@@ -512,6 +518,7 @@ const DepartmentsTable = ({ user }) => {
           <>
             {selectDepartment && (
               <Admins
+                type={selectDepartment?.level_id === 6 ? 'Agent' : 'Admin'}
                 selectDepartment={{ id: selectDepartment?.ID }}
                 user={user}
               />
@@ -519,6 +526,22 @@ const DepartmentsTable = ({ user }) => {
           </>
         }
       />
+      {showDepartmentModal && (
+        <CreateDepartmentModel
+          title={
+            'Add ' +
+            selectDepartment?.name?.charAt(0).toUpperCase() +
+            selectDepartment?.name?.slice(1).toLowerCase() +
+            ''
+          }
+          showModal={showDepartmentModal}
+          setShowModal={setShowDepartmentModal}
+          department={selectedDepartmentName}
+          departmentId={selectDepartment?.ID}
+          levelId={selectedLevelId}
+        />
+      )}
+
       {showExportPopup && (
         <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
           <div className="bg-white p-4 rounded-lg shadow-lg">
@@ -631,7 +654,7 @@ const DepartmentsTable = ({ user }) => {
           )}
         </dt>
 
-        <div className="pr-0">
+        <div className="mr-2">
           <div className="flex items-center  justify-between">
             <Button
               className="mr-2 py-2 px-2 bg-primary text-white rounded-[50%]"
@@ -769,249 +792,259 @@ const DepartmentsTable = ({ user }) => {
                           role="cell"
                           className="px-6 py-4 whitespace-nowrap flex items-center "
                         >
-                          {row?.level_id !== 6 && (
-                            <>
-                              <button
-                                className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                                onClick={() => {
-                                  setOpenAdmins(true)
-                                  setSelectDepartment(row)
-                                }}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  className="w-4 h-4"
-                                >
-                                  <path
-                                    fill-rule="evenodd"
-                                    d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                                    clip-rule="evenodd"
-                                  />
-                                </svg>
-                                <span className="pl-2">Admins</span>
-                              </button>
-                            </>
-                          )}
+                          <button
+                            className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                            type="button"
+                            onClick={() => {
+                              setOpenAdmins(true)
+                              setSelectDepartment(row)
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                            <span className="pl-2">
+                              {row?.level_id === 6 ? 'Agents' : 'Admins'}{' '}
+                            </span>
+                          </button>
+
                           {/* Manage District */}
                           {row?.level_id === 1 && (
-                            <Link
-                              to={`/departments?level=2&province=${
-                                row?.ID || user?.myAddress?.province?.id
-                              }`}
-                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage{' '}
-                              {row?.name?.charAt(0).toUpperCase() +
-                                row?.name?.slice(1).toLowerCase()}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Districts
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                            </Link>
-                          )}
-                          {row?.level_id === 2 && (
-                            <Link
-                              to={`/departments?level=3&province=${
-                                queryRoute?.province ||
-                                user?.myAddress?.province?.id
-                              }&district=${
-                                row?.ID || user?.myAddress?.district?.id
-                              }`}
-                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage{' '}
-                              {row?.name?.charAt(0).toUpperCase() +
-                                row?.name?.slice(1).toLowerCase()}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Sectors
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                            </Link>
-                          )}
-                          {row?.level_id === 3 && (
-                            <Link
-                              to={`/departments?level=4&province=${
-                                queryRoute?.province ||
-                                user?.myAddress?.province?.id
-                              }&district=${
-                                queryRoute?.district ||
-                                user?.myAddress?.district?.id
-                              }&sector=${
-                                row?.ID || user?.myAddress?.sector?.id
-                              }`}
-                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage{' '}
-                              {row?.name?.charAt(0).toUpperCase() +
-                                row?.name?.slice(1).toLowerCase()}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Cells
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                            </Link>
-                          )}
-                          {row?.level_id === 4 && (
-                            <Link
-                              to={`/departments?level=6&province=${
-                                queryRoute?.province ||
-                                user?.myAddress?.province?.id
-                              }&district=${
-                                queryRoute?.district ||
-                                user?.myAddress?.district?.id
-                              }&sector=${
-                                queryRoute?.sector ||
-                                user?.myAddress?.sector?.id
-                              }&cell=${row?.ID || user?.myAddress?.cell?.id}`}
-                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                              Manage{' '}
-                              {row?.name?.charAt(0).toUpperCase() +
-                                row?.name?.slice(1).toLowerCase()}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Villages
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                class="w-4 h-4 ml-1.5"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                            </Link>
-                          )}
-
-                          {row?.level_id === 6 && (
                             <>
-                              <button
-                                className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                type="button"
-                                onClick={() => {
-                                  setOpenAdmins(true)
-                                  setSelectDepartment(row)
+                              {stateUser?.staff_role === 1 && (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  color="blue"
+                                  material
+                                  className="mx-2 p-1.5 rounded-md"
+                                  value={
+                                    <>
+                                      <FontAwesomeIcon icon={faAdd} />
+                                      <span className="px-1">
+                                        {' '}
+                                        Add District
+                                      </span>
+                                    </>
+                                  }
+                                  onClick={() => {
+                                    setSelectDepartment(row)
+                                    setSelectedDepartmentName('District')
+                                    setSelectedLevelId(2)
+                                    setShowDepartmentModal(true)
+                                  }}
+                                  submit
+                                />
+                              )}
+
+                              <Link
+                                to={`/departments?level=2&province=${
+                                  row?.ID || user?.myAddress?.province?.id
+                                }`}
+                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                onClick={(e) => {
+                                  e.preventDefault() // Prevent React Router from handling the navigation
+                                  window.location.href = e.currentTarget.href // Force a full-page reload
                                 }}
                               >
-                                {/* <Link
-                              to={`/agents`}
-                              className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                              onClick={(e) => {
-                                e.preventDefault() // Prevent React Router from handling the navigation
-                                window.location.href = e.currentTarget.href // Force a full-page reload
-                              }}
-                            >
-                             Agents
-                            </Link> */}
-
+                                All Districts
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
                                   viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  className="w-4 h-4"
+                                  strokeWidth={2}
+                                  stroke="currentColor"
+                                  class="w-4 h-4 ml-1.5"
                                 >
                                   <path
-                                    fill-rule="evenodd"
-                                    d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                                    clip-rule="evenodd"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
                                   />
                                 </svg>
-                                <span className="pl-2">Agents</span>
-                              </button>
+                              </Link>
+                            </>
+                          )}
+                          {row?.level_id === 2 && (
+                            <>
+                              {stateUser?.staff_role === 1 && (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  color="blue"
+                                  material
+                                  className="mx-2 p-1.5 rounded-md"
+                                  value={
+                                    <>
+                                      <FontAwesomeIcon icon={faAdd} />
+                                      <span className="px-1"> Add Sector</span>
+                                    </>
+                                  }
+                                  onClick={() => {
+                                    setSelectDepartment(row)
+                                    setSelectedDepartmentName('Sector')
+                                    setSelectedLevelId(3)
+                                    setShowDepartmentModal(true)
+                                  }}
+                                  submit
+                                />
+                              )}
+
+                              <Link
+                                to={`/departments?level=3&province=${
+                                  queryRoute?.province ||
+                                  user?.myAddress?.province?.id
+                                }&district=${
+                                  row?.ID || user?.myAddress?.district?.id
+                                }`}
+                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                onClick={(e) => {
+                                  e.preventDefault() // Prevent React Router from handling the navigation
+                                  window.location.href = e.currentTarget.href // Force a full-page reload
+                                }}
+                              >
+                                All Sectors
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={2}
+                                  stroke="currentColor"
+                                  class="w-4 h-4 ml-1.5"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                  />
+                                </svg>
+                              </Link>
+                            </>
+                          )}
+                          {row?.level_id === 3 && (
+                            <>
+                              {stateUser?.staff_role === 1 && (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  color="blue"
+                                  material
+                                  className="mx-2 p-1.5 rounded-md"
+                                  value={
+                                    <>
+                                      <FontAwesomeIcon icon={faAdd} />
+                                      <span className="px-1"> Add Cell</span>
+                                    </>
+                                  }
+                                  onClick={() => {
+                                    setSelectDepartment(row)
+                                    setSelectedDepartmentName('Cell')
+                                    setSelectedLevelId(4)
+                                    setShowDepartmentModal(true)
+                                  }}
+                                  submit
+                                />
+                              )}
+                              <Link
+                                to={`/departments?level=4&province=${
+                                  queryRoute?.province ||
+                                  user?.myAddress?.province?.id
+                                }&district=${
+                                  queryRoute?.district ||
+                                  user?.myAddress?.district?.id
+                                }&sector=${
+                                  row?.ID || user?.myAddress?.sector?.id
+                                }`}
+                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                onClick={(e) => {
+                                  e.preventDefault() // Prevent React Router from handling the navigation
+                                  window.location.href = e.currentTarget.href // Force a full-page reload
+                                }}
+                              >
+                                All Cells
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={2}
+                                  stroke="currentColor"
+                                  class="w-4 h-4 ml-1.5"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                  />
+                                </svg>
+                              </Link>
+                            </>
+                          )}
+                          {row?.level_id === 4 && (
+                            <>
+                              {stateUser?.staff_role === 1 && (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  color="blue"
+                                  material
+                                  className="mx-2 p-1.5 rounded-md"
+                                  value={
+                                    <>
+                                      <FontAwesomeIcon icon={faAdd} />
+                                      <span className="px-1"> Add Village</span>
+                                    </>
+                                  }
+                                  onClick={() => {
+                                    setSelectDepartment(row)
+                                    setSelectedDepartmentName('Village')
+                                    setSelectedLevelId(6)
+                                    setShowDepartmentModal(true)
+                                  }}
+                                  submit
+                                />
+                              )}
+                              <Link
+                                to={`/departments?level=6&province=${
+                                  queryRoute?.province ||
+                                  user?.myAddress?.province?.id
+                                }&district=${
+                                  queryRoute?.district ||
+                                  user?.myAddress?.district?.id
+                                }&sector=${
+                                  queryRoute?.sector ||
+                                  user?.myAddress?.sector?.id
+                                }&cell=${row?.ID || user?.myAddress?.cell?.id}`}
+                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                onClick={(e) => {
+                                  e.preventDefault() // Prevent React Router from handling the navigation
+                                  window.location.href = e.currentTarget.href // Force a full-page reload
+                                }}
+                              >
+                                All Villages
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={2}
+                                  stroke="currentColor"
+                                  class="w-4 h-4 ml-1.5"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                  />
+                                </svg>
+                              </Link>
                             </>
                           )}
                         </td>

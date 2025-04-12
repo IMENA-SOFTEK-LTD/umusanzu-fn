@@ -2,22 +2,18 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useLocation,
   useNavigate,
 } from 'react-router-dom'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Login from './pages/auth/Login.jsx'
 import Validate2faPage from './pages/auth/Validate2faPage.jsx'
 import Sector_commission from './containers/dashboard/Sector_commission.jsx'
-import Sidebar from './containers/navigation/Sidebar.jsx'
-import Navbar from './containers/navigation/Navbar.jsx'
 import Dashboard from './pages/dashboard/Dashboard.jsx'
 import HouseDetails from './containers/dashboard/HouseDetails.jsx'
 import TransactionTable from './containers/dashboard/TransactionTable.jsx'
 import IsLoggedIn from './outlets/IsLoggedIn.jsx'
 import { useSelector } from 'react-redux'
-import CreateVillageModel from './components/models/CreateVillageModel'
 import Settings from './pages/Settings.jsx'
 import HouseholdTable from './containers/dashboard/HouseholdTable.jsx'
 import UserProfilePage from './containers/dashboard/UserProfilePage.jsx'
@@ -164,7 +160,6 @@ const App = () => {
                 path="/reports"
                 element={<Reports user={user || stateUser} />}
               />
-              <Route path="/createVillage" element={<CreateVillageModel />} />
               <Route path="/households/:id" element={<HouseholdDetails />} />
               <Route
                 path="/households/create"
