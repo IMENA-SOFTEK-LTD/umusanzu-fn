@@ -122,7 +122,7 @@ const Admins = ({ selectDepartment, type }) => {
       </div>
       <div
         className="flex pt-8 mt-4"
-        style={{ overflow: 'auto', height: '80vh' }}
+       
       >
         {data?.length === 0 ? (
           <div className="w-full h-screen min-h-[70vh] flex items-center justify-center">
@@ -134,7 +134,7 @@ const Admins = ({ selectDepartment, type }) => {
             </div>
           </div>
         ) : (
-          <div className="flex items-start flex-wrap gap-6">
+          <div className="flex items-start flex-wrap gap-6 mt-5"  style={{ overflow: 'auto', height: '80vh' }}>
             {data?.map((admin, index) => (
               <Card
                 key={index}

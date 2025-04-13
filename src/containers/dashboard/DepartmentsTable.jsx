@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react'
 import 'jspdf-autotable'
-import logo from '../../assets/LOGO.png'
-import cachet from '../../assets/cachet.png'
-import signature from '../../assets/signature.png'
-import jsPDF from 'jspdf'
-import ExcelJS from 'exceljs'
 import { useLazyGetDepartmentListsQuery } from '../../states/api/apiSlice'
 import PropTypes from 'prop-types'
 import Button, { PageButton } from '../../components/Button'
@@ -31,7 +26,6 @@ import {
   faFile,
 } from '@fortawesome/free-solid-svg-icons'
 import { Link } from 'react-router-dom'
-import moment from 'moment'
 import queryString from 'query-string'
 import {
   setSelectedCell,
@@ -44,18 +38,25 @@ import HouseHoldFilter from './HouseHoldFilter'
 import CustomDialog from '../../components/models/CustomDialog'
 import Admins from './Admins'
 import CreateDepartmentModel from '../../components/models/CreateDepartmentModel'
+import { toast } from 'react-toastify'
+import download from 'downloadjs'
+import API_URL from '../../constants'
+import axios from 'axios'
 
 const DepartmentsTable = ({ user }) => {
   const [isExporting, setIsExporting] = useState(false)
   const [openAdmins, setOpenAdmins] = useState(false)
   const [showDepartmentModal, setShowDepartmentModal] = useState(false)
+  const [departmentListLoading, setShowDepartmentListLoading] = useState(false)
+  const [departmentListError, setDepartmentListError] = useState(false)
+  const [totalRecords, setTotalRecords] = useState(0)
   const [selectDepartment, setSelectDepartment] = useState(null)
   const [selectedLevelId, setSelectedLevelId] = useState('')
   const [selectedDepartmentName, setSelectedDepartmentName] = useState('')
   const { user: stateUser } = useSelector((state) => state.auth)
-  //  console.log(stateUser);
+
   const [reportName, setReportName] = useState(
-    `UMUSANZU DIGITAL'S  REGISTERED DEPARTMENTS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
+    `UMUSANZU DIGITAL'S REGISTERED DEPARTMENTS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
   )
   const [showExportPopup, setShowExportPopup] = useState(false)
   const { userOrSelectedDepartmentNames } = useSelector(
@@ -67,16 +68,7 @@ const DepartmentsTable = ({ user }) => {
   const closeExportPopup = () => {
     setShowExportPopup(false)
   }
-  const [
-    getDepartmentLists,
-    {
-      data: departmentListData,
-      isSuccess: departmentListIsSuccess,
-      isLoading: departmentListIsLoading,
-      isError: departmentListIsError,
-      error: departmentListError,
-    },
-  ] = useLazyGetDepartmentListsQuery()
+  const [getDepartmentLists] = useLazyGetDepartmentListsQuery()
 
   const dispatch = useDispatch()
   let department = ''
@@ -126,7 +118,7 @@ const DepartmentsTable = ({ user }) => {
     totalPages,
   } = useSelector((state) => state.pagination)
 
-  const [data, setData] = useState(departmentListData?.data?.rows || [])
+  const [data, setData] = useState([])
   useEffect(() => {
     setQueries({
       ...queries,
@@ -148,320 +140,79 @@ const DepartmentsTable = ({ user }) => {
   ])
 
   useEffect(() => {
-    // console.log(queries);
-    getDepartmentLists({
+    onLoadDepartmentLists({
       ...queries,
       size,
       page: offset,
     })
   }, [size, offset, queries])
+
   useEffect(() => {
-    if (departmentListIsSuccess) {
-      dispatch(setTotalPages(departmentListData?.data?.totalPages))
-      setData(
-        departmentListData?.data?.rows?.map((row, index) => ({
-          ID: row?.id,
-          id: index + 1,
-          name: row?.name,
-          email: row?.email,
-          phone1: row?.phone1,
-          phone2: row?.phone2,
-
-          village: row?.name,
-          cell: row?.cell,
-          sector: row?.sector,
-          district: row?.district,
-          province: row?.province,
-
-          level_id: row?.level_id,
-          level: row?.level,
-          merchant_code: row?.merchant_code,
-          department_id: row?.department_id,
-        })) || []
-      )
+    let reportName = `UMUSANZU DIGITAL'S REGISTERED PROVINCES IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
+    if (userOrSelectedDepartmentNames?.province) {
+      reportName = `UMUSANZU DIGITAL'S REGISTERED DISTRICTS IN ${userOrSelectedDepartmentNames?.province?.toUpperCase()} PROVINCE`
     }
-  }, [departmentListData, departmentListIsSuccess])
+    if (userOrSelectedDepartmentNames?.district) {
+      reportName = `UMUSANZU DIGITAL'S REGISTERED SECTORS IN ${userOrSelectedDepartmentNames?.district?.toUpperCase()} DISTRICT`
+    }
 
-  const handleExportToPdf = async () => {
-    /* eslint-ignore-next-line */
-    const doc = new jsPDF('landscape')
-    const logoResponse = await fetch(logo)
-    const logoData = await logoResponse.blob()
-    const reader = new FileReader()
+    if (userOrSelectedDepartmentNames?.sector) {
+      reportName = `UMUSANZU DIGITAL'S REGISTERED CELLS IN ${userOrSelectedDepartmentNames?.sector?.toUpperCase()} SECTOR`
+    }
 
-    reader.onload = async () => {
-      const logoBase64 = reader.result.split(',')[1]
-      doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
-      doc.setFont('Symbol', 'bold')
-      doc.setFontSize(12)
-      doc.text('IMENA SOFTEK LTD', 125, 50)
+    if (userOrSelectedDepartmentNames?.cell) {
+      reportName = `UMUSANZU DIGITAL'S REGISTERED VILLAGES IN ${userOrSelectedDepartmentNames?.cell?.toUpperCase()} CELL`
+    }
 
-      if (userOrSelectedDepartmentNames?.village !== undefined) {
-        doc.text(
-          `UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.village}  VILLAGE  REGISTERED  DEPARTMENTS`,
-          65,
-          65
-        )
-      } else if (
-        userOrSelectedDepartmentNames?.cell !== undefined &&
-        userOrSelectedDepartmentNames?.village === undefined
-      ) {
-        doc.text(
-          `UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.cell}  CELL  REGISTERED  DEPARTMENTS`,
-          65,
-          65
-        )
-      } else {
-        doc.text(
-          `UMUSANZU  DIGITAL'S  ${userOrSelectedDepartmentNames.sector}  SECTOR  REGISTERED  DEPARTMENTS`,
-          65,
-          65
-        )
-      }
-      doc.line(61, 67, 210, 67)
+    setReportName(reportName)
+  }, [setReportName,userOrSelectedDepartmentNames])
 
-      doc.setFontSize(10)
-      const columnHeader = [
-        'NO',
-        'VILLAGE',
-        'CELL',
-        ' SECTOR',
-        ' DISTRICT',
-        ' MERCHANT CODE',
-        ' PHONE',
-      ]
-      const headerRow = columnHeader.map((header) => ({
-        content: header,
-      }))
-      doc.autoTable({
-        startY: 75,
-        head: [headerRow],
-        theme: 'grid',
-        styles: {
-          fillColor: '#EDEDED',
-          textColor: '#000000',
-          fontStyle: 'bold',
-          halign: 'center',
-          valign: 'middle',
-          fontSize: 8,
-        },
-      })
+  const onLoadDepartmentLists = async (data) => {
+    setShowDepartmentListLoading(true)
+    try {
+      await getDepartmentLists(data)
+        .unwrap()
+        .then((res) => {
+          dispatch(setTotalPages(res?.data?.totalPages))
+          setTotalRecords(res?.data?.count)
+          setData(
+            res?.data?.rows?.map((row, index) => ({
+              ID: row?.id,
+              id: index + 1,
+              name: row?.name,
+              email: row?.email,
+              phone1: row?.phone1,
+              phone2: row?.phone2,
 
-      // Create a separate array for "NO" values starting from 1
-      const noValues = Array.from(
-        { length: TableInstance.rows.length },
-        (_, index) => index + 1
-      )
-      // Combine the "NO" values with your existing data, excluding the ID
-      const exportData = TableInstance.rows.map((row, index) => {
-        const { id, ID, ...rest } = row.original
-        return {
-          NO: noValues[index],
-          ...rest,
-        }
-      })
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY,
-        head: false,
-        body: exportData,
-        theme: 'grid',
-        styles: {},
-        columnStyles: {
-          0: { cellWidth: 20 },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 30 },
-          3: { cellWidth: 40 },
-          4: { cellWidth: 50 },
-          5: { cellWidth: 39 },
-        },
-      })
-      // Add your custom content here
-      const customContent = [
-        ['BITEGUWE NA:', 'BYEMEJWE NA:'],
-        ['', ''],
-        ['TETA TAMARA', 'NDAGIJIMANA Gedeon'],
-        ['DATA MANAGEMENT', 'CEO IMENA SOFTEK LTD'],
-        ['IMENA SOFTEK LTD', ''],
-      ]
+              village: row?.name,
+              cell: row?.cell,
+              sector: row?.sector,
+              district: row?.district,
+              province: row?.province,
 
-      // Define custom styles for the custom content (no lines and normal font weight)
-      const customContentStyles = {
-        theme: 'plain', // Use plain theme to remove table lines
-        styles: {
-          fontSize: 8,
-          fontStyle: 'normal', // Use normal font weight
-        },
-        columnStyles: {
-          0: { cellWidth: 150 },
-          1: { cellWidth: 100 },
-        },
-      }
-
-      if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
-        doc.addPage()
-        doc.text(`Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`, 16, 30)
-
-        doc.autoTable({
-          startY: 50,
-          head: false,
-          body: customContent,
-          ...customContentStyles,
+              level_id: row?.level_id,
+              level: row?.level,
+              merchant_code: row?.merchant_code,
+              department_id: row?.department_id,
+            })) || []
+          )
         })
-
-        const cachetResponse = await fetch(cachet)
-        const cachetData = await cachetResponse.blob()
-        const cachetBase64 = await convertBlobToBase64(cachetData)
-
-        doc.addImage(
-          cachetBase64,
-          'PNG',
-          200,
-          doc.lastAutoTable.finalY - 50,
-          50,
-          50
-        )
-
-        // Add the signature image here
-        const signatureResponse = await fetch(signature)
-        const signatureData = await signatureResponse.blob()
-        const signatureBase64 = await convertBlobToBase64(signatureData)
-
-        doc.addImage(
-          signatureBase64,
-          'PNG',
-          20,
-          doc.lastAutoTable.finalY - 50,
-          50,
-          50
-        )
-      } else {
-        doc.text(
-          `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-          16,
-          doc.lastAutoTable.finalY + 20
-        )
-
-        doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 40,
-          head: false,
-          body: customContent,
-          ...customContentStyles,
+        .catch((error) => {
+          setDepartmentListError(true)
+          if (error.data && error.data.message) {
+            toast.error(error.data.message)
+          } else {
+            toast.error(
+              'An error occurred while retrieving the department lists. Please try again'
+            )
+          }
         })
-        const cachetResponse = await fetch(cachet)
-        const cachetData = await cachetResponse.blob()
-        const cachetBase64 = await convertBlobToBase64(cachetData)
-
-        doc.addImage(
-          cachetBase64,
-          'PNG',
-          200,
-          doc.lastAutoTable.finalY - 50,
-          50,
-          50
-        )
-
-        // Add the signature image here
-        const signatureResponse = await fetch(signature)
-        const signatureData = await signatureResponse.blob()
-        const signatureBase64 = await convertBlobToBase64(signatureData)
-
-        doc.addImage(
-          signatureBase64,
-          'PNG',
-          20,
-          doc.lastAutoTable.finalY - 50,
-          50,
-          50
-        )
-      }
-
-      doc.save(`${reportName}.pdf`)
-    }
-    reader.readAsDataURL(logoData)
-  }
-
-  // Helper function to convert Blob to Base64
-  const convertBlobToBase64 = (blob) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        resolve(reader.result.split(',')[1])
-      }
-      reader.readAsDataURL(blob)
-    })
-  }
-
-  const handleExportToExcel = () => {
-    const workbook = new ExcelJS.Workbook()
-    const sheet = workbook.addWorksheet(`${reportName}`)
-    sheet.properties.defaultRowHeight = 80
-
-    sheet.getRow(1).border = {
-      top: { style: 'thick' },
-      left: { style: 'thick' },
-      bottom: { style: 'thick' },
-      right: { style: 'thick' },
-    }
-
-    sheet.getRow(1).fill = {
-      type: 'pattern',
-      pattern: 'darkVertical',
-      fgColor: { argb: 'FFFF00' },
-    }
-
-    sheet.getRow(1).font = {
-      name: '',
-      family: 4,
-      size: 12,
-      bold: true,
-    }
-
-    sheet.columns = [
-      { header: 'ID', key: 'id' },
-      { header: 'Name', key: 'name', width: 20 },
-      {
-        header: 'Phone No',
-        key: 'phone1',
-        width: 20,
-      },
-      {
-        header: 'Phone No 2',
-        key: 'phone2',
-        width: 10,
-      },
-      {
-        header: 'Email',
-        key: 'email',
-        width: 15,
-      },
-    ]
-
-    const promise = Promise.all(
-      data?.map(async (department, index) => {
-        sheet.addRow({
-          id: index + 1,
-          name: department?.name,
-          phone1: department?.phone1,
-          phone2: department?.phone2,
-          email: department?.email,
-          level_id: department?.level_id,
+        .finally(() => {
+          setShowDepartmentListLoading(false)
         })
-      })
-    )
-
-    promise.then(() => {
-      workbook.xlsx.writeBuffer().then(function (data) {
-        const blob = new Blob([data], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        })
-        const url = window.URL.createObjectURL(blob)
-        const anchor = document.createElement('a')
-        anchor.href = url
-        anchor.download = 'download.xlsx'
-        anchor.click()
-        window.URL.revokeObjectURL(url)
-      })
-    })
+    } catch (error) {
+      return error
+    }
   }
 
   useEffect(() => {
@@ -473,6 +224,57 @@ const DepartmentsTable = ({ user }) => {
     // Optionally trigger your API fetch here if it's not automatically triggered by page change
   }
 
+  const handleExportToPdf = async () => {
+    try {
+      setIsExporting(true)
+
+      const { data } = await axios.get(
+        `${API_URL}/department/pdf-reports?reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
+        {
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      )
+      setIsExporting(false)
+      download(new Blob([data]), `${reportName}.pdf`, '.pdf')
+    } catch (error) {
+      // console.log(error)
+      setIsExporting(false)
+      toast.error('Househould not found')
+    }
+  }
+
+  const handleExportToExcel = async () => {
+    try {
+      setIsExporting(true)
+
+      const { data } = await axios.get(
+        `${API_URL}/department/excel-reports?reportName=${reportName}&${new URLSearchParams(
+          queries
+        ).toString()}`,
+        {
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      )
+      setIsExporting(false)
+      download(new Blob([data]), `${reportName}.xlsx`, '.xlsx')
+    } catch (error) {
+      console.log(error)
+      setIsExporting(false)
+      if (error && error?.message) {
+        toast.error(error.message)
+      } else {
+        toast.error(
+          'An error occurred while retrieving the department lists. Please try again'
+        )
+      }
+    }
+  }
   const order = ['province', 'district', 'sector', 'cell']
 
   return (
@@ -502,7 +304,9 @@ const DepartmentsTable = ({ user }) => {
 
                 <li>
                   <div className="flex">
-                    <span>{selectDepartment?.level_id === 6 ? 'Agents' : 'Admins'}</span>
+                    <span>
+                      {selectDepartment?.level_id === 6 ? 'Agents' : 'Admins'}
+                    </span>
                   </div>
                 </li>
               </ol>
@@ -556,6 +360,8 @@ const DepartmentsTable = ({ user }) => {
             />
             <div className="flex gap-3">
               <Button
+                submit
+                type="button"
                 disabled={isExporting}
                 value={
                   <span className="flex items-center gap-2">
@@ -566,6 +372,8 @@ const DepartmentsTable = ({ user }) => {
                 onClick={handleExportToPdf}
               />
               <Button
+                submit
+                type="button"
                 disabled={isExporting}
                 value={
                   <span className="flex items-center gap-2">
@@ -581,6 +389,8 @@ const DepartmentsTable = ({ user }) => {
                 onClick={() => handleExportToExcel(queries)}
               />
               <Button
+                submit
+                type="button"
                 value={
                   <span className="flex items-center gap-2">
                     Close
@@ -642,7 +452,7 @@ const DepartmentsTable = ({ user }) => {
                         ) : (
                           <></>
                         )}
-                        ({departmentListData?.data?.count || 0})
+                        ({totalRecords || 0})
                       </span>
                     </div>
                   </li>
@@ -650,13 +460,15 @@ const DepartmentsTable = ({ user }) => {
               </ol>
             </nav>
           ) : (
-            <>Departments({departmentListData?.data?.count || 0})</>
+            <>Departments({totalRecords || 0})</>
           )}
         </dt>
 
         <div className="mr-2">
           <div className="flex items-center  justify-between">
             <Button
+              submit
+              type="button"
               className="mr-2 py-2 px-2 bg-primary text-white rounded-[50%]"
               value={
                 <>
@@ -664,7 +476,6 @@ const DepartmentsTable = ({ user }) => {
                   <span className="px-1">Export Report</span>
                 </>
               }
-              route={'#'}
               onClick={openExportPopup}
             />
             <DepartmentModals />
@@ -697,20 +508,20 @@ const DepartmentsTable = ({ user }) => {
                         status: false,
                         searchTerm: true,
                       }}
-                      isLoading={departmentListIsLoading}
+                      isLoading={departmentListLoading}
                       onChange={(query) => {
-                        const queries2 = {
-                          departmentId:
-                            query.village ||
-                            query.cell ||
-                            query.sector ||
-                            query.district ||
-                            query.province ||
-                            user?.departments?.id,
-                          searchTerm: query.searchTerm,
-                          level_id: query.level,
-                        }
-                        setQueries({ ...queries2 })
+                        // const queries2 = {
+                        //   departmentId:
+                        //     query.village ||
+                        //     query.cell ||
+                        //     query.sector ||
+                        //     query.district ||
+                        //     query.province ||
+                        //     user?.departments?.id,
+                        //   searchTerm: query.searchTerm,
+                        //   level_id: query.level,
+                        // }
+                        // setQueries({ ...queries2 })
                       }}
                       onSearch={(query) => {
                         gotoPage1(0)
@@ -726,26 +537,13 @@ const DepartmentsTable = ({ user }) => {
                           level_id: query.level,
                         }
                         setQueries({ ...queries2 })
-                        getDepartmentLists({
+                        onLoadDepartmentLists({
                           ...queries2,
                           size,
                           page: offset,
                         })
                       }}
                       placeholder={'Search for department....'}
-                      exportButton={
-                        <>
-                          <Button
-                            value={
-                              <span className="flex items-center">
-                                Export Report
-                                <FontAwesomeIcon icon={faFile} />
-                              </span>
-                            }
-                            onClick={openExportPopup}
-                          />
-                        </>
-                      }
                     />
                   </caption>
                   <thead className="bg-gray-50">
@@ -1065,16 +863,16 @@ const DepartmentsTable = ({ user }) => {
                   </tbody>
                 </table>
 
-                {departmentListIsLoading && (
+                {departmentListLoading && (
                   <main className="w-full min-h-[10vh] flex items-center justify-center">
                     <Loading />
                   </main>
                 )}
 
-                {departmentListError && (
+                {totalRecords === 0 && (
                   <main className="min-h-[40vh] flex items-center justify-center flex-col gap-6">
                     <h1 className="text-[25px] font-medium text-center">
-                      Could not load department records
+                      No record found
                     </h1>
                     {/* <Button value="Go to dashboard" route="/dashboard" /> */}
                   </main>
@@ -1084,13 +882,13 @@ const DepartmentsTable = ({ user }) => {
           </div>
         </div>
       </div>
-      {departmentListIsSuccess && (
+      {totalRecords > 0 && (
         <div className="pagination w-[95%] mx-auto">
           <div className="py-3 flex items-center justify-between">
             <div className="flex-1 flex justify-between sm:hidden">
               <Button
                 onClick={() => gotoPage1(Number(offset) - 1)}
-                disabled={offset === 0 || departmentListIsLoading}
+                disabled={offset === 0 || departmentListLoading}
                 value="Previous"
               >
                 Previous
@@ -1135,7 +933,7 @@ const DepartmentsTable = ({ user }) => {
                 >
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
-                    disabled={offset === 0 || departmentListIsLoading}
+                    disabled={offset === 0 || departmentListLoading}
                     onClick={() => gotoPage1(0)}
                     // disabled={!canPreviousPage}
                   >
@@ -1146,7 +944,7 @@ const DepartmentsTable = ({ user }) => {
                   </PageButton>
                   <PageButton
                     onClick={() => gotoPage1(Number(offset) - 1)}
-                    disabled={offset === 0 || departmentListIsLoading}
+                    disabled={offset === 0 || departmentListLoading}
                     className="px-4 cursor-pointer hover:scale-[1.02] p-2 shadow-md"
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
@@ -1156,7 +954,7 @@ const DepartmentsTable = ({ user }) => {
                   </PageButton>
                   <PageButton
                     onClick={() => gotoPage1(Number(offset) + 1)}
-                    disabled={offset >= totalPages || departmentListIsLoading}
+                    disabled={offset >= totalPages || departmentListLoading}
                     className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
@@ -1167,9 +965,7 @@ const DepartmentsTable = ({ user }) => {
                   <PageButton
                     className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
                     onClick={() => gotoPage1(Number(totalPages) - 1)}
-                    disabled={
-                      offset >= totalPages - 1 || departmentListIsLoading
-                    }
+                    disabled={offset >= totalPages - 1 || departmentListLoading}
                   >
                     <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                       Last

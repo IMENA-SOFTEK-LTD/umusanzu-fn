@@ -40,7 +40,6 @@ import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import Input from '../../components/Input'
-import moment from 'moment'
 import HouseHoldFilter from './HouseHoldFilter'
 import {
   setSelectedCell,
@@ -662,27 +661,27 @@ const HouseholdTable = ({ user }) => {
                             isLoading={householdsListIsLoading}
                             placeholder={'Search for household....'}
                             onChange={(query) => {
-                              const queries2 = {
-                                departmentId: user?.departments?.id,
-                                searchTerm:
-                                  query.searchTerm ||
-                                  queryRoute?.searchTerm ||
-                                  '',
-                                ubudehe: queryRoute?.ubudehe || '',
-                                route: queryRoute?.query || '',
-                                id: sectorId || user?.departments?.id,
-                                status: query.status || 'ACTIVE',
-                                village:
-                                  query.village || queryRoute?.village || '',
-                                cell: query.cell || queryRoute?.cell || '',
-                                sector:
-                                  query.sector || queryRoute?.sector || '',
-                                district:
-                                  query.district || queryRoute?.district || '',
-                                province:
-                                  query.province || queryRoute?.province || '',
-                              }
-                              setQueries({ ...queries2 })
+                              // const queries2 = {
+                              //   departmentId: user?.departments?.id,
+                              //   searchTerm:
+                              //     query.searchTerm ||
+                              //     queryRoute?.searchTerm ||
+                              //     '',
+                              //   ubudehe: queryRoute?.ubudehe || '',
+                              //   route: queryRoute?.query || '',
+                              //   id: sectorId || user?.departments?.id,
+                              //   status: query.status || 'ACTIVE',
+                              //   village:
+                              //     query.village || queryRoute?.village || '',
+                              //   cell: query.cell || queryRoute?.cell || '',
+                              //   sector:
+                              //     query.sector || queryRoute?.sector || '',
+                              //   district:
+                              //     query.district || queryRoute?.district || '',
+                              //   province:
+                              //     query.province || queryRoute?.province || '',
+                              // }
+                              // setQueries({ ...queries2 })
                             }}
                             onSearch={(query) => {
                               gotoPage1(0)
