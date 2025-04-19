@@ -159,7 +159,7 @@ export const apiSlice = createApi({
           level_id,
           phone1,
           phone2,
-          email
+          email,
         }) => ({
           url: `/department`,
           method: 'POST',
@@ -182,55 +182,36 @@ export const apiSlice = createApi({
         }),
       }),
       getHouseholdsList: builder.query({
-        query: ({
-          department,
-          departmentId,
-          page,
-          size,
-          route,
-          ubudehe,
-          phone1,
-          searchTerm,
-          status,
-          village,
-          cell,
-          sector,
-          district,
-          province,
-        }) => {
-          if (route === '') {
-            return {
-              url: `/${department}/households/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${
-                size || 20
-              }&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
-            }
-          } else if (route === 'ubudehe') {
-            return {
-              url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${
-                size || 20
-              }&ubudehe=${ubudehe}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
-            }
-          } else if (route === 'monthlyTargetList') {
-            return {
-              url: `/${department}/households/monthlyTargetList/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${
-                size || 20
-              }&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
-            }
-          } else {
-            return {
-              url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${
-                page || 0
-              }&size=${
-                size || 20
-              }&ubudehe=${ubudehe}&phone1=${phone1}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
-            }
+        query: (params) => {
+          // if (route === '') {
+          return {
+            url: `/households/?${new URLSearchParams(params).toString()}`,
           }
+          // } else if (route === 'ubudehe') {
+          //   return {
+          //     url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${
+          //       page || 0
+          //     }&size=${
+          //       size || 20
+          //     }&ubudehe=${ubudehe}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
+          //   }
+          // } else if (route === 'monthlyTargetList') {
+          //   return {
+          //     url: `/${department}/households/monthlyTargetList/?departmentId=${departmentId}&page=${
+          //       page || 0
+          //     }&size=${
+          //       size || 20
+          //     }&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
+          //   }
+          // } else {
+          //   return {
+          //     url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${
+          //       page || 0
+          //     }&size=${
+          //       size || 20
+          //     }&ubudehe=${ubudehe}&phone1=${phone1}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
+          //   }
+          // }
         },
         // Add refetchOnMountOrArgChange here:
         keepUnusedDataFor: 0, // So that data is not cached too long
@@ -352,11 +333,11 @@ export const apiSlice = createApi({
         },
       }),
       getDepartmentLists: builder.query({
-        query: ({ searchTerm, departmentId,level_id, page, size }) => {
+        query: ({ searchTerm, departmentId, level_id, page, size }) => {
           return {
-            url: `/department/lists/?departmentId=${departmentId}&page=${page || 0}&size=${
-              size || 20
-            }&searchTerm=${searchTerm}&level_id=${level_id}`,
+            url: `/department/lists/?departmentId=${departmentId}&page=${
+              page || 0
+            }&size=${size || 20}&searchTerm=${searchTerm}&level_id=${level_id}`,
           }
         },
         // Add refetchOnMountOrArgChange here:
@@ -838,7 +819,7 @@ export const apiSlice = createApi({
             staff_role,
             email,
             password,
-            department_id
+            department_id,
           },
         }),
       }),

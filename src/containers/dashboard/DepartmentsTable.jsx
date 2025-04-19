@@ -42,6 +42,7 @@ import { toast } from 'react-toastify'
 import download from 'downloadjs'
 import API_URL from '../../constants'
 import axios from 'axios'
+import OverlayLoading from '../../components/OverlayLoading'
 
 const DepartmentsTable = ({ user }) => {
   const [isExporting, setIsExporting] = useState(false)
@@ -165,7 +166,7 @@ const DepartmentsTable = ({ user }) => {
     }
 
     setReportName(reportName)
-  }, [setReportName,userOrSelectedDepartmentNames])
+  }, [setReportName, userOrSelectedDepartmentNames])
 
   const onLoadDepartmentLists = async (data) => {
     setShowDepartmentListLoading(true)
@@ -229,7 +230,9 @@ const DepartmentsTable = ({ user }) => {
       setIsExporting(true)
 
       const { data } = await axios.get(
-        `${API_URL}/department/pdf-reports?reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
+        `${API_URL}/department/pdf-reports?reportName=${reportName}&${new URLSearchParams(
+          queries
+        ).toString()}`,
         {
           responseType: 'blob',
           headers: {
@@ -403,6 +406,8 @@ const DepartmentsTable = ({ user }) => {
           </div>
         </div>
       )}
+
+      <OverlayLoading color="black" isLoading={departmentListLoading} />
 
       <div className="flex items-center  justify-between mx-4">
         <dt className=" font-semibold text-gray-900 ">
@@ -863,11 +868,6 @@ const DepartmentsTable = ({ user }) => {
                   </tbody>
                 </table>
 
-                {departmentListLoading && (
-                  <main className="w-full min-h-[10vh] flex items-center justify-center">
-                    <Loading />
-                  </main>
-                )}
 
                 {totalRecords === 0 && (
                   <main className="min-h-[40vh] flex items-center justify-center flex-col gap-6">

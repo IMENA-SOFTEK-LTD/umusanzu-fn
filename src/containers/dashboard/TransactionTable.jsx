@@ -854,7 +854,7 @@ const TransactionTable = ({ user }) => {
           <tbody>
             <tr className="bg-[#F9FAFB] flex items-center flex-wrap">
               <td className="px-6 py-4 text-black font-semibold">
-                Total Amout:
+                Total Amount:
               </td>
               <td className="px-6 py-4 green font-semibold">
                 {formatFunds(totals?.totalAmount) || formatFunds(totalAmount)} RWF
