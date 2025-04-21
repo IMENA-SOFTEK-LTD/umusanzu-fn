@@ -20,7 +20,6 @@ import {
 import {
   useGlobalFilter,
   useTable,
-  useAsyncDebounce,
   useFilters,
   useSortBy,
   usePagination,
@@ -39,8 +38,7 @@ import Loading from '../../components/Loading'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
-import Input from '../../components/Input'
-import HouseHoldFilter from './HouseHoldFilter'
+import GlobalFilter from './GlobalFilter'
 import {
   setSelectedCell,
   setSelectedSector,
@@ -101,10 +99,6 @@ const HouseholdTable = ({ user }) => {
 
   const dispatch = useDispatch()
 
-  const { sectorId, userOrSelectedDepartmentNames } = useSelector(
-    (state) => state.departments
-  )
-
   const queryRoute = queryString.parse(location.search)
 
   let department = ''
@@ -143,14 +137,13 @@ const HouseholdTable = ({ user }) => {
     searchTerm: '',
     ubudehe: queryRoute?.ubudehe || '',
     route: queryRoute?.query || '',
-    id: sectorId || user?.departments?.id,
     status: queryRoute?.query === 'monthlyTarget' ? '' : 'ACTIVE',
     village: queryRoute?.village || '',
     cell: queryRoute?.cell || '',
     sector: queryRoute?.sector || '',
     district: queryRoute?.district || '',
     province: queryRoute?.province || '',
-    query:queryRoute?.query || ''
+    query: queryRoute?.query || '',
   })
   useEffect(() => {
     const queryRoute_ = queryString.parse(location.search)
@@ -244,9 +237,7 @@ const HouseholdTable = ({ user }) => {
       setIsExporting(true)
 
       const { data } = await axios.get(
-        `${API_URL}/households/pdf-reports?level=${department}&query=${
-          queryRoute?.query || ''
-        }&reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
+        `${API_URL}/households/pdf-reports?level=reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
         {
           responseType: 'blob',
           headers: {
@@ -268,9 +259,7 @@ const HouseholdTable = ({ user }) => {
       setIsExporting(true)
 
       const { data } = await axios.get(
-        `${API_URL}/households/excel-reports?level=${department}&query=${
-          queryRoute?.query || ''
-        }&reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
+        `${API_URL}/households/excel-reports?reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
         {
           responseType: 'blob',
           headers: {
@@ -519,7 +508,7 @@ const HouseholdTable = ({ user }) => {
                 //     ? 'flex'
                 //     : 'hidden'
                 // }
-                onClick={() => handleExportToExcel(queries)}
+                onClick={handleExportToExcel}
               />
               <Button
                 value={
@@ -539,33 +528,7 @@ const HouseholdTable = ({ user }) => {
       <div className="flex my-8 flex-col w-full items-center gap-6 relative">
         <div className="search-filter flex flex-col w-full items-center gap-6">
           <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <div className="flex gap-2 max-md:pl-0">
-              <dl className="mt-1 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
-                <div className="relative pl-0">
-                  <dt className="inline font-semibold text-gray-900">
-                    Total{' '}
-                    {queryRoute?.query === 'monthlyTarget' && (
-                      <>Monthly Target</>
-                    )}{' '}
-                    {queries?.status && (
-                      <span
-                        className={`text-${
-                          queries?.status?.toLocaleLowerCase() === 'active'
-                            ? 'green'
-                            : 'red'
-                        }-600`}
-                      >
-                        {queries?.status.toLocaleLowerCase() || 'Active'}
-                      </span>
-                    )}{' '}
-                    Households: {totalPages || 0}
-                  </dt>{' '}
-                  <dd className="inline">
-                    - Total Amount: {formatFunds(totalAmount || 0)} RWF
-                  </dd>
-                </div>
-              </dl>
-            </div>
+            <div className="flex gap-2 max-md:pl-0"></div>
             <div className="flex gap-2 max-md:pl-2">
               {/* {user.staff_role === 1 && ( */}
               <Button
@@ -591,7 +554,83 @@ const HouseholdTable = ({ user }) => {
             </div>
           </span>
         </div>
-        <div className="mt-2 flex flex-col w-[95%] mx-auto">
+        <div className="search-filter flex flex-col w-full items-center gap-6">
+          <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
+            <GlobalFilter
+              user={user}
+              fieldEnabled={{
+                province: ['country'].includes(department),
+                district: ['country', 'province'].includes(department),
+                sector: ['country', 'province', 'district'].includes(
+                  department
+                ),
+                cell: ['country', 'province', 'district', 'sector'].includes(
+                  department
+                ),
+                village: [
+                  'country',
+                  'province',
+                  'district',
+                  'sector',
+                  'cell',
+                ].includes(department),
+                activationStatus: !['monthlyTarget'].includes(
+                  queryRoute?.query
+                ),
+                searchTerm: true,
+              }}
+              isLoading={householdsListIsLoading}
+              placeholder={'Search for household....'}
+              onChange={(query) => {
+                // const queries2 = {
+                //   departmentId: user?.departments?.id,
+                //   searchTerm:
+                //     query.searchTerm ||
+                //     queryRoute?.searchTerm ||
+                //     '',
+                //   ubudehe: queryRoute?.ubudehe || '',
+                //   route: queryRoute?.query || '',
+                //   id: sectorId || user?.departments?.id,
+                //   status: query.status || 'ACTIVE',
+                //   village:
+                //     query.village || queryRoute?.village || '',
+                //   cell: query.cell || queryRoute?.cell || '',
+                //   sector:
+                //     query.sector || queryRoute?.sector || '',
+                //   district:
+                //     query.district || queryRoute?.district || '',
+                //   province:
+                //     query.province || queryRoute?.province || '',
+                // }
+                // setQueries({ ...queries2 })
+              }}
+              onSearch={(query) => {
+                gotoPage1(0)
+                const queries2 = {
+                  departmentId: user?.departments?.id,
+                  searchTerm: query.searchTerm || queryRoute?.searchTerm || '',
+                  ubudehe: queryRoute?.ubudehe || '',
+                  route: queryRoute?.query || '',
+                  id: sectorId || user?.departments?.id,
+                  status: query.activationStatus || 'ACTIVE',
+                  village: query.village || queryRoute?.village || '',
+                  cell: query.cell || queryRoute?.cell || '',
+                  sector: query.sector || queryRoute?.sector || '',
+                  district: query.district || queryRoute?.district || '',
+                  province: query.province || queryRoute?.province || '',
+                }
+                setQueries({ ...queries2 })
+                onLoadHouseholdLists({
+                  department,
+                  size,
+                  page: offset,
+                  ...queries2,
+                })
+              }}
+            />
+          </span>
+        </div>
+        <div className="mt-0 flex flex-col w-[95%] mx-auto">
           <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
@@ -633,92 +672,44 @@ const HouseholdTable = ({ user }) => {
                       border="1"
                       className="min-w-full divide-y divide-gray-200"
                     >
-                      <caption className="caption-top p-2">
-                        <HouseHoldFilter
-                          user={user}
-                          fieldEnabled={{
-                            province: ['country'].includes(department),
-                            district: ['country', 'province'].includes(
-                              department
-                            ),
-                            sector: [
-                              'country',
-                              'province',
-                              'district',
-                            ].includes(department),
-                            cell: [
-                              'country',
-                              'province',
-                              'district',
-                              'sector',
-                            ].includes(department),
-                            village: [
-                              'country',
-                              'province',
-                              'district',
-                              'sector',
-                              'cell',
-                            ].includes(department),
-                            status: !['monthlyTarget'].includes(
-                              queryRoute?.query
-                            ),
-                            searchTerm: true,
-                          }}
-                          isLoading={householdsListIsLoading}
-                          placeholder={'Search for household....'}
-                          onChange={(query) => {
-                            // const queries2 = {
-                            //   departmentId: user?.departments?.id,
-                            //   searchTerm:
-                            //     query.searchTerm ||
-                            //     queryRoute?.searchTerm ||
-                            //     '',
-                            //   ubudehe: queryRoute?.ubudehe || '',
-                            //   route: queryRoute?.query || '',
-                            //   id: sectorId || user?.departments?.id,
-                            //   status: query.status || 'ACTIVE',
-                            //   village:
-                            //     query.village || queryRoute?.village || '',
-                            //   cell: query.cell || queryRoute?.cell || '',
-                            //   sector:
-                            //     query.sector || queryRoute?.sector || '',
-                            //   district:
-                            //     query.district || queryRoute?.district || '',
-                            //   province:
-                            //     query.province || queryRoute?.province || '',
-                            // }
-                            // setQueries({ ...queries2 })
-                          }}
-                          onSearch={(query) => {
-                            gotoPage1(0)
-                            const queries2 = {
-                              departmentId: user?.departments?.id,
-                              searchTerm:
-                                query.searchTerm ||
-                                queryRoute?.searchTerm ||
-                                '',
-                              ubudehe: queryRoute?.ubudehe || '',
-                              route: queryRoute?.query || '',
-                              id: sectorId || user?.departments?.id,
-                              status: query.status || 'ACTIVE',
-                              village:
-                                query.village || queryRoute?.village || '',
-                              cell: query.cell || queryRoute?.cell || '',
-                              sector: query.sector || queryRoute?.sector || '',
-                              district:
-                                query.district || queryRoute?.district || '',
-                              province:
-                                query.province || queryRoute?.province || '',
-                            }
-                            setQueries({ ...queries2 })
-                            onLoadHouseholdLists({
-                              department,
-                              size,
-                              page: offset,
-                              ...queries2,
-                            })
-                          }}
-                        />
+                      <caption className="caption-top p-0">
+                        <table className="w-[100%] mx-auto my-0 divide-y divide-gray-200">
+                          <tbody>
+                            <tr className="bg-[#F9FAFB] flex items-center flex-wrap">
+                              <td className="px-6 py-4 text-black font-semibold">
+                                Total{' '}
+                                {queryRoute?.query === 'monthlyTarget' && (
+                                  <>Monthly Target</>
+                                )}{' '}
+                                {queries?.status && (
+                                  <span
+                                    className={`text-${
+                                      queries?.status?.toLocaleLowerCase() ===
+                                      'active'
+                                        ? 'green'
+                                        : 'red'
+                                    }-600`}
+                                  >
+                                    {queries?.status.toLocaleLowerCase() ||
+                                      'Active'}
+                                  </span>
+                                )}{' '}
+                                Households:
+                              </td>
+
+                              <td className="px-6 py-4 green font-semibold">
+                                {totalPages || 0}
+                              </td>
+                              <td className="px-6 py-4 green font-semibold">
+                                Total Amount:
+                              </td>
+                              <td className="px-6 py-4 green font-semibold">
+                                {formatFunds(totalAmount || 0)}
+                                RWF
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </caption>
                       <thead className="bg-gray-50">
                         {headerGroups.map((headerGroup) => (
@@ -919,6 +910,5 @@ export function SelectColumnFilter({
     </label>
   )
 }
-
 
 export default HouseholdTable

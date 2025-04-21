@@ -141,7 +141,7 @@ const SearchHousehold = ({ user }) => {
 
   const onSubmit = async (data) => {
     if (!data.search) {
-      return;
+      return
     }
     setHouseholdsListIsLoading(true)
     try {
@@ -439,33 +439,37 @@ const SearchHousehold = ({ user }) => {
         </form>
       </section>
       <div className="flex my-8 flex-col w-full items-center gap-6 relative">
-         <div className="flex gap-2 max-md:pl-0">
-                      <dl className="mt-1 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
-                        <div className="relative pl-0">
-                          <dt className="inline font-semibold text-gray-900">
-                            Total{' '}
-                            {queryRoute?.query === 'monthlyTarget' && (
-                              <>Monthly Target</>
-                            )}{' '}
-                            {queries?.status && (
-                              <span
-                                className={`text-${
-                                  queries?.status?.toLocaleLowerCase() === 'active'
-                                    ? 'green'
-                                    : 'red'
-                                }-600`}
-                              >
-                                {queries?.status.toLocaleLowerCase() || 'Active'}
-                              </span>
-                            )}{' '}
-                            Households: {totalPages || 0}
-                          </dt>{' '}
-                          <dd className="inline">
-                            - Total Amount: {formatFunds(totalAmount || 0)} RWF
-                          </dd>
-                        </div>
-                      </dl>
-                    </div>
+        <table className="w-[95%] mx-auto my-2 divide-y divide-gray-200">
+          <tbody>
+            <tr className="bg-[#F9FAFB] flex items-center flex-wrap">
+              <td className="px-6 py-4 text-black font-semibold">
+                Total{' '}
+                {queryRoute?.query === 'monthlyTarget' && <>Monthly Target</>}{' '}
+                {queries?.status && (
+                  <span
+                    className={`text-${
+                      queries?.status?.toLocaleLowerCase() === 'active'
+                        ? 'green'
+                        : 'red'
+                    }-600`}
+                  >
+                    {queries?.status.toLocaleLowerCase() || 'Active'}
+                  </span>
+                )}{' '}
+                Households
+              </td>
+
+              <td className="px-6 py-4 green font-semibold">
+                {totalPages || 0}
+              </td>
+              <td className="px-6 py-4 green font-semibold">Total Amount:</td>
+              <td className="px-6 py-4 green font-semibold">
+                {formatFunds(totalAmount || 0)}
+                RWF
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         <div className="mt-2 flex flex-col w-[95%] mx-auto">
           <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
@@ -509,7 +513,6 @@ const SearchHousehold = ({ user }) => {
                       border="1"
                       className="min-w-full divide-y divide-gray-200"
                     >
-                    
                       <thead className="bg-gray-50">
                         {headerGroups.map((headerGroup) => (
                           <tr {...headerGroup.getHeaderGroupProps()}>

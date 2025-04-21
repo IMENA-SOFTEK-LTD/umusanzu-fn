@@ -93,12 +93,7 @@ function Sidebar({ user }) {
         {
           title: 'Transactions',
           icon: AiOutlineTransaction,
-          path: `${
-            department === 'country' ||
-            department === 'province' ||
-            department === 'district'
-              ? '/select-department'
-              : '/transactions'
+          path: `${'/transactions'
           }`,
           route: '/transactions',
         },

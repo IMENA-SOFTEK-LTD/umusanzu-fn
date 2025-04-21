@@ -25,12 +25,22 @@ const householdSlice = createSlice({
     household: null,
     completePaymentModal: false,
     duplicateHousehold: null,
-    selectedStatus: "ACTIVE",
-    selectedLevel:''
+    selectedActivationStatus: 'ACTIVE',
+    selectedPaymentStatus: 'All',
+    selectedPaymentMethod: 'All',
+    selectedLevel: '',
+    selectDateFrom:null,
+    selectDateTo:null,
   },
   reducers: {
-    setSelectedStatus: (state, action) => {
-      state.selectedStatus = action.payload
+    setSelectedActivationStatus: (state, action) => {
+      state.selectedActivationStatus = action.payload
+    },
+    setSelectedPaymentStatus: (state, action) => {
+      state.selectedPaymentStatus = action.payload
+    },
+    setSelectedPaymentMethod: (state, action) => {
+      state.selectedPaymentMethod = action.payload
     },
     setProvinces: (state, action) => {
       state.provinces = action.payload
@@ -98,6 +108,12 @@ const householdSlice = createSlice({
     setSelectedLevel: (state, action) => {
       state.selectedLevel = action.payload
     },
+    setDateFrom: (state, action) => {
+      state.selectDateFrom = action.payload
+    },
+    setDateTo: (state, action) => {
+      state.selectDateTo = action.payload
+    },
   },
 })
 
@@ -125,6 +141,10 @@ export const {
   setHousehold,
   setCompletePaymentModal,
   setDuplicateHousehold,
-  setSelectedStatus,
-  setSelectedLevel
+  setSelectedLevel,
+  setSelectedActivationStatus,
+  setSelectedPaymentStatus,
+  setSelectedPaymentMethod,
+  setDateFrom,
+  setDateTo
 } = householdSlice.actions

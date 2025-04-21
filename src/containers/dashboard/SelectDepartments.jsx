@@ -21,7 +21,7 @@ import {
   setProvinceId,
 } from '../../states/features/departments/departmentSlice'
 import { setUserOrSelectedDepartmentNames } from '../../states/features/departments/departmentSlice'
-import HouseHoldFilter from './HouseHoldFilter'
+import GlobalFilter from './GlobalFilter'
 import { toast } from 'react-toastify'
 
 const SelectDepartments = ({ user }) => {
@@ -85,7 +85,7 @@ const SelectDepartments = ({ user }) => {
       <h1 className="text-center text-[25px]">
         Please select a sector before proceeding
       </h1>
-      <HouseHoldFilter
+      <GlobalFilter
         user={user}
         fieldEnabled={{
           province: ['country'].includes(department),

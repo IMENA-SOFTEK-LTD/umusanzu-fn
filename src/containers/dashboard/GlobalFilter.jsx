@@ -10,20 +10,23 @@ import {
 import {
   setCells,
   setDistricts,
-  setSelectedLevel,
   setSearchTerm,
   setSectors,
   setSelectedCell,
   setSelectedDistrict,
   setSelectedProvince,
   setSelectedSector,
-  setSelectedStatus,
+  setSelectedActivationStatus,
   setSelectedVillage,
   setVillages,
+  setSelectedPaymentStatus,
+  setSelectedPaymentMethod,
+  setSelectedLevel,
+  setDateFrom,
+  setDateTo,
 } from '../../states/features/modals/householdSlice'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
 import {
   setSectorId,
   setDistrictId,
@@ -33,7 +36,7 @@ import {
 } from '../../states/features/departments/departmentSlice'
 import { setUserOrSelectedDepartmentNames } from '../../states/features/departments/departmentSlice'
 import queryString from 'query-string'
-import Input from '../../components/Input'
+import moment from 'moment'
 
 const levels = [
   { id: 1, name: 'Country' },
@@ -44,6 +47,22 @@ const levels = [
   { id: 6, name: 'Village' },
 ]
 
+const selectedPaymentMethods = [
+  { id: 'All', name: 'All' },
+  { id: 'Cash', name: 'Cash' },
+  { id: 'CashLess', name: 'CashLess' },
+  { id: 'Mobile_Money', name: 'Only Mobile Money' },
+  { id: 'Credit_Card', name: 'Only Credit Card' },
+]
+
+const selectedPaymentStatuses = [
+  { id: 'ALL', name: 'All' },
+  { id: 'PAID', name: 'Paid' },
+  { id: 'PARTIAL', name: 'Partial' },
+  { id: 'PENDING', name: 'Pending' },
+  { id: 'PAID_PARTIAL', name: 'Paid and Partial' },
+]
+
 const provinces = [
   { id: 31, name: 'Kigali City' },
   { id: 1540, name: 'Western Province' },
@@ -52,12 +71,11 @@ const provinces = [
   { id: 1986, name: 'Southern Province' },
 ]
 
-const HouseHoldFilter = ({
+const GlobalFilter = ({
   user,
   fieldEnabled,
   onChange,
   onSearch,
-  exportButton,
   placeholder,
 }) => {
   const { handleSubmit, control } = useForm()
@@ -72,10 +90,13 @@ const HouseHoldFilter = ({
     selectedCell,
     villages,
     selectedVillage,
-    selectedStatus,
+    selectedActivationStatus,
     searchTerm,
-    isLoading,
     selectedLevel,
+    selectedPaymentStatus,
+    selectedPaymentMethod,
+    selectDateFrom,
+    selectDateTo,
   } = useSelector((state) => state.household)
 
   const queryRoute = queryString.parse(location.search)
@@ -126,7 +147,7 @@ const HouseHoldFilter = ({
     dispatch(setCellId(+queryRoute?.cell || ''))
     dispatch(setVillageId(+queryRoute?.village || ''))
 
-    dispatch(setSelectedStatus(+queryRoute?.status || 'ACTIVE'))
+    dispatch(setSelectedActivationStatus(+queryRoute?.status || 'ACTIVE'))
     dispatch(setSelectedVillage(+queryRoute?.village || ''))
     dispatch(setSelectedProvince(+queryRoute?.province || ''))
     dispatch(setSelectedDistrict(+queryRoute?.district || ''))
@@ -237,7 +258,7 @@ const HouseHoldFilter = ({
       province: selectedProvince || '',
       cell: selectedCell || '',
       village: selectedVillage || '',
-      status: selectedStatus || '',
+      activationStatus: selectedActivationStatus || '',
       searchTerm: searchTerm || '',
       level: selectedLevel || '',
     })
@@ -247,7 +268,7 @@ const HouseHoldFilter = ({
     selectedProvince,
     selectedCell,
     selectedVillage,
-    selectedStatus,
+    selectedActivationStatus,
     searchTerm,
     selectedLevel,
   ])
@@ -326,9 +347,14 @@ const HouseHoldFilter = ({
       province: data?.province || selectedProvince || '',
       cell: data?.cell || selectedCell || '',
       village: data?.village || selectedVillage || '',
-      status: data?.status || selectedStatus || '',
+      activationStatus:
+        data?.activationStatus || selectedActivationStatus || '',
       searchTerm: data?.searchTerm || '',
-      level: data?.level || '',
+      level: data?.level || selectedLevel,
+      paymentMethod: data?.paymentMethod || selectedPaymentMethod,
+      paymentStatus: data?.paymentStatus || selectedPaymentStatus,
+      dateFrom: data?.dateFrom || selectDateFrom,
+      dateTo: data?.dateTo || selectDateTo,
     })
     // navigate(pathRoute)
   }
@@ -389,11 +415,11 @@ const HouseHoldFilter = ({
           />
           // </label>
         )}
-        {fieldEnabled?.status && (
+        {fieldEnabled?.activationStatus && (
           <Controller
             control={control}
-            name="status"
-            defaultValue={selectedStatus}
+            name="activationStatus"
+            defaultValue={selectedActivationStatus}
             render={({ field }) => {
               return (
                 <>
@@ -401,17 +427,112 @@ const HouseHoldFilter = ({
                     <select
                       className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
                       {...field}
-                      value={selectedStatus}
+                      value={selectedActivationStatus}
                       onChange={(e) => {
                         field.onChange(e)
-                        dispatch(selectedStatus(e.target.value))
+                        dispatch(setSelectedActivationStatus(e.target.value))
                       }}
                     >
-                      <option value={''}>Select Status</option>
+                      <option value={''}>Select Activation Status</option>
                       <option value={'ACTIVE'}>Active</option>
                       <option value={'INACTIVE'}>Inactive</option>
                       <option value={'MOVED'}>Moved</option>
                       <option value={'REQUESTED'}>Requested</option>
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
+        )}
+        {fieldEnabled?.paymentStatus && (
+          <Controller
+            control={control}
+            name="paymentStatus"
+            defaultValue={selectedPaymentStatus}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedPaymentStatus}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedPaymentStatus(e.target.value))
+                      }}
+                    >
+                      <option value={'All'}>Select Payment Status</option>
+                      {selectedPaymentStatuses?.map((s) => {
+                        return (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.2"
+                      stroke="currentColor"
+                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </div>
+                </>
+              )
+            }}
+          />
+        )}
+
+        {fieldEnabled?.paymentMethod && (
+          <Controller
+            control={control}
+            name="paymentMethod"
+            defaultValue={selectedPaymentMethod}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative">
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      {...field}
+                      value={selectedPaymentMethod}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        dispatch(setSelectedPaymentMethod(e.target.value))
+                      }}
+                    >
+                      <option value={'ALL'}>Select Payment Method</option>
+                      {selectedPaymentMethods?.map((s) => {
+                        return (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        )
+                      })}
                     </select>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -705,7 +826,65 @@ const HouseHoldFilter = ({
           />
           //  </label>
         )}
-        <div className="relative flex items-center">
+    
+        {fieldEnabled?.dateFrom && (
+              <Controller
+                control={control}
+                name="dateFrom"
+                defaultValue={selectDateFrom}
+                value={selectDateFrom}
+                render={({ field }) => {
+                  return (
+                    <>
+                   <div className="flex justify-between">
+                        <span className="mr-2">From:</span>
+                        <input
+                          type="date"
+                          value={selectDateFrom}
+                          // max={moment.format('YYYY-MM-DD')}
+                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                          placeholder={'From'}
+                          onChange={(e) => {
+                            field.onChange(e)
+                            dispatch(setDateFrom(e.target.value))
+                          }}
+                        />
+                      </div>
+                    </>
+                  )
+                }}
+              />
+            )}
+            {fieldEnabled?.dateTo && (
+              <Controller
+                control={control}
+                name="dateFrom"
+                defaultValue={selectDateTo}
+                value={selectDateTo}
+                render={({ field }) => {
+                  return (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="mr-2">To:</span>
+                      <input
+                        type="date"
+                        value={selectDateTo}
+                        // max={moment.format('YYYY-MM-DD')}
+                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                        placeholder={'To'}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          dispatch(setDateTo(e.target.value))
+                        }}
+                      />
+                      </div>
+                    </>
+                  )
+                }}
+              />
+            )}
+           
+          <div className="relative flex items-center">
           {fieldEnabled?.searchTerm && (
             <Controller
               control={control}
@@ -746,7 +925,6 @@ const HouseHoldFilter = ({
               />
             </svg>
           </button>
-         
         </div>
 
         {/* {exportButton && <>{exportButton}</>} */}
@@ -755,10 +933,10 @@ const HouseHoldFilter = ({
   )
 }
 
-HouseHoldFilter.propTypes = {
+GlobalFilter.propTypes = {
   user: PropTypes.object.isRequired,
   fieldEnabled: PropTypes.object.isRequired,
   exportButton: PropTypes.any.isRequired,
 }
 
-export default HouseHoldFilter
+export default GlobalFilter

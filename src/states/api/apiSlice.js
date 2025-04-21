@@ -175,10 +175,8 @@ export const apiSlice = createApi({
         }),
       }),
       getTransactionsList: builder.query({
-        query: ({ department, departmentId, route, page, size }) => ({
-          url: `/${department}/${route}/?departmentId=${departmentId}&page=${
-            page || 0
-          }&size=${size || 20}`,
+        query: (params) => ({
+          url: `/transactions/lists/?${new URLSearchParams(params).toString()}`,
         }),
       }),
       getHouseholdsList: builder.query({

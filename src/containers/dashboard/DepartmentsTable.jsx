@@ -34,7 +34,7 @@ import {
   setSelectedSector,
   setSelectedVillage,
 } from '../../states/features/modals/householdSlice'
-import HouseHoldFilter from './HouseHoldFilter'
+import GlobalFilter from './GlobalFilter'
 import CustomDialog from '../../components/models/CustomDialog'
 import Admins from './Admins'
 import CreateDepartmentModel from '../../components/models/CreateDepartmentModel'
@@ -494,7 +494,7 @@ const DepartmentsTable = ({ user }) => {
               <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg flex flex-col gap-4">
                 <table className="min-w-full divide-y divide-gray-200">
                   <caption className="caption-top p-2">
-                    <HouseHoldFilter
+                    <GlobalFilter
                       user={user}
                       fieldEnabled={{
                         level: false, //['country'].includes(department),
