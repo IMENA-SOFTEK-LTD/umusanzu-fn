@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import moment from 'moment'
 
 const householdSlice = createSlice({
   name: 'household',
@@ -29,8 +30,9 @@ const householdSlice = createSlice({
     selectedPaymentStatus: 'All',
     selectedPaymentMethod: 'All',
     selectedLevel: '',
-    selectDateFrom:null,
-    selectDateTo:null,
+    selectDateFrom: moment().startOf('month').format('YYYY-MM-DD'),
+    selectDateTo: moment().endOf('month').format('YYYY-MM-DD'),
+    selectMonthPaid:moment(new Date()).format('YYYY-MM')
   },
   reducers: {
     setSelectedActivationStatus: (state, action) => {
@@ -114,6 +116,9 @@ const householdSlice = createSlice({
     setDateTo: (state, action) => {
       state.selectDateTo = action.payload
     },
+    setMonthPaid: (state, action) => {
+      state.selectMonthPaid = action.payload
+    },
   },
 })
 
@@ -146,5 +151,6 @@ export const {
   setSelectedPaymentStatus,
   setSelectedPaymentMethod,
   setDateFrom,
-  setDateTo
+  setDateTo,
+  setMonthPaid
 } = householdSlice.actions

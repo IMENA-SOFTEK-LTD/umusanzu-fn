@@ -24,6 +24,7 @@ import {
   setSelectedLevel,
   setDateFrom,
   setDateTo,
+  setMonthPaid,
 } from '../../states/features/modals/householdSlice'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -56,7 +57,7 @@ const selectedPaymentMethods = [
 ]
 
 const selectedPaymentStatuses = [
-  { id: 'ALL', name: 'All' },
+  { id: 'All', name: 'All' },
   { id: 'PAID', name: 'Paid' },
   { id: 'PARTIAL', name: 'Partial' },
   { id: 'PENDING', name: 'Pending' },
@@ -97,6 +98,7 @@ const GlobalFilter = ({
     selectedPaymentMethod,
     selectDateFrom,
     selectDateTo,
+    selectMonthPaid,
   } = useSelector((state) => state.household)
 
   const queryRoute = queryString.parse(location.search)
@@ -252,6 +254,40 @@ const GlobalFilter = ({
   }, [cellVillagesData])
 
   useEffect(() => {
+    dispatch(
+      setUserOrSelectedDepartmentNames({
+        ['province']: null,
+        ['district']: null,
+        ['sector']: null,
+        ['cell']: null,
+        ['village']: null,
+      })
+    )
+    if (selectedProvince) {
+      const name = getNameById(provinces, selectedProvince)
+      if (name) dispatch(setUserOrSelectedDepartmentNames({ province: name }))
+    }
+
+    if (selectedDistrict) {
+      const name = getNameById(districts, selectedDistrict)
+      if (name) dispatch(setUserOrSelectedDepartmentNames({ district: name }))
+    }
+
+    if (selectedSector) {
+      const name = getNameById(sectors, selectedSector)
+      if (name) dispatch(setUserOrSelectedDepartmentNames({ sector: name }))
+    }
+
+    if (selectedCell) {
+      const name = getNameById(cells, selectedCell)
+      if (name) dispatch(setUserOrSelectedDepartmentNames({ cell: name }))
+    }
+
+    if (selectedVillage) {
+      const name = getNameById(villages, selectedVillage)
+      if (name) dispatch(setUserOrSelectedDepartmentNames({ village: name }))
+    }
+
     onChange({
       sector: selectedSector || '',
       district: selectedDistrict || '',
@@ -261,6 +297,11 @@ const GlobalFilter = ({
       activationStatus: selectedActivationStatus || '',
       searchTerm: searchTerm || '',
       level: selectedLevel || '',
+      monthPaid: selectMonthPaid || '',
+      dateFrom: selectDateFrom || '',
+      dateTo: selectDateTo || '',
+      paymentStatus:selectedPaymentStatus || '',
+      paymentMethod:selectedPaymentMethod || '',
     })
   }, [
     selectedSector,
@@ -271,7 +312,17 @@ const GlobalFilter = ({
     selectedActivationStatus,
     searchTerm,
     selectedLevel,
+    selectMonthPaid,
+    selectDateFrom,
+    selectDateTo,
+    selectedPaymentStatus,
+    selectedPaymentMethod
   ])
+
+  const getNameById = (list, id) => {
+    const item = list.find((i) => String(i.id) === String(id))
+    return item ? item.name : null
+  }
 
   useEffect(() => {
     let updates = {}
@@ -314,33 +365,7 @@ const GlobalFilter = ({
     dispatch(setSelectedLevel(data?.selectedLevel))
 
     localStorage.setItem('sectorId', data?.sector)
-    dispatch(setUserOrSelectedDepartmentNames({ ['province']: 'KIGALI CITY' }))
-    for (let i = 0; i < districts.length; i++) {
-      if (String(districts[i].id) === String(data?.district)) {
-        dispatch(
-          setUserOrSelectedDepartmentNames({ ['district']: districts[i].name })
-        )
-      }
-    }
-    for (let i = 0; i < sectors.length; i++) {
-      if (String(sectors[i].id) === String(data?.sector)) {
-        dispatch(
-          setUserOrSelectedDepartmentNames({ ['sector']: sectors[i].name })
-        )
-      }
-    }
-    for (let i = 0; i < cells.length; i++) {
-      if (String(cells[i].id) === String(data?.cell)) {
-        dispatch(setUserOrSelectedDepartmentNames({ ['cell']: cells[i].name }))
-      }
-    }
-    for (let i = 0; i < villages.length; i++) {
-      if (String(villages[i].id) === String(data?.village)) {
-        dispatch(
-          setUserOrSelectedDepartmentNames({ ['village']: villages[i].name })
-        )
-      }
-    }
+
     onSearch({
       sector: data?.sector || selectedSector || '',
       district: data?.district || selectedDistrict || '',
@@ -355,6 +380,7 @@ const GlobalFilter = ({
       paymentStatus: data?.paymentStatus || selectedPaymentStatus,
       dateFrom: data?.dateFrom || selectDateFrom,
       dateTo: data?.dateTo || selectDateTo,
+      monthPaid: data?.monthPaid || selectMonthPaid,
     })
     // navigate(pathRoute)
   }
@@ -364,7 +390,7 @@ const GlobalFilter = ({
       onSubmit={handleSubmit(onSubmit)}
       className="w-100 h-fit py-0 mx-auto"
     >
-      <article className="grid grid-cols-5 gap-4 relative inline-block">
+      <article className="grid grid-cols-4 gap-2 relative inline-block">
         {fieldEnabled?.level && (
           // <label className="text-[15px]  col-auto items-start gap-2">
           //   Level
@@ -525,7 +551,7 @@ const GlobalFilter = ({
                         dispatch(setSelectedPaymentMethod(e.target.value))
                       }}
                     >
-                      <option value={'ALL'}>Select Payment Method</option>
+                      <option value={'All'}>Select Payment Method</option>
                       {selectedPaymentMethods?.map((s) => {
                         return (
                           <option key={s.id} value={s.id}>
@@ -826,65 +852,109 @@ const GlobalFilter = ({
           />
           //  </label>
         )}
-    
+
+        {fieldEnabled?.monthPaid && (
+          <Controller
+            control={control}
+            name="monthPaid"
+            defaultValue={selectMonthPaid}
+            value={selectMonthPaid}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative flex items-center">
+                    <span className="mr-2">MonthPaid:</span>
+
+                    <input
+                      type="month"
+                      className="mr-2 w-full  bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-1 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                      onChange={(e) => {
+                        field.onChange(e)
+                        const newDate = e.target.value
+                        const firstDay = moment(newDate + '-01');
+                     
+                        const lastDay = firstDay.clone().endOf('month').format('YYYY-MM-DD');
+                        const dateFrom=firstDay.format('YYYY-MM-DD');
+                        console.log(dateFrom);
+
+                        dispatch(setMonthPaid(newDate))
+                        dispatch(setDateFrom(dateFrom));
+                        dispatch(setDateTo(lastDay))
+
+                      }}
+                      value={selectMonthPaid}
+                    />
+                  </div>
+                </>
+              )
+            }}
+          />
+        )}
         {fieldEnabled?.dateFrom && (
-              <Controller
-                control={control}
-                name="dateFrom"
-                defaultValue={selectDateFrom}
-                value={selectDateFrom}
-                render={({ field }) => {
-                  return (
-                    <>
-                   <div className="flex justify-between">
-                        <span className="mr-2">From:</span>
-                        <input
-                          type="date"
-                          value={selectDateFrom}
-                          // max={moment.format('YYYY-MM-DD')}
-                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                          placeholder={'From'}
-                          onChange={(e) => {
-                            field.onChange(e)
-                            dispatch(setDateFrom(e.target.value))
-                          }}
-                        />
-                      </div>
-                    </>
-                  )
-                }}
-              />
-            )}
-            {fieldEnabled?.dateTo && (
-              <Controller
-                control={control}
-                name="dateFrom"
-                defaultValue={selectDateTo}
-                value={selectDateTo}
-                render={({ field }) => {
-                  return (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="mr-2">To:</span>
+          <Controller
+            control={control}
+            name="dateFrom"
+            defaultValue={selectDateFrom}
+            value={selectDateFrom}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative flex items-center">
+                    <span className="mr-2">From:</span>
+                    <div className="relative mt-1 w-full">
+                      <input
+                      disabled={fieldEnabled?.monthPaid}
+                        type="date"
+                        value={selectDateFrom}
+                        // max={moment(new Date()).format('YYYY-MM-DD')}
+                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-1 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                        placeholder={'From'}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          dispatch(setDateFrom(e.target.value))
+                        }}
+                      />
+                    </div>
+                  </div>
+                </>
+              )
+            }}
+          />
+        )}
+        {fieldEnabled?.dateTo && (
+          <Controller
+            control={control}
+            name="dateFrom"
+            defaultValue={selectDateTo}
+            value={selectDateTo}
+            render={({ field }) => {
+              return (
+                <>
+                  <div className="relative flex items-center">
+                    <span className="mr-2">To:</span>
+                    <div className="relative mt-1 w-full">
                       <input
                         type="date"
+                        disabled={fieldEnabled?.monthPaid}
                         value={selectDateTo}
-                        // max={moment.format('YYYY-MM-DD')}
-                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                        min={selectDateFrom ? moment(selectDateFrom).format('YYYY-MM-DD') : undefined}
+                        // max={moment().endOf('month').format('YYYY-MM-DD')}
+                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-1 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
                         placeholder={'To'}
                         onChange={(e) => {
                           field.onChange(e)
                           dispatch(setDateTo(e.target.value))
                         }}
                       />
-                      </div>
-                    </>
-                  )
-                }}
-              />
-            )}
-           
-          <div className="relative flex items-center">
+                    </div>
+                  </div>
+                </>
+              )
+            }}
+          />
+        )}
+
+        <div className={`relative flex items-start`}>
           {fieldEnabled?.searchTerm && (
             <Controller
               control={control}

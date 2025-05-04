@@ -71,10 +71,21 @@ const TransactionTable = ({ user }) => {
   const [totalAmount, setTotalAmount] = useState(0)
   const [totalRemaining, setTotalRemaining] = useState(0)
   const [showExportPopup, setShowExportPopup] = useState(false)
+  const [fromDateLabel, setFromDateLabel] = useState(
+    moment().startOf('month').format('DD MMMM YYYY').toUpperCase()
+  )
+  const [toDateLabel, setToDateLabel] = useState(
+    moment().endOf('month').format('DD MMMM YYYY').toUpperCase()
+  )
   const [reportName, setReportName] = useState(
-    `UMUSANZU DIGITAL'S TRANSACTIONS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
+    `TRANSACTIONS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()} ${
+      fromDateLabel ? 'FROM ' + fromDateLabel : ''
+    } ${fromDateLabel ? 'TO ' + toDateLabel : ''}`
   )
 
+  const { userOrSelectedDepartmentNames } = useSelector(
+    (state) => state.departments
+  )
   const openExportPopup = () => {
     setShowExportPopup(true)
   }
@@ -115,8 +126,43 @@ const TransactionTable = ({ user }) => {
     default:
       department = 'agent'
   }
+  useEffect(() => {
+    let reportName = `TRANSACTIONS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()} ${
+      fromDateLabel ? 'FROM ' + fromDateLabel : ''
+    } ${toDateLabel ? 'TO ' + toDateLabel : ''}`
+
+    if (userOrSelectedDepartmentNames?.province) {
+      reportName = `TRANSACTIONS IN ${userOrSelectedDepartmentNames?.province?.toUpperCase()} PROVINCE ${
+        fromDateLabel ? 'FROM ' + fromDateLabel : ''
+      } ${toDateLabel ? 'TO ' + toDateLabel : ''}`
+    }
+    if (userOrSelectedDepartmentNames?.district) {
+      reportName = `TRANSACTIONS IN ${userOrSelectedDepartmentNames?.district?.toUpperCase()} DISTRICT ${
+        fromDateLabel ? 'FROM ' + fromDateLabel : ''
+      } ${toDateLabel ? 'TO ' + toDateLabel : ''}`
+    }
+
+    if (userOrSelectedDepartmentNames?.sector) {
+      reportName = `TRANSACTIONS IN ${userOrSelectedDepartmentNames?.sector?.toUpperCase()} SECTOR ${
+        fromDateLabel ? 'FROM ' + fromDateLabel : ''
+      } ${toDateLabel ? 'TO ' + toDateLabel : ''}`
+    }
+
+    if (userOrSelectedDepartmentNames?.cell) {
+      reportName = `TRANSACTIONS IN ${userOrSelectedDepartmentNames?.cell?.toUpperCase()} CELL ${
+        fromDateLabel ? 'FROM ' + fromDateLabel : ''
+      } ${toDateLabel ? 'TO ' + toDateLabel : ''}`
+    }
+    if (userOrSelectedDepartmentNames?.village) {
+      reportName = `TRANSACTIONS IN ${userOrSelectedDepartmentNames?.village?.toUpperCase()} VILLAGE ${
+        fromDateLabel ? 'FROM ' + fromDateLabel : ''
+      } ${toDateLabel ? 'TO ' + toDateLabel : ''}`
+    }
+    setReportName(`${reportName}`)
+  }, [setReportName, userOrSelectedDepartmentNames, fromDateLabel, toDateLabel])
 
   const [data, setData] = useState([])
+  const [reportQueries, setReportQueries] = useState(null)
   const [queries, setQueries] = useState({
     departmentId: user?.departments?.id,
     searchTerm: '',
@@ -128,10 +174,13 @@ const TransactionTable = ({ user }) => {
     district: queryRoute?.district || '',
     province: queryRoute?.province || '',
     query: queryRoute?.query || '',
-    transaction_from: queryRoute?.transaction_from || '',
-    transaction_to: queryRoute?.transaction_to || '',
+    transaction_from:
+      queryRoute?.transaction_from ||
+      moment().startOf('month').format('YYYY-MM-DD'),
+    transaction_to:
+      queryRoute?.transaction_to ||
+      moment().endOf('month').format('YYYY-MM-DD'),
   })
-
   useEffect(() => {
     const queryRoute_ = queryString.parse(location.search)
     if (
@@ -190,15 +239,15 @@ const TransactionTable = ({ user }) => {
               cell: row?.household_cell_name,
               sector: row?.household_sector_name,
               district: row?.household_district_name,
-              amount: row?.transaction_amount,
+              amount: formatFunds(row?.transaction_amount),
               month_paid: moment(row.transaction_month_paid).format('MM-YYYY'),
               payment_method: row?.transaction_payment_method
                 ?.split('_')
                 .join(' '),
               status: row?.transaction_status,
-              remain_amount: row?.transaction_remain_amount || 0,
+              remain_amount: formatFunds(row?.transaction_remain_amount || 0),
               agent: row?.agent_names,
-              commission: row?.transaction_total_commission,
+              commission: formatFunds(row?.transaction_total_commission),
               transaction_date: moment(
                 row?.transaction_transaction_date
               ).format('DD-MM-YYYY'),
@@ -223,372 +272,54 @@ const TransactionTable = ({ user }) => {
     }
   }
 
+  const handleExportToPdf = async () => {
+    try {
+      setIsExporting(true)
 
-  // const handleExportToPdf = async () => {
-  //   const doc = new jsPDF({
-  //     orientation: 'landscape',
-  //     format: 'a4',
-  //     margins: { top: 60, right: 60, bottom: 40, left: 200 },
-  //   })
-  //   const logoResponse = await fetch(logo)
-  //   const logoData = await logoResponse.blob()
-  //   const reader = new FileReader()
-
-  //   reader.onload = async () => {
-  //     const logoBase64 = reader.result.split(',')[1]
-  //     doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
-  //     doc.setFont('Symbol', 'bold')
-  //     doc.setFontSize(12)
-  //     doc.text('IMENA SOFTEK LTD', 125, 50)
-
-  //     let currentMonth = moment().format('MMMM')
-  //     if (userOrSelectedDepartmentNames?.village !== undefined) {
-  //       doc.text(
-  //         `UMUSANZU  DIGITAL'S  ${
-  //           userOrSelectedDepartmentNames.village
-  //         }  VILLAGE  ${currentMonth.toUpperCase()}  TRANSACTIONS`,
-  //         65,
-  //         65
-  //       )
-  //     } else if (
-  //       userOrSelectedDepartmentNames?.cell !== undefined &&
-  //       userOrSelectedDepartmentNames?.village === undefined
-  //     ) {
-  //       doc.text(
-  //         `UMUSANZU  DIGITAL'S  ${
-  //           userOrSelectedDepartmentNames.cell
-  //         }  CELL  ${currentMonth.toUpperCase()}  TRANSACTIONS`,
-  //         65,
-  //         65
-  //       )
-  //     } else {
-  //       doc.text(
-  //         `UMUSANZU  DIGITAL'S  ${
-  //           userOrSelectedDepartmentNames.sector
-  //         }  SECTOR  ${currentMonth.toUpperCase()}  TRANSACTIONS`,
-  //         65,
-  //         65
-  //       )
-  //     }
-  //     doc.line(61, 67, 220, 67)
-
-  //     doc.setFontSize(8)
-
-  //     const columnHeader = [
-  //       { content: 'NO', cellWidth: 10 },
-  //       { content: 'NAMES', cellWidth: 30 },
-  //       { content: 'VILLAGE', cellWidth: 23 },
-  //       { content: 'CELL', cellWidth: 20 },
-  //       { content: 'SECTOR', cellWidth: 20 },
-  //       { content: 'DISTRICT', cellWidth: 20 },
-  //       { content: 'AMOUNT PAID', cellWidth: 15 },
-  //       { content: 'MONTH PAID', cellWidth: 16 },
-  //       { content: 'PAYMENT METHOD', cellWidth: 23 },
-  //       { content: 'STATUS', cellWidth: 18 },
-  //       { content: 'REMAINING AMOUNT', cellWidth: 18 },
-  //       { content: 'AGENT', cellWidth: 30 },
-  //       { content: 'COMMISSION', cellWidth: 13 },
-  //       { content: 'DATE', cellWidth: 18 },
-  //     ]
-  //     const headerRow = columnHeader.map((header) => ({
-  //       content: header.content,
-  //       styles: { cellWidth: header.cellWidth },
-  //     }))
-  //     doc.autoTable({
-  //       startY: 75,
-  //       head: [headerRow],
-  //       theme: 'grid',
-  //       styles: {
-  //         fillColor: '#EDEDED',
-  //         textColor: '#000000',
-  //         fontStyle: 'bold',
-  //         halign: 'center',
-  //         valign: 'middle',
-  //         fontSize: 7,
-  //       },
-  //     })
-
-  //     // Create a separate array for "NO" values starting from 1
-  //     const noValues = Array.from(
-  //       { length: TableInstance.rows.length },
-  //       (_, index) => index + 1
-  //     )
-
-  //     // Combine the "NO" values with your existing data, excluding the ID
-  //     const exportData = TableInstance.rows.map((row, index) => {
-  //       const { id, ...rest } = row.original
-  //       return {
-  //         NO: noValues[index],
-  //         ...rest,
-  //       }
-  //     })
-  //     doc.autoTable({
-  //       startY: doc.lastAutoTable.finalY + 5,
-  //       head: false,
-  //       body: exportData,
-  //       theme: 'grid',
-  //       styles: {
-  //         fontSize: 7.5,
-  //       },
-  //       columnStyles: columnHeader.reduce((acc, value, index) => {
-  //         acc[index] = { cellWidth: value.cellWidth }
-  //         return acc
-  //       }, {}),
-  //     })
-
-  //     // Add your custom content here
-  //     const customContent = [
-  //       ['BITEGUWE NA:', 'BYEMEJWE NA:'],
-  //       ['', ''],
-  //       ['TETA TAMARA', 'NDAGIJIMANA Gedeon'],
-  //       ['DATA MANAGEMENT', 'CEO IMENA SOFTEK LTD'],
-  //       ['IMENA SOFTEK LTD', ''],
-  //     ]
-
-  //     // Define custom styles for the custom content (no lines and normal font weight)
-  //     const customContentStyles = {
-  //       theme: 'plain', // Use plain theme to remove table lines
-  //       styles: {
-  //         fontSize: 8,
-  //         fontStyle: 'normal', // Use normal font weight
-  //       },
-  //       columnStyles: {
-  //         0: { cellWidth: 150 },
-  //         1: { cellWidth: 100 },
-  //       },
-  //     }
-
-  //     if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
-  //       doc.addPage()
-  //       doc.text(
-  //         `Done on: ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-  //         16,
-  //         doc.lastAutoTable.finalY + 20
-  //       )
-  //       doc.autoTable({
-  //         startY: doc.lastAutoTable.finalY + 30,
-  //         head: false,
-  //         body: customContent,
-  //         ...customContentStyles,
-  //       })
-  //     } else {
-  //       doc.text(
-  //         `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-  //         16,
-  //         doc.lastAutoTable.finalY + 20
-  //       )
-
-  //       doc.autoTable({
-  //         startY: doc.lastAutoTable.finalY + 30,
-  //         head: false,
-  //         body: customContent,
-  //         ...customContentStyles,
-  //       })
-  //     }
-
-  //     // Add the cachet image here
-  //     const cachetResponse = await fetch(cachet)
-  //     const cachetData = await cachetResponse.blob()
-  //     const cachetBase64 = await convertBlobToBase64(cachetData)
-
-  //     doc.addImage(
-  //       cachetBase64,
-  //       'PNG',
-  //       200,
-  //       doc.lastAutoTable.finalY - 50,
-  //       50,
-  //       50
-  //     )
-
-  //     // Add the signature image here
-  //     const signatureResponse = await fetch(signature)
-  //     const signatureData = await signatureResponse.blob()
-  //     const signatureBase64 = await convertBlobToBase64(signatureData)
-
-  //     doc.addImage(
-  //       signatureBase64,
-  //       'PNG',
-  //       20,
-  //       doc.lastAutoTable.finalY - 50,
-  //       50,
-  //       50
-  //     )
-
-  //     doc.save(`${reportName}.pdf`)
-  //   }
-
-  //   reader.readAsDataURL(logoData)
-  // }
-
-  // Helper function to convert Blob to Base64
-  const convertBlobToBase64 = (blob) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        resolve(reader.result.split(',')[1])
-      }
-      reader.readAsDataURL(blob)
-    })
+      const { data } = await axios.get(
+        `${API_URL}/transactions/pdf-reports?reportName=${reportName}&${new URLSearchParams(
+          reportQueries
+        ).toString()}`,
+        {
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      )
+      setIsExporting(false)
+      download(new Blob([data]), `${reportName}.pdf`, '.pdf')
+    } catch (error) {
+      // console.log(error)
+      setIsExporting(false)
+      toast.error('Househould not found')
+    }
   }
 
-  // const handleExportToExcel = () => {
-  //   const workbook = new ExcelJS.Workbook()
-  //   const sheet = workbook.addWorksheet(`${reportName}`)
-  //   sheet.properties.defaultRowHeight = 80
+  const handleExportToExcel = async () => {
+    try {
+      setIsExporting(true)
 
-  //   sheet.getRow(1).border = {
-  //     top: { style: 'thick' },
-  //     left: { style: 'thick' },
-  //     bottom: { style: 'thick' },
-  //     right: { style: 'thick' },
-  //   }
-
-  //   sheet.getRow(1).fill = {
-  //     type: 'pattern',
-  //     pattern: 'darkVertical',
-  //     fgColor: { argb: 'FFFF00' },
-  //   }
-
-  //   sheet.getRow(1).font = {
-  //     name: '',
-  //     family: 4,
-  //     size: 12,
-  //     bold: true,
-  //   }
-
-  //   sheet.columns = [
-  //     {
-  //       header: 'Id',
-  //       key: 'id',
-  //       width: 5,
-  //     },
-  //     { header: 'Name', key: 'name', width: 20 },
-  //     {
-  //       header: 'Department',
-  //       key: 'department',
-  //       width: 20,
-  //     },
-  //     {
-  //       header: 'Amount',
-  //       key: 'amount',
-  //       width: 10,
-  //     },
-  //     {
-  //       header: 'Month paid',
-  //       key: 'month_paid',
-  //       width: 15,
-  //     },
-  //     {
-  //       header: 'Payment method',
-  //       key: 'payment_method',
-  //       width: 15,
-  //     },
-  //     {
-  //       header: 'Status',
-  //       key: 'status',
-  //       width: 10,
-  //     },
-  //     {
-  //       header: 'Remain amount',
-  //       key: 'remain_amount',
-  //       width: 10,
-  //     },
-  //     {
-  //       header: 'Agent',
-  //       key: 'agent',
-  //       width: 20,
-  //     },
-  //     {
-  //       header: 'Commission',
-  //       key: 'commission',
-  //       width: 10,
-  //     },
-  //     {
-  //       header: 'Transaction date',
-  //       key: 'transaction_date',
-  //       width: 20,
-  //     },
-  //   ]
-
-  //   const promise = Promise.all(
-  //     TableInstance.rows.map(async (row) => {
-  //       sheet.addRow({
-  //         id: row.original?.id,
-  //         name: row.original?.name,
-  //         department: row.original?.department,
-  //         amount: row.original?.amount,
-  //         month_paid: row.original?.month_paid,
-  //         payment_method: row.original?.payment_method,
-  //         status: row.original?.status,
-  //         remain_amount: row.original?.remain_amount,
-  //         agent: row.original?.agent,
-  //         commission: row.original?.commission,
-  //         transaction_date: row.original?.transaction_date,
-  //       })
-  //     })
-  //   )
-
-  //   promise.then(() => {
-  //     workbook.xlsx.writeBuffer().then(function (data) {
-  //       const blob = new Blob([data], {
-  //         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  //       })
-  //       const url = window.URL.createObjectURL(blob)
-  //       const anchor = document.createElement('a')
-  //       anchor.href = url
-  //       anchor.download = 'download.xlsx'
-  //       anchor.click()
-  //       window.URL.revokeObjectURL(url)
-  //     })
-  //   })
-  // }
-
-
-  
-    const handleExportToPdf = async () => {
-      try {
-        setIsExporting(true)
-  
-        const { data } = await axios.get(
-          `${API_URL}/transactions/pdf-reports?reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
-          {
-            responseType: 'blob',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
-        )
-        setIsExporting(false)
-        download(new Blob([data]), `${reportName}.pdf`, '.pdf')
-      } catch (error) {
-        // console.log(error)
-        setIsExporting(false)
-        toast.error('Househould not found')
-      }
+      const { data } = await axios.get(
+        `${API_URL}/transactions/excel-reports?reportName=${reportName}&${new URLSearchParams(
+          reportQueries
+        ).toString()}`,
+        {
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      )
+      setIsExporting(false)
+      download(new Blob([data]), `${reportName}.csv`, '.csv')
+    } catch (error) {
+      console.log(error)
+      setIsExporting(false)
+      toast.error('Try again.')
     }
-  
-    const handleExportToExcel = async () => {
-      try {
-        setIsExporting(true)
-  
-        const { data } = await axios.get(
-          `${API_URL}/transactions/excel-reports?reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
-          {
-            responseType: 'blob',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
-        )
-        setIsExporting(false)
-        download(new Blob([data]), `${reportName}.csv`, '.csv')
-      } catch (error) {
-        console.log(error)
-        setIsExporting(false)
-        toast.error('Try again.')
-      }
-    }
-  
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -820,7 +551,9 @@ const TransactionTable = ({ user }) => {
       <div className="flex flex-col items-center gap-6">
         <div className="search-filter flex flex-col w-full items-center gap-6">
           <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <div className="flex gap-2 max-md:pl-0"></div>
+            <div className="flex gap-2 max-md:pl-0"><strong>{ `TRANSACTIONS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()} ${
+      fromDateLabel ? 'FROM ' + fromDateLabel : ''
+    } ${fromDateLabel ? 'TO ' + toDateLabel : ''}`}</strong></div>
             <div className="flex gap-2 max-md:pl-2">
               {user?.departments.level_id !== 6 && (
                 <div className="flex gap-2 justify-end">
@@ -838,88 +571,106 @@ const TransactionTable = ({ user }) => {
             </div>
           </span>
         </div>
-        <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
-            <GlobalFilter
-              user={user}
-              fieldEnabled={{
-                province: ['country'].includes(department),
-                district: ['country', 'province'].includes(department),
-                sector: ['country', 'province', 'district'].includes(
-                  department
-                ),
-                cell: ['country', 'province', 'district', 'sector'].includes(
-                  department
-                ),
-                village: [
-                  'country',
-                  'province',
-                  'district',
-                  'sector',
-                  'cell',
-                ].includes(department),
-                householdStatus: false,
-                searchTerm: true,
-
-                paymentMethod: true,
-                paymentStatus: true,
-                dateTo: true,
-                dateFrom: true,
-              }}
-              isLoading={transactionsListIsLoading}
-              placeholder={'Search for transaction....'}
-              onChange={(query) => {
-                // const queries2 = {
-                //   departmentId: user?.departments?.id,
-                //   searchTerm:
-                //     query.searchTerm ||
-                //     queryRoute?.searchTerm ||
-                //     '',
-                //   ubudehe: queryRoute?.ubudehe || '',
-                //   route: queryRoute?.query || '',
-                //   id: sectorId || user?.departments?.id,
-                //   status: query.status || 'ACTIVE',
-                //   village:
-                //     query.village || queryRoute?.village || '',
-                //   cell: query.cell || queryRoute?.cell || '',
-                //   sector:
-                //     query.sector || queryRoute?.sector || '',
-                //   district:
-                //     query.district || queryRoute?.district || '',
-                //   province:
-                //     query.province || queryRoute?.province || '',
-                // }
-                // setQueries({ ...queries2 })
-              }}
-              onSearch={(query) => {
-                gotoPage1(0)
-                const queries2 = {
-                  departmentId: user?.departments?.id,
-                  searchTerm: query.searchTerm || queryRoute?.searchTerm || '',
-                  village: query.village || queryRoute?.village || '',
-                  cell: query.cell || queryRoute?.cell || '',
-                  sector: query.sector || queryRoute?.sector || '',
-                  district: query.district || queryRoute?.district || '',
-                  province: query.province || queryRoute?.province || '',
-                  payment_status:
-                    query.paymentStatus || queryRoute?.paymentStatus || 'All',
-                  payment_method:
-                    query.paymentMethod || queryRoute?.paymentMethod || 'All',
-                  transaction_from: query?.dateFrom || '',
-                  transaction_to: query?.dateTo || '',
-                }
-                setQueries({ ...queries2 })
-                onLoadTransactionLists({
-                  department,
-                  size,
-                  page: offset,
-                  ...queries2,
-                })
-              }}
-            />
-          </span>
-        </div>
         <div className="mt-2 flex flex-col w-[95%] mx-auto">
+          <table>
+            <tr className="w-100">
+              <td className="w-100">
+                <GlobalFilter
+                  user={user}
+                  fieldEnabled={{
+                    province: ['country'].includes(department),
+                    district: ['country', 'province'].includes(department),
+                    sector: ['country', 'province', 'district'].includes(
+                      department
+                    ),
+                    cell: [
+                      'country',
+                      'province',
+                      'district',
+                      'sector',
+                    ].includes(department),
+                    village: [
+                      'country',
+                      'province',
+                      'district',
+                      'sector',
+                      'cell',
+                    ].includes(department),
+                    householdStatus: false,
+                    searchTerm: true,
+
+                    paymentMethod: true,
+                    paymentStatus: true,
+                    dateTo: true,
+                    dateFrom: true,
+                  }}
+                  isLoading={transactionsListIsLoading}
+                  placeholder={
+                    'Search for transaction by names, transaction ID....'
+                  }
+                  onChange={(query) => {
+                    if (query?.dateFrom) setFromDateLabel(query?.dateFrom)
+
+                    if (query?.dateTo) setToDateLabel(query?.dateTo)
+                      console.log(query);
+                    const queries2 = {
+                      departmentId: user?.departments?.id,
+                      searchTerm:
+                        query.searchTerm || queryRoute?.searchTerm || '',
+                      village: query.village || queryRoute?.village || '',
+                      cell: query.cell || queryRoute?.cell || '',
+                      sector: query.sector || queryRoute?.sector || '',
+                      district: query.district || queryRoute?.district || '',
+                      province: query.province || queryRoute?.province || '',
+                      payment_status:
+                        query.paymentStatus ||
+                        queryRoute?.paymentStatus ||
+                        'All',
+                      payment_method:
+                        query.paymentMethod ||
+                        queryRoute?.paymentMethod ||
+                        'All',
+                      transaction_from: query?.dateFrom || moment().startOf('month').format('YYYY-MM-DD'),
+                      transaction_to: query?.dateTo || moment().endOf('month').format('YYYY-MM-DD'),
+                    }
+                    setReportQueries(queries2)
+                  }}
+                  onSearch={(query) => {
+                    gotoPage1(0)
+                    const queries2 = {
+                      departmentId: user?.departments?.id,
+                      searchTerm:
+                        query.searchTerm || queryRoute?.searchTerm || '',
+                      village: query.village || queryRoute?.village || '',
+                      cell: query.cell || queryRoute?.cell || '',
+                      sector: query.sector || queryRoute?.sector || '',
+                      district: query.district || queryRoute?.district || '',
+                      province: query.province || queryRoute?.province || '',
+                      payment_status:
+                        query.paymentStatus ||
+                        queryRoute?.paymentStatus ||
+                        'All',
+                      payment_method:
+                        query.paymentMethod ||
+                        queryRoute?.paymentMethod ||
+                        'All',
+                      transaction_from: query?.dateFrom || '',
+                      transaction_to: query?.dateTo || '',
+                    }
+                    setQueries({ ...queries2 })
+                    onLoadTransactionLists({
+                      department,
+                      size,
+                      page: offset,
+                      ...queries2,
+                    })
+                  }}
+                />
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div className="mt-0 flex flex-col w-[95%] mx-auto">
           <div className="overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">

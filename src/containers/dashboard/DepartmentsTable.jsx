@@ -101,7 +101,7 @@ const DepartmentsTable = ({ user }) => {
     default:
       department = 'agent'
   }
-
+  const [reportQueries, setReportQueries] = useState(null)
   const [queries, setQueries] = useState({
     departmentId:
       +queryRoute?.cell ||
@@ -149,20 +149,20 @@ const DepartmentsTable = ({ user }) => {
   }, [size, offset, queries])
 
   useEffect(() => {
-    let reportName = `UMUSANZU DIGITAL'S REGISTERED PROVINCES IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
+    let reportName = `PROVINCES REGISTERED IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
     if (userOrSelectedDepartmentNames?.province) {
-      reportName = `UMUSANZU DIGITAL'S REGISTERED DISTRICTS IN ${userOrSelectedDepartmentNames?.province?.toUpperCase()} PROVINCE`
+      reportName = `DISTRICTS REGISTERED IN ${userOrSelectedDepartmentNames?.province?.toUpperCase()} PROVINCE`
     }
     if (userOrSelectedDepartmentNames?.district) {
-      reportName = `UMUSANZU DIGITAL'S REGISTERED SECTORS IN ${userOrSelectedDepartmentNames?.district?.toUpperCase()} DISTRICT`
+      reportName = `SECTORS REGISTERED IN ${userOrSelectedDepartmentNames?.district?.toUpperCase()} DISTRICT`
     }
 
     if (userOrSelectedDepartmentNames?.sector) {
-      reportName = `UMUSANZU DIGITAL'S REGISTERED CELLS IN ${userOrSelectedDepartmentNames?.sector?.toUpperCase()} SECTOR`
+      reportName = `CELLS REGISTERED IN ${userOrSelectedDepartmentNames?.sector?.toUpperCase()} SECTOR`
     }
 
     if (userOrSelectedDepartmentNames?.cell) {
-      reportName = `UMUSANZU DIGITAL'S REGISTERED VILLAGES IN ${userOrSelectedDepartmentNames?.cell?.toUpperCase()} CELL`
+      reportName = `VILLAGES REGISTERED IN ${userOrSelectedDepartmentNames?.cell?.toUpperCase()} CELL`
     }
 
     setReportName(reportName)
@@ -231,7 +231,7 @@ const DepartmentsTable = ({ user }) => {
 
       const { data } = await axios.get(
         `${API_URL}/department/pdf-reports?reportName=${reportName}&${new URLSearchParams(
-          queries
+          reportQueries
         ).toString()}`,
         {
           responseType: 'blob',
@@ -252,10 +252,13 @@ const DepartmentsTable = ({ user }) => {
   const handleExportToExcel = async () => {
     try {
       setIsExporting(true)
-
+      // if (reportName.length > 31) {
+      //   toast.error('Report name should not exceed to 31 chars')
+      //   return false
+      // }
       const { data } = await axios.get(
         `${API_URL}/department/excel-reports?reportName=${reportName}&${new URLSearchParams(
-          queries
+          reportQueries
         ).toString()}`,
         {
           responseType: 'blob',
@@ -515,18 +518,18 @@ const DepartmentsTable = ({ user }) => {
                       }}
                       isLoading={departmentListLoading}
                       onChange={(query) => {
-                        // const queries2 = {
-                        //   departmentId:
-                        //     query.village ||
-                        //     query.cell ||
-                        //     query.sector ||
-                        //     query.district ||
-                        //     query.province ||
-                        //     user?.departments?.id,
-                        //   searchTerm: query.searchTerm,
-                        //   level_id: query.level,
-                        // }
-                        // setQueries({ ...queries2 })
+                        const queries2 = {
+                          departmentId:
+                            query.village ||
+                            query.cell ||
+                            query.sector ||
+                            query.district ||
+                            query.province ||
+                            user?.departments?.id,
+                          searchTerm: query.searchTerm,
+                          level_id: query.level,
+                        }
+                        setReportQueries({ ...queries2 })
                       }}
                       onSearch={(query) => {
                         gotoPage1(0)
@@ -541,6 +544,7 @@ const DepartmentsTable = ({ user }) => {
                           searchTerm: query.searchTerm,
                           level_id: query.level,
                         }
+                        setReportQueries({ ...queries2 })
                         setQueries({ ...queries2 })
                         onLoadDepartmentLists({
                           ...queries2,
@@ -867,7 +871,6 @@ const DepartmentsTable = ({ user }) => {
                     ))}
                   </tbody>
                 </table>
-
 
                 {totalRecords === 0 && (
                   <main className="min-h-[40vh] flex items-center justify-center flex-col gap-6">

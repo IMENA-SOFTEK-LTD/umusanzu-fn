@@ -58,8 +58,12 @@ const HouseholdTable = ({ user }) => {
   const [householdsListIsLoading, setHouseholdsListIsLoading] = useState(false)
   const [householdListError, setHouseholdListError] = useState(false)
   const [totalAmount, setTotalAmount] = useState(0)
+  const [downloadProgress, setDownloadProgress] = useState(0)
   const [reportName, setReportName] = useState(
-    `UMUSANZU DIGITAL'S REGISTERED HOUSEHOLDS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
+    `HOUSEHOLDS REGISTERED IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
+  )
+  const { userOrSelectedDepartmentNames } = useSelector(
+    (state) => state.departments
   )
   const location = useLocation()
   const openExportPopup = () => {
@@ -131,7 +135,31 @@ const HouseholdTable = ({ user }) => {
       department = 'agent'
   }
 
+  useEffect(() => {
+    let reportName = `HOUSEHOLDS REGISTERED IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
+    if (userOrSelectedDepartmentNames?.province) {
+      reportName = `HOUSEHOLDS REGISTERED IN ${userOrSelectedDepartmentNames?.province?.toUpperCase()} PROVINCE`
+    }
+    if (userOrSelectedDepartmentNames?.district) {
+      reportName = `HOUSEHOLDS REGISTERED IN ${userOrSelectedDepartmentNames?.district?.toUpperCase()} DISTRICT`
+    }
+
+    if (userOrSelectedDepartmentNames?.sector) {
+      reportName = `HOUSEHOLDS REGISTERED IN ${userOrSelectedDepartmentNames?.sector?.toUpperCase()} SECTOR`
+    }
+
+    if (userOrSelectedDepartmentNames?.cell) {
+      reportName = `HOUSEHOLDS REGISTERED IN ${userOrSelectedDepartmentNames?.cell?.toUpperCase()} CELL`
+    }
+    if (userOrSelectedDepartmentNames?.village) {
+      reportName = `HOUSEHOLDS REGISTERED IN ${userOrSelectedDepartmentNames?.village?.toUpperCase()} VILLAGE`
+    }
+
+    setReportName(reportName)
+  }, [setReportName, userOrSelectedDepartmentNames])
+
   const [data, setData] = useState([])
+  const [reportQueries, setReportQueries] = useState(null)
   const [queries, setQueries] = useState({
     departmentId: user?.departments?.id,
     searchTerm: '',
@@ -232,47 +260,72 @@ const HouseholdTable = ({ user }) => {
     }
   }
 
-  const handleExportToPdf = async () => {
+  // const handleExportToPdf = async () => {
+  //   try {
+  //     setIsExporting(true)
+
+  //     const { data } = await axios.get(
+  //       `${API_URL}/households/pdf-reports?reportName=${reportName}&${new URLSearchParams(
+  //         reportQueries
+  //       ).toString()}`,
+  //       {
+  //         responseType: 'blob',
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem('token')}`,
+  //         },
+  //         onDownloadProgress: (progressEvent) => {
+  //           const total = progressEvent.total || progressEvent.target?.getResponseHeader('Content-Length');
+  //           if (total) {
+  //             const percent = Math.round((progressEvent.loaded * 100) / total);
+  //             setDownloadProgress(percent);
+  //           }
+  //         },
+  //       }
+  //     )
+  //     setIsExporting(false)
+  //     download(new Blob([data]), `${reportName}.pdf`, '.pdf')
+  //   } catch (error) {
+  //     // console.log(error)
+  //     setIsExporting(false)
+  //     toast.error('Househould not found')
+  //   }
+  // }
+
+  const handleExport = async (file) => {
     try {
       setIsExporting(true)
+      setDownloadProgress(0) // reset progress
 
       const { data } = await axios.get(
-        `${API_URL}/households/pdf-reports?level=reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
+        `${API_URL}/households/${file}-reports?reportName=${reportName}&${new URLSearchParams(
+          reportQueries
+        ).toString()}`,
         {
           responseType: 'blob',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-        }
-      )
-      setIsExporting(false)
-      download(new Blob([data]), `${reportName}.pdf`, '.pdf')
-    } catch (error) {
-      // console.log(error)
-      setIsExporting(false)
-      toast.error('Househould not found')
-    }
-  }
-
-  const handleExportToExcel = async () => {
-    try {
-      setIsExporting(true)
-
-      const { data } = await axios.get(
-        `${API_URL}/households/excel-reports?reportName=${reportName}&${new URLSearchParams(queries).toString()}`,
-        {
-          responseType: 'blob',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          onDownloadProgress: (progressEvent) => {
+            const total =
+              progressEvent.total ||
+              progressEvent.target?.getResponseHeader('Content-Length')
+            if (total) {
+              const percent = Math.round((progressEvent.loaded * 100) / total)
+              setDownloadProgress(percent)
+            }
           },
         }
       )
-      setIsExporting(false)
-      download(new Blob([data]), `${reportName}.csv`, '.csv')
+      if (file === 'pdf') {
+        download(new Blob([data]), `${reportName}.pdf`, '.pdf')
+      } else {
+        download(new Blob([data]), `${reportName}.csv`, '.csv')
+      }
     } catch (error) {
-      console.log(error)
+      toast.error('Household not found')
+    } finally {
       setIsExporting(false)
-      toast.error('Try again.')
+      setDownloadProgress(0)
     }
   }
 
@@ -493,7 +546,7 @@ const HouseholdTable = ({ user }) => {
                     <FontAwesomeIcon icon={faFilePdf} />
                   </span>
                 }
-                onClick={handleExportToPdf}
+                onClick={() => handleExport('pdf')}
               />
               <Button
                 disabled={isExporting}
@@ -508,7 +561,7 @@ const HouseholdTable = ({ user }) => {
                 //     ? 'flex'
                 //     : 'hidden'
                 // }
-                onClick={handleExportToExcel}
+                onClick={() => handleExport('excel')}
               />
               <Button
                 value={
@@ -528,7 +581,9 @@ const HouseholdTable = ({ user }) => {
       <div className="flex my-8 flex-col w-full items-center gap-6 relative">
         <div className="search-filter flex flex-col w-full items-center gap-6">
           <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <div className="flex gap-2 max-md:pl-0"></div>
+            <div className="flex gap-2 max-md:pl-0">
+              <strong>{`HOUSEHOLDS REGISTERED IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`}</strong>
+            </div>
             <div className="flex gap-2 max-md:pl-2">
               {/* {user.staff_role === 1 && ( */}
               <Button
@@ -541,94 +596,101 @@ const HouseholdTable = ({ user }) => {
                 }
                 route="/households/create"
               />
-              <Button
-                value={
-                  <span className="flex items-center gap-2">
-                    Export Report
-                    <FontAwesomeIcon icon={faFile} />
-                  </span>
-                }
-                route={'#'}
-                onClick={openExportPopup}
-              />
+              {user?.departments.level_id !== 6 && (
+                <Button
+                  value={
+                    <span className="flex items-center gap-2">
+                      Export Report
+                      <FontAwesomeIcon icon={faFile} />
+                    </span>
+                  }
+                  route={'#'}
+                  onClick={openExportPopup}
+                />
+              )}
             </div>
           </span>
         </div>
-        <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className="w-[95%] mx-auto h-fit flex items-center flex-wrap gap-4 max-md:justify-center">
-            <GlobalFilter
-              user={user}
-              fieldEnabled={{
-                province: ['country'].includes(department),
-                district: ['country', 'province'].includes(department),
-                sector: ['country', 'province', 'district'].includes(
-                  department
-                ),
-                cell: ['country', 'province', 'district', 'sector'].includes(
-                  department
-                ),
-                village: [
-                  'country',
-                  'province',
-                  'district',
-                  'sector',
-                  'cell',
-                ].includes(department),
-                activationStatus: !['monthlyTarget'].includes(
-                  queryRoute?.query
-                ),
-                searchTerm: true,
-              }}
-              isLoading={householdsListIsLoading}
-              placeholder={'Search for household....'}
-              onChange={(query) => {
-                // const queries2 = {
-                //   departmentId: user?.departments?.id,
-                //   searchTerm:
-                //     query.searchTerm ||
-                //     queryRoute?.searchTerm ||
-                //     '',
-                //   ubudehe: queryRoute?.ubudehe || '',
-                //   route: queryRoute?.query || '',
-                //   id: sectorId || user?.departments?.id,
-                //   status: query.status || 'ACTIVE',
-                //   village:
-                //     query.village || queryRoute?.village || '',
-                //   cell: query.cell || queryRoute?.cell || '',
-                //   sector:
-                //     query.sector || queryRoute?.sector || '',
-                //   district:
-                //     query.district || queryRoute?.district || '',
-                //   province:
-                //     query.province || queryRoute?.province || '',
-                // }
-                // setQueries({ ...queries2 })
-              }}
-              onSearch={(query) => {
-                gotoPage1(0)
-                const queries2 = {
-                  departmentId: user?.departments?.id,
-                  searchTerm: query.searchTerm || queryRoute?.searchTerm || '',
-                  ubudehe: queryRoute?.ubudehe || '',
-                  route: queryRoute?.query || '',
-                  id: sectorId || user?.departments?.id,
-                  status: query.activationStatus || 'ACTIVE',
-                  village: query.village || queryRoute?.village || '',
-                  cell: query.cell || queryRoute?.cell || '',
-                  sector: query.sector || queryRoute?.sector || '',
-                  district: query.district || queryRoute?.district || '',
-                  province: query.province || queryRoute?.province || '',
-                }
-                setQueries({ ...queries2 })
-                onLoadHouseholdLists({
-                  department,
-                  size,
-                  page: offset,
-                  ...queries2,
-                })
-              }}
-            />
-          </span>
+        <div className="mt-2 flex flex-col w-[95%] mx-auto">
+          <table>
+            <tr className="w-100">
+              <td className="w-100">
+                <GlobalFilter
+                  user={user}
+                  fieldEnabled={{
+                    province: ['country'].includes(department),
+                    district: ['country', 'province'].includes(department),
+                    sector: ['country', 'province', 'district'].includes(
+                      department
+                    ),
+                    cell: [
+                      'country',
+                      'province',
+                      'district',
+                      'sector',
+                    ].includes(department),
+                    village: [
+                      'country',
+                      'province',
+                      'district',
+                      'sector',
+                      'cell',
+                    ].includes(department),
+                    activationStatus: !['monthlyTarget'].includes(
+                      queryRoute?.query
+                    ),
+                    searchTerm: true,
+                  }}
+                  isLoading={householdsListIsLoading}
+                  placeholder={
+                    'Search for household by names, phone, email....'
+                  }
+                  onChange={(query) => {
+                    const queries2 = {
+                      departmentId: user?.departments?.id,
+                      searchTerm:
+                        query.searchTerm || queryRoute?.searchTerm || '',
+                      ubudehe: queryRoute?.ubudehe || '',
+                      route: queryRoute?.query || '',
+                      // id: sectorId || user?.departments?.id,
+                      status: query.activationStatus || 'ACTIVE',
+                      village: query.village || queryRoute?.village || '',
+                      cell: query.cell || queryRoute?.cell || '',
+                      sector: query.sector || queryRoute?.sector || '',
+                      district: query.district || queryRoute?.district || '',
+                      province: query.province || queryRoute?.province || '',
+                    }
+                    setReportQueries({ ...queries2 })
+                  }}
+                  onSearch={(query) => {
+                    gotoPage1(0)
+                    const queries2 = {
+                      departmentId: user?.departments?.id,
+                      searchTerm:
+                        query.searchTerm || queryRoute?.searchTerm || '',
+                      ubudehe: queryRoute?.ubudehe || '',
+                      route: queryRoute?.query || '',
+                      // id: sectorId || user?.departments?.id,
+                      status: query.activationStatus || 'ACTIVE',
+                      village: query.village || queryRoute?.village || '',
+                      cell: query.cell || queryRoute?.cell || '',
+                      sector: query.sector || queryRoute?.sector || '',
+                      district: query.district || queryRoute?.district || '',
+                      province: query.province || queryRoute?.province || '',
+                    }
+                    setReportQueries({ ...queries2 })
+                    setQueries({ ...queries2 })
+                    onLoadHouseholdLists({
+                      department,
+                      size,
+                      page: offset,
+                      ...queries2,
+                    })
+                  }}
+                />
+              </td>
+            </tr>
+          </table>
         </div>
         <div className="mt-0 flex flex-col w-[95%] mx-auto">
           <div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">

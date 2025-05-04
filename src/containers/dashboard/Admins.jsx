@@ -85,6 +85,7 @@ const Admins = ({ selectDepartment, type }) => {
         <div>
           {stateUser?.staff_role === 1 && (
             <Button
+            disabled={type=='Agent' && data?.length > 0}
               value={'Create ' + type}
               className="absolute top-0 right-2 !rounded-lg "
               onClick={(e) => {

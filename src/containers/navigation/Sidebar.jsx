@@ -73,29 +73,16 @@ function Sidebar({ user }) {
           route: '/dashboard',
         },
         {
-          title: 'Households',
-          icon: BsHousesFill,
-          path: `${'/households'}`,
-          route: '/households',
-        },
-        {
           title: 'Departments',
           icon: FaBorderAll,
           path: `/departments`,
           route: `/departments`,
         },
         {
-          title: 'Performances',
-          icon: FaBorderAll,
-          path: '/performances',
-          route: '/performances',
-        },
-        {
-          title: 'Transactions',
-          icon: AiOutlineTransaction,
-          path: `${'/transactions'
-          }`,
-          route: '/transactions',
+          title: 'Households',
+          icon: BsHousesFill,
+          path: `${'/households'}`,
+          route: '/households',
         },
         {
           title: 'Household Stats',
@@ -104,16 +91,28 @@ function Sidebar({ user }) {
           route: '/households/stats',
         },
         {
-          title: 'Complete Initiated Payments',
-          icon: FaPaypal,
-          path: '/agent/transactions/initiated',
-          route: '/agent/transactions/initiated',
+          title: 'Transactions',
+          icon: AiOutlineTransaction,
+          path: `${'/transactions'}`,
+          route: '/transactions',
         },
+        // {
+        //   title: 'Performances',
+        //   icon: FaBorderAll,
+        //   path: '/performances',
+        //   route: '/performances',
+        // },
         {
           title: 'Reports',
           icon: FaListAlt,
           path: '/reports',
           route: '/reports',
+        },
+        {
+          title: 'Complete Initiated Payments',
+          icon: FaPaypal,
+          path: '/agent/transactions/initiated',
+          route: '/agent/transactions/initiated',
         },
       ],
     },
@@ -147,7 +146,7 @@ function Sidebar({ user }) {
           : null, // If conditions are not met, don't add the item to the array
       ].filter((item) => item !== null), // Filter out any null values
     },
-  ]
+  ].filter((item) => item !== null)
 
   const controls = useAnimation()
   const controlText = useAnimation()
@@ -267,15 +266,15 @@ function Sidebar({ user }) {
               </motion.p>
 
               {group?.items.map((item, index2) => {
-                if (
-                  (item.title === 'Departments' && department === 'agent') ||
-                  (item.title === 'Complete Initiated Payments' &&
+                if (item &&
+                  (item?.title === 'Departments' && department === 'agent') ||
+                  (item?.title === 'Complete Initiated Payments' &&
                     department !== 'agent') ||
-                  (item.title === 'Reports' && department !== 'country') ||
-                  (item.title === 'Performances' && department !== 'sector') ||
-                  (item.title === 'Approve Move Households' &&
+                  // (item.title === 'Reports' && department !== 'country') ||
+                  // (item.title === 'Performances' && department !== 'sector') ||
+                  (item?.title === 'Approve Move Households' &&
                     department === 'agent') ||
-                  (item.title === 'Approve Move Households' &&
+                  (item?.title === 'Approve Move Households' &&
                     department === 'cell')
                 ) {
                   return null
@@ -296,7 +295,10 @@ function Sidebar({ user }) {
                         showLess()
                         dispatch(toggleNavDropdown(false))
                       }
-                      if (['Departments'].includes(item.title) && !!queryRoute?.province) {
+                      if (
+                        ['Departments'].includes(item.title) &&
+                        !!queryRoute?.province
+                      ) {
                         window.location.href = item.path
                       } else {
                         navigate(item.path)

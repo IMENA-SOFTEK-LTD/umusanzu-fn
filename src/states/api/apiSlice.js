@@ -412,6 +412,16 @@ export const apiSlice = createApi({
           }
         },
       }),
+      getPerformance: builder.query({
+        query: (params) => {
+          return {
+            url: `/transactions/performance/?${new URLSearchParams(
+              params
+        ).toString()}`,
+            method: 'GET',
+          }
+        },
+      }),
       getSingleSectorCommision: builder.query({
         query: ({ departmentId, month }) => {
           return {
@@ -848,6 +858,7 @@ export const {
   useUpdatePasswordMutation,
   useLazyGetStaffQuery,
   useLazyGetSectorVillagesPerformanceQuery,
+  useLazyGetPerformanceQuery,
   useLazyGetHouseHoldDetailsQuery,
   useLazyGetSingleStaffDetailsQuery,
   useCreateAdminMutation,
