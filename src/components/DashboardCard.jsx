@@ -82,38 +82,20 @@ const DashboardCard = ({
       department = 'agent'
   }
 
-  const getIncreaseValue = (number1, number2) => {
-    let increaseValue = 0
-    if (number1 && number1 !== 0 && number2 && number2 !== 0) {
-      const calculatedValue = ((number1 - number2) / number2) * 100
-      increaseValue = Math.round(calculatedValue,2) //Math.min(calculatedValue, 100)
-    }
-    return increaseValue
-  }
   switch (props.index) {
     case 1:
       newProps = {
         ...props,
-        title: `${getMonthName()}'s Target`,
+        title: `Target`,
         period: 'month',
         viewMore: true,
         bg_color: 'bg-[#013B47]',
         text_color: 'text-white',
-        increase:
-          dashboardCardData?.data?.monthlyTarget >
-          dashboardCardData?.data?.lastMonthlyTarget,
-        increaseValue: getIncreaseValue(
-          dashboardCardData?.data?.monthlyTarget,
-          dashboardCardData?.data?.lastMonthlyTarget
-        ),
-        progress:
-          Math.round(
-            (dashboardCardData?.data?.monthlyTarget / monthlyTarget).toFixed(
-              2
-            ) * 100
-          ) || 0,
-        route: 'monthlyTarget',
+        increase: false,
+        increaseValue: 0,
         funds: !dashboardCardIsLoading,
+        route: 'monthlyTarget',
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
@@ -122,43 +104,74 @@ const DashboardCard = ({
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'monthlyTarget',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 6:
+    case 2:
       newProps = {
         ...props,
-        title: 'Monthly Collections',
-        period: 'month',
-        bg_color: 'bg-[#94d2bd]',
-        text_color: 'text-black',
-        route: 'monthlyCollections',
+        period: 'day',
+        title: "Today's Collections",
+        bg_color: 'bg-[#E9D8A6]',
+        text_color: 'white',
+        route: 'todayCollections',
+        removeIncreaseDecrease: false,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: 0,
         viewMore: true,
-        progress:
-          Math.round(
-            (
-              dashboardCardData?.data[0]?.totalCollected / monthlyTarget
-            ).toFixed(1) * 100
-          ) || 0,
         funds: !dashboardCardIsLoading,
+        lastDayAmount: dashboardCardData?.data.lastDayCollections || 0,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.totalCollected || 0
+          dashboardCardData?.data.todayCollections || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
-          route: 'totalCollections',
+          route: 'todayCollections',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
     case 3:
+      newProps = {
+        ...props,
+        period: 'month',
+        title: `Monthly Collections`,
+        bg_color: 'bg-[#12a6bc80]',
+        text_color: 'text-black',
+        route: 'monthlyCollections',
+        viewMore: true,
+        funds: !dashboardCardIsLoading,
+        removeIncreaseDecrease: false,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data?.monthlyCollections || 0
+        ),
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'monthlyCollections',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+
+    case 4:
       newProps = {
         ...props,
         title: 'Pending Paid',
@@ -167,58 +180,59 @@ const DashboardCard = ({
         text_color: 'white',
         route: 'amountPendingPaid',
         viewMore: true,
+        removeIncreaseDecrease: true,
         funds: !dashboardCardIsLoading,
-        progress:
-          Math.round(
-            (
-              dashboardCardData?.data[0]?.amountPendingPaid / monthlyTarget
-            ).toFixed(1) * 100
-          ) || 0,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.amountPendingPaid || 0
+          dashboardCardData?.data?.amountPendingPaid || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'amountPendingPaid',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 2:
+
+    case 5:
       newProps = {
         ...props,
+        title: 'Advance Payments',
         period: 'month',
-        title: `${getMonthName()}'s Collections`,
-        bg_color: 'bg-[#12a6bc80]',
-        text_color: 'text-black',
-        route: 'monthlyCollections',
+        bg_color: 'bg-[#ee9b00]',
+        text_color: 'white',
+        route: 'advancePayments',
+        removeIncreaseDecrease: true,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
         viewMore: true,
         funds: !dashboardCardIsLoading,
-        progress:
-          Math.round(
-            (
-              dashboardCardData?.data[0]?.monthlyCollections / monthlyTarget
-            ).toFixed(1) * 100
-          ) || 0,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.monthlyCollections || 0
+          dashboardCardData?.data?.advancePayments || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
-          route: 'monthlyCollections',
+          route: 'advancePayments',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 7:
+
+    case 6:
       newProps = {
         ...props,
         title: 'Pending',
@@ -227,88 +241,29 @@ const DashboardCard = ({
         text_color: 'text-white',
         period: 'month',
         viewMore: true,
-        progress:
-          Math.round(
-            (
-              dashboardCardData?.data[0]?.amountPendingNotPaid / monthlyTarget
-            ).toFixed(1) * 100
-          ) || 0,
+        removeIncreaseDecrease: true,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+
         funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.amountPendingNotPaid || 0
+          dashboardCardData?.data?.amountPendingNotPaid || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'amountPendingNotPaid',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 4:
-      newProps = {
-        ...props,
-        title: 'Advance Payments',
-        period: 'month',
-        bg_color: 'bg-[#ee9b00]',
-        text_color: 'white',
-        route: 'advancePayments',
-        progress:
-          Math.round(
-            (
-              dashboardCardData?.data[0]?.advancePayments / monthlyTarget
-            ).toFixed(1) * 100
-          ) || 0,
-        viewMore: true,
-        funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
-          <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.advancePayments || 0
-        ),
-      }
-      useEffect(() => {
-        dashboardCard({
-          department,
-          route: 'advancePayments',
-          departmentId: props?.user?.department_id,
-        })
-      }, [])
-      break
-    case 5:
-      newProps = {
-        ...props,
-        period: 'day',
-        title: "Today's Collections",
-        bg_color: 'bg-[#E9D8A6]',
-        text_color: 'white',
-        route: 'todayCollections',
-        progress:
-          Math.round(
-            (
-              dashboardCardData?.data[0]?.todayCollections / monthlyTarget
-            ).toFixed(1) * 100
-          ) || 0,
-        viewMore: true,
-        funds: !dashboardCardIsLoading,
-        amount: dashboardCardIsLoading ? (
-          <Loading />
-        ) : (
-          dashboardCardData?.data[0]?.todayCollections || 0
-        ),
-      }
-      useEffect(() => {
-        dashboardCard({
-          department,
-          route: 'todayCollections',
-          departmentId: props?.user?.department_id,
-        })
-      }, [])
-      break
-    case 8:
+
+    case 7:
       newProps = {
         ...props,
         title: 'Total Households',
@@ -318,21 +273,23 @@ const DashboardCard = ({
         route: '',
         viewMore: true,
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.totalHouseholds || 0
+          dashboardCardData?.data?.totalHouseholds || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'totalHouseholds',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 9:
+    case 8:
       newProps = {
         ...props,
         title: 'Active Households',
@@ -342,21 +299,23 @@ const DashboardCard = ({
         text_color: 'text-white',
         route: 'active',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.activeHouseholds || 0
+          dashboardCardData?.data?.activeHouseholds || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'activeHouseholds',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 10:
+    case 9:
       newProps = {
         ...props,
         title: 'Inactive Households',
@@ -366,21 +325,23 @@ const DashboardCard = ({
         text_color: 'text-white',
         route: 'inactive',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.inactiveHouseholds || 0
+          dashboardCardData?.data?.inactiveHouseholds || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'inactiveHouseholds',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 11:
+    case 10:
       newProps = {
         ...props,
         title: 'Moved Households',
@@ -390,21 +351,23 @@ const DashboardCard = ({
         text_color: 'text-white',
         route: 'moved',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.movedHouseholds || 0
+          dashboardCardData?.data?.movedHouseholds || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'movedHouseholds',
           departmentId: props?.user?.department_id,
         })
       }, [])
       break
-    case 12:
+    case 11:
       newProps = {
         ...props,
         title: 'Requests to move',
@@ -414,14 +377,16 @@ const DashboardCard = ({
         text_color: 'text-white',
         route: 'requested',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data[0]?.requestedHouseholds || 0
+          dashboardCardData?.data?.requestedHouseholds || 0
         ),
       }
       useEffect(() => {
         dashboardCard({
+          v2: true,
           department,
           route: 'requestedHouseholds',
           departmentId: props?.user?.department_id,
@@ -468,24 +433,43 @@ const DashboardCard = ({
             }  w-full flex items-center gap-2 font-black`}
           >
             <p>
-              {dashboardCardIsLoading ? '...' : formatFunds(newProps.amount)}
+              {dashboardCardIsLoading ? (
+                <Loading size={4} />
+              ) : (
+                formatFunds(newProps.amount)
+              )}
             </p>
             <p className={`${newProps.funds ? 'flex' : 'hidden'}`}>RWF</p>
           </span>
+
           <p
-            className={`${
+            className={`${newProps.lastDayAmount ? 'hidden' : ''} ${
               newProps.progress > 70 && newProps.funds
                 ? 'text-green-500 flex'
                 : newProps.progress < 70 && newProps.funds
                 ? 'text-yellow-900'
                 : 'text-slate-200'
             } ${
-              newProps.title === `${getMonthName()}'s Target`
+              newProps.title === `Target` ||
+              newProps.title === `Today's Collections` ||
+              newProps.title === `Pending`
                 ? 'invisible'
                 : 'flex'
-            } text-[14px] ${newProps.funds ? 'flex' : 'invisible'}`}
+            } text-[12px] ${newProps.funds ? 'flex' : 'invisible'}`}
           >
             {newProps.progress}% of monthly target
+          </p>
+          <p
+            className={`text-yellow-900 text-bold flex' ${
+              !newProps.lastDayAmount ? 'hidden' : 'flex'
+            } text-[12px]`}
+          >
+            <p>
+              {dashboardCardIsLoading
+                ? '...'
+                : formatFunds(newProps.lastDayAmount)}
+            </p>
+            <p className={`flex`}>RWF (Last Day)</p>
           </p>
         </div>
         <figure className="p-1 bg-slate-200 rounded-md shadow-md h-full flex justify-start">
@@ -495,37 +479,33 @@ const DashboardCard = ({
           />
         </figure>
       </section>
-      <section className="border-t-[1px] bg-slate-50 flex w-full h-full items-center justify-between py-[5px] px-4">
-        <small className="flex flex-col items-start">
-          <span className="flex items-center gap-1">
-            <FontAwesomeIcon
-              className={`${
-                newProps.increase ? 'text-green-500' : 'text-red-500'
-              } w-3 h-3`}
-              icon={newProps.increase ? faArrowUp : faArrowDown}
-            />
-            <p
-              className={`${
-                newProps.increase ? 'text-green-500' : 'text-red-500'
-              } text-[14px]`}
-            >
-              {newProps.increaseValue}%
+      <section className="border-t-[1px] bg-slate-50 flex w-full h-full items-center justify-end py-[5px] px-4">
+        {!newProps.removeIncreaseDecrease && (
+          <small className="flex flex-col items-center">
+            <span className="flex items-center gap-1">
+              <FontAwesomeIcon
+                className={`${
+                  newProps.increase ? 'text-green-500' : 'text-red-500'
+                } w-3 h-3`}
+                icon={newProps.increase ? faArrowUp : faArrowDown}
+              />
+              <p
+                className={`${
+                  newProps.increase ? 'text-green-500' : 'text-red-500'
+                } text-[14px]`}
+              >
+                {newProps.increaseValue}%
+              </p>
+            </span>
+            <p className="text-[13px] block text-slate-500">
+              Last {newProps.period}
             </p>
-          </span>
-          <p className="text-[13px] block text-slate-500">
-            Last {newProps.period}
-          </p>
-        </small>
+          </small>
+        )}
         <Button
           value="View more"
-          route={
-            newProps.funds && newProps.title !== `${getMonthName()}'s Target`
-              ? `/transactions/?query=${newProps?.route}`
-              : newProps.title === `${getMonthName()}'s Target`
-              ? `/households/?query=${newProps?.route}`
-              : `/households/?query=${newProps?.route}`
-          }
-          className={`${
+          // route={`/households/?query=${newProps?.route}`}
+          className={`sm ${
             isOpen
               ? '!px-[7px] !py-[7px] text-[12px] text-center ml-4'
               : 'px-[8px] py-[7px] text-[12px] text-center'
@@ -534,43 +514,16 @@ const DashboardCard = ({
           } w-fit`}
           onClick={(e) => {
             e.preventDefault()
-            if (
-              department !== 'country' &&
-              department !== 'province' &&
-              department !== 'district'
-            ) {
-              if (
-                newProps.funds &&
-                newProps.title !== `${getMonthName()}'s Target`
-              ) {
-                navigate(`/transactions/?query=${newProps?.route}`)
-              } else if (
-                newProps.funds &&
-                newProps.title === `${getMonthName()}'s Target`
-              ) {
-                navigate(`/households/?query=${newProps?.route}`)
-              } else {
-                navigate(`/households/?query=${newProps?.route}`)
-              }
-            } else {
-              if (
-                newProps.funds &&
-                newProps.title !== `${getMonthName()}'s Target`
-              ) {
-                dispatch(
-                  setPathRoute(`/transactions/?query=${newProps?.route}`)
-                )
-                navigate(`/transactions/?query=${newProps?.route}`)
-              } else if (
-                newProps.funds &&
-                newProps.title === `${getMonthName()}'s Target`
-              ) {
-                dispatch(setPathRoute(`/households/?query=${newProps?.route}`))
-                navigate(`/households/?query=${newProps?.route}`)
-              } else {
-                dispatch(setPathRoute(`/households/?query=${newProps?.route}`))
-                navigate(`/households/?query=${newProps?.route}`)
-              }
+            if (newProps?.route === 'monthlyTarget') {
+              navigate(`/households/?query=monthlyTarget`)
+            } else if (['active'].includes(newProps?.route)) {
+              navigate(`/households/?status=ACTIVE`)
+            } else if (['inactive'].includes(newProps?.route)) {
+              navigate(`/households/?status=INACTIVE`)
+            } else if (['moved'].includes(newProps?.route)) {
+              navigate(`/households/?status=MOVED`)
+            } else if (['requested'].includes(newProps?.route)) {
+              navigate(`/households/?status=REQUESTED`)
             }
           }}
         />

@@ -165,7 +165,7 @@ const HouseholdTable = ({ user }) => {
     searchTerm: '',
     ubudehe: queryRoute?.ubudehe || '',
     route: queryRoute?.query || '',
-    status: queryRoute?.query === 'monthlyTarget' ? '' : 'ACTIVE',
+    status: queryRoute?.status ? queryRoute?.status : 'ACTIVE',
     village: queryRoute?.village || '',
     cell: queryRoute?.cell || '',
     sector: queryRoute?.sector || '',
@@ -183,18 +183,20 @@ const HouseholdTable = ({ user }) => {
         queryRoute_?.cell ||
         queryRoute_?.sector ||
         queryRoute_?.district ||
-        queryRoute_?.province)
+        queryRoute_?.province ||
+        queryRoute_?.query)
     ) {
       setQueries({
         ...queries,
         ubudehe: queryRoute_?.ubudehe || '',
         route: queryRoute_?.query || '',
-        status: queryRoute_?.query === 'monthlyTarget' ? '' : 'ACTIVE',
+        status: queryRoute_?.status ? queryRoute_?.status : 'ACTIVE',
         village: queryRoute_?.village || '',
         cell: queryRoute_?.cell || '',
         sector: queryRoute_?.sector || '',
         district: queryRoute_?.district || '',
         province: queryRoute_?.province || '',
+        query: queryRoute_?.query || '',
       })
     }
   }, [location])
@@ -760,7 +762,7 @@ const HouseholdTable = ({ user }) => {
                               </td>
 
                               <td className="px-6 py-4 green font-semibold">
-                                {totalPages || 0}
+                                {formatFunds(totalRecords) || 0}
                               </td>
                               <td className="px-6 py-4 green font-semibold">
                                 Total Amount:

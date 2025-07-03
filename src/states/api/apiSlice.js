@@ -61,8 +61,11 @@ export const apiSlice = createApi({
       }),
 
       dashboardCard: builder.query({
-        query: ({ department, departmentId, route }) => ({
-          url: `/${department}/${route}/?departmentId=${departmentId}`,
+        query: ({v2, department, departmentId, route }) => ({
+          url:
+            v2
+              ? `/dashboards/${route}?departmentId=${departmentId}&department=${department}`
+              : `/${department}/${route}/?departmentId=${departmentId}`,
         }),
       }),
       getTotalHouseholdPays: builder.query({
@@ -417,7 +420,7 @@ export const apiSlice = createApi({
           return {
             url: `/transactions/performance/?${new URLSearchParams(
               params
-        ).toString()}`,
+            ).toString()}`,
             method: 'GET',
           }
         },

@@ -149,7 +149,7 @@ const GlobalFilter = ({
     dispatch(setCellId(+queryRoute?.cell || ''))
     dispatch(setVillageId(+queryRoute?.village || ''))
 
-    dispatch(setSelectedActivationStatus(+queryRoute?.status || 'ACTIVE'))
+    dispatch(setSelectedActivationStatus(queryRoute?.status?.toUpperCase() || 'ACTIVE'))
     dispatch(setSelectedVillage(+queryRoute?.village || ''))
     dispatch(setSelectedProvince(+queryRoute?.province || ''))
     dispatch(setSelectedDistrict(+queryRoute?.district || ''))
@@ -166,6 +166,7 @@ const GlobalFilter = ({
     queryRoute?.district,
     queryRoute?.sector,
     queryRoute?.cell,
+    queryRoute?.status,
   ])
   // GET DISTRICTS
   const [
