@@ -13,13 +13,17 @@ const CustomDialog = ({
   onConfirm,
   size,
   children,
+  headerBgColor = 'bg-primary',
+  headerTxtColor = 'text-white',
 }) => {
   return (
     <Dialog open={open} size={size || 'sm'}>
-      <DialogHeader className='bg-primary text-white'>
+      <DialogHeader className={`${headerBgColor} ${headerTxtColor}`}>
         <div className="flex justify-between items-start w-full">
           <div>
-            <h5 className="text-xl font-medium text-slate-800 text-white">{title}</h5>
+            <h5 className={`text-xl font-medium text-slate-800 ${headerTxtColor}`}>
+              {title}
+            </h5>
             {subTitle && (
               <p className="text-slate-500 text-sm font-light">{subTitle}</p>
             )}

@@ -15,9 +15,9 @@ const Dashboard = () => {
         {Array.from({ length: 11 }, (_, i) => {
           const props = {
             index: i + 1,
-            progress: Math.floor(Math.random() * 100),
-            amount: '897,399',
-            increaseValue: (Math.random() * 10).toFixed(2),
+            progress: 0,
+            amount: 0,
+            increaseValue: 0,
             user
           }
           return <DashboardCard key={i} props={props} />

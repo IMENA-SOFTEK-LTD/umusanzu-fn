@@ -8,17 +8,18 @@ import {
 import Loading from './Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useLazyDashboardCardQuery } from '../states/api/apiSlice'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Button from './Button'
 import {
   setMonthlyTarget,
   setLastMonthlyTarget,
 } from '../states/features/dashboard/dashboardCardSlice'
-import getMonthName from '../utils/Dates'
 import formatFunds from '../utils/Funds'
-import { Navigate, useNavigate } from 'react-router-dom'
-import { setPathRoute } from '../states/features/navigation/sidebarSlice'
+import { useNavigate } from 'react-router-dom'
+import CustomDialog from './models/CustomDialog'
+import HouseHoldsReports from '../pages/dashboard/HouseHoldsReports'
+import TransactionsReports from '../pages/dashboard/TransactionsReports'
 
 const DashboardCard = ({
   props = {
@@ -52,10 +53,8 @@ const DashboardCard = ({
 
   const navigate = useNavigate()
 
-  const { monthlyTarget } = useSelector((state) => state.dashboardCard)
-  const { lastMonthlyTarget } = useSelector((state) => state.dashboardCard)
   const { isOpen } = useSelector((state) => state.sidebar)
-
+  const [showModal, setShowModal] = useState(false)
   let newProps = { ...props, viewMore: true }
   let department = ''
 
@@ -503,6 +502,7 @@ const DashboardCard = ({
           </small>
         )}
         <Button
+          disabled={dashboardCardIsLoading || newProps.amount <= 0}
           value="View more"
           // route={`/households/?query=${newProps?.route}`}
           className={`sm ${
@@ -514,19 +514,107 @@ const DashboardCard = ({
           } w-fit`}
           onClick={(e) => {
             e.preventDefault()
-            if (newProps?.route === 'monthlyTarget') {
-              navigate(`/households/?query=monthlyTarget`)
-            } else if (['active'].includes(newProps?.route)) {
-              navigate(`/households/?status=ACTIVE`)
-            } else if (['inactive'].includes(newProps?.route)) {
-              navigate(`/households/?status=INACTIVE`)
-            } else if (['moved'].includes(newProps?.route)) {
-              navigate(`/households/?status=MOVED`)
-            } else if (['requested'].includes(newProps?.route)) {
-              navigate(`/households/?status=REQUESTED`)
-            }
+            setShowModal(true)
+            // if (newProps?.route === 'monthlyTarget') {
+            //   navigate(`/households/?query=monthlyTarget`)
+            // } else if (['active'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=ACTIVE`)
+            // } else if (['inactive'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=INACTIVE`)
+            // } else if (['moved'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=MOVED`)
+            // } else if (['requested'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=REQUESTED`)
+            // }
           }}
         />
+        {newProps?.title && (
+          <CustomDialog
+            size="xl"
+            headerBgColor={newProps?.bg_color}
+            headerTxtColor={newProps?.text_color}
+            title={
+              <>
+                <nav className="flex" aria-label="Breadcrumb">
+                  <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                    <li>
+                      <a href="#" className="inline-flex items-center ">
+                        <FontAwesomeIcon
+                          className={`${newProps?.text_color} cursor-pointer w-6 h-6 mt-1`}
+                          icon={newProps.funds ? faMoneyBill : faHouse}
+                        />{' '}
+                        <span className="ml-2 mt-1">{newProps?.title}</span>
+                        <svg
+                          className="w-5 h-5 text-gray-400 mx-3 mt-2"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clipRule="evenodd"
+                          ></path>
+                        </svg>
+                      </a>
+                    </li>
+
+                    <li>
+                      <div className="flex">
+                        <span
+                          className={`${
+                            isOpen ? 'text-[14px]' : 'text-[16px]'
+                          }  w-full flex items-center gap-2 font-black`}
+                        >
+                          <p>
+                            {dashboardCardIsLoading ? (
+                              <Loading size={4} />
+                            ) : (
+                              formatFunds(newProps.amount)
+                            )}
+                          </p>
+                          <p>{newProps.funds ? 'RWF' : 'Records'}</p>
+                        </span>
+                      </div>
+                    </li>
+                  </ol>
+                </nav>
+              </>
+            }
+            open={showModal}
+            onClose={() => {
+              setShowModal(false)
+            }}
+            children={
+              <>
+                <div className="w-full mx-3">
+                  {[
+                    'todayCollections',
+                    'monthlyCollections',
+                    'amountPendingPaid',
+                    'advancePayments',
+                    'amountPendingNotPaid',
+                  ].includes(newProps?.route) ? (
+                    <>
+                      <TransactionsReports
+                        route={newProps?.route}
+                        user={props.user}
+                        department={department}
+                        departmentId={props?.user?.department_id}
+                      />
+                    </>
+                  ) : (
+                    <HouseHoldsReports
+                      route={newProps?.route}
+                      user={props.user}
+                      department={department}
+                      departmentId={props?.user?.department_id}
+                    />
+                  )}
+                </div>
+              </>
+            }
+          />
+        )}
       </section>
     </article>
   )

@@ -61,11 +61,16 @@ export const apiSlice = createApi({
       }),
 
       dashboardCard: builder.query({
-        query: ({v2, department, departmentId, route }) => ({
-          url:
-            v2
-              ? `/dashboards/${route}?departmentId=${departmentId}&department=${department}`
-              : `/${department}/${route}/?departmentId=${departmentId}`,
+        query: ({ v2, department, departmentId, route }) => ({
+          url: v2
+            ? `/dashboards/${route}?departmentId=${departmentId}&department=${department}`
+            : `/${department}/${route}/?departmentId=${departmentId}`,
+        }),
+      }),
+      getTransactionReports: builder.query({
+        query: ({ department, departmentId, route, size, page }) => ({
+          url: `/dashboards/transaction-lists?route=${route}&departmentId=${departmentId}&department=${department}&page=${page}&size=${size}`,
+          method: 'GET',
         }),
       }),
       getTotalHouseholdPays: builder.query({
@@ -842,6 +847,7 @@ export const {
   useLoginMutation,
   useVerifyOtpMutation,
   useLazyDashboardCardQuery,
+  useLazyGetTransactionReportsQuery,
   useLazyLogActivitiesQuery,
   useLazyGetTotalHouseholdPaysQuery,
   useUpdateUserProfileMutation,
