@@ -65,7 +65,7 @@ const CreateHousehold = ({ user }) => {
   const [existingHouseholdData, setExistingHouseholdData] = useState([])
 
   let department = ''
-  // console.log(user?.departments)
+  // console.log(user?.departments?.level_id)
   switch (user?.departments?.level_id) {
     case 1:
       department = 'province'
@@ -95,11 +95,12 @@ const CreateHousehold = ({ user }) => {
       break
     case 5:
       department = 'country'
-      dispatch(setSelectedSector(user?.departments?.parent?.id))
-      dispatch(setSelectedDistrict(user?.departments?.parent?.parent?.id))
-      dispatch(
-        setSelectedProvince(user?.departments?.parent?.parent?.parent?.id)
-      )
+      // dispatch(setSelectedSector(user?.departments?.parent?.id))
+      // dispatch(setSelectedDistrict(user?.departments?.parent?.parent?.id))
+      // dispatch(
+      //   setSelectedProvince(user?.departments?.parent?.parent?.parent?.id)
+      // )
+      // console.log('xxx')
       break
     case 6:
       department = 'agent'
@@ -146,6 +147,7 @@ const CreateHousehold = ({ user }) => {
   ] = useLazyGetCountryDistrictsQuery()
 
   useEffect(() => {
+
     if (selectedProvince) getCountryDistricts({ id: selectedProvince })
   }, [department, selectedProvince])
 
@@ -280,7 +282,7 @@ const CreateHousehold = ({ user }) => {
       toast.error(createHouseholdErrorData?.message)
     }
   }, [createHouseholdSuccess, createHouseholdData])
-
+    // console.log(selectedProvince)
   return (
     <main className="flex flex-col gap-6 my-4 w-[90%] relative mx-auto">
       <Button value={'Go to back'} route={`/households`} />

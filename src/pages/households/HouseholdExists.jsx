@@ -67,10 +67,10 @@ const HouseholdExists = () => {
   //  LIST HOUSEHOLDS
   useEffect(() => {
     getHouseholdsList({
-      phone1,
-      department,
-      departmentId: user?.departments?.id,
-      route: 'active',
+      searchTerm:phone1,
+      // department,
+      // departmentId: user?.departments?.id,
+      // route: 'active',
     })
   }, [department, phone1])
 
@@ -255,11 +255,11 @@ const HouseholdExists = () => {
                 return {
                   ...household,
                   no: index + 1,
-                  village: household?.villages[0]?.name,
-                  cell: household?.cells[0]?.name,
-                  sector: household?.sectors[0]?.name,
-                  district: household?.districts[0]?.name,
-                  province: household?.provinces[0]?.name,
+                  village: household?.village_name,
+                  cell: household?.cell_name,
+                  sector: household?.sector_name,
+                  district: household?.district_name,
+                  province: household?.province_name,
                 }
               })}
             />

@@ -1,24 +1,24 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import moment from 'moment';
-import logo from '../../assets/LOGO.png';
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
+import moment from 'moment'
+import logo from '../../assets/LOGO.png'
 import RWlogo from '../../assets/login.png'
 import Kgl from '../../assets/kglLogo.png'
 import RWline from '../../assets/rwline.png'
 import QRCOD from '../../assets/qrcode.jpeg'
-import formatFunds from '../../utils/Funds';
+import formatFunds from '../../utils/Funds'
 import cachet from '../../assets/cachet.png'
 import signature from '../../assets/signature.png'
 
 export const convertBlobToBase64 = (blob) => {
   return new Promise((resolve) => {
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onloadend = () => {
-      resolve(reader.result.split(',')[1]);
-    };
-    reader.readAsDataURL(blob);
-  });
-};
+      resolve(reader.result.split(',')[1])
+    }
+    reader.readAsDataURL(blob)
+  })
+}
 
 export const dataURLtoBlob = (dataURL) => {
   const parts = dataURL.split(';base64,')
@@ -32,53 +32,60 @@ export const dataURLtoBlob = (dataURL) => {
   return new Blob([uInt8Array], { type: contentType })
 }
 
-const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [], totals }) => {
-
-  const doc = new jsPDF('landscape');
-  const logoResponse = await fetch(logo);
-  const logoData = await logoResponse.blob();
-  const reader = new FileReader();
+const printPDF = async ({
+  TableInstance,
+  reportTitleObj,
+  reportName,
+  columns = [],
+  totals,
+}) => {
+  const doc = new jsPDF('landscape')
+  const logoResponse = await fetch(logo)
+  const logoData = await logoResponse.blob()
+  const reader = new FileReader()
 
   const convertBlobToBase64 = (blob) => {
     return new Promise((resolve) => {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        resolve(reader.result.split(',')[1]);
-      };
-      reader.readAsDataURL(blob);
-    });
-  };
+        resolve(reader.result.split(',')[1])
+      }
+      reader.readAsDataURL(blob)
+    })
+  }
 
   reader.onload = async () => {
-    const logoBase64 = reader.result.split(',')[1];
+    const logoBase64 = reader.result.split(',')[1]
     doc.addImage(logoBase64, 'PNG', 130, 10, 30, 30)
-    doc.setFont('Symbol', 'bold');
+    doc.setFont('Symbol', 'bold')
     doc.setFontSize(12)
     doc.text('IMENA SOFTEK LTD', 125, 50)
     doc.text(reportTitleObj.title, 65, 65)
     doc.line(61, 67, 220, 67)
-    doc.setFontSize(10);
+    doc.setFontSize(10)
 
     const noValues = Array.from(
       { length: TableInstance.rows.length },
       (_, index) => index + 1
-    ); 
+    )
 
     const exportData = TableInstance.rows.map((row, index) => {
       return {
         id: noValues[index],
         ...row?.original,
-      };
-    });
+      }
+    })
 
     doc.autoTable({
       startY: 75,
-      columns: columns.filter((column) => column.accessor !== 'actions').map((column) => column.Header.toUpperCase()),
+      columns: columns
+        .filter((column) => column.accessor !== 'actions')
+        .map((column) => column.Header.toUpperCase()),
       body: exportData.map((row, index) => {
         const rowData = columns.map((header) => {
-          return row[header?.accessor || 'NO'];
+          return row[header?.accessor || 'NO']
         })
-        return { index, ...rowData };
+        return { index, ...rowData }
       }),
       theme: 'grid',
       headStyles: {
@@ -93,8 +100,9 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
         textColor: 0,
         cellPadding: 3,
       },
-    });
-    const { monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal } = totals
+    })
+    const { monthlyTargetTotal, monthlyCollectionsTotal, differenceTotal } =
+      totals
 
     const subTotalData = [
       [
@@ -102,7 +110,7 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
         `RWF ${monthlyTargetTotal}`,
         `RWF ${monthlyCollectionsTotal}`,
         `RWF ${differenceTotal}`,
-        ` `
+        ` `,
       ],
     ]
     const subTotalStyles = {
@@ -127,19 +135,19 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
         body: subTotalData,
         ...subTotalStyles,
       })
-    } 
-    
-    doc.setFontSize(12);
-    doc.setFont('Arial', 'bold');
-    
+    }
+
+    doc.setFontSize(12)
+    doc.setFont('Arial', 'bold')
+
     const customContent = [
       ['BITEGUWE NA:', 'BYEMEJWE NA:'],
       ['', ''],
       ['TETA TAMARA', 'NDAGIJIMANA Gedeon'],
       ['DATA MANAGEMENT', 'CEO IMENA SOFTEK LTD'],
       ['IMENA SOFTEK LTD', ''],
-    ];
-    
+    ]
+
     const customContentStyles = {
       theme: 'plain', // Use plain theme to remove table lines
       styles: {
@@ -150,80 +158,104 @@ const printPDF = async ({ TableInstance, reportTitleObj, reportName, columns = [
         0: { cellWidth: 150 },
         1: { cellWidth: 100 },
       },
-    };
+    }
 
     if (doc.lastAutoTable.finalY + 90 > doc.internal.pageSize.height) {
-      doc.addPage();
+      doc.addPage()
 
-      doc.text(
-        `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-        16,40
-      );
+      doc.text(`Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`, 16, 40)
 
       doc.autoTable({
         startY: 60,
         head: false,
         body: customContent,
         ...customContentStyles,
-      });
+      })
 
-      const cachetResponse = await fetch(cachet);
-      const cachetData = await cachetResponse.blob();
-      const cachetBase64 = await convertBlobToBase64(cachetData);
-  
-      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
-  
-        // Add the signature image here
-      const signatureResponse = await fetch(signature);
-      const signatureData = await signatureResponse.blob();
-      const signatureBase64 = await convertBlobToBase64(signatureData);
-  
-      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      const cachetResponse = await fetch(cachet)
+      const cachetData = await cachetResponse.blob()
+      const cachetBase64 = await convertBlobToBase64(cachetData)
+
+      doc.addImage(
+        cachetBase64,
+        'PNG',
+        200,
+        doc.lastAutoTable.finalY - 50,
+        50,
+        50
+      )
+
+      // Add the signature image here
+      const signatureResponse = await fetch(signature)
+      const signatureData = await signatureResponse.blob()
+      const signatureBase64 = await convertBlobToBase64(signatureData)
+
+      doc.addImage(
+        signatureBase64,
+        'PNG',
+        20,
+        doc.lastAutoTable.finalY - 50,
+        50,
+        50
+      )
     } else {
-
       doc.text(
         `Done on : ${moment().format('DD-MM-YYYY HH:mm:ss')}`,
-        16,doc.lastAutoTable.finalY + 30
-      );
+        16,
+        doc.lastAutoTable.finalY + 30
+      )
 
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 50,
         head: false,
         body: customContent,
         ...customContentStyles,
-      });
-      const cachetResponse = await fetch(cachet);
-      const cachetData = await cachetResponse.blob();
-      const cachetBase64 = await convertBlobToBase64(cachetData);
-  
-      doc.addImage(cachetBase64, 'PNG', 200, doc.lastAutoTable.finalY - 50, 50, 50);
-  
-        // Add the signature image here
-      const signatureResponse = await fetch(signature);
-      const signatureData = await signatureResponse.blob();
-      const signatureBase64 = await convertBlobToBase64(signatureData);
-  
-      doc.addImage(signatureBase64, 'PNG', 20, doc.lastAutoTable.finalY - 50, 50, 50);
+      })
+      const cachetResponse = await fetch(cachet)
+      const cachetData = await cachetResponse.blob()
+      const cachetBase64 = await convertBlobToBase64(cachetData)
+
+      doc.addImage(
+        cachetBase64,
+        'PNG',
+        200,
+        doc.lastAutoTable.finalY - 50,
+        50,
+        50
+      )
+
+      // Add the signature image here
+      const signatureResponse = await fetch(signature)
+      const signatureData = await signatureResponse.blob()
+      const signatureBase64 = await convertBlobToBase64(signatureData)
+
+      doc.addImage(
+        signatureBase64,
+        'PNG',
+        20,
+        doc.lastAutoTable.finalY - 50,
+        50,
+        50
+      )
     }
 
-    doc.save(`${reportName}.pdf`);
-  };
+    doc.save(`${reportName}.pdf`)
+  }
 
-  reader.readAsDataURL(logoData);
-};
+  reader.readAsDataURL(logoData)
+}
 
 export const printTransactionPDF = ({ payment }) => {
-
   const doc = new jsPDF()
   // Add the header section
   doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
   doc.setFontSize(10.5)
-  doc.setFont('Times New Roman', 'bold');
+  doc.setFont('Times New Roman', 'bold')
   doc.text('REPUBLIC OF RWANDA', 70, 17)
   doc.text('KIGALI CITY', 70, 23)
   doc.text(`${payment?.household?.districts[0]?.name} DISTRICT`, 70, 29)
   doc.text(`${payment?.household?.sectors[0]?.name} SECTOR`, 70, 35)
-  doc.setFont('Times New Roman', 'bold');
+  doc.setFont('Times New Roman', 'bold')
   doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
 
   doc.addImage(RWline, 'PNG', 10, 45, 180, 10)
@@ -244,7 +276,7 @@ export const printTransactionPDF = ({ payment }) => {
   doc.setFont('Times New Roman', 'bold')
   doc.text(`${title}`, 70, 65)
 
-  doc.setFont('Times New Roman', 'normal');
+  doc.setFont('Times New Roman', 'normal')
 
   const itemsColumn1 = [
     `Reference: ${payment?.id}UMS${payment?.household?.id}`,
@@ -253,9 +285,7 @@ export const printTransactionPDF = ({ payment }) => {
     `TIN: ${payment?.household?.tin || 'N/A'}`,
   ]
   const itemsColumn2 = [
-    `Date: ${moment(payment?.transaction_date).format(
-      'YYYY-MM-DD HH:mm:ss'
-    )}`,
+    `Date: ${moment(payment?.transaction_date).format('YYYY-MM-DD HH:mm:ss')}`,
     `Cell: ${payment?.household?.cells[0]?.name}`,
     `Status: ${payment?.status}`,
     `Village: ${payment?.household?.villages[0]?.name}`,
@@ -285,10 +315,20 @@ export const printTransactionPDF = ({ payment }) => {
   doc.autoTable({
     startY: 125,
     head: [
-      ['DESCRIPTION', 'MONTH', 'AMOUNT', `${payment?.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`],
+      [
+        'DESCRIPTION',
+        'MONTH',
+        'AMOUNT',
+        `${payment?.status === 'PAID' ? 'AMOUNT PAID' : 'PENDING AMOUNT'}`,
+      ],
     ],
     body: [
-      ['Umutekano', `${moment(payment?.month_paid).format('MMMM YYYY')}`, `${formatFunds(payment?.amount)} RWF`, `${formatFunds(payment?.remain_amount)} RWF`],
+      [
+        'Umutekano',
+        `${moment(payment?.month_paid).format('MMMM YYYY')}`,
+        `${formatFunds(payment?.amount)} RWF`,
+        `${formatFunds(payment?.remain_amount)} RWF`,
+      ],
       // Add more rows as needed
     ],
     theme: 'grid',
@@ -313,21 +353,21 @@ export const printTransactionPDF = ({ payment }) => {
     didDrawPage: function (data) {
       // Check if the table exceeds the bottom margin
       if (currentY + data.table.height >= doc.internal.pageSize.height - 10) {
-        doc.addPage(); // Add a new page
-        currentY = 10; // Reset the Y-coordinate for the new page
+        doc.addPage() // Add a new page
+        currentY = 10 // Reset the Y-coordinate for the new page
       }
     },
-  });
+  })
   // Calculate the height of the image (assuming it's 10 units high)
-  const imageHeight = 20;
+  const imageHeight = 20
 
   // Calculate the vertical position (y-coordinate) to place the image at the bottom center
-  const pageHeight = doc.internal.pageSize.height;
-  const imageY = pageHeight - imageHeight - 10; // Adjust the 10 for padding if needed
+  const pageHeight = doc.internal.pageSize.height
+  const imageY = pageHeight - imageHeight - 10 // Adjust the 10 for padding if needed
   // Calculate the total amount
-  const totalAmount = payment?.amount;
+  const totalAmount = payment?.amount
   // Add the image at the bottom center
-  doc.addImage(QRCOD, 'JPEG', 95, imageY, 20, imageHeight);
+  doc.addImage(QRCOD, 'JPEG', 95, imageY, 20, imageHeight)
   // Add the TOTAL PAID section
   doc.setFont('Times New Roman', 'bold')
   doc.text(
@@ -336,26 +376,28 @@ export const printTransactionPDF = ({ payment }) => {
     doc.autoTable.previous.finalY + 15
   )
 
-  doc.setFont('Times New Roman', 'normal');
+  doc.setFont('Times New Roman', 'normal')
   doc.setFontSize(12)
   doc.text(
     `For more info, Please call: ${payment?.household?.phone1}`,
     15,
     doc.autoTable.previous.finalY + 15
   )
-  doc.text(
-    'PAY CASHLESS DIAL: *775*3#',
-    15,
-    doc.autoTable.previous.finalY + 30
-  )
+  doc.text('PAY CASHLESS DIAL: *775*3#', 15, doc.autoTable.previous.finalY + 30)
   doc.setFontSize(13)
 
-  const image = payment?.household?.sectors[0]?.stamp;
+  const image = payment?.household?.sectors[0]?.stamp
   if (image) {
-    doc.addImage(image, image?.slice(-3), 130,
-      doc.autoTable.previous.finalY + 25, 40, 40);
+    doc.addImage(
+      image,
+      image?.slice(-3),
+      130,
+      doc.autoTable.previous.finalY + 25,
+      40,
+      40
+    )
   }
-  doc.setFont('Times New Roman', 'bold');
+  doc.setFont('Times New Roman', 'bold')
   doc.text(
     `${payment?.household?.sectors[0]?.department_infos[0]?.leader_name}`,
     130,
@@ -366,12 +408,16 @@ export const printTransactionPDF = ({ payment }) => {
     130,
     doc.autoTable.previous.finalY + 83
   )
-  doc.text(`${payment?.household?.sectors[0]?.name} SECTOR`, 130, doc.autoTable.previous.finalY + 90)
+  doc.text(
+    `${payment?.household?.sectors[0]?.name} SECTOR`,
+    130,
+    doc.autoTable.previous.finalY + 90
+  )
   const pdfDataUrl = doc.output('datauristring')
   const blob = dataURLtoBlob(pdfDataUrl)
   const blobUrl = window.URL.createObjectURL(blob)
 
-  window.open(blobUrl, "_blank");
+  window.open(blobUrl, '_blank')
 }
 
 export const printReceiptsPDF = ({ household, request }) => {
@@ -435,8 +481,8 @@ export const printReceiptsPDF = ({ household, request }) => {
     item?.month_paid,
     formatFunds(household?.ubudehe),
     formatFunds(item?.amount),
-    item?.status
-  ]);
+    item?.status,
+  ])
 
   // Add the table section
   doc.autoTable({
@@ -484,7 +530,10 @@ export const printReceiptsPDF = ({ household, request }) => {
     },
   })
   // Calculate the total amount
-  const totalAmount = tableData.reduce((sum, row) => sum + parseFloat(row[3].replace(/,/g, '')), 0);
+  const totalAmount = tableData.reduce(
+    (sum, row) => sum + parseFloat(row[3].replace(/,/g, '')),
+    0
+  )
   // Add the TOTAL PAID section
   doc.setFont('Times New Roman', 'bold')
   doc.text(
@@ -500,31 +549,28 @@ export const printReceiptsPDF = ({ household, request }) => {
     15,
     doc.autoTable.previous.finalY + 15
   )
-  doc.text(
-    'PAY CASHLESS DIAL: *775*3#',
-    15,
-    doc.autoTable.previous.finalY + 30
-  )
+  doc.text('PAY CASHLESS DIAL: *775*3#', 15, doc.autoTable.previous.finalY + 30)
 
   doc.setFontSize(13)
   // Calculate the height of the image (assuming it's 10 units high)
-  const imageHeight = 20;
+  const imageHeight = 20
 
   // Calculate the vertical position (y-coordinate) to place the image at the bottom center
-  const pageHeight = doc.internal.pageSize.height;
-  const imageY = pageHeight - imageHeight - 10; // Adjust the 10 for padding if needed
+  const pageHeight = doc.internal.pageSize.height
+  const imageY = pageHeight - imageHeight - 10 // Adjust the 10 for padding if needed
 
   // Add the image at the bottom center
-  doc.addImage(QRCOD, 'JPEG', 95, imageY, 20, imageHeight);
-  const image = household?.sectors[0]?.stamp
-  doc.addImage(
-    image,
-    image.slice(-3),
-    130,
-    doc.autoTable.previous.finalY + 17,
-    40,
-    40
-  )
+  doc.addImage(QRCOD, 'JPEG', 95, imageY, 20, imageHeight)
+  const image = household?.sectors[0]?.stamp || null
+  if (image)
+    doc.addImage(
+      image,
+      image?.slice(-3),
+      130,
+      doc.autoTable.previous.finalY + 17,
+      40,
+      40
+    )
   doc.setFont('Times New Roman', 'bold')
   doc.text(
     `${household?.sectors[0]?.department_infos[0]?.leader_name}`,
@@ -550,6 +596,6 @@ export const printReceiptsPDF = ({ household, request }) => {
   if (newTab) {
     newTab.focus()
   }
-};
+}
 
-export default printPDF;
+export default printPDF

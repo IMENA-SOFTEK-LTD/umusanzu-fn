@@ -7,7 +7,11 @@ import { Link } from 'react-router-dom'
 import moment from 'moment'
 import { setCompletePaymentModal } from '../../states/features/modals/householdSlice'
 import CompletePayment from '../payments/CompletePayment'
-import { setDeletePaymentModal, setEditPaymentModal, setPayment } from '../../states/features/transactions/paymentSlice'
+import {
+  setDeletePaymentModal,
+  setEditPaymentModal,
+  setPayment,
+} from '../../states/features/transactions/paymentSlice'
 import {
   useLazyGetPaymentDetailsQuery,
   useDeletePaymentMutation,
@@ -50,7 +54,7 @@ const HouseholdPayments = ({ household }) => {
       Header: 'Action',
       accessor: 'action',
       Cell: ({ row }) => {
-        if ([5, 3]?.includes(user?.departments?.level_id)) {
+        if ([5, 3, 1]?.includes(user?.departments?.level_id)) {
           const status = row?.original?.status
           return (
             <span className="w-full flex items-center gap-2">
@@ -183,6 +187,18 @@ const HouseholdPayments = ({ household }) => {
     {
       Header: 'Payment Method',
       accessor: 'payment_method',
+      Cell: ({ row }) => {
+        const status = row?.original?.payment_method
+        return (
+          <Link
+            className={`${
+              status === 'Mobile_Money' ? 'text-gray-600' : 'text-blue-600'
+            } w-full p-2 text-left rounded-sm cursor-auto`}
+          >
+            {status === 'Mobile_Money' ? 'MOMO' : status}
+          </Link>
+        )
+      },
     },
   ]
 
@@ -206,15 +222,30 @@ const HouseholdPayments = ({ household }) => {
         data={household?.payments
           ?.slice()
           ?.filter((payment) => payment?.status !== 'FAILED')
-          ?.sort((a, b) => moment(b?.month_paid) - moment(a?.month_paid))
-          ?.map((payment, index) => {
-            return {
-              ...payment,
-              no: index + 1,
-              month_paid: moment(payment?.month_paid).format('MMMM YYYY'),
-              date: moment(payment?.updatedAt).format('DD-MM-YYYY HH:mm'),
+          ?.sort((a, b) => {
+            // Prioritize PENDING and PARTIAL statuses
+            const statusOrder = (status) => {
+              if (status === 'PENDING') return 0
+              if (status === 'PARTIAL') return 1
+              return 2 // Others like PAID or COMPLETED
             }
-          })}
+
+            const statusA = statusOrder(a.status)
+            const statusB = statusOrder(b.status)
+
+            if (statusA !== statusB) {
+              return statusA - statusB
+            }
+
+            // If same status priority, sort by month_paid descending
+            return moment(b?.month_paid).diff(moment(a?.month_paid))
+          })
+          ?.map((payment, index) => ({
+            ...payment,
+            no: index + 1,
+            month_paid: moment(payment?.month_paid).format('MMMM YYYY'),
+            date: moment(payment?.updatedAt).format('DD-MM-YYYY HH:mm'),
+          }))}
         columns={columns}
       />
       <CompletePayment />

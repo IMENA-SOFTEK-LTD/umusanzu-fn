@@ -68,7 +68,7 @@ const HouseholdDetails = () => {
       )}
       {householdDetailsSuccess && household && (
         <section className="flex flex-col w-full gap-2">
-          {user?.departments.level_id > 5 && (
+          {/* {user?.departments.level_id > 5 && ( */}
             <section className="flex flex-col gap-2 md:flex-row items-center md:gap-2 px-4 mt-20 md:mt-0">
               <RecordPaymentModel
                 household={household}
@@ -134,7 +134,7 @@ const HouseholdDetails = () => {
                 </menu>
               </span>
             </section>
-          )}
+          {/* )} */}
           <span className="flex w-full gap-6 items-start">
             {household && household?.hasOwnProperty('payments') ? (
               <HouseholdPayments household={household} />
