@@ -230,8 +230,37 @@ const DashboardCard = ({
         })
       }, [])
       break
-
     case 6:
+      newProps = {
+        ...props,
+        title: 'Collected',
+        route: 'monthlyCollected',
+        bg_color: 'bg-[#ACBDE3]',
+        text_color: 'white',
+        period: 'month',
+        viewMore: true,
+        removeIncreaseDecrease: true,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+
+        funds: !dashboardCardIsLoading,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data?.monthlyCollected || 0
+        ),
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'monthlyCollected',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 7:
       newProps = {
         ...props,
         title: 'Pending',
@@ -262,7 +291,7 @@ const DashboardCard = ({
       }, [])
       break
 
-    case 7:
+    case 8:
       newProps = {
         ...props,
         title: 'Total Households',
@@ -288,7 +317,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 8:
+    case 9:
       newProps = {
         ...props,
         title: 'Active Households',
@@ -314,7 +343,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 9:
+    case 10:
       newProps = {
         ...props,
         title: 'Inactive Households',
@@ -340,7 +369,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 10:
+    case 11:
       newProps = {
         ...props,
         title: 'Moved Households',
@@ -366,7 +395,7 @@ const DashboardCard = ({
         })
       }, [])
       break
-    case 11:
+    case 12:
       newProps = {
         ...props,
         title: 'Requests to move',
@@ -593,6 +622,7 @@ const DashboardCard = ({
                     'amountPendingPaid',
                     'advancePayments',
                     'amountPendingNotPaid',
+                    'monthlyCollected',
                   ].includes(newProps?.route) ? (
                     <>
                       <TransactionsReports

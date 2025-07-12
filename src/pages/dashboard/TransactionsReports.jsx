@@ -155,40 +155,40 @@ const TransactionsReports = ({ user, route, department, departmentId }) => {
                 <th className="w-[25px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   No
                 </th>
-                <th className="w-[250px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left w-[250px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Agent
                 </th>
-                <th className="w-[250px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left w-[250px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Household
                 </th>
 
-                <th className="w-[220px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left w-[220px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Village
                 </th>
-                <th className="w-[220px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left w-[220px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Cell
                 </th>
-                <th className="w-[80px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-center w-[80px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Period
                 </th>
 
-                <th className="w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-center w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-center w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Bank
                 </th>
-                <th className="w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-center w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Commission
                 </th>
 
-                <th className="w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-center w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-center w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Method
                 </th>
-                <th className="w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-right w-[100px] px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date
                 </th>
               </tr>
@@ -200,28 +200,28 @@ const TransactionsReports = ({ user, route, department, departmentId }) => {
                   <td className="w-[25px] px-1 py-1 whitespace-nowrap flex items-center">
                     {index + 1}
                   </td>
-                  <td className="w-[250px] px-1 py-1 whitespace-nowrap">
+                  <td className="text-left w-[250px] px-1 py-1 whitespace-nowrap">
                     {row?.agent}
                   </td>
-                  <td className="w-[250px] px-1 py-1 whitespace-nowrap">
+                  <td className="text-left w-[250px] px-1 py-1 whitespace-nowrap">
                     {row.household}
                   </td>
-                  <td className="w-[220px] px-1 py-1 whitespace-nowrap">
+                  <td className="text-left w-[220px] px-1 py-1 whitespace-nowrap">
                     {row.village}
                   </td>
-                  <td className="w-[220px] px-1 py-1 whitespace-nowrap">
+                  <td className="text-left w-[220px] px-1 py-1 whitespace-nowrap">
                     {row.cell}
                   </td>
-                   <td className="w-[80px] px-1 py-1 whitespace-nowrap">
+                   <td className="text-left w-[80px] px-1 py-1 whitespace-nowrap">
                     {row.month_paid}
                   </td>
-                  <td className="w-[100px] px-1 py-1 whitespace-nowrap">
+                  <td className="text-center w-[100px] px-1 py-1 whitespace-nowrap">
                     {formatFunds(row.total)} RWF
                   </td>
-                  <td className="w-[100px] px-1 py-1 whitespace-nowrap">
+                  <td className="text-center w-[100px] px-1 py-1 whitespace-nowrap">
                     {formatFunds(row.bank_transfer)} RWF
                   </td>
-                  <td className="w-[100px] px-1 py-1 whitespace-nowrap">
+                  <td className="text-center w-[100px] px-1 py-1 whitespace-nowrap">
                     {formatFunds(row.commission)} RWF
                   </td>
 
