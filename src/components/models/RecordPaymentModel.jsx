@@ -163,6 +163,7 @@ function RecordPaymentModel({ household }) {
                 <Controller
                   name="payment_method"
                   control={control}
+                  disabled={true}
                   rules={{
                     required: 'Payment option is required',
                   }}
@@ -172,9 +173,8 @@ function RecordPaymentModel({ household }) {
                       {...field}
                       className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                     >
-                      <option value="MTN">Choose payment</option>
+                         <option value="MOMO">MTN Mobile Money</option>
                       <option value="bank">Bank Transfer</option>
-                      <option value="MOMO">MTN Mobile Money</option>
                       <option value="Airtel">Airtel Money</option>
                     </select>
                   )}
