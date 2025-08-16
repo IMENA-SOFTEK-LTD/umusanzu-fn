@@ -587,7 +587,7 @@ export const apiSlice = createApi({
           payment_method,
           agent,
         }) => ({
-          url: `/payment/session/production`,
+          url: `/payment/initiate`,
           method: 'POST',
           body: {
             total_month_paid,

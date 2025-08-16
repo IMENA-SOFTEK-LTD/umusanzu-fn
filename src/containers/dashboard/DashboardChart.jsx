@@ -13,7 +13,9 @@ const ChartDashboard = () => {
 
   const token = localStorage.getItem('token')
   const { isOpen } = useSelector((state) => state.sidebar)
-  const { level_id, id: departmentId } = useSelector((state) => state?.auth?.user?.departments)
+ const { level_id, id: departmentId } = useSelector(
+  (state) => state?.auth?.user?.departments || {}
+);
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);

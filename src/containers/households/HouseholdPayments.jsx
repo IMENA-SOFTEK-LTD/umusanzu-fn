@@ -70,7 +70,8 @@ const HouseholdPayments = ({ household }) => {
                   user?.departments?.level_id === 5 &&
                   'flex'
                 } ${
-                  status === 'PAID' && 'hidden'
+                  status === 'PAID' ||
+                ['CASH'].includes(row?.original?.payment_method) && 'hidden'
                 } !text-white !bg-red-500 !p-2 !px-[10px] !rounded-full hover:!bg-red-600 hover:!scale-[.99] hover:!text-white`}
                 onClick={(e) => {
                   e.preventDefault()
@@ -96,11 +97,13 @@ const HouseholdPayments = ({ household }) => {
         } else if (user?.departments?.level_id === 6) {
           return (
             <Button
-              value="Pay Now"
-              className={`${
-                ['PAID', 'INITIATED']?.includes(row?.original?.status) &&
-                'hidden'
-              } !w-fit !min-w-full`}
+              value="Pay"
+              className={`!w-fit !min-w-full ${
+                ['PAID'].includes(row?.original?.status) || 
+                ['CASH'].includes(row?.original?.payment_method)
+                  ? 'hidden'
+                  : ''
+              }`}
               onClick={(e) => {
                 e.preventDefault()
                 dispatch(setCompletePaymentModal(true))
@@ -121,10 +124,12 @@ const HouseholdPayments = ({ household }) => {
             className={`${
               status === 'PAID'
                 ? 'bg-green-600'
-                : status === 'INITIATED' || status === 'PARTIAL'
+                : status === 'PENDING'
                 ? 'bg-yellow-600'
+                : status === 'PARTIAL'
+                ? 'bg-blue-600'
                 : 'bg-red-600'
-            } w-full p-2 text-white text-center rounded-sm cursor-auto`}
+            } w-auto px-2 py-1 text-white text-xs text-center rounded cursor-auto`}
           >
             {status}
           </Link>
@@ -136,24 +141,49 @@ const HouseholdPayments = ({ household }) => {
       accessor: 'month_paid',
     },
     {
-      Header: 'Amount',
-      accessor: 'amount',
+      Header: 'Paid',
+      accessor: 'paid',
       Cell: ({ row }) => {
         const status = row?.original?.status
         return (
           <span>
-            {status === 'PAID' || status === 'INITIATED' ? (
-              <p>{row?.original?.total_amount} RWF</p>
-            ) : (
-              <p>{row?.original?.remain_amount} RWF</p>
-            )}
+            <p>{row?.original?.total_amount} RWF</p>
           </span>
         )
       },
     },
     {
+      Header: 'Remain',
+      accessor: 'remain',
+      Cell: ({ row }) => {
+        const status = row?.original?.status
+        return (
+          <span>
+            <p>{row?.original?.remain_amount} RWF</p>
+          </span>
+        )
+      },
+    },
+
+    {
       Header: 'Date',
       accessor: 'date',
+    },
+    {
+      Header: 'Method',
+      accessor: 'payment_method',
+      Cell: ({ row }) => {
+        const status = row?.original?.payment_method
+        return (
+          <Link
+            className={`${
+              status === 'Mobile_Money' ? 'text-gray-600' : 'text-blue-600'
+            } w-full p-2 text-left rounded-sm cursor-auto`}
+          >
+            {status === 'Mobile_Money' ? 'MOMO' : status}
+          </Link>
+        )
+      },
     },
     {
       Header: 'Receipt',
@@ -173,7 +203,7 @@ const HouseholdPayments = ({ household }) => {
                 : status === 'PENDING'
                 ? '!bg-red-600'
                 : 'bg-yellow-600'
-            } uppercase`}
+            } uppercase !w-fit !min-w-full`}
             onClick={(e) => {
               e.preventDefault()
               dispatch(setPayment(row?.original))
@@ -181,22 +211,6 @@ const HouseholdPayments = ({ household }) => {
               setIsLoading(true)
             }}
           />
-        )
-      },
-    },
-    {
-      Header: 'Payment Method',
-      accessor: 'payment_method',
-      Cell: ({ row }) => {
-        const status = row?.original?.payment_method
-        return (
-          <Link
-            className={`${
-              status === 'Mobile_Money' ? 'text-gray-600' : 'text-blue-600'
-            } w-full p-2 text-left rounded-sm cursor-auto`}
-          >
-            {status === 'Mobile_Money' ? 'MOMO' : status}
-          </Link>
         )
       },
     },

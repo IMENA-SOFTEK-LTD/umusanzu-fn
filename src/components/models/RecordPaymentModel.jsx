@@ -28,6 +28,16 @@ function RecordPaymentModel({ household }) {
     },
   ] = useCreatePaymentSessionMutation()
 
+  const [isWaitingCompletePayment, setIWaitingCompletePayment] = useState(false)
+
+  const startWaiting = () => {
+    setIWaitingCompletePayment(true)
+  }
+
+  const stopWaiting = () => {
+    setIWaitingCompletePayment(false)
+  }
+
   const openModal = () => {
     setShowModal(true)
   }
@@ -51,12 +61,14 @@ function RecordPaymentModel({ household }) {
 
   useEffect(() => {
     if (paymentSessionIsSuccess) {
-      toast.success('Payment created successfully')
-      setTimeout(() => {
-        closeModal()
-      }, 1500)
+      console.log(paymentSessionData)
+      startWaiting()
+      toast.success(
+        paymentSessionData.message || 'Payment created successfully'
+      )
     }
     if (paymentSessionIsError) {
+      stopWaiting()
       toast.error(
         'Could not create payment. Please check if all information is correct'
       )
@@ -103,139 +115,145 @@ function RecordPaymentModel({ household }) {
                 Record Transaction
               </h4>
             </article>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-4 items-center w-full p-4 md:px-6 lg:px-10"
-            >
-              <div className="w-full flex flex-col gap-2 items-center">
+            {isWaitingCompletePayment ? (
+              <>
+                <WaitingForPayment onCancel={stopWaiting} />
+              </>
+            ) : (
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-4 items-center w-full p-4 md:px-6 lg:px-10"
+              >
+                <div className="w-full flex flex-col gap-2 items-center">
+                  <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                    Select month paid
+                    <Controller
+                      name="month_paid"
+                      control={control}
+                      defaultValue={moment().format('YYYY-MM')}
+                      rules={{ required: 'Paid month is required' }}
+                      render={({ field }) => <Input type="month" {...field} />}
+                    />
+                    {errors.month_paid && (
+                      <span className="text-red-500">
+                        {errors.month_paid.message}
+                      </span>
+                    )}
+                  </label>
+                  <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                    Amount Paid
+                    <Controller
+                      name="total_month_paid"
+                      control={control}
+                      defaultValue={household?.ubudehe}
+                      rules={{ required: 'Amount is required' }}
+                      render={({ field }) => (
+                        <Input type="number" {...field} placeholder="1000" />
+                      )}
+                    />
+                    {errors.total_month_paid && (
+                      <span className="text-red-500">
+                        {errors.total_month_paid.message}
+                      </span>
+                    )}
+                  </label>
+                </div>
                 <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                  Select month paid
+                  Numero iriho amafaranga
                   <Controller
-                    name="month_paid"
+                    name="payment_phone"
                     control={control}
-                    defaultValue={moment().format('YYYY-MM')}
-                    rules={{ required: 'Paid month is required' }}
-                    render={({ field }) => <Input type="month" {...field} />}
-                  />
-                  {errors.month_paid && (
-                    <span className="text-red-500">
-                      {errors.month_paid.message}
-                    </span>
-                  )}
-                </label>
-                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                  Amount Paid
-                  <Controller
-                    name="total_month_paid"
-                    control={control}
-                    defaultValue={household?.ubudehe}
-                    rules={{ required: 'Amount is required' }}
+                    defaultValue={household?.phone1}
+                    rules={{ required: 'Please enter the phone number' }}
                     render={({ field }) => (
-                      <Input type="number" {...field} placeholder="1000" />
+                      <Input type="text" {...field} placeholder="07XXXXXXXX" />
                     )}
                   />
-                  {errors.total_month_paid && (
+                  {errors.payment_phone && (
                     <span className="text-red-500">
-                      {errors.total_month_paid.message}
+                      {errors.payment_phone.message}
                     </span>
                   )}
                 </label>
-              </div>
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                Numero iriho amafaranga
-                <Controller
-                  name="payment_phone"
-                  control={control}
-                  defaultValue={household?.phone1}
-                  rules={{ required: 'Please enter the phone number' }}
-                  render={({ field }) => (
-                    <Input type="text" {...field} placeholder="07XXXXXXXX" />
+                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                  Choose payment option
+                  <Controller
+                    name="payment_method"
+                    control={control}
+                    disabled={true}
+                    rules={{
+                      required: 'Payment option is required',
+                    }}
+                    defaultValue={'MOMO'}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                      >
+                        <option value="MOMO">MTN Mobile Money</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="Airtel">Airtel Money</option>
+                      </select>
+                    )}
+                  />
+                  {errors.payment_method && (
+                    <span className="text-red-500">
+                      {errors.payment_method.message}
+                    </span>
                   )}
-                />
-                {errors.payment_phone && (
-                  <span className="text-red-500">
-                    {errors.payment_phone.message}
-                  </span>
-                )}
-              </label>
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                Choose payment option
-                <Controller
-                  name="payment_method"
-                  control={control}
-                  disabled={true}
-                  rules={{
-                    required: 'Payment option is required',
-                  }}
-                  defaultValue={'MOMO'}
-                  render={({ field }) => (
-                    <select
-                      {...field}
-                      className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
-                    >
-                         <option value="MOMO">MTN Mobile Money</option>
-                      <option value="bank">Bank Transfer</option>
-                      <option value="Airtel">Airtel Money</option>
-                    </select>
-                  )}
-                />
-                {errors.payment_method && (
-                  <span className="text-red-500">
-                    {errors.payment_method.message}
-                  </span>
-                )}
-              </label>
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                Numero yakira SMS
-                <Controller
-                  name="phone1"
-                  control={control}
-                  defaultValue={household?.phone1}
-                  render={({ field }) => (
-                    <Input
-                      readonly
-                      type="text"
-                      {...field}
-                      placeholder="07XX XXX XXX"
-                    />
-                  )}
-                />
-              </label>
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                Choose SMS Language
-                <Controller
-                  name="lang"
-                  control={control}
-                  defaultValue={'rw'}
-                  render={({ field }) => (
-                    <select
-                      {...field}
-                      className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
-                    >
-                      <option value="rw">Kinyarwanda</option>
-                      <option value="en">English</option>
-                      <option value="fr">Français</option>
-                    </select>
-                  )}
-                />
-              </label>
-              <Controller
-                name="submit"
-                control={control}
-                render={() => {
-                  return (
-                    <article className="mt-2">
-                      <Button
-                        submit
-                        value={
-                          paymentSessionIsLoading ? <Loading /> : 'Pay now'
-                        }
+                </label>
+                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                  Numero yakira SMS
+                  <Controller
+                    name="phone1"
+                    control={control}
+                    defaultValue={household?.phone1}
+                    render={({ field }) => (
+                      <Input
+                        readonly
+                        type="text"
+                        {...field}
+                        placeholder="07XX XXX XXX"
                       />
-                    </article>
-                  )
-                }}
-              />
-            </form>
+                    )}
+                  />
+                </label>
+                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                  Choose SMS Language
+                  <Controller
+                    name="lang"
+                    control={control}
+                    defaultValue={'rw'}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                      >
+                        <option value="rw">Kinyarwanda</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                      </select>
+                    )}
+                  />
+                </label>
+                <Controller
+                  name="submit"
+                  control={control}
+                  render={() => {
+                    return (
+                      <article className="mt-2">
+                        <Button
+                          submit
+                          value={
+                            paymentSessionIsLoading ? <Loading /> : 'Pay now'
+                          }
+                        />
+                      </article>
+                    )
+                  }}
+                />
+              </form>
+            )}
           </div>
         </section>
       )}
@@ -248,3 +266,36 @@ RecordPaymentModel.propTypes = {
 }
 
 export default RecordPaymentModel
+
+function WaitingForPayment({ onCancel }) {
+  const handleCancel = () => {
+    if (onCancel) {
+      window.history.back()
+    } else {
+      // fallback: go back in browser history
+      window.history.back()
+    }
+  }
+  return (
+    <div className="flex flex-col items-center justify-center  bg-gray-100 p-4">
+      {/* Spinner */}
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-b-4 border-gray-300 mb-6"></div>
+
+      {/* Message */}
+      <h1 className="text-xl font-semibold text-gray-800 text-center mb-2">
+        Thank you for initiating a new Payment.
+      </h1>
+      <p className="text-gray-600 text-center mb-6">
+        Check your pending transactions on <strong>182*7*1#</strong> to confirm.
+      </p>
+
+      {/* Cancel Button */}
+      <button
+        onClick={handleCancel}
+        className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+      >
+        Cancel / Go Back
+      </button>
+    </div>
+  )
+}
