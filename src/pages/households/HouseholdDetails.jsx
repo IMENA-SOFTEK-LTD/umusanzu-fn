@@ -56,7 +56,7 @@ const HouseholdDetails = () => {
   }, [id])
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:9090')
+    const ws = new WebSocket('ws://142.93.185.21:9090')
 
     ws.onopen = () => console.log('Connected to WebSocket server')
 
