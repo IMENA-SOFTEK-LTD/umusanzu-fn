@@ -7,10 +7,11 @@ WORKDIR /usr/src/app
 COPY ["package.json", "package-lock.json*", "./"]
 
 # Install all dependencies (including Vite)
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy all application code
 COPY . .
+RUN npm run build
 
 # Build the application
 # RUN npm run build
