@@ -5,8 +5,13 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
 ARG NODE_ENV
 ARG VITE_APP_API_URL
+
+ENV NODE_ENV=$NODE_ENV
+ENV VITE_APP_API_URL=$VITE_APP_API_URL
+
 RUN npm run build
 
 # Stage 2: Serve with Nginx
