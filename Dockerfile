@@ -1,45 +1,30 @@
-# ----------------------
-# Stage 1: Build
-# ----------------------
+# Stage 1: Build the Node.js application
 FROM node:20.18.0 AS build
 
-# Set working directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy only package files first (cache-friendly)
-COPY package*.json ./
+# Copy dependency definitions
+COPY ["package.json", "package-lock.json*", "./"]
 
-# Use clean install, offline, no audit
-RUN npm ci --prefer-offline --no-audit --progress=false
+# Install all dependencies (including Vite)
+RUN npm install
 
-# Copy source code
+# Copy all application code
 COPY . .
 
-# Set build-time environment variables
-ARG NODE_ENV
-ARG VITE_APP_API_URL
+# Build the application
+# RUN npm run build
 
-ENV NODE_ENV=$NODE_ENV
-ENV VITE_APP_API_URL=$VITE_APP_API_URL
+# Stage 2: Serve the built assets using Nginx
+FROM nginx:latest
 
-# Increase Node memory to avoid heap allocation crash
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
-
-# ----------------------
-# Stage 2: Serve with Nginx
-# ----------------------
-FROM nginx:alpine AS production
-
-# Remove default static files (optional)
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built frontend from Stage 1
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy custom Nginx config
+# Copy Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose HTTP port
+# Copy the dist folder from the build stage to the Nginx HTML directory
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+
+# Expose port 80
 EXPOSE 80
 
 # Start Nginx
