@@ -8,7 +8,7 @@ import {
 import Loading from './Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useLazyDashboardCardQuery } from '../states/api/apiSlice'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Button from './Button'
 import {
@@ -44,33 +44,55 @@ const DashboardCard = ({
       data: dashboardCardData,
       isLoading: dashboardCardIsLoading,
       isSuccess: dashboardCardIsSuccess,
+      isError: dashboardCardIsError,
+      error: dashboardCardError,
     },
   ] = useLazyDashboardCardQuery()
 
   const dispatch = useDispatch()
+
   const navigate = useNavigate()
+
   const { isOpen } = useSelector((state) => state.sidebar)
   const [showModal, setShowModal] = useState(false)
+  let newProps = { ...props, viewMore: true }
+  let department = ''
 
-  // map department levels
-  const departmentMap = {
-    1: 'province',
-    2: 'district',
-    3: 'sector',
-    4: 'cell',
-    5: 'country',
-    6: 'agent',
+  switch (props.user?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
   }
-  const department = departmentMap[props.user?.departments?.level_id] || 'agent'
 
-  // central config for all cards
-  const cardConfig = useMemo(() => {
-    return {
-      1: {
-        title: 'Target',
+  switch (props.index) {
+    case 1:
+      newProps = {
+        ...props,
+        title: `Target`,
         period: 'month',
+        viewMore: true,
         bg_color: 'bg-[#013B47]',
         text_color: 'text-white',
+        increase: false,
+        increaseValue: 0,
+        funds: !dashboardCardIsLoading,
         route: 'monthlyTarget',
         removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
@@ -78,185 +100,333 @@ const DashboardCard = ({
         ) : (
           dashboardCardData?.data?.monthlyTarget || 0
         ),
-      },
-      2: {
-        title: "Today's Collections",
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'monthlyTarget',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 2:
+      newProps = {
+        ...props,
         period: 'day',
+        title: "Today's Collections",
         bg_color: 'bg-[#E9D8A6]',
         text_color: 'white',
         route: 'todayCollections',
-        lastDayAmount: dashboardCardData?.data?.lastDayCollections || 0,
+        removeIncreaseDecrease: false,
         increase: dashboardCardData?.data?.increase || false,
         increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: 0,
+        viewMore: true,
+        funds: !dashboardCardIsLoading,
+        lastDayAmount: dashboardCardData?.data.lastDayCollections || 0,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data?.todayCollections || 0
+          dashboardCardData?.data.todayCollections || 0
         ),
-      },
-      3: {
-        title: 'Monthly Collections',
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'todayCollections',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 3:
+      newProps = {
+        ...props,
         period: 'month',
+        title: `Monthly Collections`,
         bg_color: 'bg-[#12a6bc80]',
         text_color: 'text-black',
         route: 'monthlyCollections',
-        progress: dashboardCardData?.data?.progress || 0,
+        viewMore: true,
+        funds: !dashboardCardIsLoading,
+        removeIncreaseDecrease: false,
         increase: dashboardCardData?.data?.increase || false,
         increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.monthlyCollections || 0
         ),
-      },
-      4: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'monthlyCollections',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+
+    case 4:
+      newProps = {
+        ...props,
         title: 'Pending Paid',
         period: 'month',
         bg_color: 'bg-[#CADEDE]',
         text_color: 'white',
         route: 'amountPendingPaid',
+        viewMore: true,
         removeIncreaseDecrease: true,
+        funds: !dashboardCardIsLoading,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.amountPendingPaid || 0
         ),
-      },
-      5: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'amountPendingPaid',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+
+    case 5:
+      newProps = {
+        ...props,
         title: 'Advance Payments',
         period: 'month',
         bg_color: 'bg-[#ee9b00]',
         text_color: 'white',
         route: 'advancePayments',
         removeIncreaseDecrease: true,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+        viewMore: true,
+        funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.advancePayments || 0
         ),
-      },
-      6: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'advancePayments',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 6:
+      newProps = {
+        ...props,
         title: 'Collected',
-        period: 'month',
+        route: 'monthlyCollected',
         bg_color: 'bg-[#ACBDE3]',
         text_color: 'white',
-        route: 'monthlyCollected',
+        period: 'month',
+        viewMore: true,
         removeIncreaseDecrease: true,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+
+        funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.monthlyCollected || 0
         ),
-      },
-      7: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'monthlyCollected',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 7:
+      newProps = {
+        ...props,
         title: 'Pending',
-        period: 'month',
+        route: 'amountPendingNotPaid',
         bg_color: 'bg-[#ae2012]',
         text_color: 'text-white',
-        route: 'amountPendingNotPaid',
+        period: 'month',
+        viewMore: true,
         removeIncreaseDecrease: true,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
+        progress: dashboardCardData?.data?.progress || 0,
+
+        funds: !dashboardCardIsLoading,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.amountPendingNotPaid || 0
         ),
-      },
-      8: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'amountPendingNotPaid',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+
+    case 8:
+      newProps = {
+        ...props,
         title: 'Total Households',
         period: 'month',
         bg_color: 'bg-[#005F73]',
         text_color: 'text-white',
-        route: 'totalHouseholds',
-        removeIncreaseDecrease: true,
+        route: '',
+        viewMore: true,
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.totalHouseholds || 0
         ),
-      },
-      9: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'totalHouseholds',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 9:
+      newProps = {
+        ...props,
         title: 'Active Households',
+        viewMore: true,
         period: 'month',
         bg_color: 'bg-[#CA6702]',
         text_color: 'text-white',
-        route: 'activeHouseholds',
-        removeIncreaseDecrease: true,
+        route: 'active',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.activeHouseholds || 0
         ),
-      },
-      10: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'activeHouseholds',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 10:
+      newProps = {
+        ...props,
         title: 'Inactive Households',
+        viewMore: true,
         period: 'month',
         bg_color: 'bg-[#9B2226]',
         text_color: 'text-white',
-        route: 'inactiveHouseholds',
-        removeIncreaseDecrease: true,
+        route: 'inactive',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.inactiveHouseholds || 0
         ),
-      },
-      11: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'inactiveHouseholds',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 11:
+      newProps = {
+        ...props,
         title: 'Moved Households',
+        viewMore: true,
         period: 'month',
         bg_color: 'bg-yellow-900',
         text_color: 'text-white',
-        route: 'movedHouseholds',
-        removeIncreaseDecrease: true,
+        route: 'moved',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.movedHouseholds || 0
         ),
-      },
-      12: {
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'movedHouseholds',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    case 12:
+      newProps = {
+        ...props,
         title: 'Requests to move',
+        viewMore: true,
         period: 'month',
         bg_color: 'bg-green-900',
         text_color: 'text-white',
-        route: 'requestedHouseholds',
-        removeIncreaseDecrease: true,
+        route: 'requested',
         funds: false,
+        removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
           dashboardCardData?.data?.requestedHouseholds || 0
         ),
-      },
-    }
-  }, [dashboardCardData, dashboardCardIsLoading])
-
-  // merged props
-  const newProps = {
-    ...props,
-    ...cardConfig[props.index],
-    viewMore: true,
-    funds: cardConfig[props.index]?.funds ?? !dashboardCardIsLoading,
+      }
+      useEffect(() => {
+        dashboardCard({
+          v2: true,
+          department,
+          route: 'requestedHouseholds',
+          departmentId: props?.user?.department_id,
+        })
+      }, [])
+      break
+    default:
+      newProps = { ...newProps }
   }
 
-  // central useEffect to trigger API once
   useEffect(() => {
-    if (newProps.route) {
-      dashboardCard({
-        v2: true,
-        department,
-        route: newProps.route,
-        departmentId: props?.user?.department_id,
-      })
-    }
-  }, [props.index])
-
-  // update redux store when target is loaded
-  useEffect(() => {
-    if (dashboardCardIsSuccess && dashboardCardData?.data?.monthlyTarget) {
+    if (dashboardCardIsSuccess && dashboardCardData.data?.monthlyTarget) {
       dispatch(setMonthlyTarget(dashboardCardData?.data?.monthlyTarget))
       dispatch(setLastMonthlyTarget(dashboardCardData?.data?.lastMonthlyTarget))
     }
@@ -264,32 +434,79 @@ const DashboardCard = ({
 
   return (
     <article
-      className={`w-full h-full ${newProps.bg_color} ${newProps.text_color}
-       flex flex-col border-[.5px] border-slate-200 rounded-md shadow-md`}
+      className={`${isOpen ? 'w-[18%]' : 'w-[18%]'} h-full ${
+        newProps.bg_color
+      } ${
+        newProps.text_color
+      } max-h-[20rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-200 rounded-md shadow-md ease-in-out duration-200 hover:scale-[1.01] max-[1200px]:p1200-dashboardCard ${
+        department !== 'sector' &&
+        department !== 'country' &&
+        (newProps?.route === 'moved' || newProps?.route === 'requested')
+          ? 'hidden'
+          : 'flex'
+      }`}
     >
-      {/* Card Body */}
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
-          <h3 className="font-bold">{newProps.title}</h3>
-          <span className="flex items-center gap-2 font-black">
-            {dashboardCardIsLoading ? (
-              <Loading size={4} />
-            ) : (
-              formatFunds(newProps.amount)
-            )}
-
+          <h3
+            className={`${newProps.text_color} ${
+              isOpen ? 'text-[14px]' : 'text-[15px]'
+            } font-bold`}
+          >
+            {newProps.title}
+          </h3>
+          <span
+            className={`${
+              isOpen ? 'text-[14px]' : 'text-[16px]'
+            }  w-full flex items-center gap-2 font-black`}
+          >
+            <p>
+              {dashboardCardIsLoading ? (
+                <Loading size={4} />
+              ) : (
+                formatFunds(newProps.amount)
+              )}
+            </p>
             <p className={`${newProps.funds ? 'flex' : 'hidden'}`}>RWF</p>
           </span>
+
+          <p
+            className={`${newProps.lastDayAmount ? 'hidden' : ''} ${
+              newProps.progress > 70 && newProps.funds
+                ? 'text-green-500 flex'
+                : newProps.progress < 70 && newProps.funds
+                ? 'text-yellow-900'
+                : 'text-slate-200'
+            } ${
+              newProps.title === `Target` ||
+              newProps.title === `Today's Collections` ||
+              newProps.title === `Pending`
+                ? 'invisible'
+                : 'flex'
+            } text-[12px] ${newProps.funds ? 'flex' : 'invisible'}`}
+          >
+            {newProps.progress}% of monthly target
+          </p>
+          <p
+            className={`text-yellow-900 text-bold flex' ${
+              !newProps.lastDayAmount ? 'hidden' : 'flex'
+            } text-[12px]`}
+          >
+            <p>
+              {dashboardCardIsLoading
+                ? '...'
+                : formatFunds(newProps.lastDayAmount)}
+            </p>
+            <p className={`flex`}>RWF (Last Day)</p>
+          </p>
         </div>
-        {/* <figure className="p-1 bg-slate-200 rounded-md shadow-md h-full flex justify-start">
+        <figure className="p-1 bg-slate-200 rounded-md shadow-md h-full flex justify-start">
           <FontAwesomeIcon
             className="text-black cursor-pointer w-6 h-6"
             icon={newProps.funds ? faMoneyBill : faHouse}
           />
-        </figure> */}
+        </figure>
       </section>
-
-      {/* Footer */}
       <section className="border-t-[1px] bg-slate-50 flex w-full h-full items-center justify-end py-[5px] px-4">
         {!newProps.removeIncreaseDecrease && (
           <small className="flex flex-col items-center">
@@ -315,29 +532,32 @@ const DashboardCard = ({
         )}
         <Button
           disabled={dashboardCardIsLoading || newProps.amount <= 0}
-          value="View"
-          className="ml-4 text-[12px]"
+          value="View more"
+          // route={`/households/?query=${newProps?.route}`}
+          className={`sm ${
+            isOpen
+              ? '!px-[7px] !py-[7px] text-[12px] text-center ml-4'
+              : 'px-[8px] py-[7px] text-[12px] text-center'
+          } ${newProps.viewMore ? 'flex' : 'invisible'} p-2 ${
+            newProps.period === 'day' ? 'ml-4' : 'ml-0'
+          } w-fit`}
           onClick={(e) => {
             e.preventDefault()
             setShowModal(true)
+            // if (newProps?.route === 'monthlyTarget') {
+            //   navigate(`/households/?query=monthlyTarget`)
+            // } else if (['active'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=ACTIVE`)
+            // } else if (['inactive'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=INACTIVE`)
+            // } else if (['moved'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=MOVED`)
+            // } else if (['requested'].includes(newProps?.route)) {
+            //   navigate(`/households/?status=REQUESTED`)
+            // }
           }}
         />
-        {/* {showModal && (
-          <CustomDialog
-            size="xl"
-            headerBgColor={newProps.bg_color}
-            headerTxtColor={newProps.text_color}
-            title={newProps.title}
-            onClose={() => setShowModal(false)}
-          >
-            {newProps.route?.includes('Households') ? (
-              <HouseHoldsReports />
-            ) : (
-              <TransactionsReports />
-            )}
-          </CustomDialog>
-        )} */}
-        {newProps?.title && showModal && (
+        {newProps?.title && (
           <CustomDialog
             size="xl"
             headerBgColor={newProps?.bg_color}
@@ -431,7 +651,34 @@ const DashboardCard = ({
 }
 
 DashboardCard.propTypes = {
-  props: PropTypes.object,
+  props: PropTypes.shape({
+    props: PropTypes.object,
+    funds: PropTypes.bool,
+    increase: PropTypes.bool,
+    period: PropTypes.string,
+    target: PropTypes.number,
+    color: PropTypes.string,
+    route: PropTypes.string,
+    title: PropTypes.string,
+    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    index: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    progress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    user: PropTypes.shape({
+      department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      departments: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        name: PropTypes.string,
+        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      }),
+    }),
+  }),
+}
+
+DashboardCard.defaultProps = {
+  props: {
+    increaseValue: (Math.random() * 10).toFixed(1),
+    progress: Math.floor(Math.random() * 100),
+  },
 }
 
 export default DashboardCard

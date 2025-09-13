@@ -728,10 +728,26 @@ export const apiSlice = createApi({
       }),
       // COMPLETE PENDING PAYMENT
       completePendingPayment: builder.mutation({
-        query: ({ id, payment_phone }) => ({
-          url: `/payment/${id}/pending/complete`,
+        query: ({
+          total_month_paid,
+          payment_method,
+          payment_phone,
+          lang,
+          id,
+          status,
+          phone1,
+        }) => ({
+          url: `/payment/complete/unpaid`,
           method: 'POST',
-          body: { payment_phone },
+          body: {
+            total_month_paid,
+            payment_method,
+            payment_phone,
+            lang,
+            id,
+            status,
+            phone1,
+          },
         }),
       }),
       // GET PAYMENT DETAILS

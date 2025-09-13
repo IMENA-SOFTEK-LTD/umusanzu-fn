@@ -4,6 +4,7 @@ import {
   BsFillArrowLeftSquareFill,
   BsFillArrowRightSquareFill,
 } from 'react-icons/bs'
+import PropTypes from 'prop-types'
 import { AiOutlineTransaction } from 'react-icons/ai'
 import {
   FaListAlt,
@@ -13,8 +14,8 @@ import {
   FaSearch,
 } from 'react-icons/fa'
 import { MdOutlineSettingsSuggest } from 'react-icons/md'
-import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
+
 import { motion, useAnimation } from 'framer-motion'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -32,29 +33,36 @@ function Sidebar({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const { isOpen } = useSelector((state) => state.sidebar)
   const { pathName } = useSelector((state) => state.navbar)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
-
   const queryRoute = queryString.parse(location.search)
-
+  // VIEWPORT WIDTH
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth)
 
-  // 🔹 Determine department from user role
-  const levelId =
-    user?.departments?.level_id || stateUser?.departments?.level_id
-  const departmentMap = {
-    1: 'province',
-    2: 'district',
-    3: 'sector',
-    4: 'cell',
-    5: 'country',
-    6: 'agent',
-  }
-  const department = departmentMap[levelId] || 'agent'
+  let department = ''
 
-  // 🔹 Menu Items
-  const menuData = [
+  switch (user?.departments?.level_id || stateUser?.departments?.level_id) {
+    case 1:
+      department = 'province'
+      break
+    case 2:
+      department = 'district'
+      break
+    case 3:
+      department = 'sector'
+      break
+    case 4:
+      department = 'cell'
+      break
+    case 5:
+      department = 'country'
+      break
+    case 6:
+      department = 'agent'
+      break
+    default:
+      department = 'agent'
+  }
+
+  const data = [
     {
       name: 'Manage',
       items: [
@@ -67,13 +75,13 @@ function Sidebar({ user }) {
         {
           title: 'Departments',
           icon: FaBorderAll,
-          path: '/departments',
-          route: '/departments',
+          path: `/departments`,
+          route: `/departments`,
         },
         {
           title: 'Households',
           icon: BsHousesFill,
-          path: '/households',
+          path: `${'/households'}`,
           route: '/households',
         },
         {
@@ -85,9 +93,15 @@ function Sidebar({ user }) {
         {
           title: 'Transactions',
           icon: AiOutlineTransaction,
-          path: '/transactions',
+          path: `${'/transactions'}`,
           route: '/transactions',
         },
+        // {
+        //   title: 'Performances',
+        //   icon: FaBorderAll,
+        //   path: '/performances',
+        //   route: '/performances',
+        // },
         {
           title: 'Reports',
           icon: FaListAlt,
@@ -120,54 +134,72 @@ function Sidebar({ user }) {
           icon: MdOutlineSettingsSuggest,
           path: '/settings',
         },
-        stateUser?.staff_role === 1 && stateUser?.departments?.level_id === 5
+        // Conditionally adding the 'Approvers' item based on the user's role and department level
+        stateUser &&
+        stateUser?.staff_role === 1 &&
+        [5].includes(stateUser?.departments?.level_id)
           ? {
               title: 'Approvers',
               icon: MdOutlineSettingsSuggest,
               path: '/approvers',
             }
-          : null,
-      ].filter(Boolean),
+          : null, // If conditions are not met, don't add the item to the array
+      ].filter((item) => item !== null), // Filter out any null values
     },
-  ]
+  ].filter((item) => item !== null)
 
   const controls = useAnimation()
-  const textControls = useAnimation()
-  const titleControls = useAnimation()
+  const controlText = useAnimation()
+  const controlTitleText = useAnimation()
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const showMore = () => {
-    controls.start({ width: '18rem' })
-    textControls.start({
+    controls.start({
+      width: '20vw',
+      transition: { duration: 0.001 },
+    })
+    controlText.start({
       opacity: 1,
       display: 'block',
-      transition: { delay: 0.2 },
+      transition: { delay: 0.3 },
     })
-    titleControls.start({ opacity: 1, transition: { delay: 0.2 } })
+    controlTitleText.start({
+      opacity: 1,
+      transition: { delay: 0.3 },
+    })
+
     dispatch(toggleSidebar(true))
   }
 
   const showLess = () => {
-    controls.start({ width: '4rem' })
-    textControls.start({ opacity: 0, display: 'none' })
-    titleControls.start({ opacity: 0 })
+    controls.start({
+      width: '4vw',
+      transition: { duration: 0 },
+    })
+
+    controlText.start({
+      opacity: 0,
+      display: 'none',
+    })
+
+    controlTitleText.start({
+      opacity: 0,
+    })
+
     dispatch(toggleSidebar(false))
   }
 
-  // 🔹 Auto-expand on desktop
   useEffect(() => {
-    if (viewportWidth >= 600) showMore()
+    showMore()
   }, [])
 
-  // 🔹 Collapse on mobile
   useEffect(() => {
-    const handleResize = () => setViewportWidth(window.innerWidth)
-    window.addEventListener('resize', handleResize)
-
     if (viewportWidth < 600) {
       showLess()
       dispatch(toggleNavDropdown(false))
     }
-    return () => window.removeEventListener('resize', handleResize)
   }, [viewportWidth])
 
   return (
@@ -221,12 +253,11 @@ function Sidebar({ user }) {
             isOpen ? 'max-sm:!min-w-[70%]' : 'mt-4 max-sm:hidden'
           }`}
         >
-          {menuData.map((group, i) => (
-            <div key={i} className="mt-6">
-              {/* Group Title */}
+          {data.map((group, index) => (
+            <div key={index} className="mt-8 flex flex-col">
               <motion.p
-                key={i}
-                animate={titleControls}
+                key={index}
+                animate={controlTitleText}
                 className={`mb-1 ml-4 text-md uppercase font-bold !text-slate-300 ${
                   isOpen ? '!flex !opacity-100' : 'hidden'
                 }'`}
@@ -234,35 +265,39 @@ function Sidebar({ user }) {
                 {group.name}
               </motion.p>
 
-              {/* Menu Items */}
-              {group.items.map((item, j) => {
-                if (
+              {group?.items.map((item, index2) => {
+                if (item &&
                   (item?.title === 'Departments' && department === 'agent') ||
                   (item?.title === 'Complete Initiated Payments' &&
-                    department !== 'agent')
+                    department !== 'agent') ||
+                  // (item.title === 'Reports' && department !== 'country') ||
+                  // (item.title === 'Performances' && department !== 'sector') ||
+                  (item?.title === 'Approve Move Households' &&
+                    department === 'agent') ||
+                  (item?.title === 'Approve Move Households' &&
+                    department === 'cell')
                 ) {
                   return null
                 }
-
                 return (
                   <Link
-                    key={j}
+                    key={index2}
                     to={item.path}
                     onClick={(e) => {
                       e.preventDefault()
+
                       dispatch(setPathName(item.title))
                       localStorage.setItem('pathName', item.title)
-                      if (item.route) {
-                        dispatch(setPathRoute(item.route))
-                        localStorage.setItem('pathRoute', item.route)
-                      }
+                      dispatch(setPathRoute(item.route))
+                      localStorage.setItem('pathRoute', item.route)
+                      setViewportWidth(window.innerWidth)
                       if (viewportWidth < 650) {
                         showLess()
                         dispatch(toggleNavDropdown(false))
                       }
                       if (
-                        item.title === 'Departments' &&
-                        queryRoute?.province
+                        ['Departments'].includes(item.title) &&
+                        !!queryRoute?.province
                       ) {
                         window.location.href = item.path
                       } else {
@@ -270,27 +305,26 @@ function Sidebar({ user }) {
                       }
                     }}
                   >
-                      <figure
-                                          key={j}
-                                          className={`${
-                                            isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
-                                          } flex py-1 ${
-                                            pathName === item.title ? 'bg-slate-800' : null
-                                          } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
-                                        >
-                                          <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
-                                          <motion.p
-                                            key={j}
-                                            to={item.path}
-                                            animate={textControls}
-                                            className={`ml-4 text-sm font-bold text-white ${
-                                              isOpen ? '!opacity-100 !flex' : 'hidden'
-                                            }`}
-                                          >
-                                            {item.title}
-                                          </motion.p>
-                                        </figure>
-                  
+                    <figure
+                      key={index2}
+                      className={`${
+                        isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
+                      } flex py-1 ${
+                        pathName === item.title ? 'bg-slate-800' : null
+                      } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
+                    >
+                      <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
+                      <motion.p
+                        key={index2}
+                        to={item.path}
+                        animate={controlText}
+                        className={`ml-4 text-sm font-bold text-white ${
+                          isOpen ? '!opacity-100 !flex' : 'hidden'
+                        }`}
+                      >
+                        {item.title}
+                      </motion.p>
+                    </figure>
                   </Link>
                 )
               })}
@@ -303,7 +337,7 @@ function Sidebar({ user }) {
 }
 
 Sidebar.propTypes = {
-  user: PropTypes.object,
+  user: PropTypes.shape({}),
 }
 
 export default Sidebar

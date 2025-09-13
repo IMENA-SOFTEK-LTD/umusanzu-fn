@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 
 const Loading = ({ color = 'primary', size = 6 }) => {
   return (
+    
     <section className="flex items-center justify-center">
       <svg
         aria-hidden="true"

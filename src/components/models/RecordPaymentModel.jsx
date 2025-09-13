@@ -9,9 +9,9 @@ import { faMoneyBill, faX } from '@fortawesome/free-solid-svg-icons'
 import moment from 'moment'
 import { useCreatePaymentSessionMutation } from '../../states/api/apiSlice'
 import Loading from '../Loading'
+import WaitingForPayment from './WaitingForPayment'
 
-function RecordPaymentModel({ household }) {
-  const [showModal, setShowModal] = useState(false)
+function RecordPaymentModel({ household, showModal, setShowModal }) {
   const {
     control,
     handleSubmit,
@@ -38,10 +38,6 @@ function RecordPaymentModel({ household }) {
     setIWaitingCompletePayment(false)
   }
 
-  const openModal = () => {
-    setShowModal(true)
-  }
-
   const closeModal = () => {
     setShowModal(false)
   }
@@ -56,12 +52,12 @@ function RecordPaymentModel({ household }) {
       lang: data?.lang,
       agent: household?.agents.id || 'N/A',
       merchant_code: household?.sectors[0].merchant_code || 'N/A',
+      phone1: data?.payment_phone,
     })
   }
 
   useEffect(() => {
     if (paymentSessionIsSuccess) {
-      console.log(paymentSessionData)
       startWaiting()
       toast.success(
         paymentSessionData.message || 'Payment created successfully'
@@ -77,19 +73,6 @@ function RecordPaymentModel({ household }) {
 
   return (
     <main className="relative">
-      <Button
-        value={
-          <span className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faMoneyBill} />
-            <span>Record Transaction</span>
-          </span>
-        }
-        onClick={(e) => {
-          e.preventDefault()
-          openModal()
-        }}
-      />
-
       {showModal && (
         <section
           tabIndex={-1}
@@ -175,7 +158,7 @@ function RecordPaymentModel({ household }) {
                     </span>
                   )}
                 </label>
-                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                {/* <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                   Choose payment option
                   <Controller
                     name="payment_method"
@@ -201,9 +184,9 @@ function RecordPaymentModel({ household }) {
                       {errors.payment_method.message}
                     </span>
                   )}
-                </label>
+                </label> */}
                 <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                  Numero yakira SMS
+                  Numero yakira message(SMS)
                   <Controller
                     name="phone1"
                     control={control}
@@ -245,7 +228,7 @@ function RecordPaymentModel({ household }) {
                         <Button
                           submit
                           value={
-                            paymentSessionIsLoading ? <Loading /> : 'Pay now'
+                            paymentSessionIsLoading ? <Loading /> :  `Ishyura`
                           }
                         />
                       </article>
@@ -263,39 +246,8 @@ function RecordPaymentModel({ household }) {
 
 RecordPaymentModel.propTypes = {
   household: PropTypes.shape({}),
+  showModal: PropTypes.bool,
+  setShowModal: PropTypes.func,
 }
 
 export default RecordPaymentModel
-
-function WaitingForPayment({ onCancel }) {
-  const handleCancel = () => {
-    if (onCancel) {
-      window.history.back()
-    } else {
-      // fallback: go back in browser history
-      window.history.back()
-    }
-  }
-  return (
-    <div className="flex flex-col items-center justify-center  bg-gray-100 p-4">
-      {/* Spinner */}
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-b-4 border-gray-300 mb-6"></div>
-
-      {/* Message */}
-      <h1 className="text-xl font-semibold text-gray-800 text-center mb-2">
-        Thank you for initiating a new Payment.
-      </h1>
-      <p className="text-gray-600 text-center mb-6">
-        Check your pending transactions on <strong>182*7*1#</strong> to confirm.
-      </p>
-
-      {/* Cancel Button */}
-      <button
-        onClick={handleCancel}
-        className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-      >
-        Cancel / Go Back
-      </button>
-    </div>
-  )
-}

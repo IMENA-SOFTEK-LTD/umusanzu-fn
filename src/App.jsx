@@ -41,188 +41,207 @@ import API_URL from './constants/index.js'
 import Approvers from './pages/Approvers.jsx'
 
 const App = () => {
-  
-
   const { loginPageLoaded } = useSelector((state) => state.auth)
 
   const { isOpen } = useSelector((state) => state.sidebar)
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes
+  const INACTIVITY_LIMIT = 30 * 60 * 1000 // 30 minutes
 
   const updateExpireTime = () => {
-    const expireTime = Date.now() + INACTIVITY_LIMIT;
-    localStorage.setItem('expireTime', expireTime);
-  };
-  
+    const expireTime = Date.now() + INACTIVITY_LIMIT
+    localStorage.setItem('expireTime', expireTime)
+  }
+
   const checkForInactivity = () => {
-    const expireTime = localStorage.getItem('expireTime');
+    const expireTime = localStorage.getItem('expireTime')
     if (expireTime && Date.now() > Number(expireTime)) {
       toast.info('It seems you were away, you need to log in again', {
         onClose: () => {
-          logOut();
-          navigate('/login');
-        }
-      });
+          logOut()
+          navigate('/login')
+        },
+      })
     }
-  };
-  
-  useEffect(() => {
-    const interval = setInterval(checkForInactivity, 60 * 1000); // Check every 1 minute
-  
-    return () => clearInterval(interval);
-  }, []);
-  
-  useEffect(() => {
-    updateExpireTime();
-  
-    const events = ['click', 'keypress', 'scroll', 'mousemove'];
-    events.forEach(event => window.addEventListener(event, updateExpireTime));
-  
-    return () => {
-      events.forEach(event => window.removeEventListener(event, updateExpireTime));
-    };
-  }, []);
+  }
 
+  useEffect(() => {
+    const interval = setInterval(checkForInactivity, 60 * 1000) // Check every 1 minute
+
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    updateExpireTime()
+
+    const events = ['click', 'keypress', 'scroll', 'mousemove']
+    events.forEach((event) => window.addEventListener(event, updateExpireTime))
+
+    return () => {
+      events.forEach((event) =>
+        window.removeEventListener(event, updateExpireTime)
+      )
+    }
+  }, [])
 
   // eslint-disable-next-line no-undef
-  const userStr = localStorage.getItem('user');
-  const user = userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
+  const userStr = localStorage.getItem('user')
+  const user = userStr && userStr !== 'undefined' ? JSON.parse(userStr) : null
 
   const { user: stateUser } = useSelector((state) => state.auth)
 
   const token = localStorage.getItem('token')
-  const getDepartmentName = async(department, id) => {
-    await axios.get(`${API_URL}/department/${department}/${String(id)}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    ).then((response) => {
-      dispatch(setUserOrSelectedDepartmentNames({ [`${department}`]: response.data.data.name}))
-    }).catch((error) => console.log(error))
-  }  
+  const getDepartmentName = async (department, id) => {
+    await axios
+      .get(`${API_URL}/department/${department}/${String(id)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        dispatch(
+          setUserOrSelectedDepartmentNames({
+            [`${department}`]: response.data.data.name,
+          })
+        )
+      })
+      .catch((error) => console.log(error))
+  }
   useEffect(() => {
-
     if (stateUser !== null) {
-
       switch (stateUser?.departments?.level_id) {
         case 1:
           getDepartmentName('province', stateUser?.departments?.id)
-          break;
+          break
         case 2:
           getDepartmentName('province', stateUser?.departments?.parent?.id)
           getDepartmentName('district', stateUser?.departments?.id)
-          break;
+          break
         case 3:
-          getDepartmentName('province', stateUser?.departments?.parent?.parent?.id)
+          getDepartmentName(
+            'province',
+            stateUser?.departments?.parent?.parent?.id
+          )
           getDepartmentName('district', stateUser?.departments?.parent?.id)
           getDepartmentName('sector', stateUser?.departments?.id)
-          break;
+          break
         case 4:
-          getDepartmentName('province', stateUser?.departments?.parent?.parent?.parent?.id)
-          getDepartmentName('district', stateUser?.departments?.parent?.parent?.id)
+          getDepartmentName(
+            'province',
+            stateUser?.departments?.parent?.parent?.parent?.id
+          )
+          getDepartmentName(
+            'district',
+            stateUser?.departments?.parent?.parent?.id
+          )
           getDepartmentName('sector', stateUser?.departments?.parent?.id)
           getDepartmentName('cell', stateUser?.departments?.id)
-          break;
+          break
         case 6:
-          getDepartmentName('province', stateUser?.departments?.parent?.parent?.parent?.parent?.id)
-          getDepartmentName('district', stateUser?.departments?.parent?.parent?.parent?.id)
-          getDepartmentName('sector', stateUser?.departments?.parent?.parent?.id)
+          getDepartmentName(
+            'province',
+            stateUser?.departments?.parent?.parent?.parent?.parent?.id
+          )
+          getDepartmentName(
+            'district',
+            stateUser?.departments?.parent?.parent?.parent?.id
+          )
+          getDepartmentName(
+            'sector',
+            stateUser?.departments?.parent?.parent?.id
+          )
           getDepartmentName('cell', stateUser?.departments?.parent?.id)
           getDepartmentName('village', stateUser?.departments?.id)
-          break;
+          break
         default:
-          break;
+          break
       }
     }
   }, [stateUser])
   return (
+    <Routes>
+      <Route element={<IsLoggedIn />}>
+        <Route element={<AppLayout user={user || stateUser} isOpen={isOpen} />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/households"
+            element={<HouseholdTable user={user || stateUser} />}
+          />
+          <Route
+            path="/reports/villages"
+            element={<VillagesReport user={user || stateUser} />}
+          />
+          <Route
+            path="/reports/sectors"
+            element={<SectorsReports user={user || stateUser} />}
+          />
+          <Route
+            path="/reports"
+            element={<Reports user={user || stateUser} />}
+          />
+          <Route path="/households/:id" element={<HouseholdDetails />} />
+          <Route
+            path="/households/create"
+            element={<CreateHousehold user={user} />}
+          />
+          <Route
+            path="/households/create/conflict"
+            element={<HouseholdExists />}
+          />
+          <Route
+            path="/households/search"
+            element={<SearchHousehold user={user} />}
+          />
 
-        <Routes>
-          <Route element={<AppLayout 
-            user={user || stateUser} 
-            isOpen={isOpen} />} >
-            <Route element={<IsLoggedIn />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route
-                path="/households"
-                element={<HouseholdTable user={user || stateUser} />}
-              />
-              <Route
-                path="/reports/villages"
-                element={<VillagesReport user={user || stateUser} />}
-              />
-              <Route
-                path="/reports/sectors"
-                element={<SectorsReports user={user || stateUser} />}
-              />
-              <Route
-                path="/reports"
-                element={<Reports user={user || stateUser} />}
-              />
-              <Route path="/households/:id" element={<HouseholdDetails />} />
-              <Route
-                path="/households/create"
-                element={<CreateHousehold user={user} />}
-              />
-              <Route path='/households/create/conflict' element={<HouseholdExists  />} />
-              <Route
-                path="/households/search"
-                element={<SearchHousehold user={user} />}
-              />
+          <Route
+            path="/settings"
+            element={<Settings user={user || stateUser} />}
+          />
+          <Route
+            path="/approvers"
+            element={<Approvers user={user || stateUser} />}
+          />
 
-              <Route
-                path="/settings"
-                element={<Settings user={user || stateUser} />}
-              />
-              <Route
-                path="/approvers"
-                element={<Approvers user={user || stateUser} />}
-              />
-              
-              <Route
-                path="/agent/transactions/initiated"
-                element={<CompleteInitiatedPaymentsForm user={user} />}
-              />
+          <Route
+            path="/agent/transactions/initiated"
+            element={<CompleteInitiatedPaymentsForm user={user} />}
+          />
 
-              <Route
-                path="/transactions"
-                element={<TransactionTable user={user || stateUser} />}
-              />
-              <Route path="/households/stats" element={<HouseDetails />} />
-              <Route
-                path="/profile/:id"
-                element={<UserProfilePage user={user || stateUser} />}
-              />
-              <Route
-                path="/performances"
-                element={<Performances user={user} />}
-              />
-              <Route
-                path="/admins/:id"
-                element={<Admins user={user || stateUser} />}
-              />
+          <Route
+            path="/transactions"
+            element={<TransactionTable user={user || stateUser} />}
+          />
+          <Route path="/households/stats" element={<HouseDetails />} />
+          <Route
+            path="/profile/:id"
+            element={<UserProfilePage user={user || stateUser} />}
+          />
+          <Route path="/performances" element={<Performances user={user} />} />
+          <Route
+            path="/admins/:id"
+            element={<Admins user={user || stateUser} />}
+          />
 
-              <Route
-                path="/departments"
-                element={<Department user={user || stateUser} />}
-              />
-              <Route
-                path="/select-department"
-                element={<SelectDepartments user={user} />}
-              />
-              <Route
-                path="/report/sectors"
-                element={<Sector_commission user={user || stateUser} />}
-              />
+          <Route
+            path="/departments"
+            element={<Department user={user || stateUser} />}
+          />
+          <Route
+            path="/select-department"
+            element={<SelectDepartments user={user} />}
+          />
+          <Route
+            path="/report/sectors"
+            element={<Sector_commission user={user || stateUser} />}
+          />
 
-              <Route path="/receipt/:id" element={<PaymentReceipt />} />
-            </Route>
-          </Route>         
-          <Route path="/login" index element={<Login />} />
-          <Route path="/two-fa-authentication" element={<Validate2faPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+          <Route path="/receipt/:id" element={<PaymentReceipt />} />
+        </Route>
+      </Route>
+      <Route path="/login" index element={<Login />} />
+      <Route path="/two-fa-authentication" element={<Validate2faPage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   )
 }
 

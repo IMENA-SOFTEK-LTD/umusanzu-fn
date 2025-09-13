@@ -241,6 +241,7 @@ const HouseholdTable = ({ user }) => {
               province: row?.province_name,
               provinceId: row?.province,
               type: row?.type,
+              payment_status:row?.payment_status
             })) || []
           )
         })
@@ -452,27 +453,27 @@ const HouseholdTable = ({ user }) => {
         sortable: true,
         Filter: SelectColumnFilter,
       },
+      // {
+      //   Header: 'Cell',
+      //   accessor: 'cell',
+      //   sortable: true,
+      //   Filter: SelectColumnFilter,
+      // },
+      // {
+      //   Header: 'Sector',
+      //   accessor: 'sector',
+      //   sortable: true,
+      //   Filter: SelectColumnFilter,
+      // },
+      // {
+      //   Header: 'District',
+      //   accessor: 'district',
+      //   sortable: true,
+      //   Filter: SelectColumnFilter,
+      // },
       {
-        Header: 'Cell',
-        accessor: 'cell',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'Sector',
-        accessor: 'sector',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'District',
-        accessor: 'district',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'Province',
-        accessor: 'province',
+        Header: 'PaymentStatus',
+        accessor: 'payment_status',
         sortable: true,
         Filter: SelectColumnFilter,
       },

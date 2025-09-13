@@ -11,20 +11,15 @@ import {
 import EditSectorInfoModel from '../components/models/EditSectorInfoModel'
 import UploadSectorStamp from '../components/models/UploadSectorStamp'
 import { getUserDepartmentsInfoByLevelId } from '../utils/userByLevelId'
-import { setCreateAdminModal } from '../states/features/departments/staffSlice'
-import CreateAdmin from '../containers/staff/CreateAdmin'
-import Button from '../components/Button'
+import { setPathRoute } from '../states/features/navigation/sidebarSlice'
 
 function Settings({ user }) {
   const { user: stateUser } = useSelector((state) => state.auth)
-
   const [userProfile, setUserProfile] = useState([])
   const dispatch = useDispatch()
-  console.log(stateUser)
-  const [
-    getUserProfile,
-    { data: userProfileData, isLoading, isError, isSuccess },
-  ] = useLazyGetUserProfileQuery()
+
+  const [getUserProfile, { data: userProfileData, isLoading, isSuccess }] =
+    useLazyGetUserProfileQuery()
 
   useEffect(() => {
     if (user || stateUser) {
@@ -41,131 +36,57 @@ function Settings({ user }) {
     }
   }, [userProfileData, isSuccess])
 
-  const [
-    getDepartmentProfile,
-    { data, isLoadingData, isErrors, isSuccessful },
-  ] = useLazyGetDepartmentProfileQuery()
+  const [getDepartmentProfile, { data }] = useLazyGetDepartmentProfileQuery()
 
   useEffect(() => {
-    getDepartmentProfile({
-      id: user.department_id || stateUser?.department_id,
-    })
-  }, [])
+    if (user?.department_id || stateUser?.department_id) {
+      getDepartmentProfile({
+        id: user?.department_id || stateUser?.department_id,
+      })
+    }
+  }, [user, stateUser, getDepartmentProfile])
 
   const userDepartmentsInfo = getUserDepartmentsInfoByLevelId(user, stateUser)
 
   return (
-    <main className="flex flex-col gap-10 mt-10 max-[900px]:p900-settings max-[100px]:p100-settings max-[150px]:p150-settings max-[200px]:p200-settings max-[250px]:p250-settings max-[300px]:p300-settings max-[350px]:p350-settings max-[400px]:p400-settings max-[450px]:p450-settings max-[500px]:p500-settings max-[600px]:p600-settings max-[700px]:p700-settings max-[800px]:p800-settings max-[1000px]:p1000-settings max-[1100px]:p1100-settings max-[1200px]:p1200-settings max-[1300px]:p1300-settings max-[2000px]:p2000-settings">
-      <div className="w-full relative pb-20">
-        {/* <CreateAdmin />
-        {stateUser?.staff_role === 1 &&
-          [3,5].includes(stateUser?.departments?.level_id) && (
-            <Button
-              value="Create New Admin"
-              className="absolute top-8 right-0 !rounded-lg"
-              onClick={(e) => {
-                e.preventDefault()
-                dispatch(setCreateAdminModal(true))
-              }}
-            />
-          )} */}
-      </div>
-      <div className="flex flex-row justify-between">
-        <div className="bg-white overflow-hidden p-2 shadow rounded-lg border">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
+    <main className="flex flex-col gap-10 mt-6 px-4 sm:px-6 lg:px-10">
+      {/* Profile Section */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Staff Profile Card */}
+        <div className="bg-white flex-1 overflow-hidden p-4 shadow rounded-lg border">
+          <div className="pb-4 border-b">
+            <h3 className="text-lg font-semibold text-gray-900">
               Staff Profile
             </h3>
           </div>
-          <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-            <dl className="sm:divide-y sm:divide-gray-200">
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Full name</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userProfileData?.data?.names}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Username</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userProfileData?.data?.username}{' '}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <div className="divide-y">
+            {[
+              { label: 'Full name', value: userProfileData?.data?.names },
+              { label: 'Username', value: userProfileData?.data?.username },
+              { label: 'Email address', value: userProfileData?.data?.email },
+              { label: 'Phone number 1', value: userProfileData?.data?.phone1 },
+              { label: 'Phone number 2', value: userProfileData?.data?.phone2 },
+              { label: 'National ID', value: userProfileData?.data?.nid },
+              { label: 'Sector', value: userDepartmentsInfo?.sector },
+              { label: 'District', value: userDepartmentsInfo?.district },
+              { label: 'Province', value: userDepartmentsInfo?.province },
+              { label: 'Status', value: userProfileData?.data?.status },
+              {
+                label: '2 FACT AUTH',
+                value: userProfileData?.data?.two_fa ? 'Enabled' : 'Disabled',
+              },
+            ].map((item, i) => (
+              <div key={i} className="py-3 grid grid-cols-3 gap-4">
                 <dt className="text-sm font-medium text-gray-500">
-                  Email address
+                  {item.label}
                 </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userProfileData?.data?.email}
+                <dd className="col-span-2 text-sm text-gray-900">
+                  {isLoading ? <Loading /> : item.value || '—'}
                 </dd>
               </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Phone number 1
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userProfileData?.data?.phone1}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Phone number 2
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userProfileData?.data?.phone2}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  National ID
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {userProfileData?.data?.nid}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Sector</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userDepartmentsInfo.sector}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">District</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userDepartmentsInfo.district}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Province</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userDepartmentsInfo.province}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Status</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? <Loading /> : userProfileData?.data?.status}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  2 FACT AUTH
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {isLoading ? (
-                    <Loading />
-                  ) : userProfileData?.data?.two_fa ? (
-                    'Enabled'
-                  ) : (
-                    'Disabled'
-                  )}
-                </dd>
-              </div>
-            </dl>
+            ))}
           </div>
-          <div className="flex items-center justify-center gap-4">
-            {' '}
-            {/* Center horizontally and vertically */}
+          <div className="flex items-center justify-center gap-4 mt-6">
             <UserProfileUpdateForm
               user={user || stateUser}
               userProfile={userProfile}
@@ -182,94 +103,57 @@ function Settings({ user }) {
             <UpdatePasswordModel user={user || stateUser} />
           </div>
         </div>
-        <div className="bg-white overflow-hidden p-2 mb-4 shadow rounded-lg border">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
-              {`${userDepartmentsInfo.department} Profile`}
+
+        {/* Department Profile Card */}
+        <div className="bg-white flex-1 overflow-hidden p-4 shadow rounded-lg border">
+          <div className="pb-4 border-b">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {`${userDepartmentsInfo?.department || 'Department'} Profile`}
             </h3>
           </div>
-          <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-            <dl className="sm:divide-y sm:divide-gray-200">
-              <div className="py-3 sm:py-1 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Name</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.name}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <div className="divide-y">
+            {[
+              { label: 'Name', value: data?.data?.name },
+              { label: 'Telephone 1', value: data?.data?.phone1 },
+              { label: 'Telephone 2', value: data?.data?.phone2 },
+              { label: 'Email', value: data?.data?.email },
+              {
+                label: 'Service',
+                value:
+                  data?.data?.department_infos?.[0]?.service_offer ||
+                  'Umutekano',
+              },
+              {
+                label: 'Representative Names',
+                value: data?.data?.department_infos?.[0]?.leader_name,
+              },
+              {
+                label: 'Representative Position',
+                value: data?.data?.department_infos?.[0]?.leader_title,
+              },
+              {
+                label: 'Bank Account Number',
+                value: data?.data?.department_infos?.[0]?.account_bank,
+              },
+              {
+                label: 'Bank Account Name',
+                value: data?.data?.department_infos?.[0]?.account_name,
+              },
+            ].map((item, i) => (
+              <div key={i} className="py-3 grid grid-cols-3 gap-4">
                 <dt className="text-sm font-medium text-gray-500">
-                  Telephone 1
+                  {item.label}
                 </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.phone1}
+                <dd className="col-span-2 text-sm text-gray-900">
+                  {item.value || '—'}
                 </dd>
               </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Telephone 2
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.phone2}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Email</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.email}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Service</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.department_infos[0]?.service_offer}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Representative Names
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.department_infos[0]?.leader_name}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Representative Position
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.department_infos[0]?.leader_title}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Bank Account Number
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.department_infos[0]?.account_bank}
-                </dd>
-              </div>
-              <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">
-                  Bank Account Name
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {data?.data?.department_infos[0]?.account_name}
-                </dd>
-              </div>
-            </dl>
+            ))}
           </div>
-          <div
-            className="flex items-center justify-center
-            bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse
-            gap-5
-
-          "
-          >
+          <div className="flex items-center justify-center gap-4 mt-6">
             <EditSectorInfoModel user={user || stateUser} />
-            {user.departments.level_id === 3 ? (
+            {user?.departments?.level_id === 3 && (
               <UploadSectorStamp department={data?.data} />
-            ) : (
-              ''
             )}
           </div>
         </div>
@@ -280,6 +164,7 @@ function Settings({ user }) {
 
 Settings.propTypes = {
   user: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     names: PropTypes.string,
     phone1: PropTypes.string,
     phone2: PropTypes.string,
@@ -288,6 +173,9 @@ Settings.propTypes = {
     department_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     username: PropTypes.string,
     two_fa: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
+    departments: PropTypes.shape({
+      level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }),
   }),
 }
 

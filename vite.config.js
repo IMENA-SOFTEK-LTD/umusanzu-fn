@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env': env
     },
+    server: {
+    host: "::",
+    port: 8080,
+  },
     plugins: [react()],
     esbuild: {
       jsxInject: `import React from 'react';`,
