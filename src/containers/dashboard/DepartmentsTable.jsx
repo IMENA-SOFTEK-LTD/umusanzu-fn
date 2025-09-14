@@ -412,7 +412,7 @@ const DepartmentsTable = ({ user }) => {
 
       <OverlayLoading color="black" isLoading={departmentListLoading} />
 
-      <div className="flex items-center  justify-between mx-4">
+      <div className="flex items-center  justify-between mx-0">
         <dt className=" font-semibold text-gray-900 ">
           {!!Object.entries(userOrSelectedDepartmentNames).length ? (
             <nav className="flex" aria-label="Breadcrumb">
@@ -490,7 +490,7 @@ const DepartmentsTable = ({ user }) => {
           </div>
         </div>
       </div>
-      <div className="flex items-center  justify-between mx-4">
+      <div className="flex items-center  justify-between">
         <div className="mt-0 flex flex-col w-[100%] mx-auto">
           <div className="mx-4 sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -565,25 +565,25 @@ const DepartmentsTable = ({ user }) => {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
                         Name
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
                         Phone
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
                         Phone2
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        className="hidden md:table-cell  px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
                         Email
                       </th>
@@ -597,274 +597,299 @@ const DepartmentsTable = ({ user }) => {
                       <tr key={index} role="row">
                         <td
                           role="cell"
-                          className="px-6 py-4 whitespace-nowrap flex items-center "
+                          className="px-6 py-4 whitespace-nowrap flex items-center grid "
                         >
-                          <button
-                            className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                            type="button"
-                            onClick={() => {
-                              setOpenAdmins(true)
-                              setSelectDepartment(row)
-                            }}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              className="w-4 h-4"
+                          <p className="md:hidden w-full px-2 py-2 flex justify-between">
+                            <div className="">{row.name}</div>
+                          </p>
+                          <div className="flex justify-between">
+                            <button
+                              className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                              type="button"
+                              onClick={() => {
+                                setOpenAdmins(true)
+                                setSelectDepartment(row)
+                              }}
                             >
-                              <path
-                                fill-rule="evenodd"
-                                d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                                clip-rule="evenodd"
-                              />
-                            </svg>
-                            <span className="pl-2">
-                              {row?.level_id === 6 ? 'Agents' : 'Admins'}{' '}
-                            </span>
-                          </button>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                              <span className="pl-2">
+                                {row?.level_id === 6 ? 'Agents' : 'Admins'}{' '}
+                              </span>
+                            </button>
 
-                          {/* Manage District */}
-                          {row?.level_id === 1 && (
-                            <>
-                              {stateUser?.staff_role === 1 && (
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  color="blue"
-                                  material
-                                  className="mx-2 p-1.5 rounded-md"
-                                  value={
-                                    <>
-                                      <FontAwesomeIcon icon={faAdd} />
-                                      <span className="px-1">
-                                        {' '}
-                                        Add District
-                                      </span>
-                                    </>
-                                  }
-                                  onClick={() => {
-                                    setSelectDepartment(row)
-                                    setSelectedDepartmentName('District')
-                                    setSelectedLevelId(2)
-                                    setShowDepartmentModal(true)
-                                  }}
-                                  submit
-                                />
-                              )}
+                            {/* Manage District */}
+                            {row?.level_id === 1 && (
+                              <>
+                                {stateUser?.staff_role === 1 && (
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    color="blue"
+                                    material
+                                    className="mx-2 p-1.5 rounded-md"
+                                    value={
+                                      <>
+                                        <FontAwesomeIcon icon={faAdd} />
+                                        <span className="px-1">
+                                          {' '}
+                                          Add District
+                                        </span>
+                                      </>
+                                    }
+                                    onClick={() => {
+                                      setSelectDepartment(row)
+                                      setSelectedDepartmentName('District')
+                                      setSelectedLevelId(2)
+                                      setShowDepartmentModal(true)
+                                    }}
+                                    submit
+                                  />
+                                )}
 
-                              <Link
-                                to={`/departments?level=2&province=${
-                                  row?.ID || user?.myAddress?.province?.id
-                                }`}
-                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                onClick={(e) => {
-                                  e.preventDefault() // Prevent React Router from handling the navigation
-                                  window.location.href = e.currentTarget.href // Force a full-page reload
-                                }}
-                              >
-                                All Districts
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={2}
-                                  stroke="currentColor"
-                                  class="w-4 h-4 ml-1.5"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                                  />
-                                </svg>
-                              </Link>
-                            </>
-                          )}
-                          {row?.level_id === 2 && (
-                            <>
-                              {stateUser?.staff_role === 1 && (
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  color="blue"
-                                  material
-                                  className="mx-2 p-1.5 rounded-md"
-                                  value={
-                                    <>
-                                      <FontAwesomeIcon icon={faAdd} />
-                                      <span className="px-1"> Add Sector</span>
-                                    </>
-                                  }
-                                  onClick={() => {
-                                    setSelectDepartment(row)
-                                    setSelectedDepartmentName('Sector')
-                                    setSelectedLevelId(3)
-                                    setShowDepartmentModal(true)
+                                <Link
+                                  to={`/departments?level=2&province=${
+                                    row?.ID || user?.myAddress?.province?.id
+                                  }`}
+                                  className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                  onClick={(e) => {
+                                    e.preventDefault() // Prevent React Router from handling the navigation
+                                    window.location.href = e.currentTarget.href // Force a full-page reload
                                   }}
-                                  submit
-                                />
-                              )}
+                                >
+                                  All Districts
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                    stroke="currentColor"
+                                    class="w-4 h-4 ml-1.5"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                    />
+                                  </svg>
+                                </Link>
+                              </>
+                            )}
+                            {row?.level_id === 2 && (
+                              <>
+                                {stateUser?.staff_role === 1 && (
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    color="blue"
+                                    material
+                                    className="mx-2 p-1.5 rounded-md"
+                                    value={
+                                      <>
+                                        <FontAwesomeIcon icon={faAdd} />
+                                        <span className="px-1">
+                                          {' '}
+                                          Add Sector
+                                        </span>
+                                      </>
+                                    }
+                                    onClick={() => {
+                                      setSelectDepartment(row)
+                                      setSelectedDepartmentName('Sector')
+                                      setSelectedLevelId(3)
+                                      setShowDepartmentModal(true)
+                                    }}
+                                    submit
+                                  />
+                                )}
 
-                              <Link
-                                to={`/departments?level=3&province=${
-                                  queryRoute?.province ||
-                                  user?.myAddress?.province?.id
-                                }&district=${
-                                  row?.ID || user?.myAddress?.district?.id
-                                }`}
-                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                onClick={(e) => {
-                                  e.preventDefault() // Prevent React Router from handling the navigation
-                                  window.location.href = e.currentTarget.href // Force a full-page reload
-                                }}
-                              >
-                                All Sectors
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={2}
-                                  stroke="currentColor"
-                                  class="w-4 h-4 ml-1.5"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                                  />
-                                </svg>
-                              </Link>
-                            </>
-                          )}
-                          {row?.level_id === 3 && (
-                            <>
-                              {stateUser?.staff_role === 1 && (
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  color="blue"
-                                  material
-                                  className="mx-2 p-1.5 rounded-md"
-                                  value={
-                                    <>
-                                      <FontAwesomeIcon icon={faAdd} />
-                                      <span className="px-1"> Add Cell</span>
-                                    </>
-                                  }
-                                  onClick={() => {
-                                    setSelectDepartment(row)
-                                    setSelectedDepartmentName('Cell')
-                                    setSelectedLevelId(4)
-                                    setShowDepartmentModal(true)
+                                <Link
+                                  to={`/departments?level=3&province=${
+                                    queryRoute?.province ||
+                                    user?.myAddress?.province?.id
+                                  }&district=${
+                                    row?.ID || user?.myAddress?.district?.id
+                                  }`}
+                                  className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                  onClick={(e) => {
+                                    e.preventDefault() // Prevent React Router from handling the navigation
+                                    window.location.href = e.currentTarget.href // Force a full-page reload
                                   }}
-                                  submit
-                                />
-                              )}
-                              <Link
-                                to={`/departments?level=4&province=${
-                                  queryRoute?.province ||
-                                  user?.myAddress?.province?.id
-                                }&district=${
-                                  queryRoute?.district ||
-                                  user?.myAddress?.district?.id
-                                }&sector=${
-                                  row?.ID || user?.myAddress?.sector?.id
-                                }`}
-                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                onClick={(e) => {
-                                  e.preventDefault() // Prevent React Router from handling the navigation
-                                  window.location.href = e.currentTarget.href // Force a full-page reload
-                                }}
-                              >
-                                All Cells
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={2}
-                                  stroke="currentColor"
-                                  class="w-4 h-4 ml-1.5"
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                  All Sectors
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                    stroke="currentColor"
+                                    class="w-4 h-4 ml-1.5"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                    />
+                                  </svg>
+                                </Link>
+                              </>
+                            )}
+                            {row?.level_id === 3 && (
+                              <>
+                                {stateUser?.staff_role === 1 && (
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    color="blue"
+                                    material
+                                    className="mx-2 p-1.5 rounded-md"
+                                    value={
+                                      <>
+                                        <FontAwesomeIcon icon={faAdd} />
+                                        <span className="px-1"> Add Cell</span>
+                                      </>
+                                    }
+                                    onClick={() => {
+                                      setSelectDepartment(row)
+                                      setSelectedDepartmentName('Cell')
+                                      setSelectedLevelId(4)
+                                      setShowDepartmentModal(true)
+                                    }}
+                                    submit
                                   />
-                                </svg>
-                              </Link>
-                            </>
-                          )}
-                          {row?.level_id === 4 && (
-                            <>
-                              {stateUser?.staff_role === 1 && (
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  color="blue"
-                                  material
-                                  className="mx-2 p-1.5 rounded-md"
-                                  value={
-                                    <>
-                                      <FontAwesomeIcon icon={faAdd} />
-                                      <span className="px-1"> Add Village</span>
-                                    </>
-                                  }
-                                  onClick={() => {
-                                    setSelectDepartment(row)
-                                    setSelectedDepartmentName('Village')
-                                    setSelectedLevelId(6)
-                                    setShowDepartmentModal(true)
+                                )}
+                                <Link
+                                  to={`/departments?level=4&province=${
+                                    queryRoute?.province ||
+                                    user?.myAddress?.province?.id
+                                  }&district=${
+                                    queryRoute?.district ||
+                                    user?.myAddress?.district?.id
+                                  }&sector=${
+                                    row?.ID || user?.myAddress?.sector?.id
+                                  }`}
+                                  className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                  onClick={(e) => {
+                                    e.preventDefault() // Prevent React Router from handling the navigation
+                                    window.location.href = e.currentTarget.href // Force a full-page reload
                                   }}
-                                  submit
-                                />
-                              )}
-                              <Link
-                                to={`/departments?level=6&province=${
-                                  queryRoute?.province ||
-                                  user?.myAddress?.province?.id
-                                }&district=${
-                                  queryRoute?.district ||
-                                  user?.myAddress?.district?.id
-                                }&sector=${
-                                  queryRoute?.sector ||
-                                  user?.myAddress?.sector?.id
-                                }&cell=${row?.ID || user?.myAddress?.cell?.id}`}
-                                className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                                onClick={(e) => {
-                                  e.preventDefault() // Prevent React Router from handling the navigation
-                                  window.location.href = e.currentTarget.href // Force a full-page reload
-                                }}
-                              >
-                                All Villages
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={2}
-                                  stroke="currentColor"
-                                  class="w-4 h-4 ml-1.5"
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                  All Cells
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                    stroke="currentColor"
+                                    class="w-4 h-4 ml-1.5"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                    />
+                                  </svg>
+                                </Link>
+                              </>
+                            )}
+                            {row?.level_id === 4 && (
+                              <>
+                                {stateUser?.staff_role === 1 && (
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    color="blue"
+                                    material
+                                    className="mx-2 p-1.5 rounded-md"
+                                    value={
+                                      <>
+                                        <FontAwesomeIcon icon={faAdd} />
+                                        <span className="px-1">
+                                          {' '}
+                                          Add Village
+                                        </span>
+                                      </>
+                                    }
+                                    onClick={() => {
+                                      setSelectDepartment(row)
+                                      setSelectedDepartmentName('Village')
+                                      setSelectedLevelId(6)
+                                      setShowDepartmentModal(true)
+                                    }}
+                                    submit
                                   />
-                                </svg>
-                              </Link>
-                            </>
-                          )}
+                                )}
+                                <Link
+                                  to={`/departments?level=6&province=${
+                                    queryRoute?.province ||
+                                    user?.myAddress?.province?.id
+                                  }&district=${
+                                    queryRoute?.district ||
+                                    user?.myAddress?.district?.id
+                                  }&sector=${
+                                    queryRoute?.sector ||
+                                    user?.myAddress?.sector?.id
+                                  }&cell=${
+                                    row?.ID || user?.myAddress?.cell?.id
+                                  }`}
+                                  className="flex items-center  mx-2 px-2 py-1 text-white rounded-md  bg-primary p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                                  onClick={(e) => {
+                                    e.preventDefault() // Prevent React Router from handling the navigation
+                                    window.location.href = e.currentTarget.href // Force a full-page reload
+                                  }}
+                                >
+                                  All Villages
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                    stroke="currentColor"
+                                    class="w-4 h-4 ml-1.5"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                                    />
+                                  </svg>
+                                </Link>
+                              </>
+                            )}
+                          </div>
                         </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
+                        <td
+                          role="cell"
+                          className="hidden md:table-cell px-6 py-4 whitespace-nowrap"
+                        >
                           {row.name}
                         </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
+                        <td
+                          role="cell"
+                          className="hidden md:table-cell px-6 py-4 whitespace-nowrap"
+                        >
                           {row.phone1}
                         </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
+                        <td
+                          role="cell"
+                          className="hidden md:table-cell px-6 py-4 whitespace-nowrap"
+                        >
                           {row.phone2}
                         </td>
-                        <td role="cell" className="px-6 py-4 whitespace-nowrap">
+                        <td
+                          role="cell"
+                          className="hidden md:table-cell px-6 py-4 whitespace-nowrap"
+                        >
                           {row.email}
                         </td>
                       </tr>
@@ -886,7 +911,7 @@ const DepartmentsTable = ({ user }) => {
         </div>
       </div>
       {totalRecords > 0 && (
-        <div className="pagination w-[95%] mx-auto">
+        <div className="pagination w-[100%] mx-auto">
           <div className="py-3 flex items-center justify-between">
             <div className="flex-1 flex justify-between sm:hidden">
               <Button

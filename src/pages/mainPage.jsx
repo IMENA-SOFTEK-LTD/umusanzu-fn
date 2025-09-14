@@ -13,7 +13,7 @@ const AppLayout = ({ user, isOpen }) => {
             <Sidebar user={user} />
           </section>
           <section
-            className={`relative ${
+            className={`relative px-3 overflow-x-none ${
               isOpen ? 'w-[80vw] left-[20vw]' : 'w-[96vw] left-[4vw]'
             } pt-16`} // <-- add top padding equal to navbar height
           >

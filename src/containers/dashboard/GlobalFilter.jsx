@@ -38,6 +38,7 @@ import {
 import { setUserOrSelectedDepartmentNames } from '../../states/features/departments/departmentSlice'
 import queryString from 'query-string'
 import moment from 'moment'
+import { BiChevronDown, BiSearch } from 'react-icons/bi'
 
 const levels = [
   { id: 1, name: 'Country' },
@@ -149,7 +150,9 @@ const GlobalFilter = ({
     dispatch(setCellId(+queryRoute?.cell || ''))
     dispatch(setVillageId(+queryRoute?.village || ''))
 
-    dispatch(setSelectedActivationStatus(queryRoute?.status?.toUpperCase() || 'ACTIVE'))
+    dispatch(
+      setSelectedActivationStatus(queryRoute?.status?.toUpperCase() || 'ACTIVE')
+    )
     dispatch(setSelectedVillage(+queryRoute?.village || ''))
     dispatch(setSelectedProvince(+queryRoute?.province || ''))
     dispatch(setSelectedDistrict(+queryRoute?.district || ''))
@@ -301,8 +304,8 @@ const GlobalFilter = ({
       monthPaid: selectMonthPaid || '',
       dateFrom: selectDateFrom || '',
       dateTo: selectDateTo || '',
-      paymentStatus:selectedPaymentStatus || '',
-      paymentMethod:selectedPaymentMethod || '',
+      paymentStatus: selectedPaymentStatus || '',
+      paymentMethod: selectedPaymentMethod || '',
     })
   }, [
     selectedSector,
@@ -317,7 +320,7 @@ const GlobalFilter = ({
     selectDateFrom,
     selectDateTo,
     selectedPaymentStatus,
-    selectedPaymentMethod
+    selectedPaymentMethod,
   ])
 
   const getNameById = (list, id) => {
@@ -386,602 +389,364 @@ const GlobalFilter = ({
     // navigate(pathRoute)
   }
 
+  // Reusable select field component
+  const SelectField = ({
+    value,
+    onChange,
+    options = [],
+    loading = false,
+    placeholder = 'Select...',
+    disabled = false,
+  }) => (
+    <div className="relative">
+      <select
+        className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-muted-foreground appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed z-10"
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+      >
+        <option value="">{loading ? 'Loading...' : placeholder}</option>
+        {options?.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.name}
+          </option>
+        ))}
+      </select>
+      <BiChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+    </div>
+  )
+
+  // Reusable date input component
+  const DateInput = ({
+    label,
+    value,
+    onChange,
+    disabled = false,
+    min,
+    max,
+  }) => (
+    <div className="flex items-center space-x-2">
+      <span className="text-sm text-foreground whitespace-nowrap min-w-fit">
+        {label}:
+      </span>
+      <input
+        type="date"
+        className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        min={min}
+        max={max}
+      />
+    </div>
+  )
+
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-100 h-fit py-0 mx-auto"
-    >
-      <article className="grid grid-cols-4 gap-2 relative inline-block">
-        {fieldEnabled?.level && (
-          // <label className="text-[15px]  col-auto items-start gap-2">
-          //   Level
-          <Controller
-            control={control}
-            name="level"
-            defaultValue={selectedLevel}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedLevel}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedLevel(e.target.value))
-                      }}
-                    >
-                      <option value={''}>Select Level</option>
-                      {levels?.map((level) => {
-                        return (
-                          <option key={level.id} value={level.id}>
-                            {level.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-          // </label>
-        )}
-        {fieldEnabled?.activationStatus && (
-          <Controller
-            control={control}
-            name="activationStatus"
-            defaultValue={selectedActivationStatus}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedActivationStatus}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedActivationStatus(e.target.value))
-                      }}
-                    >
-                      <option value={''}>Select Activation Status</option>
-                      <option value={'ACTIVE'}>Active</option>
-                      <option value={'INACTIVE'}>Inactive</option>
-                      <option value={'MOVED'}>Moved</option>
-                      <option value={'REQUESTED'}>Requested</option>
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-        {fieldEnabled?.paymentStatus && (
-          <Controller
-            control={control}
-            name="paymentStatus"
-            defaultValue={selectedPaymentStatus}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedPaymentStatus}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedPaymentStatus(e.target.value))
-                      }}
-                    >
-                      <option value={'All'}>Select Payment Status</option>
-                      {selectedPaymentStatuses?.map((s) => {
-                        return (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-
-        {fieldEnabled?.paymentMethod && (
-          <Controller
-            control={control}
-            name="paymentMethod"
-            defaultValue={selectedPaymentMethod}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedPaymentMethod}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedPaymentMethod(e.target.value))
-                      }}
-                    >
-                      <option value={'All'}>Select Payment Method</option>
-                      {selectedPaymentMethods?.map((s) => {
-                        return (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-
-        {fieldEnabled?.province && (
-          <Controller
-            control={control}
-            name="province"
-            defaultValue={selectedProvince}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedProvince} // Set the value dynamically
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedProvince(e.target.value))
-                      }}
-                    >
-                      <option value={''}>Select Province</option>
-                      {provinces?.map((p) => {
-                        return (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-        {fieldEnabled?.district && (
-          // <label className="text-[15px]  col-3 items-start gap-2">
-          //   District {countryDistrictsLoading ? 'loading..' : ''}
-          <Controller
-            control={control}
-            name="district"
-            defaultValue={selectedDistrict}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedDistrict}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedDistrict(e.target.value))
-                      }}
-                    >
-                      <option value={''}>
-                        {' '}
-                        {countryDistrictsLoading
-                          ? 'loading..'
-                          : 'Select district'}{' '}
-                      </option>
-                      {districts?.map((district) => {
-                        if (!selectedProvince) {
-                          return (
-                            <option
-                              disabled={
-                                department !== 'country' &&
-                                district.id !== selectedDistrict
-                              }
-                              key={district.id}
-                              value={district.id}
-                            >
-                              {countryDistrictsLoading ? '...' : district.name}
-                            </option>
-                          )
-                        }
-                        return (
-                          <option key={district.id} value={district.id}>
-                            {countryDistrictsLoading ? '...' : district.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-          // </label>
-        )}
-        {fieldEnabled?.sector && (
-          // <label className="text-[15px]  col-3 items-start gap-2">
-          //   Sector {districtSectorsLoading ? 'loading..' : ''}
-          <Controller
-            control={control}
-            name="sector"
-            defaultValue={selectedSector}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedSector}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedSector(e.target.value))
-                      }}
-                    >
-                      <option value={''}>
-                        {districtSectorsLoading ? 'loading..' : 'Select sector'}
-                      </option>
-                      {sectors?.map((sector) => {
-                        return (
-                          <option key={sector.id} value={sector.id}>
-                            {sector.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-          // </label>
-        )}
-        {fieldEnabled?.cell && (
-          <Controller
-            control={control}
-            name="cell"
-            defaultValue={selectedCell}
-            value={selectedCell}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      value={selectedCell}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedCell(e.target.value))
-                      }}
-                    >
-                      <option value={''}>
-                        {sectorCellsLoading ? 'loading..' : 'Select cell'}
-                      </option>
-                      {cells?.map((cell) => {
-                        return (
-                          <option key={cell.id} value={cell.id}>
-                            {cell.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-        {fieldEnabled?.village && (
-          <Controller
-            control={control}
-            name="village"
-            defaultValue={selectedVillage}
-            value={selectedVillage}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative">
-                    <select
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedVillage(e.target.value))
-                      }}
-                    >
-                      <option value={''}>
-                        {' '}
-                        {cellVillagesDataLoading
-                          ? 'loading..'
-                          : 'Select village'}
-                      </option>
-                      {villages?.map((village) => {
-                        return (
-                          <option key={village.id} value={village.id}>
-                            {village.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.2"
-                      stroke="currentColor"
-                      className="h-5 w-5 ml-1 absolute top-2.5 right-2.5 text-slate-700"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                      />
-                    </svg>
-                  </div>
-                </>
-              )
-            }}
-          />
-          //  </label>
-        )}
-
-        {fieldEnabled?.monthPaid && (
-          <Controller
-            control={control}
-            name="monthPaid"
-            defaultValue={selectMonthPaid}
-            value={selectMonthPaid}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative flex items-center">
-                    <span className="mr-2">MonthPaid:</span>
-
-                    <input
-                      type="month"
-                      className="mr-2 w-full  bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-1 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                      onChange={(e) => {
-                        field.onChange(e)
-                        const newDate = e.target.value
-                        const firstDay = moment(newDate + '-01');
-                     
-                        const lastDay = firstDay.clone().endOf('month').format('YYYY-MM-DD');
-                        const dateFrom=firstDay.format('YYYY-MM-DD');
-                        console.log(dateFrom);
-
-                        dispatch(setMonthPaid(newDate))
-                        dispatch(setDateFrom(dateFrom));
-                        dispatch(setDateTo(lastDay))
-
-                      }}
-                      value={selectMonthPaid}
-                    />
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-        {fieldEnabled?.dateFrom && (
-          <Controller
-            control={control}
-            name="dateFrom"
-            defaultValue={selectDateFrom}
-            value={selectDateFrom}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative flex items-center">
-                    <span className="mr-2">From:</span>
-                    <div className="relative mt-1 w-full">
-                      <input
-                      disabled={fieldEnabled?.monthPaid}
-                        type="date"
-                        value={selectDateFrom}
-                        // max={moment(new Date()).format('YYYY-MM-DD')}
-                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-1 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                        placeholder={'From'}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          dispatch(setDateFrom(e.target.value))
-                        }}
-                      />
-                    </div>
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-        {fieldEnabled?.dateTo && (
-          <Controller
-            control={control}
-            name="dateFrom"
-            defaultValue={selectDateTo}
-            value={selectDateTo}
-            render={({ field }) => {
-              return (
-                <>
-                  <div className="relative flex items-center">
-                    <span className="mr-2">To:</span>
-                    <div className="relative mt-1 w-full">
-                      <input
-                        type="date"
-                        disabled={fieldEnabled?.monthPaid}
-                        value={selectDateTo}
-                        min={selectDateFrom ? moment(selectDateFrom).format('YYYY-MM-DD') : undefined}
-                        // max={moment().endOf('month').format('YYYY-MM-DD')}
-                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-1 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                        placeholder={'To'}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          dispatch(setDateTo(e.target.value))
-                        }}
-                      />
-                    </div>
-                  </div>
-                </>
-              )
-            }}
-          />
-        )}
-
-        <div className={`relative flex items-start`}>
-          {fieldEnabled?.searchTerm && (
+    <div className="w-full bg-background border border-border rounded-lg shadow-sm p-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Main grid - responsive layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {/* Level */}
+          {fieldEnabled?.level && (
             <Controller
               control={control}
-              name="searchTerm"
-              defaultValue={searchTerm}
-              value={searchTerm}
-              render={({ field }) => {
-                return (
-                  <>
+              name="level"
+              defaultValue={selectedLevel}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedLevel}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedLevel(e.target.value))
+                  }}
+                  options={levels}
+                  placeholder="Select Level"
+                />
+              )}
+            />
+          )}
+
+          {/* Activation Status */}
+          {fieldEnabled?.activationStatus && (
+            <Controller
+              control={control}
+              name="activationStatus"
+              defaultValue={selectedActivationStatus}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedActivationStatus}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedActivationStatus(e.target.value))
+                  }}
+                  options={[
+                    { id: 'ACTIVE', name: 'Active' },
+                    { id: 'INACTIVE', name: 'Inactive' },
+                    { id: 'MOVED', name: 'Moved' },
+                    { id: 'REQUESTED', name: 'Requested' },
+                  ]}
+                  placeholder="Select Activation Status"
+                />
+              )}
+            />
+          )}
+
+          {/* Payment Status */}
+          {fieldEnabled?.paymentStatus && (
+            <Controller
+              control={control}
+              name="paymentStatus"
+              defaultValue={selectedPaymentStatus}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedPaymentStatus}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedPaymentStatus(e.target.value))
+                  }}
+                  options={selectedPaymentStatuses}
+                  placeholder="Select Payment Status"
+                />
+              )}
+            />
+          )}
+
+          {/* Payment Method */}
+          {fieldEnabled?.paymentMethod && (
+            <Controller
+              control={control}
+              name="paymentMethod"
+              defaultValue={selectedPaymentMethod}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedPaymentMethod}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedPaymentMethod(e.target.value))
+                  }}
+                  options={selectedPaymentMethods}
+                  placeholder="Select Payment Method"
+                />
+              )}
+            />
+          )}
+
+          {/* Province */}
+          {fieldEnabled?.province && (
+            <Controller
+              control={control}
+              name="province"
+              defaultValue={selectedProvince}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedProvince}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedProvince(e.target.value))
+                  }}
+                  options={provinces}
+                  placeholder="Select Province"
+                />
+              )}
+            />
+          )}
+
+          {/* District */}
+          {fieldEnabled?.district && (
+            <Controller
+              control={control}
+              name="district"
+              defaultValue={selectedDistrict}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedDistrict}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedDistrict(e.target.value))
+                  }}
+                  options={districts}
+                  loading={countryDistrictsLoading}
+                  placeholder="Select District"
+                  disabled={!selectedProvince && department !== 'country'}
+                />
+              )}
+            />
+          )}
+
+          {/* Sector */}
+          {fieldEnabled?.sector && (
+            <Controller
+              control={control}
+              name="sector"
+              defaultValue={selectedSector}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedSector}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedSector(e.target.value))
+                  }}
+                  options={sectors}
+                  loading={districtSectorsLoading}
+                  placeholder="Select Sector"
+                />
+              )}
+            />
+          )}
+
+          {/* Cell */}
+          {fieldEnabled?.cell && (
+            <Controller
+              control={control}
+              name="cell"
+              defaultValue={selectedCell}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedCell}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedCell(e.target.value))
+                  }}
+                  options={cells}
+                  loading={sectorCellsLoading}
+                  placeholder="Select Cell"
+                />
+              )}
+            />
+          )}
+
+          {/* Village */}
+          {fieldEnabled?.village && (
+            <Controller
+              control={control}
+              name="village"
+              defaultValue={selectedVillage}
+              render={({ field }) => (
+                <SelectField
+                  value={selectedVillage}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setSelectedVillage(e.target.value))
+                  }}
+                  options={villages}
+                  loading={cellVillagesDataLoading}
+                  placeholder="Select Village"
+                />
+              )}
+            />
+          )}
+
+          {/* Month Paid */}
+          {fieldEnabled?.monthPaid && (
+            <Controller
+              control={control}
+              name="monthPaid"
+              defaultValue={selectMonthPaid}
+              render={({ field }) => (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-foreground whitespace-nowrap min-w-fit">
+                    Month:
+                  </span>
+                  <input
+                    type="month"
+                    className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-sm text-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-muted-foreground"
+                    value={selectMonthPaid}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      const newDate = e.target.value
+                      const firstDay = moment(newDate + '-01')
+                      const lastDay = firstDay
+                        .clone()
+                        .endOf('month')
+                        .format('YYYY-MM-DD')
+                      const dateFrom = firstDay.format('YYYY-MM-DD')
+                      dispatch(setMonthPaid(newDate))
+                      dispatch(setDateFrom(dateFrom))
+                      dispatch(setDateTo(lastDay))
+                    }}
+                  />
+                </div>
+              )}
+            />
+          )}
+
+          {/* Date From */}
+          {fieldEnabled?.dateFrom && (
+            <Controller
+              control={control}
+              name="dateFrom"
+              defaultValue={selectDateFrom}
+              render={({ field }) => (
+                <DateInput
+                  label="From"
+                  value={selectDateFrom}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setDateFrom(e.target.value))
+                  }}
+                  disabled={fieldEnabled?.monthPaid}
+                />
+              )}
+            />
+          )}
+
+          {/* Date To */}
+          {fieldEnabled?.dateTo && (
+            <Controller
+              control={control}
+              name="dateTo"
+              defaultValue={selectDateTo}
+              render={({ field }) => (
+                <DateInput
+                  label="To"
+                  value={selectDateTo}
+                  onChange={(e) => {
+                    field.onChange(e)
+                    dispatch(setDateTo(e.target.value))
+                  }}
+                  disabled={fieldEnabled?.monthPaid}
+                  min={
+                    selectDateFrom
+                      ? moment(selectDateFrom).format('YYYY-MM-DD')
+                      : undefined
+                  }
+                />
+              )}
+            />
+          )}
+        </div>
+
+        {/* Search and Submit Row */}
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+          {/* Search Input */}
+          {fieldEnabled?.searchTerm && (
+            <div className="flex-1">
+              <Controller
+                control={control}
+                name="searchTerm"
+                defaultValue={searchTerm}
+                render={({ field }) => (
+                  <div className="relative">
                     <input
-                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pr-3 pl-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                      className="w-full bg-background border border-border rounded-md px-3 py-2 pr-10 text-sm text-foreground placeholder:text-muted-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-muted-foreground"
                       placeholder={placeholder}
+                      value={searchTerm}
                       onChange={(e) => {
                         field.onChange(e)
                         dispatch(setSearchTerm(e.target.value))
                       }}
                     />
-                  </>
-                )
-              }}
-            />
+                    <BiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+              />
+            </div>
           )}
 
+          {/* Submit Button */}
           <button
-            className="rounded-md ml-2 bg-slate-800 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
             type="submit"
+            className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -995,19 +760,20 @@ const GlobalFilter = ({
                 clip-rule="evenodd"
               />
             </svg>
+            <span className="pl-2">Search</span>
           </button>
         </div>
-
-        {/* {exportButton && <>{exportButton}</>} */}
-      </article>
-    </form>
+      </form>
+    </div>
   )
 }
 
 GlobalFilter.propTypes = {
-  user: PropTypes.object.isRequired,
-  fieldEnabled: PropTypes.object.isRequired,
-  exportButton: PropTypes.any.isRequired,
+  user: PropTypes.object,
+  fieldEnabled: PropTypes.object,
+  onChange: PropTypes.func,
+  onSearch: PropTypes.func,
+  placeholder: PropTypes.string,
 }
 
 export default GlobalFilter
