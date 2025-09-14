@@ -76,8 +76,8 @@ function Approvers() {
   }
 
   return (
-    <main className="flex flex-col gap-10 mt-10 max-[900px]:p900-settings max-[100px]:p100-settings max-[150px]:p150-settings max-[200px]:p200-settings max-[250px]:p250-settings max-[300px]:p300-settings max-[350px]:p350-settings max-[400px]:p400-settings max-[450px]:p450-settings max-[500px]:p500-settings max-[600px]:p600-settings max-[700px]:p700-settings max-[800px]:p800-settings max-[1000px]:p1000-settings max-[1100px]:p1100-settings max-[1200px]:p1200-settings max-[1300px]:p1300-settings max-[2000px]:p2000-settings">
-      <div className="flex flex-row justify-between">
+   <main className="flex flex-col gap-10 mb-10 px-4 sm:px-6 lg:px-10">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
         {isLoading && <Loading />}
         {stateUser?.staff_role === 1 &&
           [5].includes(stateUser?.departments?.level_id) && (
@@ -92,7 +92,7 @@ function Approvers() {
                       {approver.role}
                     </h3>
                   </div>
-                  <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
+                  <div className="border-t border-gray-200 px-4 py-3 sm:p-0">
                     <dl className="sm:divide-y sm:divide-gray-200">
                       <div className="py-3 sm:py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt className="text-sm font-medium text-gray-500">
@@ -253,7 +253,7 @@ function Approvers() {
                                     src={editApprover.value}
                                     alt="Preview"
                                     className="w-48 h-48 object-cover"
-                                    style={{ height: '130px' }}
+                                    style={{ height: '100px' }}
                                   />
                                 </div>
                               )}
@@ -274,7 +274,7 @@ function Approvers() {
                                     src={`data:${approver.mimeType};base64,${approver.signature}`}
                                     alt="Preview"
                                     className="w-48 h-48 object-cover"
-                                    style={{ height: '130px' }}
+                                    style={{ height: '100px' }}
                                   />
                                 </div>
                               )}

@@ -33,7 +33,10 @@ const Dashboard = () => {
           return <DashboardCard key={i} props={props} />
         })}
       </section>
-      <section className="w-full">
+      <section className=" w-full sm:w-auto 
+      
+          sm:h-[80vh] 
+          h-[50vh] mb-5">
         <ChartDashboard />
       </section>
     </main>

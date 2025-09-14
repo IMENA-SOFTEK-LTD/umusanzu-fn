@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faAnglesLeft,
   faAnglesRight,
+  faArrowDownLong,
   faChevronLeft,
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons'
@@ -22,9 +23,11 @@ import moment from 'moment'
 
 const TransactionsReports = ({ user, route, department, departmentId }) => {
   const dispatch = useDispatch()
-  const { page: offset, size, totalPages } = useSelector(
-    (state) => state.pagination
-  )
+  const {
+    page: offset,
+    size,
+    totalPages,
+  } = useSelector((state) => state.pagination)
   const [totalRecords, setTotalRecords] = useState(0)
   const [totalCommission, setTotalCommission] = useState(0)
   const [totalAmount, setTotalAmount] = useState(0)
@@ -82,7 +85,7 @@ const TransactionsReports = ({ user, route, department, departmentId }) => {
     }
   }
 
-  const gotoPage = (newPage) => {
+  const gotoPage1 = (newPage) => {
     if (newPage < 0 || newPage >= totalPages) return
     dispatch(setPage(Number(newPage)))
   }
@@ -91,225 +94,256 @@ const TransactionsReports = ({ user, route, department, departmentId }) => {
     <main className="my-0">
       <OverlayLoading color="black" isLoading={transactionsListIsLoading} />
 
-      {/* Summary */}
-      <div className="overflow-x-auto mb-4">
-        <table className="w-full">
-          <tbody>
-            <tr className="bg-[#F9FAFB] flex flex-wrap md:table-row">
-              <td className="px-6 py-2 text-black font-semibold">Total:</td>
-              <td className="px-6 py-2 green font-semibold">
-                {formatFunds(totalAmount)} RWF
-              </td>
-              <td className="px-6 py-2 green font-semibold">Bank Transferred:</td>
-              <td className="px-6 py-2 green font-semibold">
-                {formatFunds(totalAmountTransferred)} RWF
-              </td>
-              <td className="px-6 py-2 green font-semibold">Commission(10%):</td>
-              <td className="px-6 py-2 green font-semibold">
-                {formatFunds(totalCommission)} RWF
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div className="overflow-x-auto">
+        {/* Table header info */}
+        <div className="bg-[#F9FAFB] flex flex-wrap items-center px-4 py-2 text-sm">
+          <div className="mr-4 font-semibold">
+            Total: {formatFunds(totalAmount) || 0}
+          </div>
+          <div className="font-semibold mr-4">
+            Transferred: {formatFunds(totalAmountTransferred || 0)} RWF
+          </div>
+          <div className="font-semibold ">
+            Commission(10%): {formatFunds(totalCommission || 0)} RWF
+          </div>
+        </div>
 
-      {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto">
-        <table
-          border="1"
-          className="min-w-full divide-y divide-gray-200 table-fixed"
-        >
-          <thead className="bg-gray-50">
+        {/* Desktop Table */}
+        <table className="min-w-full divide-y divide-gray-200 table-fixed">
+          <thead className="bg-gray-50 hidden md:table-header-group">
             <tr>
-              <th>No</th>
-              <th>Agent</th>
-              <th>Household</th>
-              <th>Village</th>
-              <th>Cell</th>
-              <th>Period</th>
-              <th>Amount</th>
-              <th>Bank</th>
-              <th>Commission</th>
-              <th>Status</th>
-              <th>Method</th>
-              <th>Date</th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                No
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Agent
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Household
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Village
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Period
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Amount
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Bank
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Commission
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Status
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Method
+              </th>
+              <th className="px-2 py-1 text-left text-xs font-medium text-gray-500">
+                Date
+              </th>
             </tr>
           </thead>
+
           <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((row, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{row.agent}</td>
-                <td>{row.household}</td>
-                <td>{row.village}</td>
-                <td>{row.cell}</td>
-                <td>{row.month_paid}</td>
-                <td>{formatFunds(row.total)} RWF</td>
-                <td>{formatFunds(row.bank_transfer)} RWF</td>
-                <td>{formatFunds(row.commission)} RWF</td>
-                <td>
-                  <span
-                    className={`${
-                      row.transaction_status === 'PAID'
-                        ? 'bg-green-600'
-                        : row.transaction_status === 'PENDING'
-                        ? 'bg-yellow-700'
-                        : 'bg-blue-600'
-                    } py-1 px-2 text-white rounded`}
-                  >
-                    {row.transaction_status}
-                  </span>
-                </td>
-                <td>
-                  {row.payment_method === 'Mobile_Money'
-                    ? 'MOMO'
-                    : row.payment_method}
-                </td>
-                <td>{moment(row.transaction_date).format('YYYY-MM-DD HH:mm')}</td>
-              </tr>
-            ))}
+            {data?.map((row, index) => {
+              const isExpanded = expandedRow === index
+              return (
+                <tr
+                  key={index}
+                  className="cursor-pointer md:table-row block md:cursor-default"
+                  onClick={() => setExpandedRow(isExpanded ? null : index)}
+                >
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {index + 1}
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {row.agent}
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {row.household}
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {row.village}
+                  </td>
+                  {/* <td>{row.cell}</td> */}
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {row.month_paid}
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {formatFunds(row.total)} RWF
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {formatFunds(row.bank_transfer)} RWF
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {formatFunds(row.commission)} RWF
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    <span
+                      className={`${
+                        row.transaction_status === 'PAID'
+                          ? 'bg-green-600'
+                          : row.transaction_status === 'PENDING'
+                          ? 'bg-yellow-700'
+                          : 'bg-blue-600'
+                      } py-0 flex items-center justify-center text-white rounded-sm px-3`}
+                    >
+                      {row.transaction_status}
+                    </span>
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {row.payment_method === 'Mobile_Money'
+                      ? 'MOMO'
+                      : row.payment_method}
+                  </td>
+                  <td className="hidden md:table-cell px-2 py-1">
+                    {moment(row.transaction_date).format('YYYY-MM-DD HH:mm')}
+                  </td>
+                  <td className="md:hidden block w-full px-2 py-2">
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="font-semibold">{row.agent}</p>
+                        <p className="text-xs text-gray-500">
+                          Status:{' '}
+                          <span
+                            className={`${
+                              row.transaction_status === 'PAID'
+                                ? 'text-green-600'
+                                : row.transaction_status === 'PENDING'
+                                ? 'text-yellow-700'
+                                : 'text-blue-600'
+                            }`}
+                          >
+                            {row.transaction_status}
+                          </span>{' '}
+                          | Household: {row.household}
+                        </p>
+                        {isExpanded && (
+                          <div className="mt-1 text-xs text-gray-700">
+                            <p>Period: {row.month_paid} </p>
+                            <p>Village: {row.village}</p>
+                            <p>Cell: {row.cell}</p>
+                            <p>Amount: {formatFunds(row.total)} RWF</p>
+                            <p>Bank: {formatFunds(row.bank_transfer)} RWF</p>
+                            <p>Commission: {formatFunds(row.commission)} RWF</p>
+                            <p>
+                              Method:{' '}
+                              {row.payment_method === 'Mobile_Money'
+                                ? 'MOMO'
+                                : row.payment_method}
+                            </p>
+                            <p>
+                              Date:{' '}
+                              {moment(row.transaction_date).format(
+                                'YYYY-MM-DD HH:mm'
+                              )}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-gray-400 text-xs">
+                        #{index + 1}{' '}
+                        <FontAwesomeIcon icon={faArrowDownLong} size="lg" />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
-
-      {/* Mobile Cards */}
-      <div className="md:hidden">
-        {data.map((row, index) => (
-          <div
-            key={index}
-            className="border rounded-md p-3 mb-3 shadow-sm"
-          >
-            <div className="flex justify-between items-center cursor-pointer">
-              <div>
-                <p className="font-semibold">{row.agent}</p>
-                <p className="text-sm text-gray-500">{row.household}</p>
-              </div>
-              <Button
-                onClick={() =>
-                  setExpandedRow(expandedRow === index ? null : index)
-                }
-              >
-                {expandedRow === index ? 'Hide' : 'Show'}
-              </Button>
-            </div>
-
-            {expandedRow === index && (
-              <div className="mt-2 space-y-1 text-sm">
-                <p>
-                  <span className="font-semibold">Village:</span> {row.village}
-                </p>
-                <p>
-                  <span className="font-semibold">Cell:</span> {row.cell}
-                </p>
-                <p>
-                  <span className="font-semibold">Period:</span> {row.month_paid}
-                </p>
-                <p>
-                  <span className="font-semibold">Amount:</span>{' '}
-                  {formatFunds(row.total)} RWF
-                </p>
-                <p>
-                  <span className="font-semibold">Bank:</span>{' '}
-                  {formatFunds(row.bank_transfer)} RWF
-                </p>
-                <p>
-                  <span className="font-semibold">Commission:</span>{' '}
-                  {formatFunds(row.commission)} RWF
-                </p>
-                <p>
-                  <span className="font-semibold">Status:</span>{' '}
-                  <span
-                    className={`${
-                      row.transaction_status === 'PAID'
-                        ? 'bg-green-600'
-                        : row.transaction_status === 'PENDING'
-                        ? 'bg-yellow-700'
-                        : 'bg-blue-600'
-                    } py-1 px-2 text-white rounded`}
-                  >
-                    {row.transaction_status}
-                  </span>
-                </p>
-                <p>
-                  <span className="font-semibold">Method:</span>{' '}
-                  {row.payment_method === 'Mobile_Money'
-                    ? 'MOMO'
-                    : row.payment_method}
-                </p>
-                <p>
-                  <span className="font-semibold">Date:</span>{' '}
-                  {moment(row.transaction_date).format('YYYY-MM-DD HH:mm')}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {/* No records */}
+      {totalRecords === 0 && (
+        <div className="min-h-[40vh] flex items-center justify-center flex-col gap-6">
+          <h1 className="text-[25px] font-medium text-center">
+            No record found
+          </h1>
+        </div>
+      )}
 
       {/* Pagination */}
-      <div className="pagination w-[95%] mx-auto mt-4">
+      <div className="pagination w-[100%] mx-auto">
         <div className="py-3 flex items-center justify-between">
+          {/* Mobile */}
           <div className="flex-1 flex justify-between sm:hidden">
             <Button
-              onClick={() => gotoPage(offset - 1)}
+              onClick={() => gotoPage1(Number(offset) - 1)}
               disabled={offset === 0 || transactionsListIsLoading}
               value="Previous"
             />
             <Button
-              onClick={() => gotoPage(offset + 1)}
+              onClick={() => gotoPage1(Number(offset) + 1)}
               disabled={offset >= totalPages - 1}
               value="Next"
             />
           </div>
 
+          {/* Desktop */}
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div className="flex gap-x-2 items-center">
+            <div className="flex gap-x-2">
               <span className="text-sm text-gray-700 p-2">
                 <span className="font-medium">{offset + 1}</span> of{' '}
                 <span className="font-medium">{totalPages}</span>
               </span>
-              <select
-                className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                value={size}
-                onChange={(e) => dispatch(setSize(Number(e.target.value)))}
-              >
-                {[20, 50, 100].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
-                  </option>
-                ))}
-              </select>
+              <label>
+                <span className="sr-only">Items Per Page</span>
+                <select
+                  className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  value={size}
+                  onChange={(e) => dispatch(setSize(Number(e.target.value)))}
+                >
+                  {[20, 50, 100].map((pageSize) => (
+                    <option key={pageSize} value={pageSize}>
+                      Show {pageSize}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-
-            <nav
-              className="relative z-0 gap-1 inline-flex rounded-md shadow-sm -space-x-px"
-              aria-label="Pagination"
-            >
-              <PageButton
-                onClick={() => gotoPage(0)}
-                disabled={offset === 0 || transactionsListIsLoading}
+            <div>
+              <nav
+                className="relative z-0 gap-1 inline-flex rounded-md shadow-sm -space-x-px"
+                aria-label="Pagination"
               >
-                <FontAwesomeIcon icon={faAnglesLeft} />
-              </PageButton>
-              <PageButton
-                onClick={() => gotoPage(offset - 1)}
-                disabled={offset === 0 || transactionsListIsLoading}
-              >
-                <FontAwesomeIcon icon={faChevronLeft} />
-              </PageButton>
-              <PageButton
-                onClick={() => gotoPage(offset + 1)}
-                disabled={offset >= totalPages - 1 || transactionsListIsLoading}
-              >
-                <FontAwesomeIcon icon={faChevronRight} />
-              </PageButton>
-              <PageButton
-                onClick={() => gotoPage(totalPages - 1)}
-                disabled={offset >= totalPages - 1 || transactionsListIsLoading}
-              >
-                <FontAwesomeIcon icon={faAnglesRight} />
-              </PageButton>
-            </nav>
+                <PageButton
+                  className="px-4 cursor-pointer hover:scale-[1.02] rounded-l-md shadow-md"
+                  disabled={offset === 0 || transactionsListIsLoading}
+                  onClick={() => gotoPage1(0)}
+                >
+                  <FontAwesomeIcon icon={faAnglesLeft} />
+                </PageButton>
+                <PageButton
+                  onClick={() => gotoPage1(Number(offset) - 1)}
+                  disabled={offset === 0 || transactionsListIsLoading}
+                  className="px-4 cursor-pointer hover:scale-[1.02] p-2 shadow-md"
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} />
+                </PageButton>
+                <PageButton
+                  onClick={() => gotoPage1(Number(offset) + 1)}
+                  disabled={
+                    offset >= totalPages - 1 || transactionsListIsLoading
+                  }
+                  className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
+                >
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </PageButton>
+                <PageButton
+                  className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
+                  onClick={() => gotoPage1(Number(totalPages) - 1)}
+                  disabled={
+                    offset >= totalPages - 1 || transactionsListIsLoading
+                  }
+                >
+                  <FontAwesomeIcon icon={faAnglesRight} />
+                </PageButton>
+              </nav>
+            </div>
           </div>
         </div>
       </div>

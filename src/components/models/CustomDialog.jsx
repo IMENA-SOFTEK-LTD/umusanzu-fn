@@ -4,6 +4,7 @@ import {
   DialogBody,
   DialogFooter,
 } from '@material-tailwind/react'
+import { useEffect, useRef } from 'react'
 
 const CustomDialog = ({
   open,
@@ -16,12 +17,28 @@ const CustomDialog = ({
   headerBgColor = 'bg-primary',
   headerTxtColor = 'text-white',
 }) => {
+  const bodyRef = useRef(null)
+
+  // when the dialog opens, scroll the body to top
+  useEffect(() => {
+    if (open && bodyRef.current) {
+      bodyRef.current.scrollTop = 0
+    }
+  }, [open])
+
   return (
-    <Dialog open={open} size={size || 'sm'}>
+    <Dialog
+      open={open}
+      size={size || 'sm'}
+      // make the wrapper align to top
+      className="!items-start"
+    >
       <DialogHeader className={`${headerBgColor} ${headerTxtColor}`}>
         <div className="flex justify-between items-start w-full">
           <div>
-            <h5 className={`text-xl font-medium text-slate-800 ${headerTxtColor}`}>
+            <h5
+              className={`text-sm font-medium text-slate-800 ${headerTxtColor}`}
+            >
               {title}
             </h5>
             {subTitle && (
@@ -53,9 +70,27 @@ const CustomDialog = ({
         </div>
       </DialogHeader>
 
-      <DialogBody className="text-base" divider>
-        <p>{children}</p>
+      <DialogBody
+        ref={bodyRef}
+        className="text-base overflow-y-auto flex-1 pb-6"
+        divider
+      >
+        <div
+          // override the actual panel: full width on mobile, limited on desktop
+          className="
+          w-full sm:w-auto 
+      
+          sm:h-[80vh] 
+          h-[50vh] 
+          bg-white 
+          rounded-none sm:rounded-xl 
+          flex flex-col
+        "
+        >
+          {children}
+        </div>
       </DialogBody>
+
       {onConfirm && <DialogFooter>{onConfirm}</DialogFooter>}
     </Dialog>
   )

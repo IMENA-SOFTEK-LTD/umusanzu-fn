@@ -128,7 +128,7 @@ const ChartDashboard = () => {
 
   return (
     <div
-      className={`w-[98%] mx-auto ${
+      className={`w-full mx-auto ${
         !isOpen
           ? 'flex items-start flex-row-reverse gap-6'
           : 'flex flex-col gap-4'
@@ -142,7 +142,7 @@ const ChartDashboard = () => {
               ? `This month's Collections`
               : `This year's Collections`}
         </h2>
-        <div className=" rounded p-4 min-h-[500px] max-h-[500px] font-bold">
+        <div className=" rounded p-4 sm:max-h-[500px] max-h-[500px] font-bold">
           {isLoading ? (
             <span className="flex  flex-col items-center mt-20 justify-center min-h-[30vh]">
               <Loading />

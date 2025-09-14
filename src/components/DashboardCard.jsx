@@ -395,7 +395,7 @@ const DashboardCard = ({
             }}
             children={
               <>
-                <div className="w-full mx-3">
+                <div className="w-full mx-3 ">
                   {[
                     'todayCollections',
                     'monthlyCollections',
