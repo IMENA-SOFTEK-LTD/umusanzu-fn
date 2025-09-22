@@ -19,7 +19,7 @@ const CompletePayment = () => {
   )
   const { payment } = useSelector((state) => state.payment)
   const dispatch = useDispatch()
-
+  // console.log(payment)
   // COMPLETE PENDING PAYMENT
   const [
     completePendingPayment,
@@ -78,7 +78,7 @@ const CompletePayment = () => {
       lang: data?.lang,
       id: payment?.id,
       status: payment.status,
-       phone1: data?.payment_phone,
+      phone1: data?.payment_phone,
     })
   }
 
@@ -121,12 +121,14 @@ const CompletePayment = () => {
             name="month_paid"
             control={control}
             readonly
+            disabled
             defaultValue={moment(payment?.month_paid)?.format('YYYY-MM')}
             rules={{ required: 'Paid month is required' }}
             render={({ field }) => (
               <label className="flex flex-col gap-2 w-full">
                 <span className="text-[15px]">Ukwezi wishyura</span>
                 <input
+                  readonly
                   id={payment?.id}
                   className="text-sm border-[1.3px] mx-auto focus:outline-primary border-primary rounded-lg block w-full p-2 px-4"
                   type="month"

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import DepartmentsTable from '../../containers/dashboard/DepartmentsTable'
-import { DepartmentModals } from '../../containers/dashboard/DepartmentModals'
+// import { DepartmentModals } from '../../containers/dashboard/DepartmentModals'
 
 const Department = () => {
   const user = JSON.parse(localStorage.getItem('user'))

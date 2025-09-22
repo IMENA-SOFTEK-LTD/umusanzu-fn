@@ -4,7 +4,10 @@ import HouseholdInfo from '../../containers/households/HouseholdInfo'
 import { useLazyGetHouseHoldDetailsQuery } from '../../states/api/apiSlice'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { setCompletePaymentModal, setHousehold } from '../../states/features/modals/householdSlice'
+import {
+  setCompletePaymentModal,
+  setHousehold,
+} from '../../states/features/modals/householdSlice'
 import Loading from '../../components/Loading'
 import HouseholdPayments from '../../containers/households/HouseholdPayments'
 import RecordPaymentModel from '../../components/models/RecordPaymentModel'
@@ -55,39 +58,34 @@ const HouseholdDetails = () => {
     getHouseholdDetails({ id })
   }, [id])
 
-  useEffect(() => {
-    const ws = new WebSocket('ws://142.93.185.21:9090')
+useEffect(() => {
+  const ws = new WebSocket('ws://142.93.185.21:9090');
 
-    ws.onopen = () => console.log('Connected to WebSocket server')
+  ws.onopen = () => console.log('Connected to WebSocket server');
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log(household, data?.payment?.household_id)
-      if (
-        data &&
-        data.payment &&
-        data.payment.status === 'PAID'
-        &&
-        household &&
-        household.guid === data.payment.household_id
-      ) {
-        console.log('donessssssssssssssss')
-        setPaymentFeedbackStatus(data.payment.status)
-        setShowPaymentFeedbackMsgModal(true)
-        setRecordPaymentModal(false)
-        dispatch(setCompletePaymentModal(false))
-        getHouseholdDetails({ id })
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
 
-        toast.success('Payment made successfully')
-      }
-      console.log('Payment update:', data.payment)
-      // setMessages((prev) => [...prev, data]);
+    if (
+      data?.payment?.status === 'PAID' &&
+      household?.guid === data?.payment?.household_id
+    ) {
+      setPaymentFeedbackStatus(data.payment.status);
+      setShowPaymentFeedbackMsgModal(true);
+      setRecordPaymentModal(false);
+      dispatch(setCompletePaymentModal(false));
+      getHouseholdDetails({ id });
+      toast.success('Payment made successfully');
     }
+  };
 
-    ws.onclose = () => console.log('WebSocket disconnected')
+  ws.onclose = () => console.log('WebSocket disconnected');
 
-    return () => ws.close()
-  }, [id, household])
+  // cleanup on unmount
+  return () => ws.close();
+  // 👇 only run on mount, not on every id/household change
+}, []); // <— no [id, household] here
+
 
   // HANDLE GET HOUSEHOLD DETAILS
   useEffect(() => {
@@ -101,18 +99,25 @@ const HouseholdDetails = () => {
   // TOGGLE RECEIPTS/INVOICES MODAL
   const [title, setTitle] = useState('receipts')
   const [showMenu, setShowMenu] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
 
+  useEffect(() => {
+    if (showInfo) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+  }, [showInfo])
   return (
-    <main className="p-4 flex flex-col w-full items-center">
+    <main className="flex flex-col gap-10 w-full max-w-7xl mx-auto px-6 py-6">
       {householdDetailsLoading && (
-        <span className="flex items-center justify-center min-h-[70vh]">
+        <span className="flex items-center justify-center min-h-[100vh]">
           <Loading />
         </span>
       )}
       {householdDetailsSuccess && household && (
-        <section className="flex flex-col w-full gap-2">
-          {/* {user?.departments.level_id > 5 && ( */}
-          <section className="flex flex-col gap-2 md:flex-row items-center md:gap-2 px-4 mt-20 md:mt-0">
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {showRecordPaymentModal && (
               <RecordPaymentModel
                 showModal={showRecordPaymentModal}
@@ -130,39 +135,52 @@ const HouseholdDetails = () => {
               />
             )}
 
-            <Button
-              value={
-                <span className="flex items-center gap-2">
-                  <FontAwesomeIcon icon={faMoneyBill} />
-                  <span>Record Transaction</span>
-                </span>
-              }
+            <button
+              className="bg-green-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
               onClick={(e) => {
                 e.preventDefault()
                 setRecordPaymentModal(true)
               }}
-            />
+            >
+              <span className="text-center text-white">
+                <FontAwesomeIcon icon={faMoneyBill} />
+                <span className="text-white ml-2">Cashless</span>
+              </span>
+            </button>
 
-            <Button
-              value="Record cash payment"
+            <button
+              className="bg-yellow-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
               onClick={(e) => {
                 e.preventDefault()
                 dispatch(setOfflinePaymentModal(true))
               }}
-            />
+            >
+              <span className="text-center text-white">
+                <FontAwesomeIcon icon={faMoneyBill} />
+                <span className="text-white ml-2">Cash payment</span>
+              </span>
+            </button>
+
             {/* <RecordMultipleMonthsPayment /> */}
-            <Button
-              value="Pay advance"
+            <button
+              className="bg-blue-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
               onClick={(e) => {
                 e.preventDefault()
                 dispatch(setMultiplePaymentModal(true))
               }}
-            />
+            >
+              <span className="text-center text-white">
+                <FontAwesomeIcon icon={faMoneyBill} />
+                <span className="text-white ml-2">Pay advance</span>
+              </span>
+            </button>
+
             <span className="relative flex flex-col gap-3">
               <Button
+              className="rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
                 value={
                   <span className="text-md flex items-center gap-1">
-                    Generate {capitalizeWords(title)}
+                    {capitalizeWords(title)}
                     <FontAwesomeIcon
                       icon={showMenu ? faCaretUp : faCaretDown}
                     />
@@ -202,25 +220,76 @@ const HouseholdDetails = () => {
                 </Link>
               </menu>
             </span>
-          </section>
-          {/* )} */}
-          <span className="flex w-full gap-6 items-start">
-            {household && household?.hasOwnProperty('payments') ? (
-              <HouseholdPayments household={household} />
-            ) : (
-              <div className="py-[20%] text-center font-semibold text-lg min-w-[70%]">
-                <p className="mx-auto py-8 px-4 w-[60%] rounded-lg shadow-lg">
-                  This household has not made any transactions yet!
-                </p>
-              </div>
-            )}
+          </div>
 
-            <HouseholdInfo household={household} />
-            <RecordOfflinePayment household={household} />
-            <RecordMultipleMonths />
-            <GenerateReceipts title={title} />
-          </span>
-        </section>
+          <div className="relative w-full">
+            {/* Desktop layout */}
+            <div className="hidden md:flex w-full gap-6 items-start">
+              {household && household?.hasOwnProperty('payments') ? (
+                <HouseholdPayments household={household} />
+              ) : (
+                <div className="py-[20%] text-center font-semibold text-lg min-w-[70%]">
+                  <p className="mx-auto py-8 px-4 w-[60%] rounded-lg shadow-lg">
+                    This household has not made any transactions yet!
+                  </p>
+                </div>
+              )}
+              <HouseholdInfo household={household} />
+            </div>
+
+            {/* Mobile layout */}
+            <div className="flex flex-col md:hidden w-full">
+              {household && household?.hasOwnProperty('payments') ? (
+                <HouseholdPayments household={household} />
+              ) : (
+                <div className="py-[20%] text-center font-semibold text-lg min-w-full">
+                  <p className="mx-auto py-8 px-4 w-[90%] rounded-lg shadow-lg">
+                    This household has not made any transactions yet!
+                  </p>
+                </div>
+              )}
+
+              {/* Button to toggle info */}
+              <button
+                className="fixed bottom-15 -right-4 z-30 bg-zinc-500 text-white px-5 py-2 rounded-full shadow-lg hover:bg-primary/80"
+                onClick={() => setShowInfo(true)}
+              >
+                View info
+              </button>
+
+              {/* Right side overlay */}
+              {showInfo && (
+                <div className="fixed inset-0 z-40">
+                  {/* dark backdrop */}
+                  <div
+                    className="absolute inset-0 bg-black/40"
+                    onClick={() => setShowInfo(false)}
+                  ></div>
+
+                  {/* sliding panel */}
+                  <div className="absolute top-0 right-0 w-4/5 sm:w-2/3 h-full bg-white shadow-xl transform transition-transform translate-x-0">
+                    <div className="p-4 flex justify-between items-center border-b">
+                      <h2 className="text-lg font-semibold">Household Info</h2>
+                      <button
+                        className="text-red-600 font-bold"
+                        onClick={() => setShowInfo(false)}
+                      >
+                        Close ✕
+                      </button>
+                    </div>
+                    <div className="overflow-y-auto h-[calc(100%-3rem)] p-4">
+                      <HouseholdInfo household={household} />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <RecordOfflinePayment household={household} />
+          <RecordMultipleMonths />
+          <GenerateReceipts title={title} />
+        </>
       )}
     </main>
   )

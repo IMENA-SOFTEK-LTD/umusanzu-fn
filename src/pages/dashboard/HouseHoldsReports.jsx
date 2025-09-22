@@ -35,13 +35,13 @@ const HouseHoldsReports = ({ user, route, department, departmentId }) => {
   const [householdsListIsLoading, setHouseholdsListIsLoading] = useState(false)
   const [getHouseholdsList] = useLazyGetHouseholdsListQuery()
   const [expandedRow, setExpandedRow] = useState(null)
-
+console.log(route)
   const [queries] = useState({
     departmentId,
     searchTerm: '',
     status: ['active', 'monthlyTarget'].includes(route)
       ? 'ACTIVE'
-      : route === 'inactive'
+      : route === 'inactiveHouseholds'
       ? 'INACTIVE'
       : route === 'moved'
       ? 'MOVED'
