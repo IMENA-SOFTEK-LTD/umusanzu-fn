@@ -1,13 +1,8 @@
 import PropTypes from 'prop-types'
 import { useLazyGetTotalHouseholdPaysQuery } from '../states/api/apiSlice'
-import {
-  faArrowDown,
-  faArrowUp,
-  faHouse,
-  faMoneyBill
-} from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faMoneyBill } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import Loading from './Loading'
 import Button from './Button'
 
@@ -19,207 +14,89 @@ const HouseholdDetailsCard = ({
     numberofHouseholds: 189,
     istotalHouseholdsTarget: false,
     totalHouseholdsTarget: 1000000,
-    user: {}
-  }
+    user: {},
+    index: 1,
+  },
 }) => {
-  let newProps = { ...props }
-
-  const [getTotalHouseholdPays, { data, isLoading, isError, isSuccess }] =
+  const [getTotalHouseholdPays, { data, isLoading }] =
     useLazyGetTotalHouseholdPaysQuery()
 
-  let department = ''
+  /** Pick department route from level_id */
+  const department = useMemo(() => {
+    switch (props.user?.departments?.level_id) {
+      case 1: return 'province'
+      case 2: return 'district'
+      case 3: return 'sector'
+      case 4: return 'cell'
+      case 5: return 'country'
+      case 6: return 'agent'
+      default: return 'agent'
+    }
+  }, [props.user?.departments?.level_id])
 
-  switch (props.user?.departments?.level_id) {
-    case 1:
-      department = 'province'
-      break
-    case 2:
-      department = 'district'
-      break
-    case 3:
-      department = 'sector'
-      break
-    case 4:
-      department = 'cell'
-      break
-    case 5:
-      department = 'country'
-      break
-    case 6:
-      department = 'agent'
-      break
-    default:
-      department = 'agent'
-  }
+  /** Ubudehe value map by index */
 
-  switch (props.index) {
-    case 1:
-      newProps = {
-        ...props,
-        amount: 5000,
-        isHousehold: true,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 5000,
-          route: department
-        })
-      }, [])
-      break
-    case 2:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 3000,
-        isHousehold: true
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 3000,
-          route: department
-        })
-      }, [])
-      break
-    case 3:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 2000,
-        isHousehold: true
-      }
+  const ubudeheValues = [
+  { index: 1, amount: 0 },
+  { index: 2, amount: 500 },
+  { index: 3, amount: 1000 },
+  { index: 4, amount: 2000 },
+  { index: 5, amount: 3000 },
+  { index: 6, amount: 4000 },
+  { index: 7, amount: 5000 },
+  { index: 8, amount: 15000 },
+  { index: 9, amount: 25000 },
+]
+const currentAmount = ubudeheValues.find(v => v.index === props.index)?.amount
 
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 2000,
-          route: department
-        })
-      }, [])
-      break
-    case 4:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 15000,
-        isHousehold: true
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 15000,
-          route: department
-        })
-      }, [])
-      break
-    case 5:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 500,
-        isHousehold: true
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 500,
-          route: department
-        })
-      }, [])
-      break
-    case 6:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 0,
-        isHousehold: true
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 0,
-          route: department
-        })
-      }, [])
-      break
-    case 7:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 1000,
-        isHousehold: true
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 1000,
-          route: department
-        })
-      }, [])
-      break
-    case 8:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 4000,
-        isHousehold: true
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 4000,
-          route: department
-        })
-      }, [])
-      break
-    case 9:
-      newProps = {
-        ...props,
-        numberOfPays: isLoading ? <Loading /> : data?.data[0]?.totalagentPays,
-        amount: 25000,
-        isHousehold: true
-      }
-      useEffect(() => {
-        getTotalHouseholdPays({
-          departmentId: props?.user?.department_id,
-          ubudehe: 500,
-          route: department
-        })
-      }, [])
-      break
-    default:
-      newProps = { ...newProps }
-  }
+  useEffect(() => {
+    if (props.index && ubudeheValues.find(v => v.index === props.index) !== undefined) {
+      getTotalHouseholdPays({
+        departmentId: props?.user?.department_id,
+        ubudehe: currentAmount,
+       department,
+      })
+    }
+  }, [props.index, props.user?.department_id, department, currentAmount])
+
+  const numberOfPays = isLoading ? (
+    <Loading />
+  ) : (
+    data?.data ?? props.numberOfPays
+  )
 
   return (
     <article
-      className={'w-full max-w-[20rem] h-full max-h-[25rem] min-h-fit flex flex-col w-min-fit border-[.5px] border-slate-100 rounded-xl shadow-md ease-in-out duration-200 hover:scale-[1.01]'}
+      className="
+        w-full 
+        max-w-sm md:max-w-md lg:max-w-lg 
+        h-full 
+        max-h-[25rem] min-h-fit 
+        flex flex-col 
+        border border-slate-100 
+        rounded-xl shadow-md 
+        transition-transform duration-200 hover:scale-105
+      "
     >
-      <section className="w-full flex items-start py-6 px-4 justify-start h-full min-h-[70%]">
-        <div className="w-full flex flex-col items-start gap-4">
-          <div className="flex flex-row gap-2">
-            <div>Number of pays: </div>
-            <div className="text-slate-700 text-[1rem] font-bold">
-              {newProps.numberOfPays}
-            </div>
+      <section className="w-full flex items-start py-6 px-4 justify-between min-h-[70%]">
+        <div className="flex flex-col items-start gap-4">
+          <div className="flex gap-2">
+            <span>Number of pays:</span>
+            <span className="text-slate-700 font-bold">{numberOfPays}</span>
           </div>
-          <span className="text-[18px] w-full flex items-center gap-2 font-black">
-            <p>{newProps.amount}</p>
-          </span>
+          <span className="text-lg font-black">{currentAmount}</span>
         </div>
-        <figure className="p-1 bg-slate-200 rounded-md shadow-md h-full flex justify-start">
+        <figure className="p-2 bg-slate-200 rounded-md shadow-md flex items-center justify-center">
           <FontAwesomeIcon
-            className="text-black cursor-pointer w-6 h-6"
-            icon={newProps.isHousehold ? faHouse : faMoneyBill}
+            className="text-black w-6 h-6"
+            icon={props.isHousehold ? faHouse : faMoneyBill}
           />
         </figure>
       </section>
-      <section className="border-t-[1px] bg-slate-200 flex w-full items-center justify-between p-2 px-4 ">
+      <section className="border-t bg-slate-200 flex w-full items-center justify-between p-2 px-4">
         <Button
-        value="View more"
-        route={`/households/?query=ubudehe&ubudehe=${newProps.amount}`}
+          value="View more"
+          route={`/households/?query=ubudehe&ubudehe=${currentAmount}`}
         />
       </section>
     </article>
@@ -228,7 +105,7 @@ const HouseholdDetailsCard = ({
 
 HouseholdDetailsCard.propTypes = {
   props: PropTypes.shape({
-    props: PropTypes.object,
+    index: PropTypes.number,
     numberOfPays: PropTypes.number,
     isHousehold: PropTypes.bool,
     istotalHouseholdsTarget: PropTypes.bool,
@@ -238,10 +115,10 @@ HouseholdDetailsCard.propTypes = {
       departments: PropTypes.shape({
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         name: PropTypes.string,
-        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-      })
-    })
-  })
+        level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      }),
+    }),
+  }),
 }
 
 export default HouseholdDetailsCard

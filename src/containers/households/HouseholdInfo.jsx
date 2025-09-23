@@ -175,7 +175,7 @@ const HouseholdInfo = ({ household }) => {
               </tr>
             </tbody>
           </table>
-          {user?.departments.level_id !== 6 && (
+          { ![6,4].includes(user?.departments.level_id) && (
             <span className="flex items-center gap-4">
               <Button
                 value="Edit"

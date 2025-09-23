@@ -74,8 +74,8 @@ export const apiSlice = createApi({
         }),
       }),
       getTotalHouseholdPays: builder.query({
-        query: ({ departmentId, ubudehe, route }) => ({
-          url: `${route}/totalPays/?departmentId=${departmentId}&ubudehe=${ubudehe}`,
+        query: ({ departmentId, ubudehe, department }) => ({
+          url: `/households/totalPays/?department=${department}&departmentId=${departmentId}&ubudehe=${ubudehe}`,
           method: 'GET',
         }),
       }),

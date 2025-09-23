@@ -85,12 +85,15 @@ const Admins = ({ selectDepartment, type }) => {
         <div>
           {stateUser?.staff_role === 1 && (
             <Button
-            disabled={type=='Agent' && data?.length > 0}
+              disabled={type == 'Agent' && data?.length > 0}
               value={'Create ' + type}
               className="absolute top-0 right-2 !rounded-lg "
               onClick={(e) => {
                 e.preventDefault()
-                setOpenAddAdmin(true)
+
+                setOpenAddAdmin(
+                  type == 'Agent' && data?.length > 0 ? false : true
+                )
               }}
             />
           )}
@@ -121,10 +124,7 @@ const Admins = ({ selectDepartment, type }) => {
           }
         />
       </div>
-      <div
-        className="flex pt-8 mt-4"
-       
-      >
+      <div className="flex pt-8 mt-4">
         {data?.length === 0 ? (
           <div className="w-full h-screen min-h-[70vh] flex items-center justify-center">
             <div className="flex flex-col items-center gap-6">
@@ -135,7 +135,10 @@ const Admins = ({ selectDepartment, type }) => {
             </div>
           </div>
         ) : (
-          <div className="flex items-start flex-wrap gap-6 mt-5"  style={{ overflow: 'auto', height: '80vh' }}>
+          <div
+            className="flex items-start flex-wrap gap-6 mt-5"
+            style={{ overflow: 'auto', height: '80vh' }}
+          >
             {data?.map((admin, index) => (
               <Card
                 key={index}
