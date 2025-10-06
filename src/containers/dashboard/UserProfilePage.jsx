@@ -83,23 +83,23 @@ const UserProfilePage = ({ selectProfile, type }) => {
     status: 'Active',
     recentActivities: [{ id: 1, activity: 'Logged in', date: '2023-08-18' }],
   })
-
+// console.log(staffDetailsData)
   return (
-    <div className="flex items-start gap-4 mx-auto">
+    <div className="flex flex-col lg:flex-row items-start gap-4 mx-auto">
       <UpdateStaff
         toggleButton={false}
         setData={setData}
         type={type}
         admin={data}
       />
-      <div className="w-full max-w-[60%] bg-white  p-6 space-y-4">
-        <div className="flex justify-between items-center p-4 border rounded-lg shadow-md">
-          <h1 className="text-[18px] font-semibold">{data?.names}</h1>
-          <div className="flex gap-4">
-            {localStorageUser?.staff_role === 1 && (
+      <div className="w-full lg:max-w-[60%] bg-white p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 border rounded-lg shadow-md gap-3 sm:gap-0">
+          <h1 className="text-base sm:text-[18px] font-semibold">{data?.names}</h1>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+            {+localStorageUser?.staff_role === 1 && (
               <>
                 <button
-                  className="p-2 w-fit py-[5px] ease-in-out duration-300 text-[14px] rounded-md text-white bg-primary hover:scale-[0.98]"
+                  className="p-2 w-full sm:w-fit py-[5px] ease-in-out duration-300 text-sm sm:text-[14px] rounded-md text-white bg-primary hover:scale-[0.98]"
                   onClick={() => {
                     dispatch(toggleUpdateStaff(!updateStaff))
                   }}
@@ -116,126 +116,153 @@ const UserProfilePage = ({ selectProfile, type }) => {
             )}
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h6 className="mb-4 text-xl font-semibold text-gray-800">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h6 className="mb-4 text-lg sm:text-xl font-semibold text-gray-800">
             Admin Information
           </h6>
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[300px]">
             <tbody>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                   Username:
                 </td>
-                <td className="py-2 pl-4">{data?.username}</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{data?.username}</td>
               </tr>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                   Phone 1:
                 </td>
-                <td className="py-2 pl-4">{data?.phone1}</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{data?.phone1}</td>
               </tr>
               {data?.phone2 && (
                 <tr className="border-t">
-                  <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                     Phone 2:
                   </td>
-                  <td className="py-2 pl-4">{data?.phone2}</td>
+                  <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{data?.phone2}</td>
                 </tr>
               )}
               {data?.nationalId && (
                 <tr className="border-t">
-                  <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                     National ID:
                   </td>
-                  <td className="py-2 pl-4">{data?.nid}</td>
+                  <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{data?.nid}</td>
                 </tr>
               )}
               {data?.email && (
                 <tr className="border-t">
-                  <td className="py-2 pr-4 text-gray-800 font-semibold">
+                  <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                     Email:
                   </td>
-                  <td className="py-2 pl-4">{data?.email}</td>
+                  <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{data?.email}</td>
                 </tr>
               )}
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                   Status:
                 </td>
-                <td className="py-2 pl-4">{data?.status}</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    data?.status?.toLowerCase() === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {data?.status}
+                  </span>
+                </td>
               </tr>
               <tr className="border-t">
                 <td
                   colSpan="2"
-                  className="py-4 text-xl font-semibold text-gray-900"
+                  className="py-4 text-lg sm:text-xl font-semibold text-gray-900"
                 >
                   Location
                 </td>
               </tr>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                   Village:
                 </td>
-                <td className="py-2 pl-4">{departmentNames?.village}</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{departmentNames?.village}</td>
               </tr>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">Cell:</td>
-                <td className="py-2 pl-4">{departmentNames?.cell}</td>
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">Cell:</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{departmentNames?.cell}</td>
               </tr>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                   Sector:
                 </td>
-                <td className="py-2 pl-4">{departmentNames?.sector}</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{departmentNames?.sector}</td>
               </tr>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                   District:
                 </td>
-                <td className="py-2 pl-4">{departmentNames?.district}</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{departmentNames?.district}</td>
               </tr>
               <tr className="border-t">
-                <td className="py-2 pr-4 text-gray-800 font-semibold">
+                <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
                   Province:
                 </td>
-                <td className="py-2 pl-4">{departmentNames?.province}</td>
+                <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">{departmentNames?.province}</td>
               </tr>
+
+               <tr className="border-t">
+                 <td className="py-2 pr-2 sm:pr-4 text-gray-800 font-semibold text-sm sm:text-base">
+                   Role:
+                 </td>
+                 <td className="py-2 pl-2 sm:pl-4 text-sm sm:text-base">
+                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                     data?.staff_role 
+                       ? 'bg-blue-100 text-blue-800' 
+                       : 'bg-gray-100 text-gray-800'
+                   }`}>
+                     {data?.staff_role ? 'Admin' : 'Viewer'}
+                   </span>
+                 </td>
+               </tr>
             </tbody>
           </table>
+          </div>
         </div>
       </div>
-      <div className="w-full max-w-[35%] bg-white shadow-md rounded-lg p-6 space-y-4 mt-6">
-        <h2 className="text-xl font-semibold text-gray-800">
+      <div className="w-full lg:max-w-[40%] bg-white shadow-md rounded-lg p-4 sm:p-6 space-y-4 mt-4 sm:mt-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
           Recent Activities
         </h2>
-        <ul className="space-y-2">
+        <ul className="space-y-0">
           {logActivitiesData?.data.length > 0 ? (
             logActivitiesData.data.map((activity) => (
               <>
                 <div
                   key={activity.id}
-                  className="mt-3 flex items-center justify-between"
+                  className="mt-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0"
                 >
-                  <Typography color="blue-gray" className="font-medium">
+                  <Typography color="blue-gray" className="font-medium text-sm sm:text-base">
                     {activity.action}
                   </Typography>
                   <Typography color="blue-gray" className="font-medium">
-                    <div className="text-gray-500">
+                    <div className="text-gray-500 text-xs sm:text-sm">
                       {moment(activity.createdAt).fromNow()}
                     </div>
                   </Typography>
                 </div>
+                {activity.activity && (
                 <Typography
                   variant="small"
                   color="gray"
-                  className="font-normal opacity-75"
+                  className="font-normal opacity-75 text-xs sm:text-sm"
                 >
-                  <pre>{activity.activity}</pre>
+                  <pre className="whitespace-pre-wrap break-words">{activity.activity}</pre>
                 </Typography>
+                )}
               </>
             ))
           ) : (
-            <li className="text-gray-800">
+            <li className="text-gray-800 text-sm sm:text-base">
               No activities found for {data.names}
             </li>
           )}

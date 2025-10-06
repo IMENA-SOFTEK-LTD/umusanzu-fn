@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
 import { useLoginMutation } from '../../states/api/apiSlice'
 import Button from '../../components/Button'
 import Loading from '../../components/Loading'
 import Input from '../../components/Input'
+import ErrorBoundary from '../../components/ErrorBoundary'
+import { useResponsive } from '../../hooks/useResponsive'
 import Logo from '../../../public/logo.png'
 import {
   setLoginPageLoaded,
@@ -17,8 +20,12 @@ import { setPathName } from '../../states/features/navigation/navbarSlice'
 const Login = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
+  const { isMobile, isTablet } = useResponsive()
+  
   const { user } = useSelector((state) => state.auth)
-  const [invalidLogin, setInvalidLogin] = useState(false)
+  const [formErrors, setFormErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [
     login,
@@ -31,355 +38,271 @@ const Login = () => {
     },
   ] = useLoginMutation()
 
-  const [formErrors, setFormErrors] = useState({})
-  const [successMessage, setSuccessMessage] = useState('')
-  const { control, handleSubmit } = useForm()
-
-  const onSubmit = async (data) => {
-    const { username, password } = data
-
-    if (!username || !password) {
-      setFormErrors({
-        username: !username ? 'Username is required' : '',
-        password: !password ? 'Password is required' : '',
-      })
-      setInvalidLogin(false)
-      return
+  const { 
+    control, 
+    handleSubmit, 
+    formState: { errors },
+    setError,
+    clearErrors,
+    reset
+  } = useForm({
+    mode: 'onBlur',
+    defaultValues: {
+      username: '',
+      password: ''
     }
+  })
 
-    const response = await login({ username, password })
-    // console.log(response, loginError);
-    if (response.error || loginError) {
-      setInvalidLogin(true)
-    }
-  }
-
+  // Redirect if already logged in
   useEffect(() => {
-    console.log(loginData);
-    if (loginSuccess && loginData?.data) {
-     
-      if (!loginData?.two_fa) {
-        localStorage.setItem('user', JSON.stringify({
-          ...loginData?.data,
-          department: getDepartment(loginData?.data?.departments?.level_id)
-        }))
-        dispatch(setUser(loginData))
-        dispatch(setPathName('Dashboard'))
-        localStorage.setItem('pathName', 'Dashboard')
-        navigate('/dashboard')
-      } else {
+    if (user) {
+      const from = location.state?.from?.pathname || '/dashboard'
+      navigate(from, { replace: true })
+    }
+  }, [user, navigate, location])
 
-        localStorage.setItem(
-          'user',
-          JSON.stringify({
-            ...loginData?.data,
-            department: getDepartment(loginData?.data?.departments?.level_id),
-          })
-        )
-        dispatch(setUser(loginData))
-        navigate('/two-fa-authentication')
+  // Memoized form validation rules
+  const validationRules = useMemo(() => ({
+    username: {
+      required: 'Username is required',
+      minLength: {
+        value: 3,
+        message: 'Username must be at least 3 characters'
+      },
+      pattern: {
+        value: /^[a-zA-Z0-9._-]+$/,
+        message: 'Username can only contain letters, numbers, dots, underscores, and hyphens'
+      }
+    },
+    password: {
+      required: 'Password is required',
+      minLength: {
+        value: 6,
+        message: 'Password must be at least 6 characters'
       }
     }
-  }, [loginData, loginSuccess])
+  }), [])
 
+  // Enhanced form submission with better error handling
+  const onSubmit = useCallback(async (data) => {
+    try {
+      setIsSubmitting(true)
+      clearErrors()
+      setFormErrors({})
+
+      const { username, password } = data
+
+      // Client-side validation
+      if (!username?.trim() || !password?.trim()) {
+        toast.error('Please fill in all required fields')
+        return
+      }
+
+      const response = await login({ 
+        username: username.trim(), 
+        password: password.trim() 
+      })
+
+      if (response.error) {
+        const errorMessage = response.error?.data?.message || 'Login failed. Please check your credentials.'
+        
+        // Handle specific error cases
+        if (response.error.status === 401) {
+          setError('password', { 
+            type: 'manual', 
+            message: 'Invalid username or password' 
+          })
+        } else if (response.error.status === 429) {
+          toast.error('Too many login attempts. Please try again later.')
+        } else if (response.error.status === 500) {
+          toast.error('Server error. Please try again later.')
+        } else {
+          toast.error(errorMessage)
+        }
+      }
+    } catch (error) {
+      console.error('Login submission error:', error)
+      toast.error('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [login, clearErrors, setError])
+
+  // Handle successful login
+  useEffect(() => {
+    if (loginSuccess && loginData?.data) {
+      try {
+        const userData = {
+          ...loginData.data,
+          department: getDepartment(loginData.data?.departments?.level_id)
+        }
+
+        if (!loginData.two_fa) {
+          // Regular login without 2FA
+          localStorage.setItem('user', JSON.stringify(userData))
+          dispatch(setUser(loginData))
+          dispatch(setPathName('Dashboard'))
+          localStorage.setItem('pathName', 'Dashboard')
+          
+          toast.success('Login successful! Welcome back.', {
+            position: 'top-right',
+            autoClose: 3000,
+          })
+          
+          const from = location.state?.from?.pathname || '/dashboard'
+          navigate(from, { replace: true })
+        } else {
+          // 2FA required
+          localStorage.setItem('user', JSON.stringify(userData))
+          dispatch(setUser(loginData))
+          
+          toast.info('Please complete two-factor authentication.', {
+            position: 'top-right',
+            autoClose: 3000,
+          })
+          
+          navigate('/two-fa-authentication')
+        }
+      } catch (error) {
+        console.error('Error processing login success:', error)
+        toast.error('Login successful but there was an error. Please try refreshing.')
+      }
+    }
+  }, [loginData, loginSuccess, dispatch, navigate, location])
+
+  // Initialize page
   useEffect(() => {
     dispatch(setLoginPageLoaded(true))
     document.title = 'Login | Umusanzu Digital'
-  }, [])
+  }, [dispatch])
+
+  // Responsive container classes
+  const containerClasses = useMemo(() => {
+    if (isMobile) {
+      return "min-h-screen bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center p-4"
+    }
+    if (isTablet) {
+      return "min-h-screen bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center p-6"
+    }
+    return "min-h-screen bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center p-8"
+  }, [isMobile, isTablet])
+
+  const formClasses = useMemo(() => {
+    if (isMobile) {
+      return "w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 space-y-6"
+    }
+    if (isTablet) {
+      return "w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 space-y-6"
+    }
+    return "w-full max-w-lg bg-white rounded-2xl shadow-2xl p-10 space-y-8"
+  }, [isMobile, isTablet])
 
   return (
-    <main
-      className={`bg-primary absolute top-0 left-0 w-full max-h-screen overflow-clip flx flex-col items-start`}
-    >
-      <div className="flex flex-col items-start h-full min-h-[90vh] m-auto xl:px-5 lg:flex-row">
-        <div className="flex flex-col items-center justify-center min-h-[100vh] h-full my-auto w-full pr-10 pb-20 pl-10 lg:pt-12 lg:flex-row">
-          <div className="w-full mt-20 mr-0 mb-0 ml-0 relative z-10 max-w-2xl lg:mt-0 lg:w-5/12">
-            <form
-              className="flex flex-col items-center justify-start min-h-[60vh] p-12 bg-white shadow-2xl rounded-xl gap-8 relative z-10"
-              onSubmit={handleSubmit(onSubmit)}
-            >
-              <Link
-                to="#"
-                className="flex flex-col items-center justify-center w-full gap-4 mx-auto text-2xl font-semibold text-gray-700 "
-              >
-                <h3 className="uppercase text-primary font-bold">
-                  Imena Softek
-                </h3>
-                <img className="w-32 h-32" src={Logo} alt="logo" />
-                <h3 className="uppercase text-[20px] text-primary font-bold">
-                  Umusanzu Digital
-                </h3>
-              </Link>
-              <span className="flex flex-col w-[85%] mx-auto gap-6">
-                <Controller
-                  name="username"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <label className="flex flex-col gap-2">
-                      <p className="font-medium">Username</p>
-                      <Input
-                        placeholder="Username"
-                        type="text"
-                        value={field.value}
-                        className="w-[90%] mx-auto"
-                        onChange={field.onChange}
-                        ref={field.ref}
-                      />
-                      {formErrors.username && (
-                        <span className="text-red-500">
-                          {formErrors.username}
-                        </span>
-                      )}
-                    </label>
-                  )}
+    <ErrorBoundary>
+      <main className={containerClasses}>
+        <div className={formClasses}>
+          {/* Header */}
+          <div className="text-center space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-lg font-bold text-primary uppercase tracking-wide">
+                Imena Softek
+              </h1>
+              <div className="flex justify-center">
+                <img 
+                  className={`${isMobile ? 'w-20 h-20' : 'w-24 h-24'} object-contain`} 
+                  src={Logo} 
+                  alt="Umusanzu Digital Logo" 
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                  }}
                 />
+              </div>
+              <h2 className="text-xl font-bold text-primary uppercase">
+                Umusanzu Digital
+              </h2>
+            </div>
+            <p className="text-gray-600 text-sm">
+              Sign in to your account to continue
+            </p>
+          </div>
 
-                <Controller
-                  name="password"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <label className="flex flex-col gap-2">
-                      <p className="font-medium">Password</p>
-                      <Input
-                        placeholder="*******"
-                        type="password"
-                        className="w-[90%] mx-auto"
-                        value={field.value}
-                        onChange={field.onChange}
-                        ref={field.ref}
-                      />
-                      {formErrors.password && (
-                        <span className="text-red-500">
-                          {formErrors.password}
-                        </span>
-                      )}
-                    </label>
-                  )}
-                />
-              </span>
-              {loginError === true ? (
-                <div className="flex justify-center items-center">
-                  <div
-                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center"
-                    role="alert"
-                  >
-                    <span className="block sm:inline text-red-500">
-                      {loginErrorMessage?.data?.message}
-                    </span>
+          {/* Login Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+            <div className="space-y-4">
+              <Controller
+                name="username"
+                control={control}
+                rules={validationRules.username}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Username"
+                    placeholder="Enter your username"
+                    type="text"
+                    required
+                    autoComplete="username"
+                    error={errors.username?.message}
+                    disabled={isSubmitting || loginLoading}
+                    aria-describedby="username-error"
+                  />
+                )}
+              />
+
+              <Controller
+                name="password"
+                control={control}
+                rules={validationRules.password}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Password"
+                    placeholder="Enter your password"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    error={errors.password?.message}
+                    disabled={isSubmitting || loginLoading}
+                    aria-describedby="password-error"
+                  />
+                )}
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              submit
+              disabled={isSubmitting || loginLoading}
+              loading={isSubmitting || loginLoading}
+              className="w-full py-3 text-base font-medium"
+              value={
+                isSubmitting || loginLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loading size={4} color="white" />
+                    <span>Signing in...</span>
                   </div>
-                </div>
-              ) : (
-                ''
-              )}
-              {successMessage && (
-                <span className="block sm:inline text-green-500">
-                  {successMessage}
-                </span>
-              )}
-              <span className="flex flex-col w-[85%] mx-auto gap-6">
-                <Controller
-                  name="submit"
-                  control={control}
-                  render={() => (
-                    <Button
-                      submit
-                      className="w-full text-[16px]"
-                      value={loginLoading ? <Loading /> : 'Login'}
-                    />
-                  )}
-                />
-              </span>
-            </form>
-            <svg
-              viewBox="0 0 91 91"
-              className="absolute top-0 left-0 z-0 w-32 h-32 -mt-12 -ml-12 text-yellow-300
-                fill-current"
-            >
-              <g stroke="none" strokeWidth="1" fillRule="evenodd">
-                <g fillRule="nonzero">
-                  <g>
-                    <g>
-                      <circle cx="3.261" cy="3.445" r="2.72" />
-                      <circle cx="15.296" cy="3.445" r="2.719" />
-                      <circle cx="27.333" cy="3.445" r="2.72" />
-                      <circle cx="39.369" cy="3.445" r="2.72" />
-                      <circle cx="51.405" cy="3.445" r="2.72" />
-                      <circle cx="63.441" cy="3.445" r="2.72" />
-                      <circle cx="75.479" cy="3.445" r="2.72" />
-                      <circle cx="87.514" cy="3.445" r="2.719" />
-                    </g>
-                    <g transform="translate(0 12)">
-                      <circle cx="3.261" cy="3.525" r="2.72" />
-                      <circle cx="15.296" cy="3.525" r="2.719" />
-                      <circle cx="27.333" cy="3.525" r="2.72" />
-                      <circle cx="39.369" cy="3.525" r="2.72" />
-                      <circle cx="51.405" cy="3.525" r="2.72" />
-                      <circle cx="63.441" cy="3.525" r="2.72" />
-                      <circle cx="75.479" cy="3.525" r="2.72" />
-                      <circle cx="87.514" cy="3.525" r="2.719" />
-                    </g>
-                    <g transform="translate(0 24)">
-                      <circle cx="3.261" cy="3.605" r="2.72" />
-                      <circle cx="15.296" cy="3.605" r="2.719" />
-                      <circle cx="27.333" cy="3.605" r="2.72" />
-                      <circle cx="39.369" cy="3.605" r="2.72" />
-                      <circle cx="51.405" cy="3.605" r="2.72" />
-                      <circle cx="63.441" cy="3.605" r="2.72" />
-                      <circle cx="75.479" cy="3.605" r="2.72" />
-                      <circle cx="87.514" cy="3.605" r="2.719" />
-                    </g>
-                    <g transform="translate(0 36)">
-                      <circle cx="3.261" cy="3.686" r="2.72" />
-                      <circle cx="15.296" cy="3.686" r="2.719" />
-                      <circle cx="27.333" cy="3.686" r="2.72" />
-                      <circle cx="39.369" cy="3.686" r="2.72" />
-                      <circle cx="51.405" cy="3.686" r="2.72" />
-                      <circle cx="63.441" cy="3.686" r="2.72" />
-                      <circle cx="75.479" cy="3.686" r="2.72" />
-                      <circle cx="87.514" cy="3.686" r="2.719" />
-                    </g>
-                    <g transform="translate(0 49)">
-                      <circle cx="3.261" cy="2.767" r="2.72" />
-                      <circle cx="15.296" cy="2.767" r="2.719" />
-                      <circle cx="27.333" cy="2.767" r="2.72" />
-                      <circle cx="39.369" cy="2.767" r="2.72" />
-                      <circle cx="51.405" cy="2.767" r="2.72" />
-                      <circle cx="63.441" cy="2.767" r="2.72" />
-                      <circle cx="75.479" cy="2.767" r="2.72" />
-                      <circle cx="87.514" cy="2.767" r="2.719" />
-                    </g>
-                    <g transform="translate(0 61)">
-                      <circle cx="3.261" cy="2.846" r="2.72" />
-                      <circle cx="15.296" cy="2.846" r="2.719" />
-                      <circle cx="27.333" cy="2.846" r="2.72" />
-                      <circle cx="39.369" cy="2.846" r="2.72" />
-                      <circle cx="51.405" cy="2.846" r="2.72" />
-                      <circle cx="63.441" cy="2.846" r="2.72" />
-                      <circle cx="75.479" cy="2.846" r="2.72" />
-                      <circle cx="87.514" cy="2.846" r="2.719" />
-                    </g>
-                    <g transform="translate(0 73)">
-                      <circle cx="3.261" cy="2.926" r="2.72" />
-                      <circle cx="15.296" cy="2.926" r="2.719" />
-                      <circle cx="27.333" cy="2.926" r="2.72" />
-                      <circle cx="39.369" cy="2.926" r="2.72" />
-                      <circle cx="51.405" cy="2.926" r="2.72" />
-                      <circle cx="63.441" cy="2.926" r="2.72" />
-                      <circle cx="75.479" cy="2.926" r="2.72" />
-                      <circle cx="87.514" cy="2.926" r="2.719" />
-                    </g>
-                    <g transform="translate(0 85)">
-                      <circle cx="3.261" cy="3.006" r="2.72" />
-                      <circle cx="15.296" cy="3.006" r="2.719" />
-                      <circle cx="27.333" cy="3.006" r="2.72" />
-                      <circle cx="39.369" cy="3.006" r="2.72" />
-                      <circle cx="51.405" cy="3.006" r="2.72" />
-                      <circle cx="63.441" cy="3.006" r="2.72" />
-                      <circle cx="75.479" cy="3.006" r="2.72" />
-                      <circle cx="87.514" cy="3.006" r="2.719" />
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </svg>
-            <svg
-              viewBox="0 0 91 91"
-              className="absolute bottom-0 right-0 z-0 w-32 h-32 -mb-12 -mr-12 text-indigo-500
-                fill-current"
-            >
-              <g stroke="none" strokeWidth="1" fillRule="evenodd">
-                <g fillRule="nonzero">
-                  <g>
-                    <g>
-                      <circle cx="3.261" cy="3.445" r="2.72" />
-                      <circle cx="15.296" cy="3.445" r="2.719" />
-                      <circle cx="27.333" cy="3.445" r="2.72" />
-                      <circle cx="39.369" cy="3.445" r="2.72" />
-                      <circle cx="51.405" cy="3.445" r="2.72" />
-                      <circle cx="63.441" cy="3.445" r="2.72" />
-                      <circle cx="75.479" cy="3.445" r="2.72" />
-                      <circle cx="87.514" cy="3.445" r="2.719" />
-                    </g>
-                    <g transform="translate(0 12)">
-                      <circle cx="3.261" cy="3.525" r="2.72" />
-                      <circle cx="15.296" cy="3.525" r="2.719" />
-                      <circle cx="27.333" cy="3.525" r="2.72" />
-                      <circle cx="39.369" cy="3.525" r="2.72" />
-                      <circle cx="51.405" cy="3.525" r="2.72" />
-                      <circle cx="63.441" cy="3.525" r="2.72" />
-                      <circle cx="75.479" cy="3.525" r="2.72" />
-                      <circle cx="87.514" cy="3.525" r="2.719" />
-                    </g>
-                    <g transform="translate(0 24)">
-                      <circle cx="3.261" cy="3.605" r="2.72" />
-                      <circle cx="15.296" cy="3.605" r="2.719" />
-                      <circle cx="27.333" cy="3.605" r="2.72" />
-                      <circle cx="39.369" cy="3.605" r="2.72" />
-                      <circle cx="51.405" cy="3.605" r="2.72" />
-                      <circle cx="63.441" cy="3.605" r="2.72" />
-                      <circle cx="75.479" cy="3.605" r="2.72" />
-                      <circle cx="87.514" cy="3.605" r="2.719" />
-                    </g>
-                    <g transform="translate(0 36)">
-                      <circle cx="3.261" cy="3.686" r="2.72" />
-                      <circle cx="15.296" cy="3.686" r="2.719" />
-                      <circle cx="27.333" cy="3.686" r="2.72" />
-                      <circle cx="39.369" cy="3.686" r="2.72" />
-                      <circle cx="51.405" cy="3.686" r="2.72" />
-                      <circle cx="63.441" cy="3.686" r="2.72" />
-                      <circle cx="75.479" cy="3.686" r="2.72" />
-                      <circle cx="87.514" cy="3.686" r="2.719" />
-                    </g>
-                    <g transform="translate(0 49)">
-                      <circle cx="3.261" cy="2.767" r="2.72" />
-                      <circle cx="15.296" cy="2.767" r="2.719" />
-                      <circle cx="27.333" cy="2.767" r="2.72" />
-                      <circle cx="39.369" cy="2.767" r="2.72" />
-                      <circle cx="51.405" cy="2.767" r="2.72" />
-                      <circle cx="63.441" cy="2.767" r="2.72" />
-                      <circle cx="75.479" cy="2.767" r="2.72" />
-                      <circle cx="87.514" cy="2.767" r="2.719" />
-                    </g>
-                    <g transform="translate(0 61)">
-                      <circle cx="3.261" cy="2.846" r="2.72" />
-                      <circle cx="15.296" cy="2.846" r="2.719" />
-                      <circle cx="27.333" cy="2.846" r="2.72" />
-                      <circle cx="39.369" cy="2.846" r="2.72" />
-                      <circle cx="51.405" cy="2.846" r="2.72" />
-                      <circle cx="63.441" cy="2.846" r="2.72" />
-                      <circle cx="75.479" cy="2.846" r="2.72" />
-                      <circle cx="87.514" cy="2.846" r="2.719" />
-                    </g>
-                    <g transform="translate(0 73)">
-                      <circle cx="3.261" cy="2.926" r="2.72" />
-                      <circle cx="15.296" cy="2.926" r="2.719" />
-                      <circle cx="27.333" cy="2.926" r="2.72" />
-                      <circle cx="39.369" cy="2.926" r="2.72" />
-                      <circle cx="51.405" cy="2.926" r="2.72" />
-                      <circle cx="63.441" cy="2.926" r="2.72" />
-                      <circle cx="75.479" cy="2.926" r="2.72" />
-                      <circle cx="87.514" cy="2.926" r="2.719" />
-                    </g>
-                    <g transform="translate(0 85)">
-                      <circle cx="3.261" cy="3.006" r="2.72" />
-                      <circle cx="15.296" cy="3.006" r="2.719" />
-                      <circle cx="27.333" cy="3.006" r="2.72" />
-                      <circle cx="39.369" cy="3.006" r="2.72" />
-                      <circle cx="51.405" cy="3.006" r="2.72" />
-                      <circle cx="63.441" cy="3.006" r="2.72" />
-                      <circle cx="75.479" cy="3.006" r="2.72" />
-                      <circle cx="87.514" cy="3.006" r="2.719" />
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </svg>
+                ) : (
+                  'Sign In'
+                )
+              }
+              aria-label="Sign in to your account"
+            />
+          </form>
+
+          {/* Footer */}
+          <div className="text-center text-xs text-gray-500 space-y-2">
+            <p>© 2024 Imena Softek. All rights reserved.</p>
+            <p>Secure login protected by industry-standard encryption</p>
           </div>
         </div>
-      </div>
-    </main>
+
+        {/* Background decorations */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+          <div className="absolute top-1/4 -right-8 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+          <div className="absolute -bottom-8 left-1/4 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
+        </div>
+      </main>
+    </ErrorBoundary>
   )
 }
 

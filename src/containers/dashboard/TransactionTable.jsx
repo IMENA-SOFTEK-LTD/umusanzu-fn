@@ -6,7 +6,7 @@ import cachet from '../../assets/cachet.png'
 import signature from '../../assets/signature.png'
 import ExcelJS from 'exceljs'
 import 'regenerator-runtime/runtime'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
@@ -19,6 +19,11 @@ import {
   faFile,
   faFileExcel,
   faFilePdf,
+  faChevronDown,
+  faChevronUp,
+  faReceipt,
+  faCalendarAlt,
+  faMoneyBillWave,
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -53,10 +58,12 @@ import axios from 'axios'
 import download from 'downloadjs'
 
 const TransactionTable = ({ user }) => {
+  // State management
   const [transactionsListIsLoading, setTransactionsListIsLoading] =
     useState(false)
   const [transactionsListIsError, setTransactionsListIsError] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [expandedRows, setExpandedRows] = useState({})
 
   const [getTransactionsList] = useLazyGetTransactionsListQuery()
 
@@ -86,46 +93,73 @@ const TransactionTable = ({ user }) => {
   const { userOrSelectedDepartmentNames } = useSelector(
     (state) => state.departments
   )
-  const openExportPopup = () => {
-    setShowExportPopup(true)
-  }
-
-  const closeExportPopup = () => {
-    setShowExportPopup(false)
-  }
   const dispatch = useDispatch()
+
+  // Toggle row expansion for mobile view
+  const toggleRowExpansion = useCallback((index) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }))
+  }, [])
+
+  const openExportPopup = useCallback(() => {
+    setShowExportPopup(true)
+  }, [])
+
+  const closeExportPopup = useCallback(() => {
+    setShowExportPopup(false)
+  }, [])
 
   const queryRoute = queryString.parse(location.search)
 
+  // Determine department type based on level_id
   let department = ''
-
   switch (user?.departments?.level_id) {
     case 1:
       department = 'province'
-      dispatch(setSelectedProvince(user?.departments?.id))
       break
     case 2:
       department = 'district'
-      dispatch(setSelectedDistrict(user?.departments?.id))
       break
     case 3:
       department = 'sector'
-      dispatch(setSelectedSector(user?.departments?.id))
       break
     case 4:
       department = 'cell'
-      dispatch(setSelectedCell(user?.departments?.id))
       break
     case 5:
       department = 'country'
       break
     case 6:
       department = 'agent'
-      dispatch(setSelectedVillage(user?.departments?.id))
       break
     default:
       department = 'agent'
   }
+
+  // Dispatch Redux actions based on department level - moved to useEffect to prevent render loops
+  useEffect(() => {
+    if (!user?.departments?.level_id || !user?.departments?.id) return
+
+    switch (user.departments.level_id) {
+      case 1:
+        dispatch(setSelectedProvince(user.departments.id))
+        break
+      case 2:
+        dispatch(setSelectedDistrict(user.departments.id))
+        break
+      case 3:
+        dispatch(setSelectedSector(user.departments.id))
+        break
+      case 4:
+        dispatch(setSelectedCell(user.departments.id))
+        break
+      case 6:
+        dispatch(setSelectedVillage(user.departments.id))
+        break
+    }
+  }, [user?.departments?.level_id, user?.departments?.id, dispatch])
   useEffect(() => {
     let reportName = `TRANSACTIONS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()} ${
       fromDateLabel ? 'FROM ' + fromDateLabel : ''
@@ -488,11 +522,123 @@ const TransactionTable = ({ user }) => {
     document.title = 'Transactions | Umusanzu Digital'
   }, [])
 
-  const gotoPage1 = (newPage) => {
+  const gotoPage1 = useCallback((newPage) => {
     if (newPage < 0 || newPage >= totalPages) return
     dispatch(setPage(Number(newPage)))
-    // Optionally trigger your API fetch here if it's not automatically triggered by page change
-  }
+  }, [totalPages, dispatch])
+
+  // Mobile Transaction Card Component
+  const TransactionCard = memo(({ transaction, index }) => (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4">
+      {/* Main Info */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-blue-100 rounded-full">
+            <FontAwesomeIcon
+              className="text-blue-600"
+              icon={faReceipt}
+            />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900 text-sm">
+              {transaction.name}
+            </h3>
+            <p className="text-xs text-gray-500">{transaction.village}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => toggleRowExpansion(index)}
+          className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <FontAwesomeIcon
+            icon={expandedRows[index] ? faChevronUp : faChevronDown}
+            className="w-4 h-4"
+          />
+        </button>
+      </div>
+
+      {/* Status and Amount */}
+      <div className="flex items-center justify-between mb-3">
+        <div
+          className={`${
+            transaction.status === 'PAID'
+              ? 'bg-green-100 text-green-800'
+              : transaction.status === 'INITIATED'
+              ? 'bg-gray-100 text-gray-800'
+              : transaction.status === 'PARTIAL'
+              ? 'bg-blue-100 text-blue-800'
+              : 'bg-yellow-100 text-yellow-800'
+          } inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium`}
+        >
+          {transaction.status}
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-semibold text-green-600">
+            {transaction.amount}
+          </p>
+          <p className="text-xs text-gray-500">Amount</p>
+        </div>
+      </div>
+
+      {/* Expanded Content */}
+      {expandedRows[index] && (
+        <div className="border-t border-gray-100 pt-3 space-y-3">
+          {/* Transaction Details Grid */}
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="text-gray-500 block text-xs">Month Paid</span>
+              <p className="font-medium flex items-center">
+                <FontAwesomeIcon icon={faCalendarAlt} className="w-3 h-3 mr-1 text-gray-400" />
+                {transaction.month_paid}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Payment Method</span>
+              <p className="font-medium">{transaction.payment_method}</p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Remaining Amount</span>
+              <p className="font-medium text-orange-600">{transaction.remain_amount}</p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Commission</span>
+              <p className="font-medium text-blue-600 flex items-center">
+                <FontAwesomeIcon icon={faMoneyBillWave} className="w-3 h-3 mr-1" />
+                {transaction.commission}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Transaction Date</span>
+              <p className="font-medium">{transaction.transaction_date}</p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Agent</span>
+              <p className="font-medium">{transaction.agent || 'N/A'}</p>
+            </div>
+          </div>
+
+          {/* Location Details */}
+          <div className="bg-gray-50 rounded-lg p-3">
+            <h4 className="text-xs font-semibold text-gray-700 mb-2">Location Details</h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-gray-500">Cell:</span>
+                <p className="font-medium">{transaction.cell}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Sector:</span>
+                <p className="font-medium">{transaction.sector}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">District:</span>
+                <p className="font-medium">{transaction.district}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  ))
 
   return (
     <main className="my-12 w-full">
@@ -548,28 +694,39 @@ const TransactionTable = ({ user }) => {
         </div>
       )}
       <OverlayLoading color="black" isLoading={transactionsListIsLoading} />
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 px-4 sm:px-8">
         <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <div className="flex gap-2 max-md:pl-0"><strong>{ `TRANSACTIONS IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()} ${
-      fromDateLabel ? 'FROM ' + fromDateLabel : ''
-    } ${fromDateLabel ? 'TO ' + toDateLabel : ''}`}</strong></div>
-            <div className="flex gap-2 max-md:pl-2">
-              {user?.departments.level_id !== 6 && (
-                <div className="flex gap-2 justify-end">
+          {/* Header Section */}
+          <div className="w-full">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+              <div className="flex-1">
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+                  Transactions Management
+                </h1>
+                <p className="text-sm text-gray-600">
+                  {`${user?.departments?.name} ${user?.department}`}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {fromDateLabel && `From ${fromDateLabel}`} {toDateLabel && `To ${toDateLabel}`}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {user?.departments.level_id !== 6 && (
                   <Button
+                    className="w-full sm:w-auto"
                     value={
                       <span className="flex items-center gap-2">
-                        Export Report
                         <FontAwesomeIcon icon={faFile} />
+                        <span className="hidden sm:inline">Export Report</span>
+                        <span className="sm:hidden">Export</span>
                       </span>
                     }
                     onClick={openExportPopup}
                   />
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </span>
+          </div>
         </div>
         <div className="mt-2 flex flex-col w-[95%] mx-auto">
           <table>
@@ -674,93 +831,106 @@ const TransactionTable = ({ user }) => {
           <div className="overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
-                <table
-                  {...getTableProps()}
-                  border="1"
-                  className="min-w-full divide-y divide-gray-200"
-                >
-                  <caption className="caption-top p-0">
-                    <table className="w-[100%] mx-auto my-0 divide-y divide-gray-200">
-                      <tbody>
-                        <tr className="bg-[#F9FAFB] flex items-center flex-wrap">
-                          <td className="px-6 py-4 text-black font-semibold">
-                            Total Transactions:
-                          </td>
-                          <td className="px-6 py-4 green font-semibold">
-                            {totalRecords}
-                          </td>
-                          <td className="px-6 py-4 text-black font-semibold">
-                            Total Amount:
-                          </td>
-                          <td className="px-6 py-4 green font-semibold">
-                            {formatFunds(totalAmount)} RWF
-                          </td>
-                          <td className="px-6 py-1 green font-semibold">
-                            Total Commission:
-                          </td>
-                          <td className="px-6 py-1 green font-semibold">
-                            {formatFunds(totalCommission)}
-                            RWF
-                          </td>
-                          <td className="px-6 py-4 green font-semibold">
-                            Total Remaining:
-                          </td>
-                          <td className="px-6 py-4 green font-semibold">
-                            {formatFunds(totalRemaining)}
-                            RWF
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </caption>
-                  <thead className="bg-gray-50">
-                    {headerGroups.map((headerGroup) => (
-                      <tr {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map((column) => (
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            {...column.getHeaderProps(
-                              column.getSortByToggleProps()
-                            )}
-                          >
-                            {column.render('Header')}
-                            <span>
-                              {column.isSorted
-                                ? column.isSortedDesc
-                                  ? ' ▼'
-                                  : ' ▲'
-                                : ''}
-                            </span>
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
+                {/* Summary Stats */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="text-center lg:text-left">
+                      <p className="text-sm text-gray-600">Total Transactions</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {totalRecords}
+                      </p>
+                    </div>
+                    <div className="text-center lg:text-left">
+                      <p className="text-sm text-gray-600">Total Amount</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {formatFunds(totalAmount)} RWF
+                      </p>
+                    </div>
+                    <div className="text-center lg:text-left">
+                      <p className="text-sm text-gray-600">Total Commission</p>
+                      <p className="text-xl font-bold text-blue-600">
+                        {formatFunds(totalCommission)} RWF
+                      </p>
+                    </div>
+                    <div className="text-center lg:text-left">
+                      <p className="text-sm text-gray-600">Total Remaining</p>
+                      <p className="text-xl font-bold text-orange-600">
+                        {formatFunds(totalRemaining)} RWF
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-                  <tbody
-                    className="bg-white divide-y divide-gray-200"
-                    {...getTableBodyProps()}
-                  >
-                    {page.map((row) => {
+                {/* Mobile View */}
+                <div className="block md:hidden">
+                  <div className="space-y-4">
+                    {page.map((row, index) => {
                       prepareRow(row)
                       return (
-                        <tr {...row.getRowProps()}>
-                          {row.cells.map((cell) => {
-                            return (
-                              <td
-                                {...cell.getCellProps()}
-                                className="px-6 py-4 whitespace-nowrap"
-                              >
-                                {cell.render('Cell')}
-                              </td>
-                            )
-                          })}
-                        </tr>
+                        <TransactionCard
+                          key={row.original.id || index}
+                          transaction={row.original}
+                          index={index}
+                        />
                       )
                     })}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table
+                    {...getTableProps()}
+                    className="min-w-full divide-y divide-gray-200"
+                  >
+                    <thead className="bg-gray-50">
+                      {headerGroups.map((headerGroup) => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                          {headerGroup.headers.map((column) => (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              {...column.getHeaderProps(
+                                column.getSortByToggleProps()
+                              )}
+                            >
+                              {column.render('Header')}
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? ' ▼'
+                                    : ' ▲'
+                                  : ''}
+                              </span>
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody
+                      className="bg-white divide-y divide-gray-200"
+                      {...getTableBodyProps()}
+                    >
+                      {page.map((row) => {
+                        prepareRow(row)
+                        return (
+                          <tr {...row.getRowProps()}>
+                            {row.cells.map((cell) => {
+                              return (
+                                <td
+                                  {...cell.getCellProps()}
+                                  className="px-6 py-4 whitespace-nowrap"
+                                >
+                                  {cell.render('Cell')}
+                                </td>
+                              )
+                            })}
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
                 {totalRecords === 0 && (
                   <main className="min-h-[40vh] flex items-center justify-center flex-col gap-6">
                     <h1 className="text-[25px] font-medium text-center">
@@ -793,17 +963,16 @@ const TransactionTable = ({ user }) => {
               Next
             </Button>
           </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div className="flex gap-x-2">
-              <span className="text-sm text-gray-700 p-2">
-                {' '}
-                <span className="font-medium">{offset + 1}</span> of{' '}
+          <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 items-center">
+              <span className="text-sm text-gray-700">
+                Page <span className="font-medium">{offset + 1}</span> of{' '}
                 <span className="font-medium">{totalPages}</span>
               </span>
               <label>
                 <span className="sr-only">Items Per Page</span>
                 <select
-                  className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className="p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm"
                   value={state.pageSize}
                   onChange={(e) => {
                     setPageSize(Number(e.target.value))
@@ -878,7 +1047,15 @@ const TransactionTable = ({ user }) => {
 }
 
 TransactionTable.propTypes = {
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({
+    departments: PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      name: PropTypes.string,
+      level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }),
+    staff_role: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    department: PropTypes.string,
+  }),
 }
 
 export const DateRangeColumnFilter = ({
@@ -1005,4 +1182,5 @@ export function SelectColumnFilter({
 //   )
 // }
 
-export default TransactionTable
+// Memoize the component for performance optimization
+export default memo(TransactionTable)

@@ -76,7 +76,7 @@ const HouseholdInfo = ({ household }) => {
               </tr>
               <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Household type </td>
-                {user?.departments?.level_id === 6 ? (
+                {![6, 4].includes(user?.departments?.level_id) ? (
                   <td className="py-2 pl-4">
                     {displaySave ? (
                       <select

@@ -12,8 +12,9 @@ import {
   useUpdateStaffDetailsMutation,
 } from '../../states/api/apiSlice'
 import Loading from '../Loading'
+import Select from '../Select'
 
-function UpdateStaff({admin, setData, toggleButton = true }) {
+function UpdateStaff({ admin, setData, toggleButton = true }) {
   const [showModal, setShowModal] = useState(false)
   const params = useParams()
   const id = params?.id || admin?.id
@@ -36,22 +37,26 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
       error: staffError,
     },
   ] = useLazyGetSingleStaffDetailsQuery()
-  const [data, setData2] = useState(staffDetailsData?.data || [])
+  const [staffData, setStaffData] = useState(null)
 
   useEffect(() => {
-    if (staffDetailsSuccess) {
-      setData2(staffDetailsData?.data || [])
-      setData(staffDetailsData?.data || []);
+    if (staffDetailsSuccess && staffDetailsData?.data) {
+      setStaffData(staffDetailsData.data)
+      setData && setData(staffDetailsData.data)
     }
-  }, [staffDetailsSuccess, staffDetailsData])
+  }, [staffDetailsSuccess, staffDetailsData, setData])
 
   useEffect(() => {
-    getSingleStaffDetails({ id })
+    if (id) {
+      getSingleStaffDetails({ id })
+    }
   }, [getSingleStaffDetails, id])
 
   useEffect(() => {
-    getSingleStaffDetails({ id })
-  }, [updateStaffDetailsSuccess])
+    if (updateStaffDetailsSuccess && id) {
+      getSingleStaffDetails({ id })
+    }
+  }, [updateStaffDetailsSuccess, getSingleStaffDetails, id])
 
   const { updateStaff } = useSelector((state) => state.modals)
   const dispatch = useDispatch()
@@ -59,8 +64,33 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm()
+  } = useForm({
+    defaultValues: {
+      names: '',
+      username: '',
+      email: '',
+      phone1: '',
+      phone2: '',
+      staff_role: 1,
+    }
+  })
+// console.log(staffData)
+  // Reset form when staff data loads
+  useEffect(() => {
+    if (staffData && reset) {
+      // console.log(staffData)
+      reset({
+        names: staffData.names || '',
+        username: staffData.username || '',
+        email: staffData.email || '',
+        phone1: staffData.phone1 || '',
+        phone2: staffData.phone2 || '',
+        staff_role: staffData.staff_role===0?0:1,
+      })
+    }
+  }, [staffData, reset])
 
   const openModal = () => {
     setShowModal(true)
@@ -95,13 +125,14 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
       phone1: formData.phone1,
       phone2: formData.phone2,
       id,
+      staff_role: formData?.staff_role,
     })
   }
 
   useEffect(() => {
     dispatch(toggleUpdateStaff(false))
   }, [updateStaffDetailsSuccess, updateStaffDetailsData])
-
+// console.log(data)
   return (
     <div>
       <button
@@ -113,8 +144,7 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
         Edit Admin Information
       </button>
 
-      {showModal ||
-        (updateStaff && (
+      {(showModal || updateStaff) && (
           <div
             tabIndex={-1}
             aria-hidden="true"
@@ -158,18 +188,33 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
                       htmlFor="Full Name"
                       className="block mb-2 text-sm font-medium text-black"
                     >
-                      Full Name
+                      Full Name <span className="text-red-500">*</span>
                     </label>
                     <Controller
                       name="names"
                       control={control}
-                      defaultValue={data?.names}
+                      rules={{
+                        required: 'Full name is required',
+                        minLength: {
+                          value: 2,
+                          message: 'Full name must be at least 2 characters'
+                        }
+                      }}
                       render={({ field }) => (
-                        <input
-                          {...field}
-                          type="text"
-                          className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
-                        />
+                        <>
+                          <input
+                            {...field}
+                            type="text"
+                            className={`pl-3 text-sm border-[1.3px] focus:outline-primary rounded-lg block w-full p-2 ${
+                              errors.names ? 'border-red-500' : 'border-primary'
+                            }`}
+                          />
+                          {errors.names && (
+                            <span className="text-red-500 text-xs mt-1">
+                              {errors.names.message}
+                            </span>
+                          )}
+                        </>
                       )}
                     />
                   </div>
@@ -184,7 +229,6 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
                       <Controller
                         name="username"
                         control={control}
-                        defaultValue={data?.username}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -199,18 +243,33 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
                         htmlFor="Email"
                         className="block mb-2 text-sm font-medium text-black"
                       >
-                        Email
+                        Email <span className="text-red-500">*</span>
                       </label>
                       <Controller
                         name="email"
                         control={control}
-                        defaultValue={data?.email}
+                        rules={{
+                          required: 'Email is required',
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: 'Please enter a valid email address'
+                          }
+                        }}
                         render={({ field }) => (
-                          <input
-                            {...field}
-                            type="email"
-                            className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
-                          />
+                          <>
+                            <input
+                              {...field}
+                              type="email"
+                              className={`pl-3 text-sm border-[1.3px] focus:outline-primary rounded-lg block w-full p-2 ${
+                                errors.email ? 'border-red-500' : 'border-primary'
+                              }`}
+                            />
+                            {errors.email && (
+                              <span className="text-red-500 text-xs mt-1">
+                                {errors.email.message}
+                              </span>
+                            )}
+                          </>
                         )}
                       />
                     </div>
@@ -221,18 +280,33 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
                         htmlFor="phone1"
                         className="block mb-2 text-sm font-medium text-black"
                       >
-                        Phone 1
+                        Phone 1 <span className="text-red-500">*</span>
                       </label>
                       <Controller
                         name="phone1"
                         control={control}
-                        defaultValue={data?.phone1}
+                        rules={{
+                          required: 'Phone 1 is required',
+                          pattern: {
+                            value: /^[+]?[\d\s\-\(\)]{10,}$/,
+                            message: 'Please enter a valid phone number'
+                          }
+                        }}
                         render={({ field }) => (
-                          <input
-                            {...field}
-                            type="tel"
-                            className="pl-3 text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2"
-                          />
+                          <>
+                            <input
+                              {...field}
+                              type="tel"
+                              className={`pl-3 text-sm border-[1.3px] focus:outline-primary rounded-lg block w-full p-2 ${
+                                errors.phone1 ? 'border-red-500' : 'border-primary'
+                              }`}
+                            />
+                            {errors.phone1 && (
+                              <span className="text-red-500 text-xs mt-1">
+                                {errors.phone1.message}
+                              </span>
+                            )}
+                          </>
                         )}
                       />
                     </div>
@@ -246,7 +320,6 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
                       <Controller
                         name="phone2"
                         control={control}
-                        defaultValue={data?.phone2}
                         render={({ field }) => (
                           <input
                             {...field}
@@ -256,6 +329,43 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
                         )}
                       />
                     </div>
+                  </div>
+                  <div>
+                    <Controller
+                      name="staff_role"
+                      control={control}
+                      rules={{
+                        required: 'Staff role is required',
+                        validate: (value) => {
+                          if (value === undefined || value === null || value === '') {
+                            return 'Please select a staff role'
+                          }
+                          return true
+                        }
+                      }}
+                      render={({ field }) => {
+                        return (
+                          <label className="flex flex-col gap-1 items-start w-full">
+                            <Select
+                              label="Staff Role *"
+                              defaultLabel="Select Role"
+                              defaultValue={field.value}
+                              options={[
+                                { value: 1, text: 'Admin' },
+                                { value: 0, text: 'Viewer' },
+                              ]}
+                              {...field}
+                              className={errors.staff_role ? 'border-red-500' : ''}
+                            />
+                            {errors.staff_role && (
+                              <span className="text-red-500 text-xs mt-1">
+                                {errors.staff_role.message}
+                              </span>
+                            )}
+                          </label>
+                        )
+                      }}
+                    />
                   </div>
 
                   <Controller
@@ -280,7 +390,7 @@ function UpdateStaff({admin, setData, toggleButton = true }) {
               </div>
             </div>
           </div>
-        ))}
+        )}
     </div>
   )
 }

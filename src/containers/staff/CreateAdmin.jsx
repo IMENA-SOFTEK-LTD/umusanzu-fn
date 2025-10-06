@@ -246,7 +246,7 @@ const CreateAdmin = (props) => {
           }}
         />
       </span>
-      {type.toLowerCase() === 'admin' && (
+ 
         <Controller
           name="staff_role"
           rules={{ required: 'Role is required' }}
@@ -272,7 +272,7 @@ const CreateAdmin = (props) => {
             )
           }}
         />
-      )}
+   
 
       <Alert
         color="red"

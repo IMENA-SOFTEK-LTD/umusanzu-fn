@@ -19,9 +19,15 @@ import {
   faFile,
   faFileExcel,
   faFilePdf,
+  faChevronDown,
+  faChevronUp,
+  faUserTie,
+  faMoneyBillWave,
+  faBuilding,
+  faChartLine,
 } from '@fortawesome/free-solid-svg-icons'
 import GlobalFilter from '../dashboard/GlobalFilter'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback, memo } from 'react'
 import formatFunds from '../../utils/Funds'
 import { useFilters, useTable } from 'react-table'
 import {
@@ -46,10 +52,13 @@ const Reports = ({ user }) => {
     size,
     totalPages,
   } = useSelector((state) => state.pagination)
+  
+  // State management
   const [totalRecords, setTotalRecords] = useState(0)
   const [totalCommission, setTotalCommission] = useState(0)
   const [totalAmount, setTotalAmount] = useState(0)
   const [totalAmountTransferred, setTotalAmountTransferred] = useState(0)
+  const [expandedRows, setExpandedRows] = useState({})
 
   const [monthPaidLabel, setMonthPaidLabel] = useState(
     moment(new Date()).format('MMMM YYYY').toUpperCase()
@@ -70,35 +79,69 @@ const Reports = ({ user }) => {
 
   const [getPerformance] = useLazyGetPerformanceQuery()
 
-  let department = ''
+  // Toggle row expansion for mobile view
+  const toggleRowExpansion = useCallback((index) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }))
+  }, [])
 
+  const openExportPopup = useCallback(() => {
+    setShowExportPopup(true)
+  }, [])
+
+  const closeExportPopup = useCallback(() => {
+    setShowExportPopup(false)
+  }, [])
+
+  // Determine department type based on level_id
+  let department = ''
   switch (user?.departments?.level_id) {
     case 1:
       department = 'province'
-      dispatch(setSelectedProvince(user?.departments?.id))
       break
     case 2:
       department = 'district'
-      dispatch(setSelectedDistrict(user?.departments?.id))
       break
     case 3:
       department = 'sector'
-      dispatch(setSelectedSector(user?.departments?.id))
       break
     case 4:
       department = 'cell'
-      dispatch(setSelectedCell(user?.departments?.id))
       break
     case 5:
       department = 'country'
       break
     case 6:
       department = 'agent'
-      dispatch(setSelectedVillage(user?.departments?.id))
       break
     default:
       department = 'agent'
   }
+
+  // Dispatch Redux actions based on department level - moved to useEffect to prevent render loops
+  useEffect(() => {
+    if (!user?.departments?.level_id || !user?.departments?.id) return
+
+    switch (user.departments.level_id) {
+      case 1:
+        dispatch(setSelectedProvince(user.departments.id))
+        break
+      case 2:
+        dispatch(setSelectedDistrict(user.departments.id))
+        break
+      case 3:
+        dispatch(setSelectedSector(user.departments.id))
+        break
+      case 4:
+        dispatch(setSelectedCell(user.departments.id))
+        break
+      case 6:
+        dispatch(setSelectedVillage(user.departments.id))
+        break
+    }
+  }, [user?.departments?.level_id, user?.departments?.id, dispatch])
 
   useEffect(() => {
     let reportName = `${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
@@ -234,27 +277,120 @@ const Reports = ({ user }) => {
     }
   }
 
-  const openExportPopup = () => {
-    setShowExportPopup(true)
-  }
-
-  const closeExportPopup = () => {
-    setShowExportPopup(false)
-  }
-
   useEffect(() => {
     document.title = 'Reports | Umusanzu Digital'
   }, [])
 
-  const gotoPage1 = (newPage) => {
+  const gotoPage1 = useCallback((newPage) => {
     if (newPage < 0 || newPage >= totalPages) return
     dispatch(setPage(Number(newPage)))
-    // Optionally trigger your API fetch here if it's not automatically triggered by page change
-  }
+  }, [totalPages, dispatch])
+
+  // Mobile Report Card Component
+  const ReportCard = memo(({ report, index }) => (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4">
+      {/* Main Info */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-blue-100 rounded-full">
+            <FontAwesomeIcon
+              className="text-blue-600"
+              icon={faUserTie}
+            />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900 text-sm">
+              {report.agent}
+            </h3>
+            <p className="text-xs text-gray-500">{report.village}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => toggleRowExpansion(index)}
+          className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <FontAwesomeIcon
+            icon={expandedRows[index] ? faChevronUp : faChevronDown}
+            className="w-4 h-4"
+          />
+        </button>
+      </div>
+
+      {/* Performance Summary */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-center">
+          <p className="text-lg font-bold text-green-600">
+            {formatFunds(report.total)}
+          </p>
+          <p className="text-xs text-gray-500">Total Amount</p>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-bold text-blue-600">
+            {formatFunds(report.commission)}
+          </p>
+          <p className="text-xs text-gray-500">Commission (10%)</p>
+        </div>
+      </div>
+
+      {/* Expanded Content */}
+      {expandedRows[index] && (
+        <div className="border-t border-gray-100 pt-3 space-y-3">
+          {/* Financial Details Grid */}
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="text-gray-500 block text-xs">Bank Transfer</span>
+              <p className="font-medium text-green-600 flex items-center">
+                <FontAwesomeIcon icon={faMoneyBillWave} className="w-3 h-3 mr-1" />
+                {formatFunds(report.bank_transfer)}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Bank Slips/Cheques</span>
+              <p className="font-medium">{report.bank_slip}</p>
+            </div>
+          </div>
+
+          {/* Location Details */}
+          <div className="bg-gray-50 rounded-lg p-3">
+            <h4 className="text-xs font-semibold text-gray-700 mb-2">Location Details</h4>
+            <div className="grid grid-cols-1 gap-2 text-xs">
+              <div>
+                <span className="text-gray-500">Cell:</span>
+                <p className="font-medium">{report.cell}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Village:</span>
+                <p className="font-medium">{report.village}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Performance Summary */}
+          <div className="bg-blue-50 rounded-lg p-3">
+            <h4 className="text-xs font-semibold text-blue-700 mb-2 flex items-center">
+              <FontAwesomeIcon icon={faChartLine} className="w-3 h-3 mr-1" />
+              Performance Summary
+            </h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-blue-600">Total Collected:</span>
+                <p className="font-bold text-green-600">{formatFunds(report.total)}</p>
+              </div>
+              <div>
+                <span className="text-blue-600">Commission Earned:</span>
+                <p className="font-bold text-blue-600">{formatFunds(report.commission)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  ))
+
   return (
     <main className={`my-12`}>
       <OverlayLoading color="black" isLoading={transactionsListIsLoading} />
-      <div className="flex my-8 flex-col w-full items-center gap-6 relative">
+      <div className="flex flex-col items-center gap-6 px-4 sm:px-8">
         {showExportPopup && (
           <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
             <div className="bg-white p-4 rounded-lg shadow-lg">
@@ -286,11 +422,6 @@ const Reports = ({ user }) => {
                       <FontAwesomeIcon icon={faFileExcel} />
                     </span>
                   }
-                  // className={
-                  //   user?.departments?.level_id === 5
-                  //     ? 'flex'
-                  //     : 'hidden'
-                  // }
                   onClick={handleExportToExcel}
                 />
                 <Button
@@ -306,29 +437,37 @@ const Reports = ({ user }) => {
             </div>
           </div>
         )}
-        <div className="search-filter flex flex-col w-full items-center gap-6">
-          <span className="flex flex-wrap items-center justify-between gap-4 w-full px-8 max-md:flex-col max-md:items-center">
-            <div className="flex gap-2 max-md:pl-0">
-              <strong>
-                {`${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()} TRANSACTIONS REPORT - ${monthPaidLabel}`}
-              </strong>
+
+        {/* Header Section */}
+        <div className="w-full">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="flex-1">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+                Performance Reports
+              </h1>
+              <p className="text-sm text-gray-600">
+                {`${user?.departments?.name} ${user?.department}`}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Report Period: {monthPaidLabel}
+              </p>
             </div>
-            <div className="flex gap-2 max-md:pl-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               {user?.departments.level_id !== 6 && (
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    value={
-                      <span className="flex items-center gap-2">
-                        Export Report
-                        <FontAwesomeIcon icon={faFile} />
-                      </span>
-                    }
-                    onClick={openExportPopup}
-                  />
-                </div>
+                <Button
+                  className="w-full sm:w-auto"
+                  value={
+                    <span className="flex items-center gap-2">
+                      <FontAwesomeIcon icon={faFile} />
+                      <span className="hidden sm:inline">Export Report</span>
+                      <span className="sm:hidden">Export</span>
+                    </span>
+                  }
+                  onClick={openExportPopup}
+                />
               )}
             </div>
-          </span>
+          </div>
         </div>
         <div className="mt-2 flex flex-col w-[95%] mx-auto">
           <table>
@@ -421,133 +560,152 @@ const Reports = ({ user }) => {
           <div className="overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden flex flex-col gap-4 border-b border-gray-200">
-                <table
-                  border="1"
-                  className="min-w-full divide-y divide-gray-200"
-                >
-                  <caption className="caption-top p-0">
-                    <table className="w-[100%] mx-auto my-0 divide-y divide-gray-200">
-                      <tbody>
-                        <tr className="bg-[#F9FAFB] flex items-center flex-wrap">
-                          <td className="px-6 py-4 text-black font-semibold">
-                            Total:
+                {/* Summary Stats */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="text-center sm:text-left">
+                      <p className="text-sm text-gray-600">Total Amount</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {formatFunds(totalAmount)} RWF
+                      </p>
+                    </div>
+                    <div className="text-center sm:text-left">
+                      <p className="text-sm text-gray-600">Bank Transfer</p>
+                      <p className="text-xl font-bold text-blue-600">
+                        {formatFunds(totalAmountTransferred)} RWF
+                      </p>
+                    </div>
+                    <div className="text-center sm:text-left">
+                      <p className="text-sm text-gray-600">Commission (10%)</p>
+                      <p className="text-xl font-bold text-orange-600">
+                        {formatFunds(totalCommission)} RWF
+                      </p>
+                    </div>
+                    <div className="text-center sm:text-left">
+                      <p className="text-sm text-gray-600">Total Records</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {totalRecords}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile View */}
+                <div className="block md:hidden">
+                  <div className="space-y-4">
+                    {data.map((row, index) => (
+                      <ReportCard
+                        key={row.id || index}
+                        report={row}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table
+                    border="1"
+                    className="min-w-full divide-y divide-gray-200"
+                  >
+                    <thead className="bg-gray-50">
+                      <tr role="row">
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          No
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Agent
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Village
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Cell
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Total
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Bank Transfer
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          10% Commission
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Bank Slips / Cheques
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {data.map((row, index) => (
+                        <tr key={index} role="row">
+                          <td
+                            role="cell"
+                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                          >
+                            {row.id}
                           </td>
-                          <td className="px-6 py-4 green font-semibold">
-                            {formatFunds(totalAmount)} RWF
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {row.agent}
                           </td>
-                          <td className="px-6 py-1 green font-semibold">
-                            Bank:
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {row.village}
                           </td>
-                          <td className="px-6 py-1 green font-semibold">
-                            {formatFunds(totalAmountTransferred)}
-                            RWF
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {row.cell}
                           </td>
-                          <td className="px-6 py-4 green font-semibold">
-                            Commission(10%):
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                            {formatFunds(row.total)}
                           </td>
-                          <td className="px-6 py-4 green font-semibold">
-                            {formatFunds(totalCommission)}
-                            RWF
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
+                            {formatFunds(row.bank_transfer)}
+                          </td>
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-orange-600">
+                            {formatFunds(row.commission)}
+                          </td>
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {row.bank_slip}
                           </td>
                         </tr>
-                      </tbody>
-                    </table>
-                  </caption>
-                  <thead className="bg-gray-50">
-                    <tr role="row">
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        No
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        AGENT
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        VILLAGE
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        CELL
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        TOTAL
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        BANK
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        10% COMMISSION
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        BANK SLIPS / CHEQUES
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {data.map((row, index) => (
-                      <tr key={index} role="row">
-                        <td
-                          role="cell"
-                          className="px-1 py-1 whitespace-nowrap flex items-center "
-                        >
-                          {row.id}
-                        </td>
-
-                        <td role="cell" className="px-1 py-1 whitespace-nowrap">
-                          {row.agent}
-                        </td>
-                        <td role="cell" className="px-1 py-1 whitespace-nowrap">
-                          {row.village}
-                        </td>
-                        <td role="cell" className="px-1 py-1 whitespace-nowrap">
-                          {row.cell}
-                        </td>
-                        <td role="cell" className="px-1 py-1 whitespace-nowrap">
-                          {formatFunds(row.total)}
-                        </td>
-                        <td role="cell" className="px-1 py-1 whitespace-nowrap">
-                          {formatFunds(row.bank_transfer)}
-                        </td>
-                        <td role="cell" className="px-1 py-1 whitespace-nowrap">
-                          {formatFunds(row.commission)}
-                        </td>
-                        <td role="cell" className="px-1 py-1 whitespace-nowrap">
-                          {row.bank_slip}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
                 {totalRecords === 0 && (
                   <main className="min-h-[40vh] flex items-center justify-center flex-col gap-6">
-                    <h1 className="text-[25px] font-medium text-center">
-                      No record found
+                    <h1 className="text-lg font-medium text-center text-gray-500">
+                      No performance records found for this period
                     </h1>
-                    {/* <Button value="Go to dashboard" route="/dashboard" /> */}
+                    <p className="text-sm text-gray-400">
+                      Try adjusting your search criteria or date range
+                    </p>
                   </main>
                 )}
               </div>
@@ -573,17 +731,16 @@ const Reports = ({ user }) => {
               Next
             </Button>
           </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div className="flex gap-x-2">
-              <span className="text-sm text-gray-700 p-2">
-                {' '}
-                <span className="font-medium">{offset + 1}</span> of{' '}
+          <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 items-center">
+              <span className="text-sm text-gray-700">
+                Page <span className="font-medium">{offset + 1}</span> of{' '}
                 <span className="font-medium">{totalPages}</span>
               </span>
               <label>
                 <span className="sr-only">Items Per Page</span>
                 <select
-                  className="w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className="p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm"
                   value={size}
                   onChange={(e) => {
                     dispatch(setSize(Number(e.target.value)))
@@ -656,7 +813,16 @@ const Reports = ({ user }) => {
   )
 }
 Reports.propTypes = {
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({
+    departments: PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      name: PropTypes.string,
+      level_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }),
+    staff_role: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    department: PropTypes.string,
+  }),
 }
 
-export default Reports
+// Memoize the component for performance optimization
+export default memo(Reports)

@@ -1,32 +1,114 @@
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-const Loading = ({ color = 'primary', size = 6 }) => {
+const Loading = memo(({ 
+  color = 'primary', 
+  size = 6, 
+  className = '',
+  text,
+  variant = 'spinner',
+  'data-testid': testId 
+}) => {
+  // Size mapping for consistent sizing
+  const sizeClasses = {
+    4: 'w-4 h-4',
+    5: 'w-5 h-5', 
+    6: 'w-6 h-6',
+    8: 'w-8 h-8',
+    10: 'w-10 h-10',
+    12: 'w-12 h-12',
+    16: 'w-16 h-16'
+  }
+
+  // Color mapping for consistent theming
+  const colorClasses = {
+    primary: 'text-primary',
+    secondary: 'text-gray-600',
+    white: 'text-white',
+    blue: 'text-blue-600',
+    green: 'text-green-600',
+    red: 'text-red-600',
+    yellow: 'text-yellow-600'
+  }
+
+  const spinnerClasses = `
+    ${sizeClasses[size] || sizeClasses[6]}
+    ${colorClasses[color] || colorClasses.primary}
+    animate-spin
+    ${className}
+  `.trim()
+
+  if (variant === 'dots') {
+    return (
+      <div 
+        className={`flex items-center justify-center space-x-1 ${className}`}
+        data-testid={testId}
+        role="status"
+        aria-label={text || "Loading"}
+      >
+        <div className={`${sizeClasses[size] || sizeClasses[6]} ${colorClasses[color] || colorClasses.primary} rounded-full animate-pulse`}></div>
+        <div className={`${sizeClasses[size] || sizeClasses[6]} ${colorClasses[color] || colorClasses.primary} rounded-full animate-pulse`} style={{animationDelay: '0.1s'}}></div>
+        <div className={`${sizeClasses[size] || sizeClasses[6]} ${colorClasses[color] || colorClasses.primary} rounded-full animate-pulse`} style={{animationDelay: '0.2s'}}></div>
+        {text && <span className="ml-2 text-sm text-gray-600">{text}</span>}
+      </div>
+    )
+  }
+
+  if (variant === 'bars') {
+    return (
+      <div 
+        className={`flex items-center justify-center space-x-1 ${className}`}
+        data-testid={testId}
+        role="status"
+        aria-label={text || "Loading"}
+      >
+        <div className={`w-1 ${sizeClasses[size]?.split(' ')[1] || 'h-6'} ${colorClasses[color] || colorClasses.primary} animate-pulse`}></div>
+        <div className={`w-1 ${sizeClasses[size]?.split(' ')[1] || 'h-6'} ${colorClasses[color] || colorClasses.primary} animate-pulse`} style={{animationDelay: '0.1s'}}></div>
+        <div className={`w-1 ${sizeClasses[size]?.split(' ')[1] || 'h-6'} ${colorClasses[color] || colorClasses.primary} animate-pulse`} style={{animationDelay: '0.2s'}}></div>
+        {text && <span className="ml-2 text-sm text-gray-600">{text}</span>}
+      </div>
+    )
+  }
+
+  // Default spinner variant
   return (
-    
-    <section className="flex items-center justify-center">
+    <div 
+      className={`flex items-center justify-center ${className}`}
+      data-testid={testId}
+      role="status"
+      aria-label={text || "Loading"}
+    >
       <svg
-        aria-hidden="true"
-        className={`w-${size} h-${size} mr-2 text-${color} animate-spin fill-white`}
+        className={spinnerClasses}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
         <path
           d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
           fill="currentColor"
+          fillOpacity="0.25"
         />
         <path
           d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-          fill="currentFill"
+          fill="currentColor"
         />
       </svg>
-    </section>
+      {text && <span className="ml-2 text-sm text-gray-600">{text}</span>}
+    </div>
   )
-}
+})
+
+Loading.displayName = 'Loading'
 
 Loading.propTypes = {
-  color: PropTypes.string,
-  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  color: PropTypes.oneOf(['primary', 'secondary', 'white', 'blue', 'green', 'red', 'yellow']),
+  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  className: PropTypes.string,
+  text: PropTypes.string,
+  variant: PropTypes.oneOf(['spinner', 'dots', 'bars']),
+  'data-testid': PropTypes.string,
 }
 
 export default Loading

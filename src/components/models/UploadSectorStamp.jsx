@@ -8,7 +8,7 @@ import { useUploadDepartmentInfoStampMutation } from '../../states/api/apiSlice'
 import { toast } from 'react-toastify'
 import Input from '../Input'
 
-function UploadSectorStamp({ department }) {
+function UploadSectorStamp({ departmentId ,onUpdateStamp}) {
   const [showModal, setShowModal] = useState(false)
   const {
     control,
@@ -38,16 +38,14 @@ function UploadSectorStamp({ department }) {
   const onSubmit = async (data) => {
     uploadDepartmentInfoStamp({
       image: image || data?.file,
-      department: {
-        id: department?.id,
-        name: department?.name,
-      },
+      departmentId
     })
   }
 
   useEffect(() => {
     if (uploadDepartmentInfoStampData) {
       toast.success('Stamp Uploaded Successfully')
+      onUpdateStamp(true)
       setTimeout(() => {
         closeModal()
       }, 1500)
@@ -107,7 +105,7 @@ function UploadSectorStamp({ department }) {
               </h3>
             </div>
             <div className="px-6 py-6 lg:px-8">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form className="space-y-6">
                 <div className="flex space-x-4">
                   <div className="flex-1">
                     <label
@@ -148,7 +146,8 @@ function UploadSectorStamp({ department }) {
                   render={({ field }) => {
                     return (
                       <Button
-                        submit
+                        type="button"
+                       onClick={onSubmit}
                         value={
                           uploadDepartmentInfoStampLoading
                             ? '...'

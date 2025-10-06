@@ -1,46 +1,135 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import API_URL from '../../constants'
-import { toast } from 'react-toastify'
 import { isRejectedWithValue } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
+import API_URL from '../../constants'
 import { logOut } from '../../utils/User'
 
-const showToast = (message) => {
-  toast.error(message, { position: toast?.POSITION?.TOP_RIGHT || 'top-right' })
+const showToast = (message, type = 'error') => {
+  const toastOptions = {
+    position: 'top-right',
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+  }
+
+  switch (type) {
+    case 'success':
+      toast.success(message, toastOptions)
+      break
+    case 'warning':
+      toast.warning(message, toastOptions)
+      break
+    case 'info':
+      toast.info(message, toastOptions)
+      break
+    default:
+      toast.error(message, toastOptions)
+  }
 }
 
 export const rtkQueryErrorLogger = (api) => (next) => (action) => {
   if (isRejectedWithValue(action)) {
-    if (action.payload && action.payload.status === 401) {
-      setTimeout(() => {
-        logOut()
-        location.reload()
-      }, 5000)
-    } else if (
-      action.payload &&
-      action.payload.status !== 200 &&
-      action.payload.status !== 500
-    ) {
-      showToast(action?.payload?.data?.message)
-    } else if (action.payload && action.payload.status === 500) {
-      showToast('An error occured! Try Again.')
+    const { status, data } = action.payload || {}
+    
+    switch (status) {
+      case 401:
+        toast.error('Your session has expired. Please log in again.', {
+          position: 'top-right',
+          autoClose: 3000,
+          onClose: () => {
+            logOut()
+            setTimeout(() => {
+              window.location.href = '/login'
+            }, 100)
+          }
+        })
+        break
+      case 403:
+        showToast('You do not have permission to perform this action.')
+        break
+      case 404:
+        showToast('The requested resource was not found.')
+        break
+      case 422:
+        showToast(data?.message || 'Validation error occurred.')
+        break
+      case 500:
+        showToast('Internal server error. Please try again later.')
+        break
+      case 503:
+        showToast('Service temporarily unavailable. Please try again later.')
+        break
+      default:
+        if (status >= 400 && status < 500) {
+          showToast(data?.message || 'An error occurred. Please try again.')
+        } else if (status >= 500) {
+          showToast('Server error. Please try again later.')
+        } else if (!navigator.onLine) {
+          showToast('No internet connection. Please check your network.')
+        } else {
+          showToast('An unexpected error occurred. Please try again.')
+        }
     }
   }
 
   return next(action)
 }
 
-export const apiSlice = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+  const baseQuery = fetchBaseQuery({
     baseUrl: API_URL,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token')
-      if (token) {
+      if (token && token !== 'undefined') {
         headers.set('authorization', `Bearer ${token}`)
       }
+      headers.set('Content-Type', 'application/json')
       return headers
     },
-  }),
+    timeout: 30000, // 30 seconds timeout
+  })
+
+  let result = await baseQuery(args, api, extraOptions)
+
+  // Handle network errors
+  if (result.error && !result.error.status) {
+    if (!navigator.onLine) {
+      result.error = {
+        status: 'NETWORK_ERROR',
+        data: { message: 'No internet connection' }
+      }
+    } else {
+      result.error = {
+        status: 'NETWORK_ERROR', 
+        data: { message: 'Network error occurred' }
+      }
+    }
+  }
+
+  // Handle 401 errors (token expiry)
+  if (result.error?.status === 401) {
+    // Clear invalid token
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    
+    result.error = {
+      status: 401,
+      data: { message: 'Session expired' }
+    }
+  }
+
+  return result
+}
+
+export const apiSlice = createApi({
+  reducerPath: 'api',
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['User', 'Household', 'Transaction', 'Department', 'Staff', 'Payment'],
+  refetchOnMountOrArgChange: true,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
   endpoints: (builder) => {
     return {
       login: builder.mutation({
@@ -400,10 +489,10 @@ export const apiSlice = createApi({
         }),
       }),
       updateStaffDetails: builder.mutation({
-        query: ({ id, names, email, phone1, phone2, username }) => ({
+        query: ({ id, names, email, phone1, phone2, username,staff_role }) => ({
           url: `/staff/${id}`,
           method: 'PATCH',
-          body: { names, email, phone1, phone2, username },
+          body: { names, email, phone1, phone2, username ,staff_role},
         }),
       }),
       getHouseholdDepartments: builder.query({
@@ -671,10 +760,10 @@ export const apiSlice = createApi({
         }),
       }),
       uploadDepartmentInfoStamp: builder.mutation({
-        query: ({ image, department }) => ({
+        query: ({ image, departmentId }) => ({
           url: `/departmentInfo/stamps/upload`,
           method: 'POST',
-          body: { image, department },
+          body: { image, departmentId },
         }),
       }),
       searchHousehold: builder.query({

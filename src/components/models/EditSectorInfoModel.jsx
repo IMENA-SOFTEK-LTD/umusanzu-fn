@@ -10,15 +10,35 @@ import { toast } from 'react-toastify'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons'
 
-function EditSectorInfoModel({ user }) {
+function EditSectorInfoModel({ user ,onUpdateSectorInfo}) {
   const { user: stateUser } = useSelector((state) => state.auth)
   const [isLoading, setIsLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [departmentData, setDepartmentData] = useState(null)
 
   const [updateDepartmentProfile] = useUpdateDepartmentProfileMutation()
 
   const [getDepartmentProfile, { data, isLoadingData, isError, isSuccess }] =
     useLazyGetDepartmentProfileQuery()
+
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+  } = useForm({
+    defaultValues: {
+      merchant_code: '',
+      email: '',
+      phone1: '',
+      phone2: '',
+      account_bank: '',
+      account_name: '',
+      service_offer: '',
+      leader_name: '',
+      leader_title: '',
+    },
+  })
 
   useEffect(() => {
     getDepartmentProfile({
@@ -26,23 +46,28 @@ function EditSectorInfoModel({ user }) {
     })
   }, [])
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    control,
-  } = useForm({
-    defaultValues: {
-      merchant_code: data?.data?.department_infos[0]?.merchant_code,
-      email: data?.data?.email,
-      phone1: data?.data?.phone1,
-      phone2: data?.data?.phone2,
-      account_bank: data?.data?.department_infos[0]?.account_bank,
-      account_name: data?.data?.department_infos[0]?.account_name,
-      service_offer: data?.data?.department_infos[0]?.service_offer,
-      leader_name: data?.data?.department_infos[0]?.leader_name,
-      leader_title: data?.data?.department_infos[0]?.leader_title,
-    },
-  })
+  useEffect(() => {
+    if (isSuccess && data?.data) {
+      setDepartmentData(data.data)
+    }
+  }, [data, isSuccess])
+
+  // Separate useEffect to reset form when data is available
+  useEffect(() => {
+    if (departmentData && reset) {
+      reset({
+        merchant_code: departmentData.department_infos?.[0]?.merchant_code || '',
+        email: departmentData.email || '',
+        phone1: departmentData.phone1 || '',
+        phone2: departmentData.phone2 || '',
+        account_bank: departmentData.department_infos?.[0]?.account_bank || '',
+        account_name: departmentData.department_infos?.[0]?.account_name || '',
+        service_offer: departmentData.department_infos?.[0]?.service_offer || '',
+        leader_name: departmentData.department_infos?.[0]?.leader_name || '',
+        leader_title: departmentData.department_infos?.[0]?.leader_title || '',
+      })
+    }
+  }, [departmentData, reset])
 
   const openModal = () => {
     setShowModal(true)
@@ -83,6 +108,8 @@ function EditSectorInfoModel({ user }) {
         })
         .finally(() => {
           setIsLoading(false)
+
+          onUpdateSectorInfo(true)
         })
     } catch (error) {
       return error
@@ -161,9 +188,6 @@ function EditSectorInfoModel({ user }) {
                         <input
                           type="text"
                           {...field}
-                          defaultValue={
-                            data?.data?.department_infos[0]?.service_offer
-                          }
                           placeholder="Umutekano"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
@@ -191,9 +215,6 @@ function EditSectorInfoModel({ user }) {
                         <input
                           type="text"
                           {...field}
-                          defaultValue={
-                            data?.data?.department_infos[0]?.leader_name
-                          }
                           placeholder="Representative Names"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
@@ -221,9 +242,6 @@ function EditSectorInfoModel({ user }) {
                       <input
                         type="text"
                         {...field}
-                        defaultValue={
-                          data?.data?.department_infos[0]?.leader_title
-                        }
                         placeholder="Representative Position"
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
@@ -251,7 +269,6 @@ function EditSectorInfoModel({ user }) {
                       <input
                         type="email"
                         {...field}
-                        defaultValue={data?.data?.email}
                         placeholder="Email Address"
                         className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                       />
@@ -278,7 +295,6 @@ function EditSectorInfoModel({ user }) {
                         <input
                           type="text"
                           {...field}
-                          defaultValue={data?.data?.phone1}
                           placeholder="Phone Number"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
@@ -306,7 +322,6 @@ function EditSectorInfoModel({ user }) {
                         <input
                           {...field}
                           type="text"
-                          defaultValue={data?.data?.phone2}
                           placeholder="Phone Number"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
@@ -335,9 +350,6 @@ function EditSectorInfoModel({ user }) {
                         <input
                           type="text"
                           {...field}
-                          defaultValue={
-                            data?.data?.department_infos[0]?.account_bank
-                          }
                           placeholder="Bank Account "
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />
@@ -365,9 +377,6 @@ function EditSectorInfoModel({ user }) {
                         <input
                           type="text"
                           {...field}
-                          defaultValue={
-                            data?.data?.department_infos[0]?.account_name
-                          }
                           placeholder="Bank Account Name"
                           className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                         />

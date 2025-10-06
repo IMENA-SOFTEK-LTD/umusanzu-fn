@@ -388,14 +388,41 @@ export const printTransactionPDF = ({ payment }) => {
 
   const image = payment?.household?.sectors[0]?.stamp
   if (image) {
-    doc.addImage(
-      image,
-      image?.slice(-3),
-      130,
-      doc.autoTable.previous.finalY + 25,
-      40,
-      40
-    )
+    // Extract proper image format from filename
+    const getImageFormat = (imagePath) => {
+      const extension = imagePath?.split('.').pop()?.toLowerCase()
+      // Handle common image formats
+      switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+          return 'JPEG'
+        case 'png':
+          return 'PNG'
+        case 'gif':
+          return 'GIF'
+        case 'bmp':
+          return 'BMP'
+        case 'webp':
+          return 'WEBP'
+        default:
+          // Default to JPEG if format is unknown
+          return 'JPEG'
+      }
+    }
+    
+    try {
+      doc.addImage(
+        image,
+        getImageFormat(image),
+        130,
+        doc.autoTable.previous.finalY + 25,
+        40,
+        40
+      )
+    } catch (error) {
+      console.warn('Failed to add image to PDF:', error)
+      // Continue without image if there's an error
+    }
   }
   doc.setFont('Times New Roman', 'bold')
   doc.text(

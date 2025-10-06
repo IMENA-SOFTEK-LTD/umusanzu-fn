@@ -8,10 +8,12 @@ const Select = forwardRef(
       onChange,
       className,
       defaultValue,
+      value,
       defaultLabel = null,
       label = null,
       labelClassName = null,
       required = false,
+      ...rest
     },
     ref
   ) => {
@@ -24,14 +26,15 @@ const Select = forwardRef(
         <select
           onChange={onChange}
           ref={ref}
+          value={value || defaultValue || ''}
           className={`px-3 p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150 ${className}`}
+          {...rest}
         >
-          {[{ text: `Select ${defaultLabel || ''}` }, ...options].map(
+          {[{ text: `Select ${defaultLabel || ''}`, value: '' }, ...options].map(
             (option, index) => (
               <option
                 disabled={option?.disabled}
                 key={index}
-                defaultValue={defaultValue === option.value}
                 value={option.value}
                 className="text-[14px]"
               >
@@ -53,6 +56,7 @@ Select.propTypes = {
   className: PropTypes.string,
   disabled: PropTypes.bool,
   defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   defaultLabel: PropTypes.string,
   label: PropTypes.string,
   labelClassName: PropTypes.string,

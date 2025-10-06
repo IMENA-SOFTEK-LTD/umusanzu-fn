@@ -74,14 +74,9 @@ const Admins = ({ selectDepartment, type }) => {
   return (
     <div className="w-[98%] mx-auto relative">
       <div className="grid grid-cols-3 w-full">
-        <Alert
-          className="w-full"
-          color="green"
-          open={successMessage}
-          onClose={() => setSuccessMessage('')}
-        >
-          {successMessage}
-        </Alert>
+       <div>
+List of Users
+       </div>
         <div>
           {stateUser?.staff_role === 1 && (
             <Button
@@ -98,6 +93,14 @@ const Admins = ({ selectDepartment, type }) => {
             />
           )}
         </div>
+        <Alert
+          className="w-full"
+          color="green"
+          open={successMessage}
+          onClose={() => setSuccessMessage('')}
+        >
+          {successMessage}
+        </Alert>
         <CustomDialog
           size="sm"
           title={'Create ' + type}
