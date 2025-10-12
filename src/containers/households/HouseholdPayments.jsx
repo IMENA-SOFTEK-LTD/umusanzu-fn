@@ -84,7 +84,8 @@ const HouseholdPayments = ({ household }) => {
             />
           </span>
         )
-      } else if (levelId === 6) {
+      } else
+        { //  if (levelId === 6) 
         return (
           <Button
             value="Pay"
