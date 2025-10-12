@@ -37,6 +37,7 @@ const LazyTransactionTable = lazy(() => import('./containers/dashboard/Transacti
 const LazySettings = lazy(() => import('./pages/Settings.jsx'))
 const LazyCreateHousehold = lazy(() => import('./pages/households/CreateHousehold.jsx'))
 const LazyHouseholdDetails = lazy(() => import('./pages/households/HouseholdDetails.jsx'))
+const LazyPendingPayments = lazy(() => import('./containers/payments/PendingPayments.jsx'))
 
 const App = () => {
   const { isOpen } = useSelector((state) => state.sidebar)
@@ -258,6 +259,15 @@ const App = () => {
           <Route
             path="/agent/transactions/initiated"
             element={<CompleteInitiatedPaymentsForm user={user} />}
+          />
+
+          <Route
+            path="/pending-payments"
+            element={
+              <Suspense fallback={<LoadingFallback />}>
+                <LazyPendingPayments user={user} />
+              </Suspense>
+            }
           />
 
           <Route

@@ -163,7 +163,7 @@ function Settings({ user }) {
                     item.value ? (
                       <div className="flex items-center">
                         <img 
-                          src={`${API_URL}/assets/stamp/${item.value}`} 
+                          src={`${API_URL}/${item.value}`} 
                           alt="Stamp" 
                           className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded" 
                           crossOrigin="anonymous"

@@ -274,16 +274,7 @@ const Login = () => {
               disabled={isSubmitting || loginLoading}
               loading={isSubmitting || loginLoading}
               className="w-full py-3 text-base font-medium"
-              value={
-                isSubmitting || loginLoading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loading size={4} color="white" />
-                    <span>Signing in...</span>
-                  </div>
-                ) : (
-                  'Sign In'
-                )
-              }
+              value="Sign In"
               aria-label="Sign in to your account"
             />
           </form>

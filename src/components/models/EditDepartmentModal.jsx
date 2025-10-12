@@ -389,7 +389,7 @@ console.log(departmentData)
                   </label>
                   <div className="flex items-center space-x-4">
                     <img 
-                      src={`${API_URL}/assets/stamp/${departmentData.stamp}`} 
+                      src={`${API_URL}/${departmentData.stamp}`} 
                       alt="Department Stamp" 
                       className="w-16 h-16 object-cover rounded border border-gray-300" 
                       crossOrigin="anonymous"

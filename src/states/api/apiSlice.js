@@ -276,6 +276,11 @@ export const apiSlice = createApi({
           url: `/transactions/lists/?${new URLSearchParams(params).toString()}`,
         }),
       }),
+      getPendingPayments: builder.query({
+        query: (params) => ({
+          url: `/payment/pending-lists/?${new URLSearchParams(params).toString()}`,
+        }),
+      }),
       getHouseholdsList: builder.query({
         query: (params) => {
           // if (route === '') {
@@ -1020,4 +1025,5 @@ export const {
   useEditPaymentMutation,
   useLazyListDepartmentsQuery,
   useCreateStaffAdminMutation,
+  useLazyGetPendingPaymentsQuery,
 } = apiSlice

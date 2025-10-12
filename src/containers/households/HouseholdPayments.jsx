@@ -269,7 +269,7 @@ const HouseholdPayments = ({ household }) => {
       <EditPayment />
 
       {/* Loading Modal */}
-      <Modal isOpen={isLoading}>
+      <Modal isOpen={isLoading} className="z-[1000000] h-[50vh]">
         <span className="flex flex-col gap-3 items-center justify-center min-h-[100vh]">
           <h1 className="text-primary text-lg">{paymentDetailsIsSuccess ? 'Printing receipt...' : null}</h1>
           <Loading />

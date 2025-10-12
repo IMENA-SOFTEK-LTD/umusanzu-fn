@@ -94,11 +94,17 @@ function Sidebar({ user }) {
           path: '/reports',
           route: '/reports',
         },
+        // {
+        //   title: 'Complete Initiated Payments',
+        //   icon: FaPaypal,
+        //   path: '/agent/transactions/initiated',
+        //   route: '/agent/transactions/initiated',
+        // },
         {
-          title: 'Complete Initiated Payments',
+          title: 'Pending Payments',
           icon: FaPaypal,
-          path: '/agent/transactions/initiated',
-          route: '/agent/transactions/initiated',
+          path: '/pending-payments',
+          route: '/pending-payments',
         },
       ],
     },
@@ -239,7 +245,10 @@ function Sidebar({ user }) {
                 if (
                   (item?.title === 'Departments' && department === 'agent') ||
                   (item?.title === 'Complete Initiated Payments' &&
-                    department !== 'agent')
+                    department !== 'agent') 
+                    ||
+                  (item?.title === 'Pending Payments' &&
+                    department === 'agent')
                 ) {
                   return null
                 }

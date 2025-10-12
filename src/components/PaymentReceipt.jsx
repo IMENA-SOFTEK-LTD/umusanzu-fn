@@ -13,7 +13,7 @@ import QRCOD from '../assets/qrcode.jpeg'
 import moment from 'moment'
 import formatFunds from '../utils/Funds'
 import Loading from './Loading'
-
+import API_URL from '../constants/upload_url'
 const PaymentReceipt = () => {
   const { id } = useParams()
   const user = JSON.parse(localStorage.getItem('user'))
@@ -80,7 +80,7 @@ useEffect(() => {
     doc.setFontSize(10.5)
     doc.setFont('Times New Roman', 'bold');
     doc.text('REPUBLIC OF RWANDA', 70, 17)
-    doc.text('KIGALI CITY', 70, 23)
+    doc.text(`${transaction?.households?.provinces[0]?.name}`, 70, 23)
     doc.text(`${transaction?.households?.districts[0]?.name} DISTRICT`, 70, 29)
     doc.text(`${transaction?.households?.sectors[0]?.name} SECTOR`, 70, 35)
     doc.setFont('Times New Roman', 'bold');
@@ -228,7 +228,7 @@ useEffect(() => {
 
           const image = transaction?.households?.sectors[0]?.stamp;
         if (image) {
-          doc.addImage(image, image?.slice(-3), 130,
+          doc.addImage(image? `${API_URL}/${image}` : null, image?.slice(-3), 130,
             doc.autoTable.previous.finalY + 17, 40, 40);
         }
             doc.setFont('Times New Roman', 'bold');
