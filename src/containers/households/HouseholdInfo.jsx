@@ -100,14 +100,14 @@ const HouseholdInfo = ({ household }) => {
                       selectedHouseholdType
                     )}
 
-                    {displaySave ? (
+                    {parseInt(user?.staff_role) === 1 && displaySave ? (
                       <button
                         className="bg-[#e5e7eb] hover:bg-[#d1d5db] text-black py-1 px-2 ml-1 text-xs font-semibold rounded-md"
                         onClick={updateHouseHoldType}
                       >
                         Save
                       </button>
-                    ) : (
+                    ) : parseInt(user?.staff_role) === 1 ? (
                       <button
                         className="bg-[#e5e7eb] hover:bg-[#d1d5db] text-black py-1 px-2 ml-2 text-xs font-semibold rounded-md"
                         onClick={(e) => {
@@ -117,7 +117,7 @@ const HouseholdInfo = ({ household }) => {
                       >
                         Edit
                       </button>
-                    )}
+                    ) : null}
                   </td>
                 ) : (
                   <td className="py-2 pl-4">{household?.type}</td>
@@ -175,7 +175,7 @@ const HouseholdInfo = ({ household }) => {
               </tr>
             </tbody>
           </table>
-          { ![6,4].includes(user?.departments.level_id) && (
+          { ![6,4].includes(user?.departments.level_id)  && parseInt(user?.staff_role) === 1&& (
             <span className="flex items-center gap-4">
               <Button
                 value="Edit"

@@ -135,6 +135,8 @@ useEffect(() => {
               />
             )}
 
+            {parseInt(user?.staff_role) === 1 && (
+            <>
             <button
               className="bg-green-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
               onClick={(e) => {
@@ -144,7 +146,7 @@ useEffect(() => {
             >
               <span className="text-center text-white">
                 <FontAwesomeIcon icon={faMoneyBill} />
-                <span className="text-white ml-2">Cashless</span>
+                <span className="text-white ml-2">Record Month</span>
               </span>
             </button>
 
@@ -161,7 +163,6 @@ useEffect(() => {
               </span>
             </button>
 
-            {/* <RecordMultipleMonthsPayment /> */}
             <button
               className="bg-blue-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
               onClick={(e) => {
@@ -220,6 +221,9 @@ useEffect(() => {
                 </Link>
               </menu>
             </span>
+            </>
+            )}
+            
           </div>
 
           <div className="relative w-full">

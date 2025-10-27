@@ -763,6 +763,7 @@ const HouseholdTable = ({ user }) => {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              {parseInt(user?.staff_role) === 1 && (
                 <Button
                   className="w-full sm:w-auto"
                   value={
@@ -774,7 +775,8 @@ const HouseholdTable = ({ user }) => {
                   }
                   route="/households/create"
                 />
-                {user?.departments.level_id !== 6 && (
+                )}
+                {user?.departments.level_id !== 6 && parseInt(user?.staff_role) === 1 && (
                   <Button
                     className="w-full sm:w-auto"
                     value={

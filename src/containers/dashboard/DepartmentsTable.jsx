@@ -509,6 +509,7 @@ const DepartmentsTable = ({ user }) => {
 
         <div className="mr-2">
           <div className="flex items-center  justify-between">
+            {parseInt(user?.staff_role) === 1 && (
             <Button
               submit
               type="button"
@@ -521,6 +522,7 @@ const DepartmentsTable = ({ user }) => {
               }
               onClick={openExportPopup}
             />
+            )}
             <DepartmentModals />
             
             {/* Edit Department Modal */}

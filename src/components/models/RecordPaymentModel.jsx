@@ -228,7 +228,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         <Button
                           submit
                           value={
-                            paymentSessionIsLoading ? <Loading /> :  `Ishyura`
+                            paymentSessionIsLoading ? <Loading /> :  `Emeza na Ishyura`
                           }
                         />
                       </article>

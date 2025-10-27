@@ -169,7 +169,7 @@ export const addRoundedTableHeader = (doc, tableData, startY, columns, options =
 
   // Add header text with proper centering and padding
   doc.setTextColor(textColor[0], textColor[1], textColor[2])
-  doc.setFontSize(10)
+  doc.setFontSize(8)
   doc.setFont('Times New Roman', 'bold')
   
   // Calculate vertical center with equal padding
@@ -689,9 +689,9 @@ export const printReceiptsPDF = ({ household, request }) => {
     'STATUS',
   ]
   
-  const headerEndY = addRoundedTableHeader(doc, null, 120, columns, {
+  const headerEndY = addRoundedTableHeader(doc, null, 115, columns, {
     margin: 15,
-    headerHeight: 10,
+    headerHeight: 7,
     borderRadius: 2,
     fillColor: [240, 240, 240], // Light gray background
     textColor: [64, 64, 64] // Dark gray text
@@ -706,13 +706,14 @@ export const printReceiptsPDF = ({ household, request }) => {
     tableWidth: 'auto', // Use auto width to match header
     margin: { left: 15, right: 15 }, // Match header margins
     styles: {
-      fontSize: 9, // Slightly smaller font size
+      fontSize: 7, // Reduced font size to fit more content
       textColor: 0, // Black text color for the body
-      cellPadding: { top: 4, right: 3, bottom: 4, left: 3 }, // Better padding
+      cellPadding: { top: 1, right: 1, bottom: 1, left: 1 }, // Minimal padding
       halign: 'center', // Center align horizontally
       valign: 'middle', // Center align vertically
       lineColor: [200, 200, 200], // Light gray grid lines
       lineWidth: 0.1, // Thin grid lines
+      minCellHeight: 4, // Reduced row height
     },
     columnStyles: {
       0: { halign: 'left' }, // DESCRIPTION - left aligned
@@ -721,15 +722,47 @@ export const printReceiptsPDF = ({ household, request }) => {
       3: { halign: 'right', fontStyle: 'bold' }, // AMOUNT - right aligned, bold
       4: { halign: 'center', fontStyle: 'bold' }, // STATUS - center aligned, bold
     },
+    didParseCell: function(data) {
+      // Change the cell text for status column to empty so we can draw it ourselves
+      if (data.column.index === 4 && data.row.index < tableData.length) {
+        data.cell.text = ''
+      }
+    },
     didDrawCell: function(data) {
-      // Add status badges after the table is drawn
+      // Add colored status text instead of badges
       if (data.column.index === 4 && data.row.index < tableData.length) {
         const status = tableData[data.row.index][4] // Get status from original data
-        // Center the badge in the STATUS column
-        const cellX = data.cell.x + (data.cell.width / 2) - 7.5 // Center the badge (15mm wide / 2)
-        const cellY = data.cell.y + (data.cell.height / 2) - 2.5 // Perfect vertical centering
         
-        drawStatusBadge(doc, status, cellX, cellY)
+        // Define colors based on status
+        let fillColor, textColor
+        switch (status?.toUpperCase()) {
+          case 'PAID':
+            textColor = [34, 197, 94] // Green
+            break
+          case 'PENDING':
+            textColor = [184, 134, 11] // Dark yellow
+            break
+          case 'PARTIAL':
+            textColor = [59, 130, 246] // Blue
+            break
+          default:
+            textColor = [239, 68, 68] // Red
+        }
+        
+        // Set the text color
+        doc.setTextColor(textColor[0], textColor[1], textColor[2])
+        doc.setFont('Times New Roman', 'bold')
+        doc.setFontSize(7)
+        
+        // Center the text in the cell
+        const textX = data.cell.x + (data.cell.width / 2)
+        const textY = data.cell.y + (data.cell.height / 2) + 0.5
+        
+        // Draw the status text
+        doc.text(status?.toUpperCase(), textX, textY, { align: 'center' })
+        
+        // Reset text color to black
+        doc.setTextColor(0, 0, 0)
       }
     }
   })
@@ -746,45 +779,45 @@ export const printReceiptsPDF = ({ household, request }) => {
   doc.text(
     `TOTAL ${formatFunds(totalAmount)} RWF`,
     rightMargin,
-    doc.autoTable.previous.finalY + 15,
+    doc.autoTable.previous.finalY + 8,
     { align: 'right' }
   )
 
   doc.setFont('Times New Roman', 'normal')
-  doc.setFontSize(12)
+  doc.setFontSize(8)
   doc.text(
     `For more info, Please call: ${household?.phone1}`,
     15,
-    doc.autoTable.previous.finalY + 15
+    doc.autoTable.previous.finalY + 8
   )
-  doc.text('PAY CASHLESS DIAL: *775*3#', 15, doc.autoTable.previous.finalY + 30)
+  doc.text('PAY CASHLESS DIAL: *775*3#', 15, doc.autoTable.previous.finalY + 15)
   
   // Add QR code under the PAY CASHLESS DIAL text
-  const qrY = doc.autoTable.previous.finalY + 45 // Position below the dial text
-  doc.addImage(QRCOD, 'JPEG', 15, qrY, 20, 20) // QR code on the left side
+  const qrY = doc.autoTable.previous.finalY + 30 // Position below the dial text
+  doc.addImage(QRCOD, 'JPEG', 15, qrY, 15, 15) // QR code on the left side (smaller size)
 
   // Signature section with improved design
-  doc.setFontSize(12)
+  doc.setFontSize(10)
   
   // Add a subtle line above signature section
   doc.setDrawColor(200, 200, 200) // Light gray line
-  doc.line(rightMargin - 60, doc.autoTable.previous.finalY + 25, rightMargin, doc.autoTable.previous.finalY + 25)
+  doc.line(rightMargin - 60, doc.autoTable.previous.finalY + 15, rightMargin, doc.autoTable.previous.finalY + 15)
   
   const image = household?.sectors[0]?.stamp || null
   if (image) {
     // Position stamp with better design
     addSignatureImage(doc, image, {
       x: rightMargin - 45, // Centered above the text block
-      y: doc.autoTable.previous.finalY + 30, // Better spacing
-      width: 30, // Slightly larger for better visibility
-      height: 30 // Slightly larger for better visibility
+      y: doc.autoTable.previous.finalY + 20, // Better spacing
+      width: 25, // Reduced size for more space
+      height: 25 // Reduced size for more space
     })
   }
   
   // Signature details with improved spacing and design
   doc.setFont('Times New Roman', 'bold')
   const signatureDetailsX = rightMargin - 50 // Better block width
-  const signatureStartY = doc.autoTable.previous.finalY + 50 // Reduced spacing to prevent cutoff
+  const signatureStartY = doc.autoTable.previous.finalY + 50 // Added padding between stamp and signer names
   
   // Check if we need a new page for signature details
   if (signatureStartY + 30 > doc.internal.pageSize.height - 20) {

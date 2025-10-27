@@ -711,7 +711,7 @@ const TransactionTable = ({ user }) => {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                {user?.departments.level_id !== 6 && (
+                {user?.departments.level_id !== 6 && parseInt(user?.staff_role) === 1 && (
                   <Button
                     className="w-full sm:w-auto"
                     value={

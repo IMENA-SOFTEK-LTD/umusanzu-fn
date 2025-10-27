@@ -100,13 +100,15 @@ function Sidebar({ user }) {
         //   path: '/agent/transactions/initiated',
         //   route: '/agent/transactions/initiated',
         // },
-        {
-          title: 'Pending Payments',
-          icon: FaPaypal,
-          path: '/pending-payments',
-          route: '/pending-payments',
-        },
-      ],
+        [3, 5].includes(stateUser?.departments?.level_id)
+          ? {
+              title: 'Pending Payments',
+              icon: FaPaypal,
+              path: '/pending-payments',
+              route: '/pending-payments',
+            }
+          : null,
+      ].filter(Boolean),
     },
     {
       name: 'Search',
@@ -245,10 +247,8 @@ function Sidebar({ user }) {
                 if (
                   (item?.title === 'Departments' && department === 'agent') ||
                   (item?.title === 'Complete Initiated Payments' &&
-                    department !== 'agent') 
-                    ||
-                  (item?.title === 'Pending Payments' &&
-                    department === 'agent')
+                    department !== 'agent') ||
+                  (item?.title === 'Pending Payments' && department === 'agent')
                 ) {
                   return null
                 }
@@ -279,27 +279,26 @@ function Sidebar({ user }) {
                       }
                     }}
                   >
-                      <figure
-                                          key={j}
-                                          className={`${
-                                            isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
-                                          } flex py-1 ${
-                                            pathName === item.title ? 'bg-slate-800' : null
-                                          } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
-                                        >
-                                          <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
-                                          <motion.p
-                                            key={j}
-                                            to={item.path}
-                                            animate={textControls}
-                                            className={`ml-4 text-sm font-bold text-white ${
-                                              isOpen ? '!opacity-100 !flex' : 'hidden'
-                                            }`}
-                                          >
-                                            {item.title}
-                                          </motion.p>
-                                        </figure>
-                  
+                    <figure
+                      key={j}
+                      className={`${
+                        isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
+                      } flex py-1 ${
+                        pathName === item.title ? 'bg-slate-800' : null
+                      } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
+                    >
+                      <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
+                      <motion.p
+                        key={j}
+                        to={item.path}
+                        animate={textControls}
+                        className={`ml-4 text-sm font-bold text-white ${
+                          isOpen ? '!opacity-100 !flex' : 'hidden'
+                        }`}
+                      >
+                        {item.title}
+                      </motion.p>
+                    </figure>
                   </Link>
                 )
               })}
