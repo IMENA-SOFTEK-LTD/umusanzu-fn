@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import { Controller, useForm } from 'react-hook-form'
 import Button from '../../components/Button'
+import { useState } from 'react'
 import {
   useLazyGetCellVillagesQuery,
   useLazyGetCountryDistrictsQuery,
@@ -39,6 +40,8 @@ import { setUserOrSelectedDepartmentNames } from '../../states/features/departme
 import queryString from 'query-string'
 import moment from 'moment'
 import { BiChevronDown, BiSearch } from 'react-icons/bi'
+import { faUpload, faTrash, faChevronDown as faChevronDownIcon } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const levels = [
   { id: 1, name: 'Country' },
@@ -79,8 +82,14 @@ const GlobalFilter = ({
   onChange,
   onSearch,
   placeholder,
+  showImport = false,
+  showDelete = false,
+  onImport,
+  onDeleteAllHouseholds,
+  onDeleteTransactions,
 }) => {
   const { handleSubmit, control } = useForm()
+  const [showDeleteMenu, setShowDeleteMenu] = useState(false)
 
   const {
     districts,
@@ -484,6 +493,7 @@ const GlobalFilter = ({
                     { id: 'INACTIVE', name: 'Inactive' },
                     { id: 'MOVED', name: 'Moved' },
                     { id: 'REQUESTED', name: 'Requested' },
+                    // { id: 'DELETED', name: 'Deleted' },
                   ]}
                   placeholder="Select Activation Status"
                 />
@@ -746,7 +756,7 @@ const GlobalFilter = ({
           {/* Submit Button */}
           <button
             type="submit"
-            className=" flex items-center  rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            className="flex items-center rounded-md w-[100px] bg-slate-800 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -755,14 +765,78 @@ const GlobalFilter = ({
               className="w-4 h-4"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               />
             </svg>
             <span className="pl-2">Search</span>
           </button>
+
+          {/* Import Button */}
+          {showImport && (
+            <button
+              type="button"
+              onClick={onImport}
+              className="flex items-center justify-center rounded-md bg-green-600 p-1.5 px-4 text-sm text-white transition-all shadow-sm hover:shadow-lg hover:bg-green-700 focus:bg-green-700 focus:shadow-none active:bg-green-700 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            >
+              <FontAwesomeIcon icon={faUpload} className="mr-2" />
+              <span>Import</span>
+            </button>
+          )}
+
+          {/* Delete Button with Dropdown */}
+          {showDelete && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowDeleteMenu(!showDeleteMenu)}
+                className="flex items-center justify-center rounded-md bg-red-600 p-1.5 px-4 text-sm text-white transition-all shadow-sm hover:shadow-lg hover:bg-red-700 focus:bg-red-700 focus:shadow-none active:bg-red-700 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+              >
+                <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                <span>Delete</span>
+                <FontAwesomeIcon icon={faChevronDownIcon} className="ml-2 text-xs" />
+              </button>
+              
+              {showDeleteMenu && (
+                <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="py-1" role="menu">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowDeleteMenu(false)
+                        if (onDeleteAllHouseholds) onDeleteAllHouseholds()
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      role="menuitem"
+                    >
+                      Delete All Households
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowDeleteMenu(false)
+                        if (onDeleteTransactions) onDeleteTransactions()
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      role="menuitem"
+                    >
+                      Delete Transactions
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+        
+        {/* Click outside to close delete menu */}
+        {showDeleteMenu && (
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setShowDeleteMenu(false)}
+          ></div>
+        )}
       </form>
     </div>
   )
@@ -774,6 +848,11 @@ GlobalFilter.propTypes = {
   onChange: PropTypes.func,
   onSearch: PropTypes.func,
   placeholder: PropTypes.string,
+  showImport: PropTypes.bool,
+  showDelete: PropTypes.bool,
+  onImport: PropTypes.func,
+  onDeleteAllHouseholds: PropTypes.func,
+  onDeleteTransactions: PropTypes.func,
 }
 
 export default GlobalFilter

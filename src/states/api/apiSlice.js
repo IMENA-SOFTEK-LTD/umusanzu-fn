@@ -949,6 +949,30 @@ export const apiSlice = createApi({
           },
         }),
       }),
+      // IMPORT HOUSEHOLDS
+      importHouseholds: builder.mutation({
+        query: ({ households, filters }) => ({
+          url: `/households/import`,
+          method: 'POST',
+          body: { households, ...filters },
+        }),
+      }),
+      // DELETE ALL HOUSEHOLDS
+      deleteAllHouseholds: builder.mutation({
+        query: (filters) => ({
+          url: `/households/delete-all`,
+          method: 'POST',
+          body: filters,
+        }),
+      }),
+      // DELETE ALL TRANSACTIONS
+      deleteAllTransactions: builder.mutation({
+        query: (filters) => ({
+          url: `/households/delete-transactions`,
+          method: 'POST',
+          body: filters,
+        }),
+      }),
     }
   },
 })
@@ -1026,4 +1050,7 @@ export const {
   useLazyListDepartmentsQuery,
   useCreateStaffAdminMutation,
   useLazyGetPendingPaymentsQuery,
+  useImportHouseholdsMutation,
+  useDeleteAllHouseholdsMutation,
+  useDeleteAllTransactionsMutation,
 } = apiSlice

@@ -20,6 +20,7 @@ import {
   faChevronUp,
   faMapMarkerAlt,
   faPhone,
+  faDownload,
 } from '@fortawesome/free-solid-svg-icons'
 import {
   useGlobalFilter,
@@ -37,16 +38,23 @@ import {
   useCancelMoveHouseholdMutation,
   useLazyGetHouseholdsListQuery,
   useMoveHouseholdMutation,
+  useImportHouseholdsMutation,
 } from '../../states/api/apiSlice'
 import Loading from '../../components/Loading'
 import Button, { PageButton } from '../../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useSelector, useDispatch } from 'react-redux'
 import GlobalFilter from './GlobalFilter'
+import Modal from '../../components/models/Modal'
+import ImportHouseholdsModal from '../../components/models/ImportHouseholdsModal'
+import DeleteHouseholdsModal from '../../components/models/DeleteHouseholdsModal'
+import DeleteTransactionsModal from '../../components/models/DeleteTransactionsModal'
 import {
   setSelectedCell,
   setSelectedSector,
   setSelectedVillage,
+  setSelectedProvince,
+  setSelectedDistrict,
 } from '../../states/features/modals/householdSlice'
 import formatFunds from '../../utils/Funds'
 import { useLocation } from 'react-router-dom'
@@ -54,6 +62,7 @@ import API_URL from '../../constants'
 import { toast } from 'react-toastify'
 import download from 'downloadjs'
 import OverlayLoading from '../../components/OverlayLoading'
+import * as XLSX from 'xlsx'
 
 const HouseholdTable = ({ user }) => {
   // State management
@@ -68,6 +77,9 @@ const HouseholdTable = ({ user }) => {
   const [reportName, setReportName] = useState(
     `HOUSEHOLDS REGISTERED IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
   )
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [showDeleteHouseholdsModal, setShowDeleteHouseholdsModal] = useState(false)
+  const [showDeleteTransactionsModal, setShowDeleteTransactionsModal] = useState(false)
   const { userOrSelectedDepartmentNames } = useSelector(
     (state) => state.departments
   )
@@ -88,6 +100,28 @@ const HouseholdTable = ({ user }) => {
   const closeExportPopup = useCallback(() => {
     setShowExportPopup(false)
   }, [])
+
+  const [
+    importHouseholds,
+    {
+      isLoading: isImporting,
+      isSuccess: importSuccess,
+      isError: importError,
+    },
+  ] = useImportHouseholdsMutation()
+
+  const handleImport = useCallback(() => {
+    setShowImportModal(true)
+  }, [])
+
+  const handleDeleteAllHouseholds = useCallback(() => {
+    setShowDeleteHouseholdsModal(true)
+  }, [])
+
+  const handleDeleteTransactions = useCallback(() => {
+    setShowDeleteTransactionsModal(true)
+  }, [])
+
   const [getHouseholdsList] = useLazyGetHouseholdsListQuery()
 
   const [
@@ -828,6 +862,11 @@ const HouseholdTable = ({ user }) => {
                   placeholder={
                     'Search for household by names, phone, email....'
                   }
+                  showImport={parseInt(user?.staff_role) === 1}
+                  showDelete={parseInt(user?.staff_role) === 1}
+                  onImport={handleImport}
+                  onDeleteAllHouseholds={handleDeleteAllHouseholds}
+                  onDeleteTransactions={handleDeleteTransactions}
                   onChange={(query) => {
                     const queries2 = {
                       departmentId: user?.departments?.id,
@@ -1120,6 +1159,57 @@ const HouseholdTable = ({ user }) => {
           </div>
         </div>
       </div>
+
+      {/* Import Modal */}
+      <ImportHouseholdsModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onSuccess={() => {
+          // Optionally refresh data after successful import
+          if (onLoadHouseholdLists) {
+            onLoadHouseholdLists({
+              department,
+              size,
+              page: offset,
+              ...queries,
+            })
+          }
+        }}
+      />
+
+      {/* Delete All Households Modal */}
+      <DeleteHouseholdsModal
+        isOpen={showDeleteHouseholdsModal}
+        onClose={() => setShowDeleteHouseholdsModal(false)}
+        onSuccess={() => {
+          // Refresh data after successful deletion
+          if (onLoadHouseholdLists) {
+            onLoadHouseholdLists({
+              department,
+              size,
+              page: offset,
+              ...queries,
+            })
+          }
+        }}
+      />
+
+      {/* Delete Transactions Modal */}
+      <DeleteTransactionsModal
+        isOpen={showDeleteTransactionsModal}
+        onClose={() => setShowDeleteTransactionsModal(false)}
+        onSuccess={() => {
+          // Refresh data after successful deletion
+          if (onLoadHouseholdLists) {
+            onLoadHouseholdLists({
+              department,
+              size,
+              page: offset,
+              ...queries,
+            })
+          }
+        }}
+      />
     </main>
   )
 }
