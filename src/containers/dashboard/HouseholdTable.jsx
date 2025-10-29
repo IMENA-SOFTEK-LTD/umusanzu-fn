@@ -862,8 +862,8 @@ const HouseholdTable = ({ user }) => {
                   placeholder={
                     'Search for household by names, phone, email....'
                   }
-                  showImport={parseInt(user?.staff_role) === 1}
-                  showDelete={parseInt(user?.staff_role) === 1}
+                  showImport={parseInt(user?.staff_role) === 1 && user?.departments.level_id === 5}
+                  showDelete={parseInt(user?.staff_role) === 1 && user?.departments.level_id === 5}
                   onImport={handleImport}
                   onDeleteAllHouseholds={handleDeleteAllHouseholds}
                   onDeleteTransactions={handleDeleteTransactions}
