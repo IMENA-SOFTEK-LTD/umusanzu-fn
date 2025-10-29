@@ -69,7 +69,7 @@ const DashboardCard = ({
       1: {
         title: 'Target',
         period: 'month',
-        bg_color: 'bg-[#013B47]',
+        bg_color: 'bg-primary-dark',
         text_color: 'text-white',
         route: 'monthlyTarget',
         removeIncreaseDecrease: true,
@@ -82,8 +82,8 @@ const DashboardCard = ({
       2: {
         title: "Today's Collections",
         period: 'day',
-        bg_color: 'bg-[#E9D8A6]',
-        text_color: 'white',
+        bg_color: 'bg-primary-dark',
+        text_color: 'text-white',
         route: 'todayCollections',
         lastDayAmount: dashboardCardData?.data?.lastDayCollections || 0,
         increase: dashboardCardData?.data?.increase || false,
@@ -97,8 +97,8 @@ const DashboardCard = ({
       3: {
         title: 'Monthly Collections',
         period: 'month',
-        bg_color: 'bg-[#12a6bc80]',
-        text_color: 'text-black',
+        bg_color: 'bg-primary-dark',
+        text_color: 'text-white',
         route: 'monthlyCollections',
         progress: dashboardCardData?.data?.progress || 0,
         increase: dashboardCardData?.data?.increase || false,
@@ -112,8 +112,8 @@ const DashboardCard = ({
       4: {
         title: 'Pending Paid',
         period: 'month',
-        bg_color: 'bg-[#CADEDE]',
-        text_color: 'white',
+        bg_color: 'bg-primary-dark',
+        text_color: 'text-white',
         route: 'amountPendingPaid',
         removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
@@ -125,8 +125,8 @@ const DashboardCard = ({
       5: {
         title: 'Advance Payments',
         period: 'month',
-        bg_color: 'bg-[#ee9b00]',
-        text_color: 'white',
+        bg_color: 'bg-primary-dark',
+        text_color: 'text-white',
         route: 'advancePayments',
         removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
@@ -138,8 +138,8 @@ const DashboardCard = ({
       6: {
         title: 'Collected',
         period: 'month',
-        bg_color: 'bg-[#ACBDE3]',
-        text_color: 'white',
+        bg_color: 'bg-primary-dark',
+        text_color: 'text-white',
         route: 'monthlyCollected',
         removeIncreaseDecrease: true,
         amount: dashboardCardIsLoading ? (
@@ -151,7 +151,7 @@ const DashboardCard = ({
       7: {
         title: 'Pending',
         period: 'month',
-        bg_color: 'bg-[#ae2012]',
+        bg_color: 'bg-primary-dark',
         text_color: 'text-white',
         route: 'amountPendingNotPaid',
         removeIncreaseDecrease: true,
@@ -164,7 +164,7 @@ const DashboardCard = ({
       8: {
         title: 'Total Households',
         period: 'month',
-        bg_color: 'bg-[#005F73]',
+        bg_color: 'bg-primary-dark',
         text_color: 'text-white',
         route: 'totalHouseholds',
         removeIncreaseDecrease: true,
@@ -178,7 +178,7 @@ const DashboardCard = ({
       9: {
         title: 'Active Households',
         period: 'month',
-        bg_color: 'bg-[#CA6702]',
+        bg_color: 'bg-primary-dark',
         text_color: 'text-white',
         route: 'activeHouseholds',
         removeIncreaseDecrease: true,
@@ -192,7 +192,7 @@ const DashboardCard = ({
       10: {
         title: 'Inactive Households',
         period: 'month',
-        bg_color: 'bg-[#9B2226]',
+        bg_color: 'bg-primary-dark',
         text_color: 'text-white',
         route: 'inactiveHouseholds',
         removeIncreaseDecrease: true,
@@ -206,7 +206,7 @@ const DashboardCard = ({
       11: {
         title: 'Moved Households',
         period: 'month',
-        bg_color: 'bg-yellow-900',
+        bg_color: 'bg-primary-dark',
         text_color: 'text-white',
         route: 'movedHouseholds',
         removeIncreaseDecrease: true,
@@ -220,7 +220,7 @@ const DashboardCard = ({
       12: {
         title: 'Requests to move',
         period: 'month',
-        bg_color: 'bg-green-900',
+        bg_color: 'bg-primary-dark',
         text_color: 'text-white',
         route: 'requestedHouseholds',
         removeIncreaseDecrease: true,
@@ -270,15 +270,15 @@ const DashboardCard = ({
       {/* Card Body */}
       <section className="w-full flex items-start py-4 px-4 justify-start h-full min-h-[60%]">
         <div className="w-full flex flex-col items-start gap-2">
-          <h3 className="font-bold">{newProps.title}</h3>
-          <span className="flex items-center gap-2 font-black">
+          <h3 className="font-bold text-[13px]">{newProps.title}</h3>
+          <span className="flex items-center gap-2 font-black text-[13px]">
             {dashboardCardIsLoading ? (
               <Loading size={4} />
             ) : (
               formatFunds(newProps.amount)
             )}
 
-            <p className={`${newProps.funds ? 'flex' : 'hidden'}`}>RWF</p>
+            <p className={`${newProps.funds ? 'flex text-[13px]' : 'hidden'}`}>RWF</p>
           </span>
         </div>
         {/* <figure className="p-1 bg-slate-200 rounded-md shadow-md h-full flex justify-start">

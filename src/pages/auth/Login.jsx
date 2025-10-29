@@ -10,6 +10,8 @@ import Input from '../../components/Input'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useResponsive } from '../../hooks/useResponsive'
 import Logo from '../../../public/logo.png'
+import { FaMoneyBillWave, FaWallet, FaMobileAlt, FaShieldAlt } from 'react-icons/fa'
+import ParticleDots from '../../components/ParticleDots'
 import {
   setLoginPageLoaded,
   setUser,
@@ -199,8 +201,8 @@ const Login = () => {
 
   return (
     <ErrorBoundary>
-      <main className={containerClasses}>
-        <div className={formClasses}>
+      <main className={`${containerClasses} relative overflow-hidden`}>
+        <div className={`relative z-10 ${formClasses}`}>
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="space-y-2">
@@ -224,6 +226,15 @@ const Login = () => {
             <p className="text-gray-600 text-sm">
               Sign in to your account to continue
             </p>
+            {/* Money collection highlight strip */}
+            <div className="mt-3 flex items-center justify-center gap-4">
+              <span className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-semibold">
+                <FaMoneyBillWave className="text-primary" /> Fast collections
+              </span>
+              <span className="hidden sm:inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-semibold">
+                <FaShieldAlt className="text-primary" /> Secure payments
+              </span>
+            </div>
           </div>
 
           {/* Login Form */}
@@ -234,17 +245,24 @@ const Login = () => {
                 control={control}
                 rules={validationRules.username}
                 render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Username"
-                    placeholder="Enter your username"
-                    type="text"
-                    required
-                    autoComplete="username"
-                    error={errors.username?.message}
-                    disabled={isSubmitting || loginLoading}
-                    aria-describedby="username-error"
-                  />
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0 w-9 h-9 flex items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <FaWallet />
+                    </div>
+                    <div className="grow">
+                      <Input
+                        {...field}
+                        label="Username"
+                        placeholder="Enter your username"
+                        type="text"
+                        required
+                        autoComplete="username"
+                        error={errors.username?.message}
+                        disabled={isSubmitting || loginLoading}
+                        aria-describedby="username-error"
+                      />
+                    </div>
+                  </div>
                 )}
               />
 
@@ -253,17 +271,24 @@ const Login = () => {
                 control={control}
                 rules={validationRules.password}
                 render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Password"
-                    placeholder="Enter your password"
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    error={errors.password?.message}
-                    disabled={isSubmitting || loginLoading}
-                    aria-describedby="password-error"
-                  />
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0 w-9 h-9 flex items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <FaMobileAlt />
+                    </div>
+                    <div className="grow">
+                      <Input
+                        {...field}
+                        label="Password"
+                        placeholder="Enter your password"
+                        type="password"
+                        required
+                        autoComplete="current-password"
+                        error={errors.password?.message}
+                        disabled={isSubmitting || loginLoading}
+                        aria-describedby="password-error"
+                      />
+                    </div>
+                  </div>
                 )}
               />
             </div>
@@ -286,11 +311,9 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Background decorations */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-          <div className="absolute top-1/4 -right-8 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-          <div className="absolute -bottom-8 left-1/4 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
+        {/* Particle background */}
+        <div className="absolute inset-0 z-0">
+          <ParticleDots colors={["#ffffff", "#000000", "#B45309"]} cycleMs={3500} density={0.0016} maxConnDist={120} />
         </div>
       </main>
     </ErrorBoundary>

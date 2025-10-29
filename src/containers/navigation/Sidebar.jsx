@@ -180,7 +180,7 @@ function Sidebar({ user }) {
 
   return (
     <aside
-      className={`h-screen fixed bg-cyan-800 left-0 top-0 bottom-0 w-fit z-[999] max-[800px]:min-w-[30%] max-[800px]:!w-fit ${
+      className={`h-screen fixed bg-primary-dark left-0 top-0 bottom-0 w-fit z-[999] max-[800px]:min-w-[30%] max-[800px]:!w-fit ${
         isOpen ? 'max-sm:small-sidebar' : 'max-sm:hidden'
       }`}
     >
@@ -190,7 +190,7 @@ function Sidebar({ user }) {
           isOpen
             ? 'max-[800px]:!w-[100%] !w-[20vw] max-sm:small-sidebar'
             : 'max-sm:!min-w-[4vw]'
-        } animate absolute top-0 duration-300 bg-cyan-800 border-r border-gray-700 flex flex-col min-h-screen`}
+        } animate absolute top-0 duration-300 bg-primary-dark border-r border-gray-700 flex flex-col min-h-screen`}
       >
         <div>
           <div className="flex flex-row gap-2 ml-2 mt-12">
@@ -284,10 +284,18 @@ function Sidebar({ user }) {
                       className={`${
                         isOpen ? 'px-4' : 'px-0 pl-2 mx-auto justify-center'
                       } flex py-1 ${
-                        pathName === item.title ? 'bg-slate-800' : null
-                      } cursor-pointer pt-3 pb-3 hover:bg-slate-500`}
+                        pathName === item.title
+                          ? 'bg-[#082B13] border-l-4 border-amber-500 shadow-lg'
+                          : 'hover:bg-primary/60'
+                      } cursor-pointer pt-3 pb-3 transition-all duration-200`}
                     >
-                      <item.icon className="text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg text-amber-600" />
+                      <item.icon
+                        className={`text-lg min-h-8 min-w-8 transition-colors duration-300 transform rounded-lg ${
+                          pathName === item.title
+                            ? 'text-amber-400'
+                            : 'text-amber-600'
+                        }`}
+                      />
                       <motion.p
                         key={j}
                         to={item.path}
