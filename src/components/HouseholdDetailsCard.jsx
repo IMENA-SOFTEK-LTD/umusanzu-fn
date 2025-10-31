@@ -1,10 +1,98 @@
 import PropTypes from 'prop-types'
+import { Link } from 'react-router-dom'
 import { useLazyGetTotalHouseholdPaysQuery } from '../states/api/apiSlice'
-import { faHouse, faMoneyBill } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowUpRightFromSquare,
+  faSeedling,
+  faHandHoldingDollar,
+  faSackDollar,
+  faWallet,
+  faPiggyBank,
+  faMoneyBill,
+  faUsers,
+  faUserGroup,
+  faHouse,
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useMemo } from 'react'
 import Loading from './Loading'
-import Button from './Button'
+import formatFunds from '../utils/Funds'
+
+const ubudeheMeta = {
+  1: {
+    label: 'Ubudehe Tier 1',
+    subtitle: 'Foundation support tier households',
+    icon: faSeedling,
+    iconBg: 'bg-emerald-100 text-emerald-600',
+    pillBg: 'bg-emerald-50 text-emerald-700',
+    variant: 'primary',
+  },
+  2: {
+    label: 'Ubudehe Tier 2',
+    subtitle: 'Emerging stability households',
+    icon: faHandHoldingDollar,
+    iconBg: 'bg-sky-100 text-sky-600',
+    pillBg: 'bg-sky-50 text-sky-700',
+  },
+  3: {
+    label: 'Ubudehe Tier 3',
+    subtitle: 'Growing financial resilience',
+    icon: faSackDollar,
+    iconBg: 'bg-lime-100 text-lime-600',
+    pillBg: 'bg-lime-50 text-lime-700',
+  },
+  4: {
+    label: 'Ubudehe Tier 4',
+    subtitle: 'Established income households',
+    icon: faWallet,
+    iconBg: 'bg-amber-100 text-amber-600',
+    pillBg: 'bg-amber-50 text-amber-700',
+  },
+  5: {
+    label: 'Ubudehe Tier 5',
+    subtitle: 'Growing savings engagement',
+    icon: faPiggyBank,
+    iconBg: 'bg-rose-100 text-rose-600',
+    pillBg: 'bg-rose-50 text-rose-700',
+  },
+  6: {
+    label: 'Ubudehe Tier 6',
+    subtitle: 'Advanced contribution households',
+    icon: faMoneyBill,
+    iconBg: 'bg-cyan-100 text-cyan-600',
+    pillBg: 'bg-cyan-50 text-cyan-700',
+  },
+  7: {
+    label: 'Ubudehe Tier 7',
+    subtitle: 'Community leaders segment',
+    icon: faUsers,
+    iconBg: 'bg-indigo-100 text-indigo-600',
+    pillBg: 'bg-indigo-50 text-indigo-700',
+  },
+  8: {
+    label: 'Ubudehe Tier 8',
+    subtitle: 'High growth participants',
+    icon: faUserGroup,
+    iconBg: 'bg-purple-100 text-purple-600',
+    pillBg: 'bg-purple-50 text-purple-700',
+  },
+  9: {
+    label: 'Ubudehe Tier 9',
+    subtitle: 'Premium household cluster',
+    icon: faHouse,
+    iconBg: 'bg-slate-100 text-slate-700',
+    pillBg: 'bg-slate-200 text-slate-700',
+  },
+}
+
+const DEFAULT_META = {
+  label: 'Ubudehe Tier',
+  subtitle: 'Household contribution bracket',
+  icon: faSeedling,
+  iconBg: 'bg-primary/10 text-primary',
+  pillBg: 'bg-slate-100 text-slate-600',
+  variant: 'neutral',
+}
 
 const HouseholdDetailsCard = ({
   props = {
@@ -37,9 +125,9 @@ const HouseholdDetailsCard = ({
   /** Ubudehe value map by index */
 
   const ubudeheValues = [
-  { index: 1, amount: 0 },
-  { index: 2, amount: 500 },
-  { index: 3, amount: 1000 },
+  { index: 1, amount: 500 },
+  { index: 2, amount: 1000 },
+  { index: 3, amount: 1500 },
   { index: 4, amount: 2000 },
   { index: 5, amount: 3000 },
   { index: 6, amount: 4000 },
@@ -59,46 +147,81 @@ const currentAmount = ubudeheValues.find(v => v.index === props.index)?.amount
     }
   }, [props.index, props.user?.department_id, department, currentAmount])
 
-  const numberOfPays = isLoading ? (
-    <Loading />
-  ) : (
-    data?.data ?? props.numberOfPays
-  )
+  const numberOfPays = data?.data ?? props.numberOfPays
+  const paysDisplay = isLoading ? <Loading size={4} /> : numberOfPays
+
+  const meta = ubudeheMeta[props.index] || DEFAULT_META
+  const variant = meta.variant || (props.index === 1 ? 'primary' : 'neutral')
+
+  const cardClasses = `relative overflow-hidden rounded-3xl border transition-all duration-300 ${
+    variant === 'primary'
+      ? 'bg-gradient-to-br from-primary to-primary-dark text-white shadow-xl hover:shadow-2xl border-primary/40 hover:border-primary/60'
+      : 'bg-white text-slate-900 border-slate-200 hover:-translate-y-1 hover:shadow-lg hover:border-primary/40'
+  }`
+
+  const iconBgClass = meta.iconBg ||
+    (variant === 'primary' ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary')
+  const iconWrapperClasses = `flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBgClass}`
+  const labelColor = variant === 'primary' ? 'text-white/85' : 'text-slate-500'
+  const valueColor = variant === 'primary' ? 'text-white' : 'text-slate-900'
+  const mutedTextColor = variant === 'primary' ? 'text-white/70' : 'text-slate-500'
+
+  const pillClasses = `${
+    meta.pillBg || (variant === 'primary' ? 'bg-white/15 text-white/85' : 'bg-slate-100 text-slate-600')
+  } rounded-full px-3 py-1 text-xs font-semibold`
+
+  const amountValue = formatFunds(currentAmount || 0)
+  const viewRoute = `/households/?query=ubudehe&ubudehe=${currentAmount}`
+  const viewButtonClasses = `${
+    variant === 'primary'
+      ? 'border-white/40 text-white hover:bg-white/15'
+      : 'border-slate-200 text-slate-500 hover:border-primary hover:text-primary'
+  } flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200`
 
   return (
-    <article
-      className="
-        w-full 
-        max-w-sm md:max-w-md lg:max-w-lg 
-        h-full 
-        max-h-[25rem] min-h-fit 
-        flex flex-col 
-        border border-slate-100 
-        rounded-xl shadow-md 
-        transition-transform duration-200 hover:scale-105
-      "
-    >
-      <section className="w-full flex items-start py-6 px-4 justify-between min-h-[70%]">
-        <div className="flex flex-col items-start gap-4">
-          <div className="flex gap-2">
-            <span>Number of pays:</span>
-            <span className="text-slate-700 font-bold">{numberOfPays}</span>
+    <article className={cardClasses}>
+      <div className="flex h-full flex-col gap-6 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className={iconWrapperClasses}>
+              <FontAwesomeIcon icon={meta.icon} className="h-5 w-5" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className={`text-xs font-semibold uppercase tracking-wide ${labelColor}`}>
+                {meta.label}
+              </span>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className={`text-2xl font-semibold tracking-tight ${valueColor}`}>
+                  {amountValue}
+                </span>
+                <span className={`text-xs font-semibold ${mutedTextColor}`}>RWF</span>
+              </div>
+              <p className={`text-xs font-medium leading-relaxed ${mutedTextColor}`}>
+                {meta.subtitle}
+              </p>
+            </div>
           </div>
-          <span className="text-lg font-black">{currentAmount}</span>
+          <Link
+            to={viewRoute}
+            className={`${viewButtonClasses} hover:scale-105`}
+            aria-label={`View details for ${meta.label}`}
+          >
+            <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="h-4 w-4" />
+          </Link>
         </div>
-        <figure className="p-2 bg-slate-200 rounded-md shadow-md flex items-center justify-center">
-          <FontAwesomeIcon
-            className="text-black w-6 h-6"
-            icon={props.isHousehold ? faHouse : faMoneyBill}
-          />
-        </figure>
-      </section>
-      <section className="border-t bg-slate-200 flex w-full items-center justify-between p-2 px-4">
-        <Button
-          value="View more"
-          route={`/households/?query=ubudehe&ubudehe=${currentAmount}`}
-        />
-      </section>
+
+        <div className="mt-auto flex items-center justify-between gap-4">
+          <div>
+            <p className={`text-xs font-semibold uppercase tracking-wide ${mutedTextColor}`}>
+              Number of pays
+            </p>
+            <p className={`mt-1 text-lg font-semibold ${valueColor}`}>
+              {paysDisplay}
+            </p>
+          </div>
+          <span className={pillClasses}>{meta.label}</span>
+        </div>
+      </div>
     </article>
   )
 }

@@ -10,7 +10,7 @@ const HouseDetails = () => {
   }, [])
 
   return (
-    <main className="w-full mx-auto p-4 flex items-center flex-wrap gap-4 justify-center">
+    <main className="w-full mx-auto p-4 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 9 }, (_, i) => {
         const props = {
           index: i + 1,
