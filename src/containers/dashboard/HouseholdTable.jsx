@@ -797,7 +797,7 @@ const HouseholdTable = ({ user }) => {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              {parseInt(user?.staff_role) === 1 && (
+              {[1,2].includes(parseInt(user?.staff_role)) && (
                 <Button
                   className="w-full sm:w-auto"
                   value={

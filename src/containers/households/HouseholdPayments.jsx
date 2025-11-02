@@ -124,7 +124,8 @@ const HouseholdPayments = ({ household }) => {
         //  if (levelId === 6)
         return (
           <>
-            {parseInt(user?.staff_role) === 1 && (
+        
+            {parseInt(user?.staff_role) === 2 && (
               <Button
                 value="Pay"
                 className={`!w-fit ${

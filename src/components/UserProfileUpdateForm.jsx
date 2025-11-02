@@ -106,13 +106,14 @@ function UserProfileUpdateForm ({ user, userProfile, onUpdateProfile }) {
 
   return (
     <div>
+      {parseInt(user?.staff_role) === 1 && (
       <Button value={<span className='flex items-center gap-2'>
         <FontAwesomeIcon icon={faPenToSquare} />
         Update profile
       </span>} 
       onClick={openModal}
       />
-
+      )}
       {showModal && (
         <div
           tabIndex={-1}

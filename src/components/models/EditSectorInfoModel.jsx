@@ -118,6 +118,7 @@ function EditSectorInfoModel({ user ,onUpdateSectorInfo}) {
 
   return (
     <div className="relative">
+      {parseInt(user?.staff_role) === 1 && (
       <Button
         value={
           <span className="flex items-center gap-2">
@@ -127,6 +128,7 @@ function EditSectorInfoModel({ user ,onUpdateSectorInfo}) {
         }
         onClick={openModal}
       />
+      )}
       {showModal && (
         <div
           tabIndex={-1}
