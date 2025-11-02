@@ -135,7 +135,7 @@ useEffect(() => {
               />
             )}
 
-            {parseInt(user?.staff_role) === 1 && (
+            {[1,2].includes(parseInt(user?.staff_role)) && (
             <>
             <button
               className="bg-green-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
