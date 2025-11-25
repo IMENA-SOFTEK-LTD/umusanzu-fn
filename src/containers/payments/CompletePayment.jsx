@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import Modal from '../../components/models/Modal'
 import { setCompletePaymentModal } from '../../states/features/modals/householdSlice'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import Input from '../../components/Input'
 import moment from 'moment'
 import Button from '../../components/Button'
@@ -32,6 +32,7 @@ const CompletePayment = () => {
   ] = useCompletePendingPaymentMutation()
 
   const [isWaitingCompletePayment, setIWaitingCompletePayment] = useState(false)
+  const [waitingDetails, setWaitingDetails] = useState(null)
 
   const startWaiting = () => {
     setIWaitingCompletePayment(true)
@@ -39,6 +40,7 @@ const CompletePayment = () => {
 
   const stopWaiting = () => {
     setIWaitingCompletePayment(false)
+    setWaitingDetails(null)
   }
 
   const {
@@ -47,6 +49,13 @@ const CompletePayment = () => {
     formState: { errors },
     setValue,
   } = useForm()
+
+  // Watch the total_month_paid field to display it in the button
+  const totalMonthPaid = useWatch({
+    control,
+    name: 'total_month_paid',
+    defaultValue: payment?.remain_amount || payment?.total_month_paid || 0,
+  })
 
   useEffect(() => {
     setValue('month_paid', moment(payment?.month_paid)?.format('YYYY-MM'))
@@ -78,7 +87,7 @@ const CompletePayment = () => {
       lang: data?.lang,
       id: payment?.id,
       status: payment.status,
-      phone1: data?.payment_phone,
+      phone1: data?.phone1,
     })
   }
 
@@ -90,6 +99,7 @@ const CompletePayment = () => {
       toast.success(
         completePendingPaymentData.message || 'Payment created successfully'
       )
+      setWaitingDetails(completePendingPaymentData)
     }
     if (completePendingPaymentError) {
       stopWaiting()
@@ -97,7 +107,11 @@ const CompletePayment = () => {
         'Could not create payment. Please check if all information is correct'
       )
     }
-  }, [completePendingPaymentData])
+  }, [
+    completePendingPaymentData,
+    completePendingPaymentError,
+    completePendingPaymentSuccess,
+  ])
 
   return (
     <Modal
@@ -110,7 +124,7 @@ const CompletePayment = () => {
       <h1 className="text-primary uppercase font-semibold">Complete payment</h1>
       {isWaitingCompletePayment ? (
         <>
-          <WaitingForPayment onCancel={stopWaiting} />
+          <WaitingForPayment onCancel={stopWaiting} details={waitingDetails} />
         </>
       ) : (
         <form
@@ -232,6 +246,11 @@ const CompletePayment = () => {
                 />
               )}
             />
+             {errors.phone1 && (
+              <span className="text-red-500">
+                {errors.phone1.message}
+              </span>
+            )}
           </label>
           <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
             Choose SMS Language
@@ -258,7 +277,7 @@ const CompletePayment = () => {
               completePendingPaymentLoading ? (
                 <Loading />
               ) : (
-                `Ishyura ${payment?.remain_amount} RWF`
+                `Ishyura ${totalMonthPaid || payment?.total_month_paid || payment?.remain_amount || 0} RWF`
               )
             }
           />

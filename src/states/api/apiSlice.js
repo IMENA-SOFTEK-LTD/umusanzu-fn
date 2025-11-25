@@ -680,6 +680,8 @@ export const apiSlice = createApi({
           month_paid,
           payment_method,
           agent,
+          type,
+          merchant_code
         }) => ({
           url: `/payment/initiate`,
           method: 'POST',
@@ -691,6 +693,8 @@ export const apiSlice = createApi({
             month_paid,
             payment_method,
             agent,
+            type,
+            merchant_code
           },
         }),
       }),
@@ -876,6 +880,7 @@ export const apiSlice = createApi({
             month_paid,
             agent,
             sms_phone,
+            household_id
           },
         }),
       }),
@@ -902,10 +907,14 @@ export const apiSlice = createApi({
           household_id,
           start_month,
           end_month,
+          type,
+          merchant_code,
+          lang,
+          phone1
         }) => ({
-          url: `/payment/advance/?household_id=${household_id}`,
+          url: `/payment/advance`,
           method: 'POST',
-          body: { payment_phone, agent, start_month, end_month },
+          body: {phone1,household_id, payment_phone, agent, start_month, end_month, type, merchant_code, lang },
         }),
       }),
       // EDIT PAYMENT

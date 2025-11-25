@@ -335,16 +335,16 @@ const CreateHousehold = ({ user }) => {
               <Controller
                 control={control}
                 name="email"
-                rules={{ required: 'Please add the email' }}
+                // rules={{ required: 'Please add the email' }}
                 render={({ field }) => {
                   return <Input {...field} placeholder="info@example.com" />
                 }}
               />
-              {errors.email && (
+              {/* {errors.email && (
                 <span className="text-red-500 text-[12px]">
                   {errors.email.message}
                 </span>
-              )}
+              )} */}
             </label>
           </span>
           <span className="flex items-start gap-4 w-full">

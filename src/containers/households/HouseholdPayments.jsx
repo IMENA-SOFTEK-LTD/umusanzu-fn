@@ -69,8 +69,7 @@ const HouseholdPayments = ({ household }) => {
                   background={false}
                   value={<FontAwesomeIcon icon={faTrash} />}
                   className={`${
-                    status.toUpperCase() !== 'PENDING' &&
-                    levelId !== 5 &&
+                     levelId !== 5 &&
                     'hidden'
                   } ${
                     ['PARTIAL', 'INITIATED', 'PENDING'].includes(
@@ -79,9 +78,7 @@ const HouseholdPayments = ({ household }) => {
                     levelId === 5 &&
                     'flex'
                   } ${
-                    status.toUpperCase() === 'PAID' ||
-                    ['CASH'].includes(paymentMethod.toUpperCase())
-                      ? 'hidden'
+                    status.toUpperCase() === 'PAID' ? 'hidden'
                       : ''
                   } !text-white !bg-red-500 !p-2 !rounded-full hover:!bg-red-600`}
                   onClick={(e) => {
@@ -102,8 +99,7 @@ const HouseholdPayments = ({ household }) => {
                     dispatch(setEditPaymentModal(true))
                   }}
                 />
-                {['PAID'].includes(status.toUpperCase()) ||
-                ['CASH'].includes(paymentMethod.toUpperCase()) ? (
+                {['PAID'].includes(status.toUpperCase()) ? (
                   ''
                 ) : (
                   <Button
@@ -129,8 +125,7 @@ const HouseholdPayments = ({ household }) => {
               <Button
                 value="Pay"
                 className={`!w-fit ${
-                  ['PAID'].includes(status.toUpperCase()) ||
-                  ['CASH'].includes(paymentMethod.toUpperCase())
+                  ['PAID'].includes(status.toUpperCase()) 
                     ? 'hidden'
                     : ''
                 }`}

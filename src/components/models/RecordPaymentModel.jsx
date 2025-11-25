@@ -18,6 +18,13 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     formState: { errors },
   } = useForm()
 
+  // Watch the total_month_paid field to display it in the button
+  const totalMonthPaid = useWatch({
+    control,
+    name: 'total_month_paid',
+    defaultValue: household?.ubudehe || 0,
+  })
+
   const [
     createPaymentSession,
     {
@@ -29,6 +36,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
   ] = useCreatePaymentSessionMutation()
 
   const [isWaitingCompletePayment, setIWaitingCompletePayment] = useState(false)
+  const [lastPaymentType, setLastPaymentType] = useState(null)
 
   const startWaiting = () => {
     setIWaitingCompletePayment(true)
@@ -42,7 +50,8 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     setShowModal(false)
   }
 
-  const onSubmit = (data) => {
+  const onSubmit = (data, type) => {
+    setLastPaymentType(type)
     createPaymentSession({
       household_id: household?.guid,
       month_paid: data?.month_paid,
@@ -53,15 +62,36 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       agent: household?.agents.id || 'N/A',
       merchant_code: household?.sectors[0].merchant_code || 'N/A',
       phone1: data?.payment_phone,
+      type: type,
     })
+  }
+
+  const handleConfirm = () => {
+    if (window.confirm(`Are you sure you want to initiate payment of ${totalMonthPaid || 0} RWF?`)) {
+      handleSubmit((data) => onSubmit(data, 'emeza'))()
+    }
+  }
+
+  const handleIshyura = (e) => {
+    e.preventDefault()
+    if (window.confirm(`Are you sure you want to continue with payment of ${totalMonthPaid || 0} RWF?`)) {
+      handleSubmit((data) => onSubmit(data, 'ishyura'))()
+    }
   }
 
   useEffect(() => {
     if (paymentSessionIsSuccess) {
-      startWaiting()
       toast.success(
         paymentSessionData.message || 'Payment created successfully'
       )
+      
+      if (lastPaymentType === 'emeza') {
+        // Reload the page for emeza
+        window.location.reload()
+      } else {
+        // Start waiting for ishyura
+        startWaiting()
+      }
     }
     if (paymentSessionIsError) {
       stopWaiting()
@@ -69,7 +99,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
         'Could not create payment. Please check if all information is correct'
       )
     }
-  }, [paymentSessionData])
+  }, [paymentSessionData, lastPaymentType])
 
   return (
     <main className="relative">
@@ -219,22 +249,26 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                     )}
                   />
                 </label>
-                <Controller
-                  name="submit"
-                  control={control}
-                  render={() => {
-                    return (
-                      <article className="mt-2">
-                        <Button
-                          submit
-                          value={
-                            paymentSessionIsLoading ? <Loading /> :  `Emeza na Ishyura`
-                          }
-                        />
-                      </article>
-                    )
-                  }}
-                />
+                <div className="flex gap-4 w-full mt-2">
+                  <Button
+                    type="button"
+                    onClick={handleConfirm}
+                    disabled={paymentSessionIsLoading}
+                    className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
+                    value={
+                      paymentSessionIsLoading ? <Loading /> : `Emeza ${totalMonthPaid || 0} RWF`
+                    }
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleIshyura}
+                    disabled={paymentSessionIsLoading}
+                    className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
+                    value={
+                      paymentSessionIsLoading ? <Loading /> : `Ishyura ${totalMonthPaid || 0} RWF`
+                    }
+                  />
+                </div>
               </form>
             )}
           </div>

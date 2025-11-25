@@ -94,6 +94,44 @@ const DashboardCard = ({
         ),
       },
       2: {
+        title: 'Collected',
+        period: 'month',
+        bg_color: 'bg-primary-dark',
+        text_color: 'text-white',
+        route: 'monthlyCollected',
+        // variant: 'neutral',
+        variant: 'primary',
+        icon: faHandHoldingDollar,
+        iconBg: 'bg-emerald-100 text-emerald-600',
+        summary: 'Total collections completed',
+        helper: 'Confirmed payments during the period',
+        removeIncreaseDecrease: true,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data?.monthlyCollected || 0
+        ),
+      },
+      3: {
+        title: 'Pending',
+        period: 'month',
+        bg_color: 'bg-primary-dark',
+        text_color: 'text-white',
+        route: 'amountPendingNotPaid',
+        // variant: 'neutral',
+        variant: 'primary',
+        icon: faHourglassHalf,
+        iconBg: 'bg-rose-100 text-rose-600',
+        summary: 'Outstanding balances pending',
+        helper: 'Monitor overdue household amounts',
+        removeIncreaseDecrease: true,
+        amount: dashboardCardIsLoading ? (
+          <Loading />
+        ) : (
+          dashboardCardData?.data?.amountPendingNotPaid || 0
+        ),
+      },
+      4: {
         title: "Today's Collections",
         period: 'day',
         bg_color: 'bg-primary-dark',
@@ -113,27 +151,7 @@ const DashboardCard = ({
           dashboardCardData?.data?.todayCollections || 0
         ),
       },
-      3: {
-        title: 'Monthly Collections',
-        period: 'month',
-        bg_color: 'bg-primary-dark',
-        text_color: 'text-white',
-        route: 'monthlyCollections',
-        // variant: 'neutral',
-        variant: 'primary',
-        icon: faChartLine,
-        iconBg: 'bg-emerald-100 text-emerald-600',
-        helper: 'Comparison with previous month',
-        progress: dashboardCardData?.data?.progress || 0,
-        increase: dashboardCardData?.data?.increase || false,
-        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
-        amount: dashboardCardIsLoading ? (
-          <Loading />
-        ) : (
-          dashboardCardData?.data?.monthlyCollections || 0
-        ),
-      },
-      4: {
+      5: {
         title: 'Pending Paid',
         period: 'month',
         bg_color: 'bg-primary-dark',
@@ -152,7 +170,7 @@ const DashboardCard = ({
           dashboardCardData?.data?.amountPendingPaid || 0
         ),
       },
-      5: {
+      6: {
         title: 'Advance Payments',
         period: 'month',
         bg_color: 'bg-primary-dark',
@@ -172,42 +190,24 @@ const DashboardCard = ({
           dashboardCardData?.data?.advancePayments || 0
         ),
       },
-      6: {
-        title: 'Collected',
-        period: 'month',
-        bg_color: 'bg-primary-dark',
-        text_color: 'text-white',
-        route: 'monthlyCollected',
-        // variant: 'neutral',
-        variant: 'primary',
-        icon: faHandHoldingDollar,
-        iconBg: 'bg-emerald-100 text-emerald-600',
-        summary: 'Total collections completed',
-        helper: 'Confirmed payments during the period',
-        removeIncreaseDecrease: true,
-        amount: dashboardCardIsLoading ? (
-          <Loading />
-        ) : (
-          dashboardCardData?.data?.monthlyCollected || 0
-        ),
-      },
       7: {
-        title: 'Pending',
+        title: 'Monthly Collections',
         period: 'month',
         bg_color: 'bg-primary-dark',
         text_color: 'text-white',
-        route: 'amountPendingNotPaid',
+        route: 'monthlyCollections',
         // variant: 'neutral',
         variant: 'primary',
-        icon: faHourglassHalf,
-        iconBg: 'bg-rose-100 text-rose-600',
-        summary: 'Outstanding balances pending',
-        helper: 'Monitor overdue household amounts',
-        removeIncreaseDecrease: true,
+        icon: faChartLine,
+        iconBg: 'bg-emerald-100 text-emerald-600',
+        helper: 'Comparison with previous month',
+        progress: dashboardCardData?.data?.progress || 0,
+        increase: dashboardCardData?.data?.increase || false,
+        increaseValue: dashboardCardData?.data?.increaseValue?.toFixed(2) || 0,
         amount: dashboardCardIsLoading ? (
           <Loading />
         ) : (
-          dashboardCardData?.data?.amountPendingNotPaid || 0
+          dashboardCardData?.data?.monthlyCollections || 0
         ),
       },
       8: {
@@ -344,11 +344,15 @@ const DashboardCard = ({
       ? 'border-white/30 text-white hover:bg-white/15'
       : 'border-slate-200 text-slate-500 hover:border-primary hover:text-primary'
   } flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200`
-  const viewButtonClassName = `${viewButtonClasses} ${viewDisabled ? 'pointer-events-none opacity-50' : ''}`
+  const viewButtonClassName = `${viewButtonClasses} ${
+    viewDisabled ? 'pointer-events-none opacity-50' : ''
+  }`
 
   const hasTrend = !newProps.removeIncreaseDecrease
   const pillText = hasTrend
-    ? `${newProps.increase ? 'Increased' : 'Decreased'} from last ${newProps.period}`
+    ? `${newProps.increase ? 'Increased' : 'Decreased'} from last ${
+        newProps.period
+      }`
     : newProps.footnote || 'View insights'
   const helperText = hasTrend
     ? `Last ${newProps.period}`
@@ -368,7 +372,11 @@ const DashboardCard = ({
       : 'bg-slate-100 text-slate-600'
   } flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold`
 
-  const trendIcon = hasTrend ? (newProps.increase ? faArrowUp : faArrowDown) : null
+  const trendIcon = hasTrend
+    ? newProps.increase
+      ? faArrowUp
+      : faArrowDown
+    : null
   const showIncreaseValue =
     hasTrend &&
     newProps.increaseValue !== undefined &&
@@ -409,10 +417,15 @@ const DashboardCard = ({
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className={iconWrapperClasses}>
-              <FontAwesomeIcon icon={newProps.icon || faBullseye} className="h-5 w-5" />
+              <FontAwesomeIcon
+                icon={newProps.icon || faBullseye}
+                className="h-5 w-5"
+              />
             </div>
             <div>
-              <h3 className={`text-sm font-semibold uppercase tracking-wide ${labelColor}`}>
+              <h3
+                className={`text-sm font-semibold uppercase tracking-wide ${labelColor}`}
+              >
                 {newProps.title}
               </h3>
               {dashboardCardIsLoading ? (
@@ -421,11 +434,15 @@ const DashboardCard = ({
                 </div>
               ) : (
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className={`text-1xl font-semibold tracking-tight ${valueColor}`}>
+                  <span
+                    className={`text-1xl font-semibold tracking-tight ${valueColor}`}
+                  >
                     {formatFunds(newProps.amount)}
                   </span>
                   {newProps.funds && (
-                    <span className={`text-sm font-medium ${mutedTextColor}`}>RWF</span>
+                    <span className={`text-sm font-medium ${mutedTextColor}`}>
+                      RWF
+                    </span>
                   )}
                 </div>
               )}
@@ -438,13 +455,18 @@ const DashboardCard = ({
             className={viewButtonClassName}
             aria-label={`View details for ${newProps.title}`}
           >
-            <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="h-4 w-4" />
+            <FontAwesomeIcon
+              icon={faArrowUpRightFromSquare}
+              className="h-4 w-4"
+            />
           </button>
         </div>
 
         <div className="mt-auto flex items-center justify-between">
           <span className={pillClasses}>
-            {trendIcon && <FontAwesomeIcon icon={trendIcon} className="h-3 w-3" />}
+            {trendIcon && (
+              <FontAwesomeIcon icon={trendIcon} className="h-3 w-3" />
+            )}
             {pillText}
           </span>
           {showIncreaseValue && (

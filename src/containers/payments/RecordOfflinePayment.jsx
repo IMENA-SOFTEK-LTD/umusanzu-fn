@@ -174,7 +174,7 @@ const RecordOfflinePayment = ({ household }) => {
               <input
                 {...field}
                 type="tel"
-                readOnly
+                // readOnly
                 placeholder="07XX XXX XXX"
                 className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
               />

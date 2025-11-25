@@ -148,10 +148,12 @@ const currentAmount = ubudeheValues.find(v => v.index === props.index)?.amount
   }, [props.index, props.user?.department_id, department, currentAmount])
 
   const numberOfPays = data?.data ?? props.numberOfPays
+  const totalMonthPaid = data?.total_month_paid ?? data?.data?.total_month_paid ?? 0
   const paysDisplay = isLoading ? <Loading size={4} /> : numberOfPays
+  const totalPaidDisplay = isLoading ? <Loading size={4} /> : formatFunds(totalMonthPaid)
 
   const meta = ubudeheMeta[props.index] || DEFAULT_META
-  const variant = meta.variant || (props.index === 1 ? 'primary' : 'neutral')
+  const variant = 'primary'//meta.variant || (props.index === 1 ? 'primary' : 'neutral')
 
   const cardClasses = `relative overflow-hidden rounded-3xl border transition-all duration-300 ${
     variant === 'primary'
@@ -210,16 +212,31 @@ const currentAmount = ubudeheValues.find(v => v.index === props.index)?.amount
           </Link>
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-4">
-          <div>
-            <p className={`text-xs font-semibold uppercase tracking-wide ${mutedTextColor}`}>
-              Number of pays
-            </p>
-            <p className={`mt-1 text-lg font-semibold ${valueColor}`}>
-              {paysDisplay}
-            </p>
+        <div className="mt-auto flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wide ${mutedTextColor}`}>
+                Number of pays
+              </p>
+              <p className={`mt-1 text-lg font-semibold ${valueColor}`}>
+                {paysDisplay}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className={`text-xs font-semibold uppercase tracking-wide ${mutedTextColor}`}>
+                Total month paid
+              </p>
+              <div className="mt-1 flex items-baseline justify-end gap-1">
+                <p className={`text-lg font-semibold ${valueColor}`}>
+                  {totalPaidDisplay}
+                </p>
+                <span className={`text-xs font-medium ${mutedTextColor}`}>RWF</span>
+              </div>
+            </div>
           </div>
-          <span className={pillClasses}>{meta.label}</span>
+          <div className="flex justify-center">
+            <span className={pillClasses}>{meta.label}</span>
+          </div>
         </div>
       </div>
     </article>
