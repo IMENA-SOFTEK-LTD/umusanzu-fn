@@ -105,7 +105,7 @@ function EditDepartmentModal({ department, isOpen, onClose, onUpdate }) {
   }
 
   if (!isOpen) return null
-console.log(departmentData)
+// console.log(departmentData)
   return (
     <div
       tabIndex={-1}
@@ -141,7 +141,7 @@ console.log(departmentData)
               <BiSolidEditAlt className="text-white" />
             </span>
             <h3 className="mb-4 mt-2 text-xl text-center font-medium text-white">
-              Edit Department
+              Edit {department.name} {department.level}
             </h3>
           </div>
         </div>
@@ -152,7 +152,7 @@ console.log(departmentData)
                 htmlFor="name"
                 className="block mb-2 text-sm font-medium text-black"
               >
-                Department Name
+                {department.level} Name
               </label>
               <Controller
                 name="name"
@@ -161,7 +161,7 @@ console.log(departmentData)
                   <input
                     type="text"
                     {...field}
-                    placeholder="Department Name"
+                    placeholder={`${department.level} Name`}
                     className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                   />
                 )}
@@ -186,7 +186,7 @@ console.log(departmentData)
                     <input
                       type="text"
                       {...field}
-                      placeholder="Umutekano"
+                      placeholder={`${department.level} Service`}
                       className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                     />
                   )}
@@ -211,7 +211,7 @@ console.log(departmentData)
                     <input
                       type="text"
                       {...field}
-                      placeholder="Representative Names"
+                      placeholder={`${department.level} Representative Names`}
                       className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                     />
                   )}

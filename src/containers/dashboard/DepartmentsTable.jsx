@@ -10,6 +10,7 @@ import {
   faClose,
   faFileExcel,
   faFilePdf,
+  faCog,
 } from '@fortawesome/free-solid-svg-icons'
 import {
   setPage,
@@ -39,6 +40,7 @@ import CustomDialog from '../../components/models/CustomDialog'
 import Admins from './Admins'
 import CreateDepartmentModel from '../../components/models/CreateDepartmentModel'
 import EditDepartmentModal from '../../components/models/EditDepartmentModal'
+import EditMerchantCodeModal from '../../components/models/EditMerchantCodeModal'
 import { toast } from 'react-toastify'
 import download from 'downloadjs'
 import API_URL from '../../constants'
@@ -50,6 +52,7 @@ const DepartmentsTable = ({ user }) => {
   const [openAdmins, setOpenAdmins] = useState(false)
   const [showDepartmentModal, setShowDepartmentModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [expandedRows, setExpandedRows] = useState({})
   const [departmentListLoading, setShowDepartmentListLoading] = useState(false)
   const [departmentListError, setDepartmentListError] = useState(false)
@@ -230,6 +233,7 @@ const DepartmentsTable = ({ user }) => {
               level: row?.level,
               merchant_code: row?.merchant_code,
               department_id: row?.department_id,
+              bk_service_code: row?.bk_service_code,
             })) || []
           )
         })
@@ -544,6 +548,21 @@ const DepartmentsTable = ({ user }) => {
                 })
               }}
             />
+            
+            {/* Edit Merchant Code Modal */}
+            <EditMerchantCodeModal
+              department={selectDepartment}
+              isOpen={showSettingsModal}
+              onClose={() => setShowSettingsModal(false)}
+              onUpdate={() => {
+                // Refresh the department list after update
+                onLoadDepartmentLists({
+                  ...queries,
+                  size,
+                  page: offset,
+                })
+              }}
+            />
           </div>
         </div>
       </div>
@@ -643,30 +662,45 @@ const DepartmentsTable = ({ user }) => {
                             </span>
                           </button>
                           {stateUser?.staff_role === 1 && (
-                          <button
-                            className="flex items-center rounded-md bg-blue-600 hover:bg-blue-700 p-2 text-sm text-white transition-all"
-                            type="button"
-                            onClick={() => {
-                              setSelectDepartment(row)
-                              setShowEditModal(true)
-                            }}
-                            title="Edit Department"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="w-4 h-4"
+                          <>
+                            <button
+                              className="flex items-center rounded-md bg-blue-600 hover:bg-blue-700 p-2 text-sm text-white transition-all"
+                              type="button"
+                              onClick={() => {
+                                setSelectDepartment(row)
+                                setShowEditModal(true)
+                              }}
+                              title="Edit Department"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                              />
-                            </svg>
-                          </button>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                                />
+                              </svg>
+                            </button>
+                            {(row?.level_id === 2 || row?.level_id === 3) && (
+                              <button
+                                className="flex items-center rounded-md bg-gray-600 hover:bg-gray-700 p-2 text-sm text-white transition-all"
+                                type="button"
+                                onClick={() => {
+                                  setSelectDepartment(row)
+                                  setShowSettingsModal(true)
+                                }}
+                                title="Edit Merchant & BK Service Codes"
+                              >
+                                <FontAwesomeIcon icon={faCog} className="w-4 h-4" />
+                              </button>
+                            )}
+                          </>
                           )}
                         </div>
                       </div>
@@ -1013,6 +1047,21 @@ const DepartmentsTable = ({ user }) => {
                                 />
                               </svg>
                             </button>
+
+                            {/* Settings Button for level_id 2 and 3 */}
+                            {(row?.level_id === 2 || row?.level_id === 3) && (
+                              <button
+                                className="flex items-center rounded-md bg-gray-600 hover:bg-gray-700 p-1.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-gray-700 focus:shadow-none active:bg-gray-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mx-2"
+                                type="button"
+                                onClick={() => {
+                                  setSelectDepartment(row)
+                                  setShowSettingsModal(true)
+                                }}
+                                title="Edit Merchant & BK Service Codes"
+                              >
+                                <FontAwesomeIcon icon={faCog} className="w-4 h-4" />
+                              </button>
+                            )}
 
                             {/* Manage District */}
                             {row?.level_id === 1 && (

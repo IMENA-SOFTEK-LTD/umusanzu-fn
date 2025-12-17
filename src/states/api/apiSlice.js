@@ -88,7 +88,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       headers.set('Content-Type', 'application/json')
       return headers
     },
-    timeout: 30000, // 30 seconds timeout
+    timeout: 300000, // 5 minutes timeout
   })
 
   let result = await baseQuery(args, api, extraOptions)
@@ -126,7 +126,15 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'Household', 'Transaction', 'Department', 'Staff', 'Payment'],
+  tagTypes: [
+    'User',
+    'Household',
+    'Transaction',
+    'Department',
+    'Staff',
+    'Payment',
+    'DepartmentService',
+  ],
   refetchOnMountOrArgChange: true,
   refetchOnFocus: true,
   refetchOnReconnect: true,
@@ -762,6 +770,54 @@ export const apiSlice = createApi({
           },
         }),
       }),
+      updateDepartmentCodes: builder.mutation({
+        query: ({
+          id,
+          merchant_code,
+          bk_service_code,
+        }) => ({
+          url: `/department/${id}/codes`,
+          method: 'PUT',
+          body: {
+            merchant_code,
+            bk_service_code,
+          },
+        }),
+      }),
+      getDepartmentServices: builder.query({
+        query: ({ id }) => ({
+          url: `/department/${id}/services`,
+          method: 'GET',
+        }),
+        providesTags: (result, error, arg) => [
+          { type: 'DepartmentService', id: arg?.id },
+        ],
+      }),
+      addDepartmentService: builder.mutation({
+        query: ({ id, service_id, serviceId }) => ({
+          url: `/department/${id}/services`,
+          method: 'POST',
+          body: { service_id: service_id ?? serviceId },
+        }),
+        invalidatesTags: (result, error, arg) => [
+          { type: 'DepartmentService', id: arg?.id },
+        ],
+      }),
+      removeDepartmentService: builder.mutation({
+        query: ({ id, service_id, serviceId }) => ({
+          url: `/department/services/${service_id ?? serviceId}/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: (result, error, arg) => [
+          { type: 'DepartmentService', id: arg?.id },
+        ],
+      }),
+      getServicesV2: builder.query({
+        query: () => ({
+          url: `/services`,
+          method: 'GET',
+        }),
+      }),
       getSingleTransaction: builder.query({
         query: ({ id }) => ({
           url: `/transactions/${id}`,
@@ -1038,6 +1094,11 @@ export const {
   useLazyGetSingleTransactionQuery,
   useLazyGetDepartmentProfileQuery,
   useUpdateDepartmentProfileMutation,
+  useUpdateDepartmentCodesMutation,
+  useGetDepartmentServicesQuery,
+  useAddDepartmentServiceMutation,
+  useRemoveDepartmentServiceMutation,
+  useGetServicesV2Query,
   useUploadDepartmentInfoStampMutation,
   useLazySearchHouseholdQuery,
   useLazyGetReceiptQuery,
