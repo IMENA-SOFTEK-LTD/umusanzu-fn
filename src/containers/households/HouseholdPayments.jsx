@@ -55,7 +55,7 @@ const HouseholdPayments = ({ household }) => {
   // Memoized action buttons
   const renderActionButtons = useCallback(
     (row) => {
-      const status = row?.row?.original?.status
+      const status = row?.row?.original?.status || row?.original?.status || ''
       const paymentMethod = row?.row?.original?.payment_method
       const levelId = user?.departments?.level_id
       const original = row?.original || row?.row?.original || null
@@ -72,13 +72,13 @@ const HouseholdPayments = ({ household }) => {
                      levelId !== 5 &&
                     'hidden'
                   } ${
-                    ['PARTIAL', 'INITIATED', 'PENDING'].includes(
+                    status && ['PARTIAL', 'INITIATED', 'PENDING'].includes(
                       status.toUpperCase()
                     ) &&
                     levelId === 5 &&
                     'flex'
                   } ${
-                    status.toUpperCase() === 'PAID' ? 'hidden'
+                    status && status.toUpperCase() === 'PAID' ? 'hidden'
                       : ''
                   } !text-white !bg-red-500 !p-2 !rounded-full hover:!bg-red-600`}
                   onClick={(e) => {
@@ -99,7 +99,7 @@ const HouseholdPayments = ({ household }) => {
                     dispatch(setEditPaymentModal(true))
                   }}
                 />
-                {['PAID'].includes(status.toUpperCase()) ? (
+                {status && ['PAID'].includes(status.toUpperCase()) ? (
                   ''
                 ) : (
                   <Button
@@ -125,7 +125,7 @@ const HouseholdPayments = ({ household }) => {
               <Button
                 value="Pay"
                 className={`!w-fit ${
-                  ['PAID'].includes(status.toUpperCase()) 
+                  status && ['PAID'].includes(status.toUpperCase()) 
                     ? 'hidden'
                     : ''
                 }`}

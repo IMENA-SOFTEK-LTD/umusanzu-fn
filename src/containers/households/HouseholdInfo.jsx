@@ -20,7 +20,7 @@ const HouseholdInfo = ({ household }) => {
   )
   const [displaySave, setDisplaySave] = useState(false)
 
-  const updateHouseHoldType = async() => {
+  const updateHouseHoldType = async () => {
     await axios
       .patch(
         `${API_URL}/households/types/${household?.id}`,
@@ -175,29 +175,30 @@ const HouseholdInfo = ({ household }) => {
               </tr>
             </tbody>
           </table>
-          { ![6,4].includes(user?.departments.level_id)  && parseInt(user?.staff_role) === 1&& (
-            <span className="flex items-center gap-4">
-              <Button
-                value="Edit"
-                onClick={(e) => {
-                  e.preventDefault()
-                  dispatch(setUpdateHouseholdModal(true))
-                }}
-              />
-              {['INACTIVE', 'ACTIVE'].includes(
-                household?.status?.toUpperCase()
-              ) && (
+          {![6, 4].includes(user?.departments.level_id) &&
+            parseInt(user?.staff_role) === 1 && (
+              <span className="flex items-center gap-4">
                 <Button
-                  className="bg-yellow-600"
-                  value="Change status"
+                  value="Edit"
                   onClick={(e) => {
                     e.preventDefault()
-                    dispatch(setUpdateHouseholdStatusModal(true))
+                    dispatch(setUpdateHouseholdModal(true))
                   }}
                 />
-              )}
-            </span>
-          )}
+                {['INACTIVE', 'ACTIVE'].includes(
+                  household?.status?.toUpperCase()
+                ) && (
+                  <Button
+                    className="bg-yellow-600"
+                    value="Change status"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      dispatch(setUpdateHouseholdStatusModal(true))
+                    }}
+                  />
+                )}
+              </span>
+            )}
           {household && (
             <>
               <UpdateHousehold household={household} />

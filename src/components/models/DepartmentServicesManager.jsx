@@ -15,7 +15,7 @@ function normalizeServicesPayload(payload) {
   // - { data: [...] }
   // - { data: { rows: [...] } }
   // - { rows: [...] }
-  // - [...] 
+  // - [...]
   const root = payload?.data ?? payload
 
   if (Array.isArray(root)) return root
@@ -57,24 +57,23 @@ function getServiceId(service) {
 
 function getServiceLabel(service) {
   const s = service?.service ?? service
-  return s?.name ?? s?.service_name ?? s?.title ?? s?.code ?? `Service #${getServiceId(service) ?? ''}`
+  return (
+    s?.name ??
+    s?.service_name ??
+    s?.title ??
+    s?.code ??
+    `Service #${getServiceId(service) ?? ''}`
+  )
 }
 
 export default function DepartmentServicesManager({ departmentId, onChanged }) {
   const [selectedServiceId, setSelectedServiceId] = useState('')
 
-  const {
-    data,
-    isFetching,
-    isLoading,
-    isError,
-    refetch,
-  } = useGetDepartmentServicesQuery(
-    { id: departmentId },
-    { skip: !departmentId }
-  )
+  const { data, isFetching, isLoading, isError, refetch } =
+    useGetDepartmentServicesQuery({ id: departmentId }, { skip: !departmentId })
 
-  const [addService, { isLoading: isAdding }] = useAddDepartmentServiceMutation()
+  const [addService, { isLoading: isAdding }] =
+    useAddDepartmentServiceMutation()
   const [removeService, { isLoading: isRemoving }] =
     useRemoveDepartmentServiceMutation()
 
@@ -124,53 +123,63 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-gray-200 p-4">
-        <div className="flex flex-col md:flex-row md:items-end gap-3">
-          <div className="flex-1">
-            <label className="block mb-2 text-sm font-medium text-black">
-              Assign service
-            </label>
-            <select
-              value={selectedServiceId}
-              onChange={(e) => setSelectedServiceId(e.target.value)}
-              className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 bg-white"
-              disabled={isAdding || !departmentId || isLoadingServices || isFetchingServices}
-            >
-              <option value="">
-                {isLoadingServices || isFetchingServices
-                  ? 'Loading services...'
-                  : 'Select a service'}
-              </option>
-              {allServices.map((s) => (
-                <option key={s?.id ?? JSON.stringify(s)} value={s?.id ?? ''}>
-                  {s?.title ?? s?.title_english ?? s?.title_french ?? `Service #${s?.id ?? ''}`}
+      {parseInt(user?.staff_role) === 1 && (
+        <div className="rounded-lg border border-gray-200 p-4">
+          <div className="flex flex-col md:flex-row md:items-end gap-3">
+            <div className="flex-1">
+              <label className="block mb-2 text-sm font-medium text-black">
+                Assign service
+              </label>
+              <select
+                value={selectedServiceId}
+                onChange={(e) => setSelectedServiceId(e.target.value)}
+                className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 bg-white"
+                disabled={
+                  isAdding ||
+                  !departmentId ||
+                  isLoadingServices ||
+                  isFetchingServices
+                }
+              >
+                <option value="">
+                  {isLoadingServices || isFetchingServices
+                    ? 'Loading services...'
+                    : 'Select a service'}
                 </option>
-              ))}
-            </select>
-            {isServicesError && (
-              <p className="text-xs text-red-600 mt-2">
-                Failed to load services list.
-              </p>
-            )}
-          </div>
-          <div className="md:w-48">
-            <Button
-              type="button"
-              submit
-              disabled={
-                isAdding ||
-                !departmentId ||
-                !selectedServiceId ||
-                isLoadingServices ||
-                isFetchingServices
-              }
-              value={isAdding ? <Loading /> : 'Assign'}
-              onClick={onAssign}
-              className="w-full"
-            />
+                {allServices.map((s) => (
+                  <option key={s?.id ?? JSON.stringify(s)} value={s?.id ?? ''}>
+                    {s?.title ??
+                      s?.title_english ??
+                      s?.title_french ??
+                      `Service #${s?.id ?? ''}`}
+                  </option>
+                ))}
+              </select>
+              {isServicesError && (
+                <p className="text-xs text-red-600 mt-2">
+                  Failed to load services list.
+                </p>
+              )}
+            </div>
+            <div className="md:w-48">
+              <Button
+                type="button"
+                submit
+                disabled={
+                  isAdding ||
+                  !departmentId ||
+                  !selectedServiceId ||
+                  isLoadingServices ||
+                  isFetchingServices
+                }
+                value={isAdding ? <Loading /> : 'Assign'}
+                onClick={onAssign}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
@@ -227,7 +236,7 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
                         <div className="text-xs text-gray-500">ID: {sid}</div>
                       )}
                     </div>
-
+                    {parseInt(user?.staff_role) === 1 && (
                     <button
                       type="button"
                       onClick={() => onRemove(service)}
@@ -236,6 +245,7 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
                     >
                       Remove
                     </button>
+                    )}
                   </li>
                 )
               })}

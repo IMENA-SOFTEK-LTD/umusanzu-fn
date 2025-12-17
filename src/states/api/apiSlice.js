@@ -818,6 +818,34 @@ export const apiSlice = createApi({
           method: 'GET',
         }),
       }),
+      getHouseholdDepartmentServices: builder.query({
+        query: ({ householdId }) => ({
+          url: `/households/department-services/${householdId}`,
+          method: 'GET',
+        }),
+        providesTags: (result, error, arg) => [
+          { type: 'Household', id: arg?.householdId },
+        ],
+      }),
+      assignHouseholdDepartmentService: builder.mutation({
+        query: ({ household_id, department_service_id, ubudehe }) => ({
+          url: `/households/department-services`,
+          method: 'POST',
+          body: { household_id, department_service_id, ubudehe },
+        }),
+        invalidatesTags: (result, error, arg) => [
+          { type: 'Household', id: arg?.household_id },
+        ],
+      }),
+      removeHouseholdDepartmentService: builder.mutation({
+        query: ({ id }) => ({
+          url: `/households/department-services/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: (result, error, arg) => [
+          { type: 'Household', id: 'LIST' },
+        ],
+      }),
       getSingleTransaction: builder.query({
         query: ({ id }) => ({
           url: `/transactions/${id}`,
@@ -1099,6 +1127,9 @@ export const {
   useAddDepartmentServiceMutation,
   useRemoveDepartmentServiceMutation,
   useGetServicesV2Query,
+  useGetHouseholdDepartmentServicesQuery,
+  useAssignHouseholdDepartmentServiceMutation,
+  useRemoveHouseholdDepartmentServiceMutation,
   useUploadDepartmentInfoStampMutation,
   useLazySearchHouseholdQuery,
   useLazyGetReceiptQuery,
