@@ -147,6 +147,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       phone1: data?.payment_phone,
       type: type,
       service_id: selectedService?.serviceId || selectedServiceId || null,
+      ubudehe: selectedService?.ubudehe || household?.ubudehe || null,
     })
   }
 
@@ -434,7 +435,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                     className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
                     value={
                       paymentSessionIsLoading ? (
-                        <Loading />
+                        <>
+                          <Loading /> Pay
+                        </>
                       ) : (
                         `Emeza ${totalMonthPaid || 0} RWF`
                       )
@@ -447,7 +450,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                     className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
                     value={
                       paymentSessionIsLoading ? (
-                        <Loading />
+                        <>
+                          <Loading /> Pay
+                        </>
                       ) : (
                         `Ishyura ${totalMonthPaid || 0} RWF`
                       )

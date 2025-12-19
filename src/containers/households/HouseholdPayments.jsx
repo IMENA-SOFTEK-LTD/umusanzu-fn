@@ -78,7 +78,9 @@ const HouseholdPayments = ({ household }) => {
                     levelId === 5 &&
                     'flex'
                   } ${
-                    status && status.toUpperCase() === 'PAID' ? 'hidden'
+                    status && ['PARTIAL', 'PAID'].includes(
+                      status.toUpperCase()
+                    )  ? 'hidden'
                       : ''
                   } !text-white !bg-red-500 !p-2 !rounded-full hover:!bg-red-600`}
                   onClick={(e) => {
@@ -87,7 +89,7 @@ const HouseholdPayments = ({ household }) => {
                     dispatch(setDeletePaymentModal(true))
                   }}
                 />
-                <Button
+                {/* <Button
                   background={false}
                   value={<FontAwesomeIcon icon={faPenToSquare} />}
                   className={`${
@@ -98,7 +100,7 @@ const HouseholdPayments = ({ household }) => {
                     dispatch(setPayment(original))
                     dispatch(setEditPaymentModal(true))
                   }}
-                />
+                /> */}
                 {status && ['PAID'].includes(status.toUpperCase()) ? (
                   ''
                 ) : (
@@ -180,15 +182,22 @@ const HouseholdPayments = ({ household }) => {
         },
       },
       {
-        Header: 'Paid',
+        Header: 'TotalPaid',
         accessor: 'paid',
-        Cell: ({ row }) => <span>{row?.original?.total_amount} RWF</span>,
+        Cell: ({ row }) => <span className="text-green-600 font-medium">{row?.original?.total_amount} RWF</span>,
       },
+      {
+        Header: 'Initiated',
+        accessor: 'pending_amount',
+        Cell: ({ row }) => <span className="text-blue-600 font-medium">{row?.original?.pending_amount || 0} RWF</span>,
+      },
+      
       {
         Header: 'Remain',
         accessor: 'remain',
-        Cell: ({ row }) => <span>{row?.original?.remain_amount} RWF</span>,
+        Cell: ({ row }) => <span className="text-red-600 font-medium">{row?.original?.remain_amount} RWF</span>,
       },
+     
       { Header: 'Service', accessor: 'service', Cell: ({ row }) => <span>{row?.original?.serviceDetails?.title}</span>, },
       { Header: 'Date', accessor: 'date' },
       {

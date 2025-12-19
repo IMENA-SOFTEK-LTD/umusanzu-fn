@@ -54,13 +54,14 @@ const CompletePayment = () => {
   const totalMonthPaid = useWatch({
     control,
     name: 'total_month_paid',
-    defaultValue: payment?.remain_amount || payment?.total_month_paid || 0,
+    defaultValue:(+payment?.pending_amount===0 || payment?.pending_amount===null) ? parseFloat(payment?.remain_amount) : parseFloat(payment?.pending_amount),
   })
 
   useEffect(() => {
+    setValue('total_month_paid',(+payment?.pending_amount===0 || payment?.pending_amount===null) ? parseFloat(payment?.remain_amount) : parseFloat(payment?.pending_amount))
     setValue('month_paid', moment(payment?.month_paid)?.format('YYYY-MM'))
   }, [payment, setValue])
-
+// console.log(payment)
   const onSubmit = (data) => {
     if (Number(data?.total_month_paid) <= 0) {
       toast.error('The amount to be paid must be greater than zero.')
@@ -88,6 +89,7 @@ const CompletePayment = () => {
       id: payment?.id,
       status: payment.status,
       phone1: data?.phone1,
+      ubudehe: household?.ubudehe,
     })
   }
 
@@ -275,7 +277,7 @@ const CompletePayment = () => {
             className="!w-full mt-3"
             value={
               completePendingPaymentLoading ? (
-                <Loading />
+                <><Loading /> Ishyura</>
               ) : (
                 `Ishyura ${totalMonthPaid || payment?.total_month_paid || payment?.remain_amount || 0} RWF`
               )

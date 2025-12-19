@@ -689,7 +689,9 @@ export const apiSlice = createApi({
           payment_method,
           agent,
           type,
-          merchant_code
+          merchant_code,
+          ubudehe,
+          service_id
         }) => ({
           url: `/payment/initiate`,
           method: 'POST',
@@ -702,7 +704,9 @@ export const apiSlice = createApi({
             payment_method,
             agent,
             type,
-            merchant_code
+            merchant_code,
+            ubudehe,
+            service_id
           },
         }),
       }),
@@ -917,7 +921,7 @@ export const apiSlice = createApi({
           lang,
           id,
           status,
-          phone1,
+          phone1
         }) => ({
           url: `/payment/complete/unpaid`,
           method: 'POST',
@@ -928,7 +932,7 @@ export const apiSlice = createApi({
             lang,
             id,
             status,
-            phone1,
+            phone1
           },
         }),
       }),
@@ -1000,11 +1004,12 @@ export const apiSlice = createApi({
           type,
           merchant_code,
           lang,
-          phone1
+          phone1,
+          service_id
         }) => ({
           url: `/payment/advance`,
           method: 'POST',
-          body: {phone1,household_id, payment_phone, agent, start_month, end_month, type, merchant_code, lang },
+          body: {phone1,household_id, payment_phone, agent, start_month, end_month, type, merchant_code, lang, service_id },
         }),
       }),
       // EDIT PAYMENT

@@ -6,11 +6,31 @@ import Input from '../../components/Input'
 import { useEffect, useMemo, useState } from 'react'
 import { monthsBetween } from '../../utils/Dates'
 import Button from '../../components/Button'
-import { useRecordMultiplePaymentsMutation } from '../../states/api/apiSlice'
+import { useRecordMultiplePaymentsMutation, useGetHouseholdDepartmentServicesQuery } from '../../states/api/apiSlice'
 import { toast } from 'react-toastify'
 import Loading from '../../components/Loading'
 import moment from 'moment'
 import WaitingForPayment from '../../components/models/WaitingForPayment'
+
+function normalizePayload(payload) {
+  const root = payload?.data ?? payload
+  if (Array.isArray(root)) return root
+  if (Array.isArray(root?.rows)) return root.rows
+  if (Array.isArray(root?.services)) return root.services
+  if (Array.isArray(root?.data)) return root.data
+  return []
+}
+
+function getServiceLabel(item) {
+  const service = item?.department_service?.service ?? item?.service ?? item
+  return (
+    service?.title ??
+    service?.title_english ??
+    service?.title_french ??
+    service?.name ??
+    `Service #${item?.id ?? ''}`
+  )
+}
 
 const RecordMultipleMonths = () => {
   // STATE VARIABLES
@@ -20,6 +40,8 @@ const RecordMultipleMonths = () => {
   const { user } = useSelector((state) => state.auth)
   const [isWaitingCompletePayment, setIWaitingCompletePayment] = useState(false)
   const [waitingDetails, setWaitingDetails] = useState(null)
+  const [selectedServiceId, setSelectedServiceId] = useState('')
+  const [lastPaymentType, setLastPaymentType] = useState(null)
 
   const startWaiting = () => {
     setIWaitingCompletePayment(true)
@@ -47,6 +69,40 @@ const RecordMultipleMonths = () => {
     watch,
     setValue,
   } = useForm()
+
+  // Load household services
+  const { data: householdServicesData, isLoading: isLoadingServices } =
+    useGetHouseholdDepartmentServicesQuery(
+      { householdId: household?.id },
+      { skip: !household?.id || !multiplePaymentModal }
+    )
+
+  const householdServices = useMemo(
+    () => normalizePayload(householdServicesData),
+    [householdServicesData]
+  )
+
+  // Get selected service's ubudehe for validation
+  const selectedService = useMemo(() => {
+    if (!selectedServiceId) return null
+    return householdServices.find(
+      (s) =>
+        s?.id?.toString() === selectedServiceId ||
+        s?.ID?.toString() === selectedServiceId
+    )
+  }, [selectedServiceId, householdServices])
+
+  // Auto-select service if there's only one
+  useEffect(() => {
+    if (householdServices.length === 1 && !selectedServiceId) {
+      const singleService = householdServices[0]
+      const serviceId = singleService?.id ?? singleService?.ID
+      if (serviceId) {
+        setSelectedServiceId(serviceId.toString())
+        setValue('selected_service_id', serviceId.toString())
+      }
+    }
+  }, [householdServices, selectedServiceId, setValue])
 
   // Calculate minimum allowed month (first day of next month)
   const minMonth = useMemo(() => {
@@ -78,28 +134,72 @@ const RecordMultipleMonths = () => {
     return validateFutureMonth(value)
   }
 
+  // Handle service selection
+  const handleServiceChange = (e) => {
+    const serviceId = e.target.value
+    setSelectedServiceId(serviceId)
+    setValue('selected_service_id', serviceId)
+  }
+
   // CALCULATE TOTAL AMOUNT
   useEffect(() => {
     const months = monthsBetween(watch('start_month'), watch('end_month'))
-    setValue('total_month_paid', months?.length * household?.ubudehe)
-  }, [watch('start_month'), watch('end_month')])
+    const ubudehe = selectedService?.ubudehe || household?.ubudehe || 0
+    setValue('total_month_paid', months?.length * ubudehe)
+  }, [watch('start_month'), watch('end_month'), selectedService, household, setValue])
 
-  const onSubmit = (data) => {
+  const onSubmit = (data, type = 'ishyura') => {
+    setLastPaymentType(type)
     recordMultiplePayments({
       household_id: household?.guid,
       start_month: data?.start_month,
       end_month: data?.end_month,
       payment_phone: data?.payment_phone,
       agent: user?.id,
+      phone1: data?.phone1,
+      lang: data?.lang,
+      type: type === 'emeza' ? 'emeza' : 'ishyura',
+      service_id: data?.selected_service_id || selectedServiceId || null,
+      ubudehe: selectedService?.ubudehe || household?.ubudehe || null,
     })
+  }
+
+  const handleConfirm = () => {
+    const totalAmount = watch('total_month_paid') || 0
+    if (
+      window.confirm(
+        `Are you sure you want to initiate payment of ${totalAmount} RWF?`
+      )
+    ) {
+      handleSubmit((data) => onSubmit(data, 'emeza'))()
+    }
+  }
+
+  const handleIshyura = (e) => {
+    e.preventDefault()
+    const totalAmount = watch('total_month_paid') || 0
+    if (
+      window.confirm(
+        `Are you sure you want to continue with payment of ${totalAmount} RWF?`
+      )
+    ) {
+      handleSubmit((data) => onSubmit(data, 'ishyura'))()
+    }
   }
 
   // HANDLE RECORD MULTIPLE MONTHS PAYMENT
   useEffect(() => {
     if (recordMultiplePaymentsSuccess) {
       toast.success('Multiple months recorded successfully.')
-      startWaiting()
-      setWaitingDetails(recordMultiplePaymentsData)
+      
+      if (lastPaymentType === 'emeza') {
+        // Reload the page for emeza
+        window.location.reload()
+      } else {
+        // Start waiting for ishyura
+        startWaiting()
+        setWaitingDetails(recordMultiplePaymentsData)
+      }
     } else if (recordMultiplePaymentsError) {
       stopWaiting()
       toast.error('Could not record multiple months. Please try again later.')
@@ -108,6 +208,7 @@ const RecordMultipleMonths = () => {
     recordMultiplePaymentsSuccess,
     recordMultiplePaymentsError,
     recordMultiplePaymentsData,
+    lastPaymentType,
   ])
 
   return (
@@ -129,6 +230,65 @@ const RecordMultipleMonths = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-4 items-center w-full p-4"
         >
+          {householdServices.length > 0 && (
+            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+              Select Service
+              <Controller
+                name="selected_service_id"
+                control={control}
+                rules={{
+                  required:
+                    householdServices.length > 0
+                      ? 'Service selection is required'
+                      : false,
+                }}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={selectedServiceId}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      handleServiceChange(e)
+                    }}
+                    className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                    disabled={
+                      isLoadingServices || householdServices.length === 1
+                    }
+                  >
+                    <option value="">
+                      {isLoadingServices
+                        ? 'Loading services...'
+                        : householdServices.length === 1
+                        ? 'Auto-selected'
+                        : 'Select a service'}
+                    </option>
+                    {householdServices.map((service) => {
+                      const serviceId = service?.id ?? service?.ID
+                      return (
+                        <option
+                          key={serviceId ?? JSON.stringify(service)}
+                          value={serviceId?.toString() ?? ''}
+                        >
+                          {getServiceLabel(service)} - Ubudehe:{' '}
+                          {service?.ubudehe || 'N/A'}
+                        </option>
+                      )
+                    })}
+                  </select>
+                )}
+              />
+              {errors.selected_service_id && (
+                <span className="text-red-500">
+                  {errors.selected_service_id.message}
+                </span>
+              )}
+              {selectedService?.ubudehe && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Service ubudehe: {selectedService.ubudehe} RWF
+                </p>
+              )}
+            </label>
+          )}
           <span className="flex items-start gap-6 w-full">
             <Controller
               rules={{
@@ -261,16 +421,34 @@ const RecordMultipleMonths = () => {
               )
             }}
           />
-          <Button
-            submit
-            value={
-              recordMultiplePaymentsLoading ? (
-                <Loading />
-              ) : (
-                `Pay ${watch('total_month_paid')} RWF`
-              )
-            }
-          />
+          <div className="flex gap-4 w-full mt-2">
+            <Button
+              type="button"
+              onClick={handleConfirm}
+              disabled={recordMultiplePaymentsLoading}
+              className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
+              value={
+                recordMultiplePaymentsLoading ? (
+                  <Loading />
+                ) : (
+                  `Emeza ${watch('total_month_paid') || 0} RWF`
+                )
+              }
+            />
+            <Button
+              type="button"
+              onClick={handleIshyura}
+              disabled={recordMultiplePaymentsLoading}
+              className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
+              value={
+                recordMultiplePaymentsLoading ? (
+                  <Loading />
+                ) : (
+                  `Ishyura ${watch('total_month_paid') || 0} RWF`
+                )
+              }
+            />
+          </div>
         </form>
       )}
     </Modal>

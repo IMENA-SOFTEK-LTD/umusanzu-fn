@@ -52,22 +52,19 @@ const EditPayment = () => {
 
   // PAYMENT STATUSES
   const statuses = [
-    {
-      value: 'PENDING',
-      text: 'PENDING',
-    },
+   
     {
       value: 'PAID',
       text: 'PAID',
     },
-    {
-      value: 'FAILED',
-      text: 'FAILED',
-    },
-    {
-      value: 'CANCELLED',
-      text: 'CANCELLED',
-    },
+    // {
+    //   value: 'FAILED',
+    //   text: 'FAILED',
+    // },
+    // {
+    //   value: 'CANCELLED',
+    //   text: 'CANCELLED',
+    // },
     {
       value: 'PARTIAL',
       text: 'PARTIAL',
