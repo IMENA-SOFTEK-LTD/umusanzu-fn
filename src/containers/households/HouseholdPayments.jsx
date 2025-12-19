@@ -189,6 +189,7 @@ const HouseholdPayments = ({ household }) => {
         accessor: 'remain',
         Cell: ({ row }) => <span>{row?.original?.remain_amount} RWF</span>,
       },
+      { Header: 'Service', accessor: 'service', Cell: ({ row }) => <span>{row?.original?.serviceDetails?.title}</span>, },
       { Header: 'Date', accessor: 'date' },
       {
         Header: 'Method',
@@ -287,6 +288,7 @@ const HouseholdPayments = ({ household }) => {
             <div className="text-sm">
               <p>Month: {row?.month_paid}</p>
               <p>Paid: {row.total_amount} RWF</p>
+              <p>Service: {row.serviceDetails?.title}</p>
               <button
                 className="text-primary underline text-sm"
                 onClick={() => setExpandedRow(expandedRow === idx ? null : idx)}
@@ -299,6 +301,7 @@ const HouseholdPayments = ({ household }) => {
                 <p>Remain: {row.remain_amount} RWF</p>
                 <p>Date: {row.date}</p>
                 <p>Method: {row.payment_method}</p>
+                <p>Service: {row.serviceDetails?.title}</p>
                 <div>{renderActionButtons({ original: row })}</div>
                 <div>
                   <Button

@@ -164,7 +164,7 @@ export default function HouseholdServicesManager({
 
   return (
     <div className="space-y-4 mt-4">
-       {/* {parseInt(user?.staff_role) === 1 && ( */}
+     {parseInt(user?.staff_role) === 1 && ( 
       <div className="rounded-lg border border-gray-200 p-4">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col md:flex-row md:items-end gap-3">
@@ -252,7 +252,7 @@ export default function HouseholdServicesManager({
           </div>
         </div>
       </div>
-      {/* )} */}
+       )} 
 
       <div className="rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">

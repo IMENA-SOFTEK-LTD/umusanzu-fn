@@ -955,6 +955,9 @@ export const apiSlice = createApi({
           agent,
           household_id,
           sms_phone,
+          phone1,
+          ubudehe,
+          lang
         }) => ({
           url: `/payment/offline?household_id=${household_id}`,
           method: 'POST',
@@ -964,7 +967,10 @@ export const apiSlice = createApi({
             month_paid,
             agent,
             sms_phone,
-            household_id
+            household_id,
+            phone1,
+            ubudehe,
+            lang
           },
         }),
       }),

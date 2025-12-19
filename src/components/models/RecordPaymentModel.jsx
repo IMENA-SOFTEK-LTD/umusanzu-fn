@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { toast } from 'react-toastify'
 import { useForm, Controller, useWatch } from 'react-hook-form'
@@ -7,16 +7,69 @@ import Input from '../Input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoneyBill, faX } from '@fortawesome/free-solid-svg-icons'
 import moment from 'moment'
-import { useCreatePaymentSessionMutation } from '../../states/api/apiSlice'
+import {
+  useCreatePaymentSessionMutation,
+  useGetHouseholdDepartmentServicesQuery,
+} from '../../states/api/apiSlice'
 import Loading from '../Loading'
 import WaitingForPayment from './WaitingForPayment'
+
+function normalizePayload(payload) {
+  const root = payload?.data ?? payload
+  if (Array.isArray(root)) return root
+  if (Array.isArray(root?.rows)) return root.rows
+  if (Array.isArray(root?.services)) return root.services
+  if (Array.isArray(root?.data)) return root.data
+  return []
+}
+
+function getServiceLabel(item) {
+  const service = item?.department_service?.service ?? item?.service ?? item
+  return (
+    service?.title ??
+    service?.title_english ??
+    service?.title_french ??
+    service?.name ??
+    `Service #${item?.id ?? ''}`
+  )
+}
 
 function RecordPaymentModel({ household, showModal, setShowModal }) {
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm()
+
+  const [selectedServiceId, setSelectedServiceId] = useState('')
+
+  // Load household services
+  const { data: householdServicesData, isLoading: isLoadingServices } =
+    useGetHouseholdDepartmentServicesQuery(
+      { householdId: household?.id },
+      { skip: !household?.id || !showModal }
+    )
+
+  const householdServices = useMemo(
+    () => normalizePayload(householdServicesData),
+    [householdServicesData]
+  )
+
+  // Auto-select service if there's only one
+  useEffect(() => {
+    if (householdServices.length === 1 && !selectedServiceId) {
+      const singleService = householdServices[0]
+      const serviceId = singleService?.id ?? singleService?.ID
+      if (serviceId) {
+        setSelectedServiceId(serviceId.toString())
+        setValue('selected_service_id', serviceId.toString())
+        if (singleService?.ubudehe) {
+          setValue('total_month_paid', singleService.ubudehe)
+        }
+      }
+    }
+  }, [householdServices, selectedServiceId, setValue])
 
   // Watch the total_month_paid field to display it in the button
   const totalMonthPaid = useWatch({
@@ -24,6 +77,36 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     name: 'total_month_paid',
     defaultValue: household?.ubudehe || 0,
   })
+
+  // Get selected service's ubudehe for validation
+  const selectedService = useMemo(() => {
+    if (!selectedServiceId) return null
+    return householdServices.find(
+      (s) =>
+        s?.id?.toString() === selectedServiceId ||
+        s?.ID?.toString() === selectedServiceId
+    )
+  }, [selectedServiceId, householdServices])
+
+  // Handle service selection
+  const handleServiceChange = (e) => {
+    const serviceId = e.target.value
+    setSelectedServiceId(serviceId)
+    setValue('selected_service_id', serviceId)
+
+    if (serviceId) {
+      const selectedService = householdServices.find(
+        (s) =>
+          s?.id?.toString() === serviceId || s?.ID?.toString() === serviceId
+      )
+      if (selectedService?.ubudehe) {
+        setValue('total_month_paid', selectedService.ubudehe)
+      }
+    } else {
+      // Reset to household ubudehe if no service selected
+      setValue('total_month_paid', household?.ubudehe || 0)
+    }
+  }
 
   const [
     createPaymentSession,
@@ -63,18 +146,31 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       merchant_code: household?.sectors[0].merchant_code || 'N/A',
       phone1: data?.payment_phone,
       type: type,
+      service_id: selectedService?.serviceId || selectedServiceId || null,
     })
   }
 
   const handleConfirm = () => {
-    if (window.confirm(`Are you sure you want to initiate payment of ${totalMonthPaid || 0} RWF?`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to initiate payment of ${
+          totalMonthPaid || 0
+        } RWF?`
+      )
+    ) {
       handleSubmit((data) => onSubmit(data, 'emeza'))()
     }
   }
 
   const handleIshyura = (e) => {
     e.preventDefault()
-    if (window.confirm(`Are you sure you want to continue with payment of ${totalMonthPaid || 0} RWF?`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to continue with payment of ${
+          totalMonthPaid || 0
+        } RWF?`
+      )
+    ) {
       handleSubmit((data) => onSubmit(data, 'ishyura'))()
     }
   }
@@ -84,7 +180,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       toast.success(
         paymentSessionData.message || 'Payment created successfully'
       )
-      
+
       if (lastPaymentType === 'emeza') {
         // Reload the page for emeza
         window.location.reload()
@@ -153,13 +249,89 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       </span>
                     )}
                   </label>
+                  {householdServices.length > 0 && (
+                    <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+                      Select Service
+                      <Controller
+                        name="selected_service_id"
+                        control={control}
+                        rules={{
+                          required:
+                            householdServices.length > 0
+                              ? 'Service selection is required'
+                              : false,
+                        }}
+                        render={({ field }) => (
+                          <select
+                            {...field}
+                            value={selectedServiceId}
+                            onChange={(e) => {
+                              field.onChange(e)
+                              handleServiceChange(e)
+                            }}
+                            className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                            disabled={
+                              isLoadingServices ||
+                              householdServices.length === 1
+                            }
+                          >
+                            <option value="">
+                              {isLoadingServices
+                                ? 'Loading services...'
+                                : householdServices.length === 1
+                                ? 'Auto-selected'
+                                : 'Select a service'}
+                            </option>
+                            {householdServices.map((service) => {
+                              const serviceId = service?.id ?? service?.ID
+                              return (
+                                <option
+                                  key={serviceId ?? JSON.stringify(service)}
+                                  value={serviceId?.toString() ?? ''}
+                                >
+                                  {getServiceLabel(service)} - Ubudehe:{' '}
+                                  {service?.ubudehe || 'N/A'}
+                                </option>
+                              )
+                            })}
+                          </select>
+                        )}
+                      />
+                      {errors.selected_service_id && (
+                        <span className="text-red-500">
+                          {errors.selected_service_id.message}
+                        </span>
+                      )}
+                    </label>
+                  )}
                   <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                     Amount Paid
                     <Controller
                       name="total_month_paid"
                       control={control}
                       defaultValue={household?.ubudehe}
-                      rules={{ required: 'Amount is required' }}
+                      rules={{
+                        required: 'Amount is required',
+                        validate: (value) => {
+                          const amount = parseFloat(value) || 0
+
+                          // Check if amount is less than or equal to zero
+                          if (amount <= 0) {
+                            return 'Amount must be greater than zero'
+                          }
+
+                          // Check if amount exceeds service ubudehe
+                          if (selectedService?.ubudehe) {
+                            const serviceUbudehe =
+                              parseFloat(selectedService.ubudehe) || 0
+                            if (amount > serviceUbudehe) {
+                              return `Amount cannot exceed service ubudehe (${serviceUbudehe})`
+                            }
+                          }
+
+                          return true
+                        },
+                      }}
                       render={({ field }) => (
                         <Input type="number" {...field} placeholder="1000" />
                       )}
@@ -168,6 +340,11 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       <span className="text-red-500">
                         {errors.total_month_paid.message}
                       </span>
+                    )}
+                    {selectedService?.ubudehe && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Service ubudehe: {selectedService.ubudehe} RWF
+                      </p>
                     )}
                   </label>
                 </div>
@@ -256,7 +433,11 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                     disabled={paymentSessionIsLoading}
                     className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
                     value={
-                      paymentSessionIsLoading ? <Loading /> : `Emeza ${totalMonthPaid || 0} RWF`
+                      paymentSessionIsLoading ? (
+                        <Loading />
+                      ) : (
+                        `Emeza ${totalMonthPaid || 0} RWF`
+                      )
                     }
                   />
                   <Button
@@ -265,7 +446,11 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                     disabled={paymentSessionIsLoading}
                     className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
                     value={
-                      paymentSessionIsLoading ? <Loading /> : `Ishyura ${totalMonthPaid || 0} RWF`
+                      paymentSessionIsLoading ? (
+                        <Loading />
+                      ) : (
+                        `Ishyura ${totalMonthPaid || 0} RWF`
+                      )
                     }
                   />
                 </div>
