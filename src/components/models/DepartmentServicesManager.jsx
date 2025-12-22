@@ -9,6 +9,7 @@ import {
   useGetServicesV2Query,
   useRemoveDepartmentServiceMutation,
 } from '../../states/api/apiSlice'
+import { useSelector } from 'react-redux'
 
 function normalizeServicesPayload(payload) {
   // Supports a few common response shapes:
@@ -68,7 +69,7 @@ function getServiceLabel(service) {
 
 export default function DepartmentServicesManager({ departmentId, onChanged }) {
   const [selectedServiceId, setSelectedServiceId] = useState('')
-
+  const { user } = useSelector((state) => state.auth)
   const { data, isFetching, isLoading, isError, refetch } =
     useGetDepartmentServicesQuery({ id: departmentId }, { skip: !departmentId })
 

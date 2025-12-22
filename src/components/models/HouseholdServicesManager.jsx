@@ -64,6 +64,7 @@ export default function HouseholdServicesManager({
   const [selectedDepartmentServiceId, setSelectedDepartmentServiceId] =
     useState('')
   const [ubudeheInput, setUbudeheInput] = useState(ubudehe || '')
+  const [householdType, setHouseholdType] = useState('Residence')
   const departmentId = user?.myAddress?.sector?.id
   // console.log(user)
   const {
@@ -140,6 +141,7 @@ export default function HouseholdServicesManager({
         household_id: householdId,
         department_service_id: trimmed,
         ubudehe: ubudeheValue,
+        householdType: householdType,
       }).unwrap()
       toast.success('Service assigned successfully')
       setSelectedDepartmentServiceId('')
@@ -164,7 +166,7 @@ export default function HouseholdServicesManager({
 
   return (
     <div className="space-y-4 mt-4">
-     {parseInt(user?.staff_role) === 1 && ( 
+     {/* {parseInt(user?.staff_role) === 1 && (  */}
       <div className="rounded-lg border border-gray-200 p-4">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col md:flex-row md:items-end gap-3">
@@ -228,6 +230,20 @@ export default function HouseholdServicesManager({
                 </p>
               )} */}
             </div>
+            <div className="flex-1">
+              <label className="block mb-2 text-sm font-medium text-black">
+                Household Type
+              </label>
+              <select
+                value={householdType}
+                onChange={(e) => setHouseholdType(e.target.value)}
+                className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 bg-white"
+                disabled={isAdding || !householdId}
+              >
+                <option value="Residence">Residence</option>
+                <option value="Business">Business</option>
+              </select>
+            </div>
           </div>
         
 
@@ -252,7 +268,7 @@ export default function HouseholdServicesManager({
           </div>
         </div>
       </div>
-       )} 
+       {/* )}  */}
 
       <div className="rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
@@ -324,8 +340,22 @@ export default function HouseholdServicesManager({
                             Ubudehe: {item.ubudehe}
                           </div>
                         )}
+                        {item?.householdType && (
+                          <div className="text-xs text-gray-500">
+                            Household Type:{' '}
+                            <span
+                              className={`font-medium ${
+                                item.householdType === 'Residence'
+                                  ? 'text-blue-600'
+                                  : 'text-orange-600'
+                              }`}
+                            >
+                              {item.householdType}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      {parseInt(user?.staff_role) === 1 && (
+                      {/* {parseInt(user?.staff_role) === 1 && ( */}
                       <button
                         type="button"
                         onClick={() => onRemove(item)}
@@ -334,7 +364,7 @@ export default function HouseholdServicesManager({
                       >
                         Remove
                       </button>
-                      )}
+                      {/* )} */}
                     </li>
                   )
                 })}

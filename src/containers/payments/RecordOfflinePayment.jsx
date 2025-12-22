@@ -43,6 +43,7 @@ const RecordOfflinePayment = ({ household }) => {
   const { user } = useSelector((state) => state.auth)
 
   const [selectedServiceId, setSelectedServiceId] = useState('')
+  const [householdType, setHouseholdType] = useState('Residence')
 
   // REACT HOOK FORM
   const {
@@ -64,20 +65,34 @@ const RecordOfflinePayment = ({ household }) => {
     [householdServicesData]
   )
 
+  // Filter services by householdType
+  const filteredServices = useMemo(() => {
+    if (!householdType) return householdServices
+    return householdServices.filter(
+      (service) => service?.householdType === householdType
+    )
+  }, [householdServices, householdType])
+
   // Get selected service's ubudehe for validation
   const selectedService = useMemo(() => {
     if (!selectedServiceId) return null
-    return householdServices.find(
+    return filteredServices.find(
       (s) =>
         s?.id?.toString() === selectedServiceId ||
         s?.ID?.toString() === selectedServiceId
     )
-  }, [selectedServiceId, householdServices])
+  }, [selectedServiceId, filteredServices])
 
-  // Auto-select service if there's only one
+  // Reset selected service when householdType changes
   useEffect(() => {
-    if (householdServices.length === 1 && !selectedServiceId) {
-      const singleService = householdServices[0]
+    setSelectedServiceId('')
+    setValue('service', '')
+  }, [householdType, setValue])
+
+  // Auto-select service if there's only one after filtering
+  useEffect(() => {
+    if (filteredServices.length === 1 && !selectedServiceId) {
+      const singleService = filteredServices[0]
       const serviceId = singleService?.id ?? singleService?.ID
       if (serviceId) {
         setSelectedServiceId(serviceId.toString())
@@ -87,7 +102,7 @@ const RecordOfflinePayment = ({ household }) => {
         }
       }
     }
-  }, [householdServices, selectedServiceId, setValue])
+  }, [filteredServices, selectedServiceId, setValue])
 
   // INITIATE RECORD OFFLINE PAYMENT
   const [
@@ -123,7 +138,7 @@ const RecordOfflinePayment = ({ household }) => {
     setValue('service', serviceId)
 
     if (serviceId) {
-      const selectedService = householdServices.find(
+      const selectedService = filteredServices.find(
         (s) =>
           s?.id?.toString() === serviceId || s?.ID?.toString() === serviceId
       )
@@ -148,6 +163,7 @@ const RecordOfflinePayment = ({ household }) => {
       phone1: data?.phone1,
       ubudehe: selectedService?.ubudehe,
       lang: data?.lang,
+      householdType: householdType,
     })
   }
 
@@ -177,7 +193,36 @@ const RecordOfflinePayment = ({ household }) => {
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-4 items-center w-full p-4"
       >
-        <div className="flex space-x-4 w-full">
+        <div className="flex items-start gap-4 w-full">
+          {householdServices.length > 0 && (
+            <div className="flex-1 w-full">
+              <label
+                htmlFor="householdType"
+                className="block mb-2 text-sm font-medium text-black"
+              >
+                Household Type
+              </label>
+              <Controller
+                name="householdType"
+                control={control}
+                defaultValue="Residence"
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={householdType}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      setHouseholdType(e.target.value)
+                    }}
+                    className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                  >
+                    <option value="Residence">Residence</option>
+                    <option value="Business">Business</option>
+                  </select>
+                )}
+              />
+            </div>
+          )}
           {householdServices.length > 0 && (
             <div className="flex-1 w-full">
               <label
@@ -191,7 +236,7 @@ const RecordOfflinePayment = ({ household }) => {
                 control={control}
                 rules={{
                   required:
-                    householdServices.length > 0
+                    filteredServices.length > 0
                       ? 'Service selection is required'
                       : false,
                 }}
@@ -205,17 +250,21 @@ const RecordOfflinePayment = ({ household }) => {
                     }}
                     className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                     disabled={
-                      isLoadingServices || householdServices.length === 1
+                      isLoadingServices ||
+                      filteredServices.length === 0 ||
+                      filteredServices.length === 1
                     }
                   >
                     <option value="">
                       {isLoadingServices
                         ? 'Loading services...'
-                        : householdServices.length === 1
+                        : filteredServices.length === 0
+                        ? 'No services available for this household type'
+                        : filteredServices.length === 1
                         ? 'Auto-selected'
                         : 'Select a service'}
                     </option>
-                    {householdServices.map((service) => {
+                    {filteredServices.map((service) => {
                       const serviceId = service?.id ?? service?.ID
                      
                       return (
@@ -320,49 +369,51 @@ const RecordOfflinePayment = ({ household }) => {
           )}
         </div>
 
-        <div className="w-full">
-          <label
-            htmlFor="phone"
-            className="block mb-2 text-sm font-medium text-black"
-          >
-            Phone Number
-          </label>
-          <Controller
-            name="phone1"
-            control={control}
-            rules={{ required: 'Please enter phone number' }}
-            defaultValue={household?.phone1}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="tel"
-                placeholder="07XX XXX XXX"
-                className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-              />
-            )}
-          />
-        </div>
-        <div className="w-full">
-          <label
-            htmlFor="phone"
-            className="block mb-2 text-sm font-medium text-black"
-          >
-            SMS Phone
-          </label>
-          <Controller
-            name="sms_phone"
-            control={control}
-            defaultValue={household?.phone1}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="tel"
-                readOnly
-                placeholder="07XX XXX XXX"
-                className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
-              />
-            )}
-          />
+        <div className="flex items-start gap-4 w-full">
+          <div className="flex-1 w-full">
+            <label
+              htmlFor="phone"
+              className="block mb-2 text-sm font-medium text-black"
+            >
+              Phone Number
+            </label>
+            <Controller
+              name="phone1"
+              control={control}
+              rules={{ required: 'Please enter phone number' }}
+              defaultValue={household?.phone1}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="tel"
+                  placeholder="07XX XXX XXX"
+                  className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                />
+              )}
+            />
+          </div>
+          <div className="flex-1 w-full">
+            <label
+              htmlFor="phone"
+              className="block mb-2 text-sm font-medium text-black"
+            >
+              SMS Phone
+            </label>
+            <Controller
+              name="sms_phone"
+              control={control}
+              defaultValue={household?.phone1}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="tel"
+                  readOnly
+                  placeholder="07XX XXX XXX"
+                  className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                />
+              )}
+            />
+          </div>
         </div>
         <div className="w-full">
           <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">

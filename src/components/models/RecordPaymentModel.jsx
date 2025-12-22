@@ -43,6 +43,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
   } = useForm()
 
   const [selectedServiceId, setSelectedServiceId] = useState('')
+  const [householdType, setHouseholdType] = useState('Residence')
 
   // Load household services
   const { data: householdServicesData, isLoading: isLoadingServices } =
@@ -56,10 +57,24 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     [householdServicesData]
   )
 
-  // Auto-select service if there's only one
+  // Filter services by householdType
+  const filteredServices = useMemo(() => {
+    if (!householdType) return householdServices
+    return householdServices.filter(
+      (service) => service?.householdType === householdType
+    )
+  }, [householdServices, householdType])
+
+  // Reset selected service when householdType changes
   useEffect(() => {
-    if (householdServices.length === 1 && !selectedServiceId) {
-      const singleService = householdServices[0]
+    setSelectedServiceId('')
+    setValue('selected_service_id', '')
+  }, [householdType, setValue])
+
+  // Auto-select service if there's only one after filtering
+  useEffect(() => {
+    if (filteredServices.length === 1 && !selectedServiceId) {
+      const singleService = filteredServices[0]
       const serviceId = singleService?.id ?? singleService?.ID
       if (serviceId) {
         setSelectedServiceId(serviceId.toString())
@@ -69,7 +84,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
         }
       }
     }
-  }, [householdServices, selectedServiceId, setValue])
+  }, [filteredServices, selectedServiceId, setValue])
 
   // Watch the total_month_paid field to display it in the button
   const totalMonthPaid = useWatch({
@@ -81,12 +96,12 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
   // Get selected service's ubudehe for validation
   const selectedService = useMemo(() => {
     if (!selectedServiceId) return null
-    return householdServices.find(
+    return filteredServices.find(
       (s) =>
         s?.id?.toString() === selectedServiceId ||
         s?.ID?.toString() === selectedServiceId
     )
-  }, [selectedServiceId, householdServices])
+  }, [selectedServiceId, filteredServices])
 
   // Handle service selection
   const handleServiceChange = (e) => {
@@ -95,7 +110,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     setValue('selected_service_id', serviceId)
 
     if (serviceId) {
-      const selectedService = householdServices.find(
+      const selectedService = filteredServices.find(
         (s) =>
           s?.id?.toString() === serviceId || s?.ID?.toString() === serviceId
       )
@@ -148,6 +163,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       type: type,
       service_id: selectedService?.serviceId || selectedServiceId || null,
       ubudehe: selectedService?.ubudehe || household?.ubudehe || null,
+      householdType: householdType,
     })
   }
 
@@ -251,59 +267,86 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                     )}
                   </label>
                   {householdServices.length > 0 && (
-                    <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                      Select Service
-                      <Controller
-                        name="selected_service_id"
-                        control={control}
-                        rules={{
-                          required:
-                            householdServices.length > 0
-                              ? 'Service selection is required'
-                              : false,
-                        }}
-                        render={({ field }) => (
-                          <select
-                            {...field}
-                            value={selectedServiceId}
-                            onChange={(e) => {
-                              field.onChange(e)
-                              handleServiceChange(e)
-                            }}
-                            className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
-                            disabled={
-                              isLoadingServices ||
-                              householdServices.length === 1
-                            }
-                          >
-                            <option value="">
-                              {isLoadingServices
-                                ? 'Loading services...'
-                                : householdServices.length === 1
-                                ? 'Auto-selected'
-                                : 'Select a service'}
-                            </option>
-                            {householdServices.map((service) => {
-                              const serviceId = service?.id ?? service?.ID
-                              return (
-                                <option
-                                  key={serviceId ?? JSON.stringify(service)}
-                                  value={serviceId?.toString() ?? ''}
-                                >
-                                  {getServiceLabel(service)} - Ubudehe:{' '}
-                                  {service?.ubudehe || 'N/A'}
-                                </option>
-                              )
-                            })}
-                          </select>
+                    <div className="flex items-start gap-6 w-full">
+                      <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
+                        Household Type
+                        <Controller
+                          name="householdType"
+                          control={control}
+                          defaultValue="Residence"
+                          render={({ field }) => (
+                            <select
+                              {...field}
+                              value={householdType}
+                              onChange={(e) => {
+                                field.onChange(e)
+                                setHouseholdType(e.target.value)
+                              }}
+                              className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                            >
+                              <option value="Residence">Residence</option>
+                              <option value="Business">Business</option>
+                            </select>
+                          )}
+                        />
+                      </label>
+                      <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
+                        Select Service
+                        <Controller
+                          name="selected_service_id"
+                          control={control}
+                          rules={{
+                            required:
+                              filteredServices.length > 0
+                                ? 'Service selection is required'
+                                : false,
+                          }}
+                          render={({ field }) => (
+                            <select
+                              {...field}
+                              value={selectedServiceId}
+                              onChange={(e) => {
+                                field.onChange(e)
+                                handleServiceChange(e)
+                              }}
+                              className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                              disabled={
+                                isLoadingServices ||
+                                filteredServices.length === 0 ||
+                                filteredServices.length === 1
+                              }
+                            >
+                              <option value="">
+                                {isLoadingServices
+                                  ? 'Loading services...'
+                                  : filteredServices.length === 0
+                                  ? 'No services available for this household type'
+                                  : filteredServices.length === 1
+                                  ? 'Auto-selected'
+                                  : 'Select a service'}
+                              </option>
+                              {filteredServices.map((service) => {
+                                const serviceId = service?.id ?? service?.ID
+                                return (
+                                  <option
+                                    key={serviceId ?? JSON.stringify(service)}
+                                    value={serviceId?.toString() ?? ''}
+                                  >
+                                    {getServiceLabel(service)} - Ubudehe:{' '}
+                                    {service?.ubudehe || 'N/A'}
+                                  </option>
+                                )
+                              })}
+                            </select>
+                          )}
+                        />
+                        {errors.selected_service_id && (
+                          <span className="text-red-500">
+                            {errors.selected_service_id.message}
+                          </span>
                         )}
-                      />
-                      {errors.selected_service_id && (
-                        <span className="text-red-500">
-                          {errors.selected_service_id.message}
-                        </span>
-                      )}
-                    </label>
+                      </label>
+                    </div>
                   )}
                   <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                     Amount Paid
@@ -349,66 +392,41 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                     )}
                   </label>
                 </div>
-                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                  Numero iriho amafaranga
-                  <Controller
-                    name="payment_phone"
-                    control={control}
-                    defaultValue={household?.phone1}
-                    rules={{ required: 'Please enter the phone number' }}
-                    render={({ field }) => (
-                      <Input type="text" {...field} placeholder="07XXXXXXXX" />
+                <div className="flex items-start gap-6 w-full">
+                  <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
+                    Numero iriho amafaranga
+                    <Controller
+                      name="payment_phone"
+                      control={control}
+                      defaultValue={household?.phone1}
+                      rules={{ required: 'Please enter the phone number' }}
+                      render={({ field }) => (
+                        <Input type="text" {...field} placeholder="07XXXXXXXX" />
+                      )}
+                    />
+                    {errors.payment_phone && (
+                      <span className="text-red-500">
+                        {errors.payment_phone.message}
+                      </span>
                     )}
-                  />
-                  {errors.payment_phone && (
-                    <span className="text-red-500">
-                      {errors.payment_phone.message}
-                    </span>
-                  )}
-                </label>
-                {/* <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                  Choose payment option
-                  <Controller
-                    name="payment_method"
-                    control={control}
-                    disabled={true}
-                    rules={{
-                      required: 'Payment option is required',
-                    }}
-                    defaultValue={'MOMO'}
-                    render={({ field }) => (
-                      <select
-                        {...field}
-                        className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
-                      >
-                        <option value="MOMO">MTN Mobile Money</option>
-                        <option value="bank">Bank Transfer</option>
-                        <option value="Airtel">Airtel Money</option>
-                      </select>
-                    )}
-                  />
-                  {errors.payment_method && (
-                    <span className="text-red-500">
-                      {errors.payment_method.message}
-                    </span>
-                  )}
-                </label> */}
-                <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                  Numero yakira message(SMS)
-                  <Controller
-                    name="phone1"
-                    control={control}
-                    defaultValue={household?.phone1}
-                    render={({ field }) => (
-                      <Input
-                        readonly
-                        type="text"
-                        {...field}
-                        placeholder="07XX XXX XXX"
-                      />
-                    )}
-                  />
-                </label>
+                  </label>
+                  <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
+                    Numero yakira message(SMS)
+                    <Controller
+                      name="phone1"
+                      control={control}
+                      defaultValue={household?.phone1}
+                      render={({ field }) => (
+                        <Input
+                          readonly
+                          type="text"
+                          {...field}
+                          placeholder="07XX XXX XXX"
+                        />
+                      )}
+                    />
+                  </label>
+                </div>
                 <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                   Choose SMS Language
                   <Controller

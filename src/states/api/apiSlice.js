@@ -691,7 +691,8 @@ export const apiSlice = createApi({
           type,
           merchant_code,
           ubudehe,
-          service_id
+          service_id,
+          householdType
         }) => ({
           url: `/payment/initiate`,
           method: 'POST',
@@ -706,7 +707,8 @@ export const apiSlice = createApi({
             type,
             merchant_code,
             ubudehe,
-            service_id
+            service_id,
+            householdType
           },
         }),
       }),
@@ -832,10 +834,10 @@ export const apiSlice = createApi({
         ],
       }),
       assignHouseholdDepartmentService: builder.mutation({
-        query: ({ household_id, department_service_id, ubudehe }) => ({
+        query: ({ household_id, department_service_id, ubudehe, householdType }) => ({
           url: `/households/department-services`,
           method: 'POST',
-          body: { household_id, department_service_id, ubudehe },
+          body: { household_id, department_service_id, ubudehe, householdType },
         }),
         invalidatesTags: (result, error, arg) => [
           { type: 'Household', id: arg?.household_id },
@@ -961,7 +963,8 @@ export const apiSlice = createApi({
           sms_phone,
           phone1,
           ubudehe,
-          lang
+          lang,
+          householdType
         }) => ({
           url: `/payment/offline?household_id=${household_id}`,
           method: 'POST',
@@ -974,7 +977,8 @@ export const apiSlice = createApi({
             household_id,
             phone1,
             ubudehe,
-            lang
+            lang,
+            householdType
           },
         }),
       }),
@@ -1005,11 +1009,12 @@ export const apiSlice = createApi({
           merchant_code,
           lang,
           phone1,
-          service_id
+          service_id,
+          householdType
         }) => ({
           url: `/payment/advance`,
           method: 'POST',
-          body: {phone1,household_id, payment_phone, agent, start_month, end_month, type, merchant_code, lang, service_id },
+          body: {phone1,household_id, payment_phone, agent, start_month, end_month, type, merchant_code, lang, service_id, householdType },
         }),
       }),
       // EDIT PAYMENT
