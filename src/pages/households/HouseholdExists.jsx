@@ -185,8 +185,8 @@ const HouseholdExists = () => {
         sortable: true,
       },
       {
-        Header: 'Amount',
-        accessor: 'ubudehe',
+        Header: 'Commitment',
+        accessor: 'amount',
         sortable: true,
         filter: true,
       },

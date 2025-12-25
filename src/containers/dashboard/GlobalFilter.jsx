@@ -491,8 +491,8 @@ const GlobalFilter = ({
                   options={[
                     { id: 'ACTIVE', name: 'Active' },
                     { id: 'INACTIVE', name: 'Inactive' },
-                    { id: 'MOVED', name: 'Moved' },
-                    { id: 'REQUESTED', name: 'Requested' },
+                    // { id: 'MOVED', name: 'Moved' },
+                    // { id: 'REQUESTED', name: 'Requested' },
                     // { id: 'DELETED', name: 'Deleted' },
                   ]}
                   placeholder="Select Activation Status"

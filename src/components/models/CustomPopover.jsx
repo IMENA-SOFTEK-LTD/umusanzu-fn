@@ -9,6 +9,7 @@ const CustomPopover = ({
   children,    // Content inside the popover
   placement = "bottom", // Optional: top, bottom, left, right
   height='h-[auto]',
+  width = 'w-[200px]',
   offset
 }) => {
   return (
@@ -18,7 +19,7 @@ const CustomPopover = ({
           {trigger}
         </div>
       </PopoverHandler>
-      <PopoverContent className={`w-[200px] ${height} p-4 bg-white shadow-lg rounded-lg`}>
+      <PopoverContent className={`${width} ${height} p-4 bg-white shadow-lg rounded-lg`}>
         {children}
       </PopoverContent>
     </Popover>

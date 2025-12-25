@@ -36,6 +36,7 @@ import {
 import ExistingHouseholds from '../../containers/households/ExistingHouseholds'
 import Select from '../../components/Select'
 import { toast } from 'react-toastify'
+import HouseholdServicesForm from '../../components/households/HouseholdServicesForm'
 
 const CreateHousehold = ({ user }) => {
   const {
@@ -63,6 +64,7 @@ const CreateHousehold = ({ user }) => {
   } = useSelector((state) => state.household)
 
   const [existingHouseholdData, setExistingHouseholdData] = useState([])
+  const [householdServices, setHouseholdServices] = useState([])
 
   let department = ''
   // console.log(user?.departments?.level_id)
@@ -237,6 +239,36 @@ const CreateHousehold = ({ user }) => {
 
   const onSubmit = (data) => {
     localStorage.removeItem('conflictReqPayload')
+    
+    // Validate Household Department Services
+    if (!householdServices || householdServices.length === 0) {
+      toast.error('Please add at least one household department service')
+      return
+    }
+    
+    // Validate each service has required fields
+    const invalidServices = householdServices.filter(
+      (service) =>
+        !service.department_service_id ||
+        !service.ubudehe ||
+        String(service.ubudehe).trim() === '' ||
+        !service.householdType
+    )
+    
+    if (invalidServices.length > 0) {
+      toast.error(
+        'Please ensure all services have a service selected, household type, and amount filled'
+      )
+      return
+    }
+    
+    // Format services array with service, householdType, and amount
+    const servicesArray = householdServices.map((service) => ({
+      service: service.department_service_id,
+      householdType: service.householdType,
+      amount: service.ubudehe,
+    }))
+    
     const payload = {
       name: data.name,
       nid: data.nid,
@@ -246,13 +278,13 @@ const CreateHousehold = ({ user }) => {
       cell: Number(data.cell || selectedCell),
       phone1: data.phone1,
       phone2: data.phone2,
-      ubudehe: data.ubudehe,
-      type: data.type,
       village: Number(data.village || selectedVillage),
       email: data.email,
+      services: servicesArray,
     }
-    createHousehold(payload)
-    dispatch(setDuplicateHousehold(payload))
+    console.log(payload)
+    // createHousehold(payload)
+    // dispatch(setDuplicateHousehold(payload))
   }
 
   useEffect(() => {
@@ -273,6 +305,7 @@ const CreateHousehold = ({ user }) => {
       } else {
         dispatch(setHouseholdConflict(false))
         dispatch(setDuplicateHousehold(null))
+        toast.success('Household created successfully')
         setTimeout(() => {
           navigate(`/households/${createHouseholdData?.data?.id}`)
         }, 1000)
@@ -281,7 +314,7 @@ const CreateHousehold = ({ user }) => {
       dispatch(setDuplicateHousehold(null))
       toast.error(createHouseholdErrorData?.message)
     }
-  }, [createHouseholdSuccess, createHouseholdData])
+  }, [createHouseholdSuccess, createHouseholdData, dispatch, navigate])
     // console.log(selectedProvince)
   return (
     <main className="flex flex-col gap-6 my-4 w-[90%] relative mx-auto">
@@ -373,47 +406,6 @@ const CreateHousehold = ({ user }) => {
                 name="phone2"
                 render={({ field }) => {
                   return <Input {...field} placeholder="0788 111 111" />
-                }}
-              />
-            </label>
-          </span>
-          <span className="flex items-start gap-4 w-full">
-            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
-              <p>
-                Amount <span className="text-red-500">*</span>
-              </p>
-              <Controller
-                control={control}
-                name="ubudehe"
-                rules={{ required: 'Ubudehe amount is required' }}
-                render={({ field }) => {
-                  return <Input {...field} placeholder="5000" />
-                }}
-              />
-              {errors.ubudehe && (
-                <span className="text-red-500 text-[12px]">
-                  {errors.ubudehe.message}
-                </span>
-              )}
-            </label>
-            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-              Household type
-              <Controller
-                control={control}
-                name="type"
-                defaultValue={'residence'}
-                render={({ field }) => {
-                  return (
-                    <Select
-                      defaultValue={'residence'}
-                      defaultLabel="Type"
-                      options={[
-                        { text: 'Residence', value: 'residence' },
-                        { text: 'Business', value: 'business' },
-                      ]}
-                      {...field}
-                    />
-                  )
                 }}
               />
             </label>
@@ -657,6 +649,12 @@ const CreateHousehold = ({ user }) => {
             </label>
           )}
         </section>
+        
+        {/* HOUSEHOLD DEPARTMENT SERVICES */}
+        <section className="flex flex-col items-start gap-0 w-full">
+          <HouseholdServicesForm onServicesChange={setHouseholdServices} />
+        </section>
+        
         <section className={`${createHouseholdSuccess ? 'flex' : 'hidden'}`}>
           <p className={`${householdConflict ? 'text-red-500' : 'hidden'}`}>
             The current household already exists

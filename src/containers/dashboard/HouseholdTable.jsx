@@ -78,18 +78,20 @@ const HouseholdTable = ({ user }) => {
     `HOUSEHOLDS REGISTERED IN ${user?.departments?.name?.toUpperCase()} ${user?.department?.toUpperCase()}`
   )
   const [showImportModal, setShowImportModal] = useState(false)
-  const [showDeleteHouseholdsModal, setShowDeleteHouseholdsModal] = useState(false)
-  const [showDeleteTransactionsModal, setShowDeleteTransactionsModal] = useState(false)
+  const [showDeleteHouseholdsModal, setShowDeleteHouseholdsModal] =
+    useState(false)
+  const [showDeleteTransactionsModal, setShowDeleteTransactionsModal] =
+    useState(false)
   const { userOrSelectedDepartmentNames } = useSelector(
     (state) => state.departments
   )
   const location = useLocation()
-  
+
   // Toggle row expansion for mobile view
   const toggleRowExpansion = useCallback((index) => {
-    setExpandedRows(prev => ({
+    setExpandedRows((prev) => ({
       ...prev,
-      [index]: !prev[index]
+      [index]: !prev[index],
     }))
   }, [])
 
@@ -103,11 +105,7 @@ const HouseholdTable = ({ user }) => {
 
   const [
     importHouseholds,
-    {
-      isLoading: isImporting,
-      isSuccess: importSuccess,
-      isError: importError,
-    },
+    { isLoading: isImporting, isSuccess: importSuccess, isError: importError },
   ] = useImportHouseholdsMutation()
 
   const handleImport = useCallback(() => {
@@ -277,7 +275,7 @@ const HouseholdTable = ({ user }) => {
               email: row?.email,
               phone1: row?.phone1,
               phone2: row?.phone2,
-              ubudehe: row?.ubudehe,
+              amount: row?.amount,
               status: row?.status,
               village: row?.village_name,
               villageId: row?.village,
@@ -290,7 +288,11 @@ const HouseholdTable = ({ user }) => {
               province: row?.province_name,
               provinceId: row?.province,
               type: row?.type,
-              payment_status:row?.payment_status
+              payment_status: row?.payment_status,
+              total_services:
+                row?.total_services === 0
+                  ? 'No Services'
+                  : row?.total_services + ' Services',
             })) || []
           )
         })
@@ -437,7 +439,7 @@ const HouseholdTable = ({ user }) => {
                       e.preventDefault()
                       const payload = {
                         name: row?.original?.name,
-                        ubudehe: row?.original?.ubudehe,
+                        amount: row?.original?.amount,
                         nid: row?.original?.nid,
                         phone1: row?.original?.phone1,
                         phone2: row?.original?.phone2,
@@ -487,8 +489,22 @@ const HouseholdTable = ({ user }) => {
         sortable: true,
       },
       {
-        Header: 'Amount',
-        accessor: 'ubudehe',
+        Header: 'Commitment',
+        accessor: 'amount',
+        sortable: true,
+        Filter: SelectColumnFilter,
+        Cell: ({ row }) => {
+          const amount = row?.original?.amount || 0
+          return (
+            <span className="font-medium">
+              {formatFunds(amount)} RWF
+            </span>
+          )
+        },
+      },
+      {
+        Header: 'Services',
+        accessor: 'total_services',
         sortable: true,
         Filter: SelectColumnFilter,
       },
@@ -526,6 +542,29 @@ const HouseholdTable = ({ user }) => {
         accessor: 'payment_status',
         sortable: true,
         Filter: SelectColumnFilter,
+        Cell: ({ row }) => {
+          const status = row?.original?.payment_status
+          const statusUpper = status?.toUpperCase()
+          const color =
+            statusUpper === 'PAID' || statusUpper === 'CURRENT'
+              ? 'bg-green-600'
+              : statusUpper === 'PENDING' || statusUpper === 'DUE'
+              ? 'bg-yellow-600'
+              : statusUpper === 'PARTIAL' || statusUpper === 'PARTIALLY PAID'
+              ? 'bg-blue-600'
+              : statusUpper === 'UNPAID' || statusUpper === 'OVERDUE' || statusUpper === 'OUTSTANDING'
+              ? 'bg-red-600'
+              : statusUpper === 'UP TO DATE'
+              ? 'bg-green-500'
+              : 'bg-gray-600'
+          return (
+            <span
+              className={`${color} w-auto px-2 py-1 text-white text-xs rounded`}
+            >
+              {status || 'N/A'}
+            </span>
+          )
+        },
       },
     ],
     []
@@ -570,10 +609,13 @@ const HouseholdTable = ({ user }) => {
     document.title = 'Households | Umusanzu Digital'
   }, [])
 
-  const gotoPage1 = useCallback((newPage) => {
-    if (newPage < 0 || newPage >= totalPages) return
-    dispatch(setPage(Number(newPage)))
-  }, [totalPages, dispatch])
+  const gotoPage1 = useCallback(
+    (newPage) => {
+      if (newPage < 0 || newPage >= totalPages) return
+      dispatch(setPage(Number(newPage)))
+    },
+    [totalPages, dispatch]
+  )
 
   // Mobile Household Card Component
   const HouseholdCard = memo(({ household, index }) => (
@@ -633,8 +675,16 @@ const HouseholdTable = ({ user }) => {
           {/* Household Details Grid */}
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="text-gray-500 block text-xs">Amount</span>
-              <p className="font-medium text-green-600">{formatFunds(household.ubudehe)}</p>
+              <span className="text-gray-500 block text-xs">Commitment</span>
+              <p className="font-medium text-green-600">
+                {formatFunds(household.amount)}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Total Services</span>
+              <p className="font-medium text-green-600">
+                {household.total_services}
+              </p>
             </div>
             <div>
               <span className="text-gray-500 block text-xs">Email</span>
@@ -649,8 +699,26 @@ const HouseholdTable = ({ user }) => {
               <p className="font-medium">{household.phone2 || 'N/A'}</p>
             </div>
             <div>
-              <span className="text-gray-500 block text-xs">Payment Status</span>
-              <p className="font-medium">{household.payment_status}</p>
+              <span className="text-gray-500 block text-xs">
+                Payment Status
+              </span>
+              <span
+                className={`inline-block px-2 py-1 text-white text-xs rounded font-medium ${
+                  household.payment_status?.toUpperCase() === 'PAID' || household.payment_status?.toUpperCase() === 'CURRENT'
+                    ? 'bg-green-600'
+                    : household.payment_status?.toUpperCase() === 'PENDING' || household.payment_status?.toUpperCase() === 'DUE'
+                    ? 'bg-yellow-600'
+                    : household.payment_status?.toUpperCase() === 'PARTIAL' || household.payment_status?.toUpperCase() === 'PARTIALLY PAID'
+                    ? 'bg-blue-600'
+                    : household.payment_status?.toUpperCase() === 'UNPAID' || household.payment_status?.toUpperCase() === 'OVERDUE' || household.payment_status?.toUpperCase() === 'OUTSTANDING'
+                    ? 'bg-red-600'
+                    : household.payment_status?.toUpperCase() === 'UP TO DATE'
+                    ? 'bg-green-500'
+                    : 'bg-gray-600'
+                }`}
+              >
+                {household.payment_status || 'N/A'}
+              </span>
             </div>
           </div>
 
@@ -685,44 +753,45 @@ const HouseholdTable = ({ user }) => {
           </div>
 
           {/* Action Buttons */}
-          {user?.staff_role === 1 && [3, 5].includes(user?.departments?.level_id) && (
-            <div className="flex gap-2 mt-3">
-              {household.status === 'REQUESTED' && (
-                <>
-                  <Button
-                    value="Approve"
-                    className="!bg-green-600 !text-white !text-xs !py-1 !px-3"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      const payload = {
-                        name: household.name,
-                        ubudehe: household.ubudehe,
-                        nid: household.nid,
-                        phone1: household.phone1,
-                        phone2: household.phone2,
-                        village: household.villageId,
-                        cell: household.cellId,
-                        sector: household.sectorId,
-                        district: household.districtId,
-                        province: household.provinceId,
-                        email: household.email,
-                        existingHouseholdId: household.ID,
-                      }
-                      moveHousehold(payload)
-                    }}
-                  />
-                  <Button
-                    value="Deny"
-                    className="!bg-red-600 !text-white !text-xs !py-1 !px-3"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      cancelMoveHousehold({ id: household.ID })
-                    }}
-                  />
-                </>
-              )}
-            </div>
-          )}
+          {user?.staff_role === 1 &&
+            [3, 5].includes(user?.departments?.level_id) && (
+              <div className="flex gap-2 mt-3">
+                {household.status === 'REQUESTED' && (
+                  <>
+                    <Button
+                      value="Approve"
+                      className="!bg-green-600 !text-white !text-xs !py-1 !px-3"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        const payload = {
+                          name: household.name,
+                          amount: household.amount,
+                          nid: household.nid,
+                          phone1: household.phone1,
+                          phone2: household.phone2,
+                          village: household.villageId,
+                          cell: household.cellId,
+                          sector: household.sectorId,
+                          district: household.districtId,
+                          province: household.provinceId,
+                          email: household.email,
+                          existingHouseholdId: household.ID,
+                        }
+                        moveHousehold(payload)
+                      }}
+                    />
+                    <Button
+                      value="Deny"
+                      className="!bg-red-600 !text-white !text-xs !py-1 !px-3"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        cancelMoveHousehold({ id: household.ID })
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+            )}
         </div>
       )}
     </div>
@@ -797,33 +866,38 @@ const HouseholdTable = ({ user }) => {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              {[1,2].includes(parseInt(user?.staff_role)) && (
-                <Button
-                  className="w-full sm:w-auto"
-                  value={
-                    <span className="flex items-center gap-2">
-                      <FontAwesomeIcon icon={faHouse} />
-                      <span className="hidden sm:inline">Add new household</span>
-                      <span className="sm:hidden">Add Household</span>
-                    </span>
-                  }
-                  route="/households/create"
-                />
-                )}
-                {user?.departments.level_id !== 6 && parseInt(user?.staff_role) === 1 && (
+                {[1, 2].includes(parseInt(user?.staff_role)) && (
                   <Button
                     className="w-full sm:w-auto"
                     value={
                       <span className="flex items-center gap-2">
-                        <FontAwesomeIcon icon={faFile} />
-                        <span className="hidden sm:inline">Export Report</span>
-                        <span className="sm:hidden">Export</span>
+                        <FontAwesomeIcon icon={faHouse} />
+                        <span className="hidden sm:inline">
+                          Add new household
+                        </span>
+                        <span className="sm:hidden">Add Household</span>
                       </span>
                     }
-                    route={'#'}
-                    onClick={openExportPopup}
+                    route="/households/create"
                   />
                 )}
+                {user?.departments.level_id !== 6 &&
+                  parseInt(user?.staff_role) === 1 && (
+                    <Button
+                      className="w-full sm:w-auto"
+                      value={
+                        <span className="flex items-center gap-2">
+                          <FontAwesomeIcon icon={faFile} />
+                          <span className="hidden sm:inline">
+                            Export Report
+                          </span>
+                          <span className="sm:hidden">Export</span>
+                        </span>
+                      }
+                      route={'#'}
+                      onClick={openExportPopup}
+                    />
+                  )}
               </div>
             </div>
           </div>
@@ -862,8 +936,14 @@ const HouseholdTable = ({ user }) => {
                   placeholder={
                     'Search for household by names, phone, email....'
                   }
-                  showImport={parseInt(user?.staff_role) === 1 && user?.departments.level_id === 5}
-                  showDelete={parseInt(user?.staff_role) === 1 && user?.departments.level_id === 5}
+                  showImport={
+                    parseInt(user?.staff_role) === 1 &&
+                    user?.departments.level_id === 5
+                  }
+                  showDelete={
+                    parseInt(user?.staff_role) === 1 &&
+                    user?.departments.level_id === 5
+                  }
                   onImport={handleImport}
                   onDeleteAllHouseholds={handleDeleteAllHouseholds}
                   onDeleteTransactions={handleDeleteTransactions}
@@ -955,7 +1035,9 @@ const HouseholdTable = ({ user }) => {
                     <div className="bg-gray-50 rounded-lg p-4 mb-6">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="text-center sm:text-left">
-                          <p className="text-sm text-gray-600">Total Households</p>
+                          <p className="text-sm text-gray-600">
+                            Total Households
+                          </p>
                           <p className="text-2xl font-bold text-gray-900">
                             {formatFunds(totalRecords) || 0}
                           </p>

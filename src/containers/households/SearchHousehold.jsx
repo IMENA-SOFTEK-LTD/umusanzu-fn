@@ -205,7 +205,7 @@ const SearchHousehold = ({ user }) => {
               email: row?.email,
               phone1: row?.phone1,
               phone2: row?.phone2,
-              ubudehe: row?.ubudehe,
+              amount: row?.amount,
               status: row?.status,
               village: row?.village_name,
               villageId: row?.village,
@@ -218,6 +218,8 @@ const SearchHousehold = ({ user }) => {
               province: row?.province_name,
               provinceId: row?.province,
               type: row?.type,
+              total_services:row?.total_services===0 ? 'No Services'
+                  : row?.total_services + ' Services',
             })) || []
           )
         })
@@ -344,8 +346,8 @@ const SearchHousehold = ({ user }) => {
         sortable: true,
       },
       {
-        Header: 'Amount',
-        accessor: 'ubudehe',
+        Header: 'Commitment',
+        accessor: 'amount',
         sortable: true,
         Filter: SelectColumnFilter,
       },
@@ -355,35 +357,18 @@ const SearchHousehold = ({ user }) => {
         sortable: true,
       },
       {
-        Header: 'Village',
+        Header: 'Services',
+        accessor: 'total_services',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Current village',
         accessor: 'village',
         sortable: true,
         Filter: SelectColumnFilter,
       },
-      {
-        Header: 'Cell',
-        accessor: 'cell',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'Sector',
-        accessor: 'sector',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'District',
-        accessor: 'district',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'Province',
-        accessor: 'province',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
+     
     ],
     []
   )
@@ -491,7 +476,7 @@ const SearchHousehold = ({ user }) => {
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <span className="text-gray-500 block text-xs">Amount</span>
-              <p className="font-medium text-green-600">{formatFunds(household.ubudehe)}</p>
+              <p className="font-medium text-green-600">{formatFunds(household.amount)}</p>
             </div>
             <div>
               <span className="text-gray-500 block text-xs">Email</span>
@@ -549,7 +534,7 @@ const SearchHousehold = ({ user }) => {
                       e.preventDefault()
                       const payload = {
                         name: household.name,
-                        ubudehe: household.ubudehe,
+                        amount: household.amount,
                         nid: household.nid,
                         phone1: household.phone1,
                         phone2: household.phone2,

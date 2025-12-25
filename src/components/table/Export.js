@@ -415,14 +415,28 @@ const printPDF = async ({
 
 export const printTransactionPDF = ({ payment }) => {
   const doc = new jsPDF()
+  
+  // Get location and service info from householdDepartmentService
+  const serviceData = payment?.householdDepartmentService
+  const locationInfo = {
+    province: serviceData?.province,
+    district: serviceData?.district,
+    sector: serviceData?.sector,
+    cell: serviceData?.cell,
+    village: serviceData?.village,
+  }
+  const serviceName = serviceData?.department_service?.service?.title || 'Umutekano'
+  const serviceType = serviceData?.householdType || 'N/A'
+  const ubudehe = serviceData?.ubudehe || payment?.amount
+  
   // Add the header section
   doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
   doc.setFontSize(10.5)
   doc.setFont('Times New Roman', 'bold')
   doc.text('REPUBLIC OF RWANDA', 70, 17)
-  doc.text(`${payment?.household?.provinces[0]?.name || 'KIGALI CITY'}`, 70, 23)
-  doc.text(`${payment?.household?.districts[0]?.name} DISTRICT`, 70, 29)
-  doc.text(`${payment?.household?.sectors[0]?.name} SECTOR`, 70, 35)
+  doc.text(`${locationInfo?.province?.name || payment?.household?.provinces?.[0]?.name || 'KIGALI CITY'}`, 70, 23)
+  doc.text(`${locationInfo?.district?.name || payment?.household?.districts?.[0]?.name || ''} DISTRICT`, 70, 29)
+  doc.text(`${locationInfo?.sector?.name || payment?.household?.sectors?.[0]?.name || ''} SECTOR`, 70, 35)
   doc.setFont('Times New Roman', 'bold')
   doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
 
@@ -446,18 +460,17 @@ export const printTransactionPDF = ({ payment }) => {
   doc.text(`${title}`, 70, 65)
 
   doc.setFont('Times New Roman', 'normal')
-// console.log(payment)
   const itemsColumn1 = [
-    `Reference: ${payment?.id}UMS${payment?.household?.id}`,
-    `Names: ${payment?.household?.name}`,
-    `Tel: ${payment?.household?.phone1}`,
+    `Reference: ${payment?.household?.id}UMS${payment?.household?.name.split(' ')[0]}`,
+    `Names: ${payment?.household?.name || 'N/A'}`,
+    `Tel: ${payment?.household?.phone1 || 'N/A'}`,
     `TIN: ${payment?.household?.tin || 'N/A'}`,
   ]
   const itemsColumn2 = [
-    `Date: ${moment(payment?.transaction_date).format('YYYY-MM-DD HH:mm:ss')}`,
-    `Cell: ${payment?.household?.cells[0]?.name}`,
-    `Village: ${payment?.household?.villages[0]?.name}`,
-    'Service: Umutekano',
+    `Date: ${moment(payment?.transaction_date || payment?.updatedAt || payment?.createdAt).format('YYYY-MM-DD HH:mm:ss')}`,
+    `Cell: ${locationInfo?.cell?.name || payment?.household?.cells?.[0]?.name || 'N/A'}`,
+    `Village: ${locationInfo?.village?.name || payment?.household?.villages?.[0]?.name || 'N/A'}`,
+    `Service: ${serviceName} / ${serviceType}`,
   ]
   const startXColumn1 = 15
   const startXColumn2 = 130
@@ -505,9 +518,9 @@ export const printTransactionPDF = ({ payment }) => {
     head: false, // No header since we drew it manually
     body: [
       [
-        'Umutekano',
+        serviceName,
         `${moment(payment?.month_paid).format('MMMM YYYY')}`,
-        `${formatFunds(payment?.amount)} RWF`,
+        `${formatFunds(ubudehe)} RWF`,
         payment?.status === 'PAID' ? `${formatFunds(payment?.amount)} RWF` : `${formatFunds(payment?.remain_amount)} RWF`,
       ],
       // Add more rows as needed
@@ -571,7 +584,9 @@ export const printTransactionPDF = ({ payment }) => {
   doc.setDrawColor(200, 200, 200) // Light gray line
   doc.line(rightMargin - 60, doc.autoTable.previous.finalY + 25, rightMargin, doc.autoTable.previous.finalY + 25)
   
-  const image = payment?.household?.sectors[0]?.stamp
+  // Use sector info from householdDepartmentService, fallback to household
+  const sectorInfo = locationInfo?.sector || payment?.household?.sectors?.[0]
+  const image = sectorInfo?.stamp || null
   if (image) {
     // Position stamp with better design
     addSignatureImage(doc, image, {
@@ -588,19 +603,19 @@ export const printTransactionPDF = ({ payment }) => {
   const signatureStartY = doc.autoTable.previous.finalY + 70
   
   doc.text(
-    `${payment?.household?.sectors[0]?.department_infos[0]?.leader_name}`,
+    `${sectorInfo?.department_infos?.[0]?.leader_name || 'N/A'}`,
     signatureDetailsX,
     signatureStartY,
     { align: 'left' }
   )
   doc.text(
-    `${payment?.household?.sectors[0]?.department_infos[0]?.leader_title},`,
+    `${sectorInfo?.department_infos?.[0]?.leader_title || 'N/A'},`,
     signatureDetailsX,
     signatureStartY + 8,
     { align: 'left' }
   )
   doc.text(
-    `${payment?.household?.sectors[0]?.name} SECTOR`,
+    `${locationInfo?.sector?.name || sectorInfo?.name || 'N/A'} SECTOR`,
     signatureDetailsX,
     signatureStartY + 16,
     { align: 'left' }
@@ -614,7 +629,8 @@ export const printTransactionPDF = ({ payment }) => {
   window.open(blobUrl, '_blank')
 }
 
-export const printReceiptsPDF = ({ household, request }) => {
+// Helper function to generate a single receipt PDF for a location group
+const generateSingleReceiptPDF = ({ household, payments, locationInfo, request }) => {
   const doc = new jsPDF()
   
   // === HEADER SECTION (Keep Original Design) ===
@@ -623,9 +639,9 @@ export const printReceiptsPDF = ({ household, request }) => {
   doc.setFontSize(10.5)
   doc.setFont('Times New Roman', 'bold')
   doc.text('REPUBLIC OF RWANDA', 70, 17)
-  doc.text(`${household?.provinces[0]?.name || 'KIGALI CITY'}`, 70, 23)
-  doc.text(`${household?.districts[0]?.name} DISTRICT`, 70, 29)
-  doc.text(`${household?.sectors[0]?.name} SECTOR`, 70, 35)
+  doc.text(`${locationInfo?.province?.name || 'KIGALI CITY'}`, 70, 23)
+  doc.text(`${locationInfo?.district?.name || ''} DISTRICT`, 70, 29)
+  doc.text(`${locationInfo?.sector?.name || ''} SECTOR`, 70, 35)
   doc.setFont('Times New Roman', 'bold')
   doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
 
@@ -639,17 +655,19 @@ export const printReceiptsPDF = ({ household, request }) => {
 
   // === CUSTOMER INFO SECTION ===
   doc.setFont('Times New Roman', 'normal')
+  const serviceName = payments[0]?.householdDepartmentService?.department_service?.service?.title || 'Umutekano'
+  const serviceType = payments[0]?.householdDepartmentService?.householdType || 'N/A'
   const itemsColumn1 = [
     `Reference: ${household?.id}UMS${household?.name.split(' ')[0]}`,
     `Names: ${household?.name}`,
-    'Service: Umutekano',
+    `Service: ${serviceName} / ${serviceType}`,
     `Tel: ${household?.phone1}`,
     `TIN: ${household?.tin || 'N/A'}`,
   ]
   const itemsColumn2 = [
     `Date: ${moment().format('DD-MM-YYYY HH:mm')}`,
-    `Cell: ${household?.cells[0]?.name}`,
-    `Village: ${household?.villages[0]?.name}`,
+    `Cell: ${locationInfo?.cell?.name || household?.cells[0]?.name || 'N/A'}`,
+    `Village: ${locationInfo?.village?.name || household?.villages[0]?.name || 'N/A'}`,
   ]
   const startXColumn1 = 15
   const startXColumn2 = 130
@@ -672,13 +690,18 @@ export const printReceiptsPDF = ({ household, request }) => {
   }
   
   // === PAYMENT TABLE ===
-  const tableData = household?.payments.map((item) => [
-    'Umutekano',
-    moment(item?.month_paid).format('YYYY-MM'), // Format month as YYYY-MM
-    formatFunds(household?.ubudehe),
-    formatFunds(item?.amount),
-    item?.status, // This will be replaced with a status badge in the table
-  ])
+  const tableData = payments.map((item) => {
+    const serviceTitle = item?.householdDepartmentService?.department_service?.service?.title || 'Umutekano'
+    const serviceType = item?.householdDepartmentService?.householdType || 'N/A'
+    const ubudehe = item?.householdDepartmentService?.ubudehe || household?.ubudehe
+    return [
+      `${serviceTitle} / ${serviceType}`,
+      moment(item?.month_paid).format('YYYY-MM'), // Format month as YYYY-MM
+      formatFunds(ubudehe),
+      formatFunds(item?.amount),
+      item?.status, // This will be replaced with a status badge in the table
+    ]
+  })
 
   // Add rounded header
   const columns = [
@@ -803,7 +826,9 @@ export const printReceiptsPDF = ({ household, request }) => {
   doc.setDrawColor(200, 200, 200) // Light gray line
   doc.line(rightMargin - 60, doc.autoTable.previous.finalY + 15, rightMargin, doc.autoTable.previous.finalY + 15)
   
-  const image = household?.sectors[0]?.stamp || null
+  // Use location info from householdDepartmentService for signature
+  const sectorInfo = locationInfo?.sector || household?.sectors?.[0]
+  const image = sectorInfo?.stamp || null
   if (image) {
     // Position stamp with better design
     addSignatureImage(doc, image, {
@@ -824,38 +849,38 @@ export const printReceiptsPDF = ({ household, request }) => {
     doc.addPage()
     const newSignatureStartY = 20
     doc.text(
-      `${household?.sectors[0]?.department_infos[0]?.leader_name}`,
+      `${sectorInfo?.department_infos?.[0]?.leader_name || 'N/A'}`,
       signatureDetailsX,
       newSignatureStartY,
       { align: 'left' }
     )
     doc.text(
-      `${household?.sectors[0]?.department_infos[0]?.leader_title},`,
+      `${sectorInfo?.department_infos?.[0]?.leader_title || 'N/A'},`,
       signatureDetailsX,
       newSignatureStartY + 8,
       { align: 'left' }
     )
     doc.text(
-      `${household?.sectors[0]?.name} SECTOR`,
+      `${locationInfo?.sector?.name || 'N/A'} SECTOR`,
       signatureDetailsX,
       newSignatureStartY + 16,
       { align: 'left' }
     )
   } else {
     doc.text(
-      `${household?.sectors[0]?.department_infos[0]?.leader_name}`,
+      `${sectorInfo?.department_infos?.[0]?.leader_name || 'N/A'}`,
       signatureDetailsX,
       signatureStartY,
       { align: 'left' }
     )
     doc.text(
-      `${household?.sectors[0]?.department_infos[0]?.leader_title},`,
+      `${sectorInfo?.department_infos?.[0]?.leader_title || 'N/A'},`,
       signatureDetailsX,
       signatureStartY + 8,
       { align: 'left' }
     )
     doc.text(
-      `${household?.sectors[0]?.name} SECTOR`,
+      `${locationInfo?.sector?.name || 'N/A'} SECTOR`,
       signatureDetailsX,
       signatureStartY + 16,
       { align: 'left' }
@@ -871,6 +896,54 @@ export const printReceiptsPDF = ({ household, request }) => {
   if (newTab) {
     newTab.focus()
   }
+}
+
+export const printReceiptsPDF = ({ household, request }) => {
+  // Filter out payments without householdDepartmentService
+  const validPayments = household?.payments?.filter(
+    (p) => p?.householdDepartmentService && p?.status !== 'FAILED'
+  ) || []
+
+  if (validPayments.length === 0) {
+    console.warn('No valid payments found with householdDepartmentService')
+    return
+  }
+
+  // Group payments by location (province_id, district_id, sector_id)
+  const locationGroups = {}
+  
+  validPayments.forEach((payment) => {
+    const serviceData = payment.householdDepartmentService
+    const locationKey = `${serviceData?.province_id || 'unknown'}-${serviceData?.district_id || 'unknown'}-${serviceData?.sector_id || 'unknown'}`
+    
+    if (!locationGroups[locationKey]) {
+      locationGroups[locationKey] = {
+        payments: [],
+        locationInfo: {
+          province: serviceData?.province,
+          district: serviceData?.district,
+          sector: serviceData?.sector,
+          cell: serviceData?.cell,
+          village: serviceData?.village,
+        }
+      }
+    }
+    
+    locationGroups[locationKey].payments.push(payment)
+  })
+
+  // Generate a separate PDF for each location group
+  Object.values(locationGroups).forEach((group, index) => {
+    // Add a small delay between opening PDFs to avoid browser blocking
+    setTimeout(() => {
+      generateSingleReceiptPDF({
+        household,
+        payments: group.payments,
+        locationInfo: group.locationInfo,
+        request
+      })
+    }, index * 500) // 500ms delay between each PDF
+  })
 }
 
 export default printPDF

@@ -294,6 +294,7 @@ useEffect(() => {
                 <div className="bg-white rounded-lg shadow-lg ring-1 ring-gray-200 p-4">
                   <HouseholdServicesManager
                     householdId={household.id}
+                    status={household?.status}
                     ubudehe={household?.ubudehe}
                     onChanged={() => {
                       // Optionally refresh household data if needed

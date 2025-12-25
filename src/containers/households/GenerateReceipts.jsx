@@ -51,11 +51,11 @@ const GenerateReceipts = ({ title = 'receipts' }) => {
       dispatch(setReceiptsModal(false))
       toast.success(`${capitalizeWords(title)} generated successfully.`)
     } else if (receiptIsError) {
-      if (receiptError?.status === 404) {
-        toast.error('No receipt/invoice found.')
+      if (receiptError?.status === 400) {
+        toast.error(`No ${title} found.`)
       } else {
         toast.error(
-          'Could not get receipt/invoice details. Please try again later.'
+          `Could not get ${title} details. Please try again later.`
         )
       }
     }

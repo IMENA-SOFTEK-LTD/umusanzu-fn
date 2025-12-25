@@ -295,31 +295,6 @@ export const apiSlice = createApi({
           return {
             url: `/households/?${new URLSearchParams(params).toString()}`,
           }
-          // } else if (route === 'ubudehe') {
-          //   return {
-          //     url: `/${department}/households/ubudehe/?departmentId=${departmentId}&page=${
-          //       page || 0
-          //     }&size=${
-          //       size || 20
-          //     }&ubudehe=${ubudehe}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
-          //   }
-          // } else if (route === 'monthlyTargetList') {
-          //   return {
-          //     url: `/${department}/households/monthlyTargetList/?departmentId=${departmentId}&page=${
-          //       page || 0
-          //     }&size=${
-          //       size || 20
-          //     }&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
-          //   }
-          // } else {
-          //   return {
-          //     url: `/${department}/households/${route}/?departmentId=${departmentId}&page=${
-          //       page || 0
-          //     }&size=${
-          //       size || 20
-          //     }&ubudehe=${ubudehe}&phone1=${phone1}&searchTerm=${searchTerm}&status=${status}&village=${village}&cell=${cell}&sector=${sector}&district=${district}&province=${province}`,
-          //   }
-          // }
         },
         // Add refetchOnMountOrArgChange here:
         keepUnusedDataFor: 0, // So that data is not cached too long
@@ -834,10 +809,10 @@ export const apiSlice = createApi({
         ],
       }),
       assignHouseholdDepartmentService: builder.mutation({
-        query: ({ household_id, department_service_id, ubudehe, householdType }) => ({
+        query: ({ household_id, department_service_id, ubudehe, householdType, province_id, district_id, sector_id, cell_id, village_id }) => ({
           url: `/households/department-services`,
           method: 'POST',
-          body: { household_id, department_service_id, ubudehe, householdType },
+          body: { household_id, department_service_id, ubudehe, householdType, province_id, district_id, sector_id, cell_id, village_id },
         }),
         invalidatesTags: (result, error, arg) => [
           { type: 'Household', id: arg?.household_id },
@@ -851,6 +826,19 @@ export const apiSlice = createApi({
         invalidatesTags: (result, error, arg) => [
           { type: 'Household', id: 'LIST' },
         ],
+      }),
+      updateHouseholdDepartmentServiceStatus: builder.mutation({
+        query: ({ id, status }) => ({
+          url: `/households/department-services/${id}/status`,
+          method: 'PATCH',
+          body: { status },
+        }),
+        invalidatesTags: (result, error, arg) => {
+          const householdId = result?.household_id || arg?.household_id
+          return householdId
+            ? [{ type: 'Household', id: householdId }]
+            : [{ type: 'Household', id: 'LIST' }]
+        },
       }),
       getSingleTransaction: builder.query({
         query: ({ id }) => ({
@@ -1146,6 +1134,7 @@ export const {
   useGetHouseholdDepartmentServicesQuery,
   useAssignHouseholdDepartmentServiceMutation,
   useRemoveHouseholdDepartmentServiceMutation,
+  useUpdateHouseholdDepartmentServiceStatusMutation,
   useUploadDepartmentInfoStampMutation,
   useLazySearchHouseholdQuery,
   useLazyGetReceiptQuery,
