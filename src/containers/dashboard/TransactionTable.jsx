@@ -285,6 +285,13 @@ const TransactionTable = ({ user }) => {
               transaction_date: moment(
                 row?.transaction_transaction_date
               ).format('DD-MM-YYYY'),
+              service_name: row?.service_name || 
+                           row?.transaction_service_name || 
+                           row?.service_title ||
+                           row?.transaction_service_title ||
+                           row?.service?.title ||
+                           row?.transaction_service?.title ||
+                           'N/A',
             })) || []
           )
         })
@@ -383,26 +390,8 @@ const TransactionTable = ({ user }) => {
         sortable: true,
       },
       {
-        Header: 'Village',
-        accessor: 'village',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'Cell',
-        accessor: 'cell',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'Sector',
-        accessor: 'sector',
-        sortable: true,
-        Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'District',
-        accessor: 'district',
+        Header: 'Service',
+        accessor: 'service_name',
         sortable: true,
         Filter: SelectColumnFilter,
       },
@@ -413,26 +402,21 @@ const TransactionTable = ({ user }) => {
         Filter: SelectColumnFilter,
       },
       {
-        Header: 'Month Paid',
+        Header: 'Month',
         accessor: 'month_paid',
         sortable: true,
         Filter: SelectColumnFilter,
       },
       {
-        Header: 'Remaining Amount',
+        Header: 'Remaining',
         accessor: 'remain_amount',
         sortable: true,
       },
       {
-        Header: 'Payment Method',
+        Header: 'Method',
         accessor: 'payment_method',
         sortable: true,
         Filter: SelectColumnFilter,
-      },
-      {
-        Header: 'Agent',
-        accessor: 'agent',
-        sortable: true,
       },
       {
         Header: 'Commission',
@@ -469,6 +453,38 @@ const TransactionTable = ({ user }) => {
           }
         },
       },
+      {
+        Header: 'Village',
+        accessor: 'village',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Cell',
+        accessor: 'cell',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Sector',
+        accessor: 'sector',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'District',
+        accessor: 'district',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      
+     
+      {
+        Header: 'Agent',
+        accessor: 'agent',
+        sortable: true,
+      },
+   
     ],
     []
   )
@@ -614,6 +630,10 @@ const TransactionTable = ({ user }) => {
             <div>
               <span className="text-gray-500 block text-xs">Agent</span>
               <p className="font-medium">{transaction.agent || 'N/A'}</p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">Service Name</span>
+              <p className="font-medium">{transaction.service_name || 'N/A'}</p>
             </div>
           </div>
 

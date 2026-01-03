@@ -209,6 +209,13 @@ const Reports = ({ user }) => {
               bank_transfer: item?.totalAmountTransferred,
               commission: item?.totalCommission,
               bank_slip: 0,
+              service_name: row?.service_name || 
+              row?.transaction_service_name || 
+              row?.service_title ||
+              row?.transaction_service_title ||
+              row?.service?.title ||
+              row?.transaction_service?.title ||
+              'N/A',
             })) || []
           )
         })
@@ -627,6 +634,12 @@ const Reports = ({ user }) => {
                           scope="col"
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
+                          Service
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           Village
                         </th>
                         <th
@@ -673,6 +686,9 @@ const Reports = ({ user }) => {
                           </td>
                           <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {row.agent}
+                          </td>
+                          <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {row.service_name}
                           </td>
                           <td role="cell" className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {row.village}
