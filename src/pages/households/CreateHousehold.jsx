@@ -37,6 +37,7 @@ import ExistingHouseholds from '../../containers/households/ExistingHouseholds'
 import Select from '../../components/Select'
 import { toast } from 'react-toastify'
 import HouseholdServicesForm from '../../components/households/HouseholdServicesForm'
+import HouseholdConflictModal from '../../components/models/HouseholdConflictModal'
 
 const CreateHousehold = ({ user }) => {
   const {
@@ -65,6 +66,8 @@ const CreateHousehold = ({ user }) => {
 
   const [existingHouseholdData, setExistingHouseholdData] = useState([])
   const [householdServices, setHouseholdServices] = useState([])
+  const [showConflictModal, setShowConflictModal] = useState(false)
+  const [conflictData, setConflictData] = useState(null)
 
   let department = ''
   // console.log(user?.departments?.level_id)
@@ -149,7 +152,6 @@ const CreateHousehold = ({ user }) => {
   ] = useLazyGetCountryDistrictsQuery()
 
   useEffect(() => {
-
     if (selectedProvince) getCountryDistricts({ id: selectedProvince })
   }, [department, selectedProvince])
 
@@ -238,14 +240,13 @@ const CreateHousehold = ({ user }) => {
   ] = useCreateHouseHoldMutation()
 
   const onSubmit = (data) => {
-    localStorage.removeItem('conflictReqPayload')
-    
+   
     // Validate Household Department Services
     if (!householdServices || householdServices.length === 0) {
       toast.error('Please add at least one household department service')
       return
     }
-    
+
     // Validate each service has required fields
     const invalidServices = householdServices.filter(
       (service) =>
@@ -254,57 +255,73 @@ const CreateHousehold = ({ user }) => {
         String(service.ubudehe).trim() === '' ||
         !service.householdType
     )
-    
+
     if (invalidServices.length > 0) {
       toast.error(
         'Please ensure all services have a service selected, household type, and amount filled'
       )
       return
     }
-    
-    // Format services array with service, householdType, and amount
+
+    // Format services array with service, householdType, amount, and location data
     const servicesArray = householdServices.map((service) => ({
       service: service.department_service_id,
       householdType: service.householdType,
       amount: service.ubudehe,
+      province_id: service.province_id || null,
+      district_id: service.district_id || null,
+      sector_id: service.sector_id || null,
+      cell_id: service.cell_id || null,
+      village_id: service.village_id || null,
     }))
-    
+
+    // Find residence service for household location, or use first service if not found
+    const residenceService =
+      householdServices.find(
+        (service) => service.householdType.toLowerCase() === 'residence'
+      ) || householdServices[0]
+
     const payload = {
       name: data.name,
-      nid: data.nid,
-      province: Number(data.province || selectedProvince),
-      district: Number(data.district || selectedDistrict),
-      sector: Number(data.sector || selectedSector),
-      cell: Number(data.cell || selectedCell),
+      nid: data.nid ? data.nid.replace(/\s/g, '') : data.nid, // Remove spaces before sending to API
+      province: Number(residenceService?.province_id),
+      district: Number(residenceService?.district_id),
+      sector: Number(residenceService?.sector_id),
+      cell: Number(residenceService?.cell_id),
+      village: Number(residenceService?.village_id),
       phone1: data.phone1,
       phone2: data.phone2,
-      village: Number(data.village || selectedVillage),
+      type: residenceService?.householdType.toLowerCase() || 'residence',
+      ubudehe: residenceService?.amount || 0,
       email: data.email,
       services: servicesArray,
+      confirmHousehold: false,
+      confirmServices: false,
+      confirmMerge: false,
     }
     console.log(payload)
-    // createHousehold(payload)
-    // dispatch(setDuplicateHousehold(payload))
+    createHousehold(payload)
+    dispatch(setDuplicateHousehold(payload))
+  }
+
+  const handleResubmitWithConflictDisabled = (resubmitPayload) => {
+    // Resubmit with disableCheckConflict: true
+    createHousehold(resubmitPayload)
+    dispatch(setDuplicateHousehold(resubmitPayload))
   }
 
   useEffect(() => {
     if (createHouseholdSuccess) {
       if (createHouseholdData?.conflict === true) {
-        toast.info(createHouseholdData?.message)
-        localStorage.setItem(
-          'conflictReqPayload',
-          JSON.stringify({
-            ...createHouseholdData?.requestParams,
-          })
-        )
-        dispatch(setExistingHousehold(createHouseholdData?.data?.rows[0]))
-        setExistingHouseholdData(createHouseholdData?.data?.rows)
-        navigate(
-          `/households/create/conflict/?phone1=${createHouseholdData?.data?.rows[0]?.phone1}`
-        )
+        // Show conflict modal with the conflict data
+        setConflictData(createHouseholdData)
+        setShowConflictModal(true)
+        dispatch(setHouseholdConflict(true))
       } else {
         dispatch(setHouseholdConflict(false))
         dispatch(setDuplicateHousehold(null))
+        setShowConflictModal(false)
+        setConflictData(null)
         toast.success('Household created successfully')
         setTimeout(() => {
           navigate(`/households/${createHouseholdData?.data?.id}`)
@@ -312,10 +329,12 @@ const CreateHousehold = ({ user }) => {
       }
     } else if (createHouseholdError) {
       dispatch(setDuplicateHousehold(null))
+      setShowConflictModal(false)
+      setConflictData(null)
       toast.error(createHouseholdErrorData?.message)
     }
-  }, [createHouseholdSuccess, createHouseholdData, dispatch, navigate])
-    // console.log(selectedProvince)
+  }, [createHouseholdSuccess, createHouseholdData, createHouseholdError, createHouseholdErrorData, dispatch, navigate])
+  // console.log(selectedProvince)
   return (
     <main className="flex flex-col gap-6 my-4 w-[90%] relative mx-auto">
       <Button value={'Go to back'} route={`/households`} />
@@ -352,9 +371,79 @@ const CreateHousehold = ({ user }) => {
               <Controller
                 control={control}
                 name="nid"
-                render={({ field }) => {
+                rules={{
+                  validate: (value) => {
+                    if (!value) return true // Optional field
+                    const digitsOnly = value.replace(/\s/g, '')
+                    // Validate formatted length is 21 characters (which means 16 digits)
+                    if (value.length !== 21) {
+                      return 'National ID must be exactly 21 characters (including spaces)'
+                    }
+                    if (digitsOnly.length !== 16) {
+                      return 'National ID must contain exactly 16 digits'
+                    }
+                    if (!/^\d{16}$/.test(digitsOnly)) {
+                      return 'National ID must contain only numbers'
+                    }
+                    return true
+                  },
+                }}
+                render={({ field: { value, onChange, ...fieldProps } }) => {
+                  const formatNationalId = (inputValue) => {
+                    if (!inputValue) return ''
+
+                    // Remove all non-digit characters
+                    const digitsOnly = inputValue.replace(/\D/g, '')
+
+                    // Limit to 16 digits (format: 1 1979 8 0044189 1 35 = 16 digits)
+                    const limitedDigits = digitsOnly.slice(0, 16)
+
+                    if (limitedDigits.length === 0) return ''
+
+                    // Apply format: X XXXX X XXXXXXX X XX
+                    // Pattern: 1 digit, space, 4 digits, space, 1 digit, space, 7 digits, space, 1 digit, space, 2 digits
+                    // Total: 1 + 4 + 1 + 7 + 1 + 2 = 16 digits = 21 characters with spaces
+                    let formatted = limitedDigits[0] // First digit (position 1)
+
+                    if (limitedDigits.length > 1) {
+                      formatted += ' ' + limitedDigits.slice(1, 5) // Next 4 digits (positions 2-5)
+                    }
+                    if (limitedDigits.length > 5) {
+                      formatted += ' ' + limitedDigits[5] // Next 1 digit (position 6)
+                    }
+                    if (limitedDigits.length > 6) {
+                      formatted += ' ' + limitedDigits.slice(6, 13) // Next 7 digits (positions 7-13)
+                    }
+                    if (limitedDigits.length > 13) {
+                      formatted += ' ' + limitedDigits[13] // Next 1 digit (position 14)
+                    }
+                    if (limitedDigits.length > 14) {
+                      formatted += ' ' + limitedDigits.slice(14, 16) // Last 2 digits (positions 15-16)
+                    }
+
+                    return formatted
+                  }
+
+                  const handleChange = (e) => {
+                    const formattedValue = formatNationalId(e.target.value)
+                    onChange(formattedValue)
+                  }
+
                   return (
-                    <Input {...field} placeholder="eg. 1 1989 8 0133256 7 89" />
+                    <>
+                      <Input
+                        {...fieldProps}
+                        value={formatNationalId(value || '')}
+                        onChange={handleChange}
+                        placeholder="eg. 1 1979 8 0044189 1 35"
+                        maxLength={21} // 16 digits + 5 spaces = 21 characters
+                      />
+                      {errors.nid && (
+                        <span className="text-red-500 text-[12px]">
+                          {errors.nid.message}
+                        </span>
+                      )}
+                    </>
                   )
                 }}
               />
@@ -411,250 +500,12 @@ const CreateHousehold = ({ user }) => {
             </label>
           </span>
         </section>
-        {/* LOCATION */}
-        <section className="flex flex-col items-start gap-4 w-full">
-          <span className="flex items-start gap-4 w-full">
-            {['country'].includes(department) && (
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                <p>
-                  Province <span className="text-red-500">*</span>
-                </p>
-                <Controller
-                  control={control}
-                  name="province"
-                  defaultValue={selectedProvince}
-                  rules={{ required: 'Please select a province' }}
-                  render={({ field }) => {
-                    return (
-                      <select
-                        className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                        {...field}
-                        value={selectedProvince} // Set the value dynamically
-                        onChange={(e) => {
-                          field.onChange(e)
-                          dispatch(setSelectedSector(null))
-                          dispatch(setSelectedCell(null))
-                          dispatch(setSelectedVillage(null))
-                          dispatch(setSelectedProvince(Number(e.target.value)))
-                        }}
-                      >
-                        <option value={''}>Select Province</option>
-                        <option value={31}>Kigali City</option>
-                        <option value={1540}>Western Province</option>
-                        <option value={1678}>Northern Province</option>
-                        <option value={1836}>Eastern Province</option>
-                        <option value={1986}>Southern Province</option>
-                      </select>
-                    )
-                  }}
-                />
-                {errors.province && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.province.message}
-                  </span>
-                )}
-              </label>
-            )}
 
-            {['country', 'province'].includes(department) && (
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                <p>
-                  District <span className="text-red-500">*</span>
-                  {countryDistrictsLoading && 'Loading....'}
-                </p>
-                <Controller
-                  control={control}
-                  name="district"
-                  defaultValue={selectedDistrict}
-                  rules={{ required: 'Please select a district' }}
-                  render={({ field }) => {
-                    return (
-                      <select
-                        className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                        {...field}
-                        value={selectedDistrict}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          dispatch(setSelectedDistrict(e.target.value))
-                        }}
-                      >
-                        <option value={''}>Please select a district</option>
-                        {districts?.map((district) => {
-                          if (!selectedProvince) {
-                            return (
-                              <option
-                                disabled={
-                                  department !== 'country' &&
-                                  district.id !== selectedDistrict
-                                }
-                                key={district.id}
-                                value={district.id}
-                              >
-                                {countryDistrictsLoading
-                                  ? '...'
-                                  : district.name}
-                              </option>
-                            )
-                          }
-                          return (
-                            <option key={district.id} value={district.id}>
-                              {countryDistrictsLoading ? '...' : district.name}
-                            </option>
-                          )
-                        })}
-                      </select>
-                    )
-                  }}
-                />
-
-                {errors.district && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.district.message}
-                  </span>
-                )}
-              </label>
-            )}
-          </span>
-          <span className="flex items-start gap-4 w-full">
-            {['country', 'province', 'district'].includes(department) && (
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                <p>
-                  Sector <span className="text-red-500">*</span>{' '}
-                  {districtSectorsLoading && 'Loading...'}
-                </p>
-                <Controller
-                  control={control}
-                  name="sector"
-                  defaultValue={selectedSector}
-                  rules={{ required: 'Please select a sector' }}
-                  render={({ field }) => {
-                    return (
-                      <select
-                        className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                        {...field}
-                        value={selectedSector}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          dispatch(setSelectedCell(null))
-                          dispatch(setSelectedVillage(null))
-                          dispatch(setSelectedSector(Number(e.target.value)))
-                        }}
-                      >
-                        <option value={''}>Please select a sector</option>
-                        {sectors?.map((sector) => {
-                          return (
-                            <option key={sector.id} value={sector.id}>
-                              {sector.name}
-                            </option>
-                          )
-                        })}
-                      </select>
-                    )
-                  }}
-                />
-
-                {errors.sector && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.sector.message}
-                  </span>
-                )}
-              </label>
-            )}
-            {['country', 'province', 'district', 'sector'].includes(
-              department
-            ) && (
-              <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
-                <p>
-                  Cell <span className="text-red-500">*</span>
-                  {sectorCellsLoading && 'Loading...'}
-                </p>
-                <Controller
-                  control={control}
-                  name="cell"
-                  rules={{ required: 'Please select a cell' }}
-                  defaultValue={selectedCell}
-                  render={({ field }) => {
-                    return (
-                      <select
-                        className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                        {...field}
-                        value={selectedCell}
-                        onChange={(e) => {
-                          field.onChange(e)
-                          dispatch(setSelectedVillage(null))
-                          dispatch(setSelectedCell(Number(e.target.value)))
-                        }}
-                      >
-                        <option value={''}>Select cell</option>
-                        {cells?.map((cell) => {
-                          return (
-                            <option key={cell.id} value={cell.id}>
-                              {cell.name}
-                            </option>
-                          )
-                        })}
-                      </select>
-                    )
-                  }}
-                />
-                {errors.cell && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.cell.message}
-                  </span>
-                )}
-              </label>
-            )}
-          </span>
-          {['country', 'province', 'district', 'sector', 'cell'].includes(
-            department
-          ) && (
-            <label className="text-[15px] w-full flex-1 basis-[40%] max-w-[48%] flex flex-col items-start gap-2">
-              <p>
-                Village <span className="text-red-500">*</span>
-                {cellVillagesDataLoading && 'Loading...'}
-              </p>
-              <Controller
-                control={control}
-                name="village"
-                defaultValue={selectedVillage}
-                rules={{ required: 'Please select a village' }}
-                render={({ field }) => {
-                  return (
-                    <select
-                      className="p-2 outline-none border-[1px] rounded-md w-[90%] border-primary focus:border-[1.5px] ease-in-out duration-150"
-                      {...field}
-                      value={selectedVillage}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        dispatch(setSelectedVillage(Number(e.target.value)))
-                      }}
-                    >
-                      <option value={''}>Select village</option>
-                      {villages?.map((village) => {
-                        return (
-                          <option key={village.id} value={village.id}>
-                            {village.name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                  )
-                }}
-              />
-              {errors.village && (
-                <span className="text-red-500 text-[12px]">
-                  {errors.village.message}
-                </span>
-              )}
-            </label>
-          )}
-        </section>
-        
         {/* HOUSEHOLD DEPARTMENT SERVICES */}
         <section className="flex flex-col items-start gap-0 w-full">
           <HouseholdServicesForm onServicesChange={setHouseholdServices} />
         </section>
-        
+
         <section className={`${createHouseholdSuccess ? 'flex' : 'hidden'}`}>
           <p className={`${householdConflict ? 'text-red-500' : 'hidden'}`}>
             The current household already exists
@@ -666,12 +517,10 @@ const CreateHousehold = ({ user }) => {
         <Button
           submit
           value={createHouseholdLoading ? <Loading /> : 'Create Household'}
-          className={`${
-            !householdConflict ? 'flex' : 'hidden'
-          } w-fit max-w-[50%] px-6 mx-auto`}
+          className={`flex w-fit max-w-[50%] px-6 mx-auto`}
         />
       </form>
-      <section
+      {/* <section
         className={`${
           householdConflict ? 'flex flex-col items-center gap-4' : 'hidden'
         } w-full mx-auto`}
@@ -680,7 +529,19 @@ const CreateHousehold = ({ user }) => {
           conflict={householdConflict}
           households={existingHouseholdData}
         />
-      </section>
+      </section> */}
+
+      {/* Conflict Modal */}
+      <HouseholdConflictModal
+        isOpen={showConflictModal}
+        onClose={() => {
+          setShowConflictModal(false)
+          setConflictData(null)
+        }}
+        conflictData={conflictData}
+        onResubmit={handleResubmitWithConflictDisabled}
+        isSubmitting={createHouseholdLoading}
+      />
     </main>
   )
 }

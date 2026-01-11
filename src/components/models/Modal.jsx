@@ -4,25 +4,25 @@ import Button from '../Button'
 import { MdOutlineCancel } from 'react-icons/md'
 import { useEffect } from 'react'
 
-const JSX_MODAL = ({ isOpen, children, onClose = null }) => {
+const JSX_MODAL = ({ isOpen, children, onClose = null, showCloseButton = true }) => {
   return (
     <main
       className={`${
         isOpen ? 'modal-open' : 'modal-closed'
       } h-screen flex items-center justify-center flex-col gap-6 absolute z-[1000] top-0 bottom-0 left-0 right-0 bg-black bg-opacity-30 transition-opacity ease-in-out duration-300 overflow-y-auto`}
     >
-      <section className="flex min-w-[40%] w-fit max-w-md flex-col z-[100000] bg-white h-fit gap-4 p-6 relative shadow-md rounded-md my-auto">
-        <Button
-          value={<MdOutlineCancel size={25} />}
-          onClick={(e) => {
-            e.preventDefault()
-            onClose()
-          }}
-          background={false}
-          className={`${
-            !onClose && 'hidden'
-          } absolute flex items-center justify-center !border-none top-6 right-6 !py-0 !px-2 !rounded-full hover:!bg-transparent`}
-        />
+      <section className="flex min-w-[40%] w-fit max-w-6xl flex-col z-[100000] bg-white h-fit gap-4 p-6 relative shadow-md rounded-md my-auto">
+        {showCloseButton && onClose && (
+          <Button
+            value={<MdOutlineCancel size={25} />}
+            onClick={(e) => {
+              e.preventDefault()
+              onClose()
+            }}
+            background={false}
+            className="absolute flex items-center justify-center !border-none top-6 right-6 !py-0 !px-2 !rounded-full hover:!bg-transparent"
+          />
+        )}
         {children}
       </section>
     </main>
@@ -32,10 +32,13 @@ const JSX_MODAL = ({ isOpen, children, onClose = null }) => {
 JSX_MODAL.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,
-  onClose: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  showCloseButton: PropTypes.bool,
 }
 
 function Modal(props) {
+  const { showCloseButton = true, ...restProps } = props
+  
   useEffect(() => {
     const handleScroll = (e) => {
       if (props?.isOpen) {
@@ -57,7 +60,7 @@ function Modal(props) {
     }
   }, [props?.isOpen])
   return ReactDOM.createPortal(
-    <JSX_MODAL {...props} />,
+    <JSX_MODAL {...restProps} showCloseButton={showCloseButton} />,
     document.querySelector('#modal')
   )
 }

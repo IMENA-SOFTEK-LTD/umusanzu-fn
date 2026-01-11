@@ -32,7 +32,7 @@ const showToast = (message, type = 'error') => {
 export const rtkQueryErrorLogger = (api) => (next) => (action) => {
   if (isRejectedWithValue(action)) {
     const { status, data } = action.payload || {}
-    
+
     switch (status) {
       case 401:
         toast.error('Your session has expired. Please log in again.', {
@@ -43,7 +43,7 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
             setTimeout(() => {
               window.location.href = '/login'
             }, 100)
-          }
+          },
         })
         break
       case 403:
@@ -98,12 +98,12 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     if (!navigator.onLine) {
       result.error = {
         status: 'NETWORK_ERROR',
-        data: { message: 'No internet connection' }
+        data: { message: 'No internet connection' },
       }
     } else {
       result.error = {
-        status: 'NETWORK_ERROR', 
-        data: { message: 'Network error occurred' }
+        status: 'NETWORK_ERROR',
+        data: { message: 'Network error occurred' },
       }
     }
   }
@@ -113,10 +113,10 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     // Clear invalid token
     localStorage.removeItem('token')
     localStorage.removeItem('user')
-    
+
     result.error = {
       status: 401,
-      data: { message: 'Session expired' }
+      data: { message: 'Session expired' },
     }
   }
 
@@ -286,7 +286,9 @@ export const apiSlice = createApi({
       }),
       getPendingPayments: builder.query({
         query: (params) => ({
-          url: `/payment/pending-lists/?${new URLSearchParams(params).toString()}`,
+          url: `/payment/pending-lists/?${new URLSearchParams(
+            params
+          ).toString()}`,
         }),
       }),
       getHouseholdsList: builder.query({
@@ -314,6 +316,9 @@ export const apiSlice = createApi({
           village,
           type,
           email,
+          services,
+          confirmMerge = false,
+          disableCheckConflict=false,
         }) => ({
           url: `/households`,
           method: 'POST',
@@ -330,6 +335,9 @@ export const apiSlice = createApi({
             village,
             type,
             email,
+            services,
+            confirmMerge,
+            disableCheckConflict,
           },
         }),
       }),
@@ -379,7 +387,7 @@ export const apiSlice = createApi({
         query: ({ id, page, size }) => {
           return {
             url: `/department/sector/${id}/children/?page=${page || 0}&size=${
-              size || 20
+              size || 100
             }`,
             method: 'GET',
           }
@@ -389,7 +397,7 @@ export const apiSlice = createApi({
         query: ({ id, size, page }) => {
           return {
             url: `/department/cell/${id}/villages/?page=${page || 0}&size=${
-              size || 20
+              size || 100
             }`,
             method: 'GET',
           }
@@ -399,7 +407,7 @@ export const apiSlice = createApi({
         query: ({ id, page, size }) => {
           return {
             url: `/department/district/${id}/cells/?page=${page || 0}&size=${
-              size || 20
+              size || 100
             }`,
             method: 'GET',
           }
@@ -409,7 +417,7 @@ export const apiSlice = createApi({
         query: ({ id, page, size }) => {
           return {
             url: `/department/country/${id}/districts/?page=${page || 0}&size=${
-              size || 20
+              size || 100
             }`,
             method: 'GET',
           }
@@ -420,7 +428,9 @@ export const apiSlice = createApi({
           return {
             url: `/department/lists/?departmentId=${departmentId}&page=${
               page || 0
-            }&size=${size || 20}&searchTerm=${searchTerm}&level_id=${level_id}`,
+            }&size=${
+              size || 100
+            }&searchTerm=${searchTerm}&level_id=${level_id}`,
           }
         },
         // Add refetchOnMountOrArgChange here:
@@ -459,7 +469,7 @@ export const apiSlice = createApi({
       getStaff: builder.query({
         query: ({ department, departmentId, page, size }) => ({
           url: `/staff/${department}/${departmentId}?page=${page || 0}&size=${
-            size || 20
+            size || 100
           }`,
           method: 'GET',
         }),
@@ -477,10 +487,18 @@ export const apiSlice = createApi({
         }),
       }),
       updateStaffDetails: builder.mutation({
-        query: ({ id, names, email, phone1, phone2, username,staff_role }) => ({
+        query: ({
+          id,
+          names,
+          email,
+          phone1,
+          phone2,
+          username,
+          staff_role,
+        }) => ({
           url: `/staff/${id}`,
           method: 'PATCH',
-          body: { names, email, phone1, phone2, username ,staff_role},
+          body: { names, email, phone1, phone2, username, staff_role },
         }),
       }),
       getHouseholdDepartments: builder.query({
@@ -568,7 +586,7 @@ export const apiSlice = createApi({
       getDistrictSectors: builder.query({
         query: ({ id, page, size }) => ({
           url: `/department/district/${id}/sectors/?page=${page || 0}&size=${
-            size || 20
+            size || 100
           }`,
           method: 'GET',
         }),
@@ -576,7 +594,7 @@ export const apiSlice = createApi({
       getSectorCells: builder.query({
         query: ({ id, page, size }) => ({
           url: `/department/sector/${id}/cells/?page=${page || 0}&size=${
-            size || 20
+            size || 100
           }`,
           method: 'GET',
         }),
@@ -667,7 +685,7 @@ export const apiSlice = createApi({
           merchant_code,
           ubudehe,
           service_id,
-          householdType
+          householdType,
         }) => ({
           url: `/payment/initiate`,
           method: 'POST',
@@ -683,7 +701,7 @@ export const apiSlice = createApi({
             merchant_code,
             ubudehe,
             service_id,
-            householdType
+            householdType,
           },
         }),
       }),
@@ -752,11 +770,7 @@ export const apiSlice = createApi({
         }),
       }),
       updateDepartmentCodes: builder.mutation({
-        query: ({
-          id,
-          merchant_code,
-          bk_service_code,
-        }) => ({
+        query: ({ id, merchant_code, bk_service_code }) => ({
           url: `/department/${id}/codes`,
           method: 'PUT',
           body: {
@@ -809,10 +823,30 @@ export const apiSlice = createApi({
         ],
       }),
       assignHouseholdDepartmentService: builder.mutation({
-        query: ({ household_id, department_service_id, ubudehe, householdType, province_id, district_id, sector_id, cell_id, village_id }) => ({
+        query: ({
+          household_id,
+          department_service_id,
+          ubudehe,
+          householdType,
+          province_id,
+          district_id,
+          sector_id,
+          cell_id,
+          village_id,
+        }) => ({
           url: `/households/department-services`,
           method: 'POST',
-          body: { household_id, department_service_id, ubudehe, householdType, province_id, district_id, sector_id, cell_id, village_id },
+          body: {
+            household_id,
+            department_service_id,
+            ubudehe,
+            householdType,
+            province_id,
+            district_id,
+            sector_id,
+            cell_id,
+            village_id,
+          },
         }),
         invalidatesTags: (result, error, arg) => [
           { type: 'Household', id: arg?.household_id },
@@ -911,7 +945,7 @@ export const apiSlice = createApi({
           lang,
           id,
           status,
-          phone1
+          phone1,
         }) => ({
           url: `/payment/complete/unpaid`,
           method: 'POST',
@@ -922,7 +956,7 @@ export const apiSlice = createApi({
             lang,
             id,
             status,
-            phone1
+            phone1,
           },
         }),
       }),
@@ -952,7 +986,7 @@ export const apiSlice = createApi({
           phone1,
           ubudehe,
           lang,
-          householdType
+          householdType,
         }) => ({
           url: `/payment/offline?household_id=${household_id}`,
           method: 'POST',
@@ -966,7 +1000,7 @@ export const apiSlice = createApi({
             phone1,
             ubudehe,
             lang,
-            householdType
+            householdType,
           },
         }),
       }),
@@ -998,11 +1032,23 @@ export const apiSlice = createApi({
           lang,
           phone1,
           service_id,
-          householdType
+          householdType,
         }) => ({
           url: `/payment/advance`,
           method: 'POST',
-          body: {phone1,household_id, payment_phone, agent, start_month, end_month, type, merchant_code, lang, service_id, householdType },
+          body: {
+            phone1,
+            household_id,
+            payment_phone,
+            agent,
+            start_month,
+            end_month,
+            type,
+            merchant_code,
+            lang,
+            service_id,
+            householdType,
+          },
         }),
       }),
       // EDIT PAYMENT
