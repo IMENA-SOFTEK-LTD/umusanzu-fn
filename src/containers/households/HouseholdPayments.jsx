@@ -61,7 +61,7 @@ const HouseholdPayments = ({ household }) => {
       const levelId = user?.departments?.level_id
       const original = row?.original || row?.row?.original || null
       //  console.log(user)
-      if ([5, 3, 1].includes(levelId)) {
+      if ([5, 3,4, 1].includes(levelId)) {
         return (
           <>
             {parseInt(user?.staff_role) === 1 && (

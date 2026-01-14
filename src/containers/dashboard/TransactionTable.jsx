@@ -254,62 +254,59 @@ const TransactionTable = ({ user }) => {
   const onLoadTransactionLists = async (data) => {
     setTransactionsListIsLoading(true)
     try {
-      await getTransactionsList(data)
-        .unwrap()
-        .then((res) => {
-          dispatch(setTotalPages(res?.data?.totalPages))
-          setTotalRecords(res?.data?.count)
-          setTotalAmount(res?.data?.totalAmount)
-          setTotalCommission(res?.data?.totalCommission)
-          setTotalRemaining(
-            +res?.data?.totalAmount - +res?.data?.totalCommission
-          )
+      const res = await getTransactionsList(data).unwrap()
+      
+      if (res && res.data) {
+        dispatch(setTotalPages(res.data.totalPages))
+        setTotalRecords(res.data.count)
+        setTotalAmount(res.data.totalAmount)
+        setTotalCommission(res.data.totalCommission)
+        setTotalRemaining(
+          +res.data.totalAmount - +res.data.totalCommission
+        )
 
-          setData(
-            res?.data?.rows?.map((row, index) => ({
-              id: index + 1,
-              name: row?.household_name,
-              village: row?.household_village_name,
-              cell: row?.household_cell_name,
-              sector: row?.household_sector_name,
-              district: row?.household_district_name,
-              amount: formatFunds(row?.transaction_amount),
-              month_paid: moment(row.transaction_month_paid).format('MM-YYYY'),
-              payment_method: row?.transaction_payment_method
-                ?.split('_')
-                .join(' '),
-              status: row?.transaction_status,
-              remain_amount: formatFunds(row?.transaction_remain_amount || 0),
-              agent: row?.agent_names,
-              commission: formatFunds(row?.transaction_total_commission),
-              transaction_date: moment(
-                row?.transaction_transaction_date
-              ).format('DD-MM-YYYY'),
-              service_name: row?.service_name || 
-                           row?.transaction_service_name || 
-                           row?.service_title ||
-                           row?.transaction_service_title ||
-                           row?.service?.title ||
-                           row?.transaction_service?.title ||
-                           'N/A',
-            })) || []
-          )
-        })
-        .catch((error) => {
-          setTransactionsListIsError(true)
-          if (error.data && error.data.message) {
-            toast.error(error.data.message)
-          } else {
-            toast.error(
-              'An error occurred while retrieving the transaction lists. Please try again'
-            )
-          }
-        })
-        .finally(() => {
-          setTransactionsListIsLoading(false)
-        })
+        setData(
+          res.data.rows?.map((row, index) => ({
+            id: index + 1,
+            name: row?.household_name,
+            village: row?.household_village_name,
+            cell: row?.household_cell_name,
+            sector: row?.household_sector_name,
+            district: row?.household_district_name,
+            amount: formatFunds(row?.transaction_amount),
+            month_paid: moment(row.transaction_month_paid).format('MM-YYYY'),
+            payment_method: row?.transaction_payment_method
+              ?.split('_')
+              .join(' '),
+            status: row?.transaction_status,
+            remain_amount: formatFunds(row?.transaction_remain_amount || 0),
+            agent: row?.agent_names,
+            commission: formatFunds(row?.transaction_total_commission),
+            transaction_date: moment(
+              row?.transaction_transaction_date
+            ).format('DD-MM-YYYY'),
+            service_name: row?.service_name || 
+                         row?.transaction_service_name || 
+                         row?.service_title ||
+                         row?.transaction_service_title ||
+                         row?.service?.title ||
+                         row?.transaction_service?.title ||
+                         'N/A',
+          })) || []
+        )
+      }
     } catch (error) {
-      return error
+      setTransactionsListIsError(true)
+      console.error('Error fetching transaction lists:', error)
+      if (error.data && error.data.message) {
+        toast.error(error.data.message)
+      } else {
+        toast.error(
+          'An error occurred while retrieving the transaction lists. Please try again'
+        )
+      }
+    } finally {
+      setTransactionsListIsLoading(false)
     }
   }
 

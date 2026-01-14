@@ -32,6 +32,20 @@ function normalizePayload(payload) {
   return []
 }
 
+function getServiceIdFromItem(item) {
+  return (
+    item?.department_service?.service?.id ??
+    item?.service?.id ??
+    item?.service_id ??
+    item?.serviceId ??
+    item?.service?.ID ??
+    item?.department_service_id ??
+    item?.department_service?.id ??
+    item?.id ??
+    item?.ID
+  )
+}
+
 function getServiceLabel(item) {
   const service = item?.department_service?.service ?? item?.service ?? item
   return (
@@ -305,18 +319,25 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
   // Filter services by householdType and location based on user department level
   const filteredServices = useMemo(() => {
     let services = locationFilteredServices
-    
+
+    // Remove PSF for agent (6) and cell (4) levels
+    const numericLevelId = Number(userLevelId)
+    if (numericLevelId === 6 || numericLevelId === 4) {
+      services = services.filter((service) => getServiceIdFromItem(service) !== 2)
+    }
+
     // Filter by householdType
     if (householdType) {
       services = services.filter(
         (service) => service?.householdType === householdType
       )
     }
-    
+
     return services
   }, [
     locationFilteredServices,
     householdType,
+    userLevelId,
   ])
 
   // Reset selected service when householdType or location changes
@@ -346,6 +367,26 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     name: 'total_month_paid',
     defaultValue: household?.ubudehe || 0,
   })
+  const monthPaidValue = useWatch({
+    control,
+    name: 'month_paid',
+    defaultValue: moment().format('YYYY-MM'),
+  })
+  const paymentPhoneValue = useWatch({
+    control,
+    name: 'payment_phone',
+    defaultValue: household?.phone1,
+  })
+
+  const availableServices = getServicesByHouseholdType()
+  const requiresServiceSelection = availableServices.length > 0
+  const isMissingRequired =
+    !selectedVillage ||
+    !monthPaidValue ||
+    !paymentPhoneValue ||
+    !totalMonthPaid ||
+    availableServices.length === 0 ||
+    (requiresServiceSelection && !selectedServiceId)
 
   // Get selected service's ubudehe for validation
   const selectedService = useMemo(() => {
@@ -422,6 +463,10 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
   }
 
   const handleConfirm = () => {
+    if (isMissingRequired) {
+      toast.error('Please fill all required fields before submitting')
+      return
+    }
     if (
       window.confirm(
         `Are you sure you want to initiate payment of ${
@@ -435,6 +480,10 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
 
   const handleIshyura = (e) => {
     e.preventDefault()
+    if (isMissingRequired) {
+      toast.error('Please fill all required fields before submitting')
+      return
+    }
     if (
       window.confirm(
         `Are you sure you want to continue with payment of ${
@@ -468,7 +517,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     }
   }, [paymentSessionData, lastPaymentType])
 
-  const getServicesByHouseholdType = () => {
+  function getServicesByHouseholdType() {
     if (householdType) {
       return filteredServices.filter(
         (service) => service?.householdType === householdType
@@ -815,6 +864,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                                 setHouseholdType(e.target.value)
                               }}
                               className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                              disabled={!selectedVillage}
                             >
                               {availableHouseholdTypes.map((type) => (
                                 <option key={type} value={type}>
@@ -847,6 +897,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                               className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                               disabled={
                                 isLoadingServices ||
+                                !selectedVillage ||
                                 getServicesByHouseholdType().length === 0 ||
                                 getServicesByHouseholdType().length === 1
                               }
@@ -985,7 +1036,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                   <Button
                     type="button"
                     onClick={handleConfirm}
-                    disabled={paymentSessionIsLoading}
+                    disabled={paymentSessionIsLoading || isMissingRequired}
                     className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
                     value={
                       paymentSessionIsLoading ? (
@@ -1000,7 +1051,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                   <Button
                     type="button"
                     onClick={handleIshyura}
-                    disabled={paymentSessionIsLoading}
+                    disabled={paymentSessionIsLoading || isMissingRequired}
                     className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
                     value={
                       paymentSessionIsLoading ? (

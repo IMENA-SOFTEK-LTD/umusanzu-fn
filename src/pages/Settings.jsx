@@ -77,6 +77,7 @@ function Settings({ user }) {
               { label: 'Phone number 1', value: userProfileData?.data?.phone1 },
               { label: 'Phone number 2', value: userProfileData?.data?.phone2 },
               { label: 'National ID', value: userProfileData?.data?.nid },
+              { label: 'Cell', value: userDepartmentsInfo?.cell },
               { label: 'Sector', value: userDepartmentsInfo?.sector },
               { label: 'District', value: userDepartmentsInfo?.district },
               { label: 'Province', value: userDepartmentsInfo?.province },

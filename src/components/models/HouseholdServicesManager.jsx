@@ -61,6 +61,26 @@ function getServiceTitleFrench(item) {
   const service = item?.department_service?.service ?? item?.service ?? item
   return service?.title_french ?? ''
 }
+
+function getServiceIdFromItem(item) {
+  return (
+    item?.department_service?.service?.id ??
+    item?.service?.id ??
+    item?.service_id ??
+    item?.serviceId ??
+    item?.service?.ID ??
+    item?.service?.ID
+  )
+}
+
+function getServiceIdFromDepartmentService(item) {
+  return (
+    item?.service?.id ??
+    item?.service_id ??
+    item?.serviceId ??
+    item?.service?.ID
+  )
+}
 function normalizeAllServicesPayload(payload) {
   // Supports common shapes for /api/v2/services:
   // - { data: [...] }
@@ -180,12 +200,41 @@ export default function HouseholdServicesManager({
     () => normalizeAllServicesPayload(allServicesData),
     [allServicesData]
   )
+  const filteredServices = useMemo(() => {
+    const numericLevelId = Number(userLevelId)
+    if (numericLevelId === 6 || numericLevelId === 4) {
+      return allServices.filter(
+        (ds) => getServiceIdFromDepartmentService(ds) !== 2
+      )
+    }
+    return allServices
+  }, [allServices, userLevelId])
+
+  const selectedDepartmentService = useMemo(
+    () =>
+      allServices.find(
+        (ds) =>
+          String(ds?.id ?? ds?.ID ?? ds?.department_service_id) ===
+          String(selectedDepartmentServiceId)
+      ),
+    [allServices, selectedDepartmentServiceId]
+  )
+  const isPsfSelected = useMemo(() => {
+    const serviceId = getServiceIdFromDepartmentService(selectedDepartmentService)
+    return serviceId === 2
+  }, [selectedDepartmentService])
 
   useEffect(() => {
     if (ubudehe) {
       setUbudeheInput(ubudehe)
     }
   }, [ubudehe])
+
+  useEffect(() => {
+    if (isPsfSelected) {
+      setHouseholdType('Business')
+    }
+  }, [isPsfSelected])
 
   // Lazy queries for location data
   const [
@@ -210,7 +259,7 @@ export default function HouseholdServicesManager({
 
   // Fetch districts when province changes (for country level)
   useEffect(() => {
-    if (userLevelId === 5 && selectedProvince) {
+    if ((userLevelId === 5 || userLevelId === 1) && selectedProvince) {
       getCountryDistricts({ id: selectedProvince })
     } else {
       setDistricts([])
@@ -225,7 +274,10 @@ export default function HouseholdServicesManager({
 
   // Fetch sectors when district changes
   useEffect(() => {
-    if ((userLevelId === 5 || userLevelId === 2) && selectedDistrict) {
+    if (
+      (userLevelId === 5 || userLevelId === 2 || userLevelId === 1) &&
+      selectedDistrict
+    ) {
       getDistrictSectors({ id: selectedDistrict })
     } else {
       setSectors([])
@@ -241,7 +293,10 @@ export default function HouseholdServicesManager({
   // Fetch cells when sector changes
   useEffect(() => {
     if (
-      (userLevelId === 5 || userLevelId === 2 || userLevelId === 3) &&
+      (userLevelId === 5 ||
+        userLevelId === 2 ||
+        userLevelId === 3 ||
+        userLevelId === 1) &&
       selectedSector
     ) {
       getSectorCells({ id: selectedSector })
@@ -262,7 +317,8 @@ export default function HouseholdServicesManager({
       (userLevelId === 5 ||
         userLevelId === 2 ||
         userLevelId === 3 ||
-        userLevelId === 4) &&
+        userLevelId === 4 ||
+        userLevelId === 1) &&
       selectedCell
     ) {
       getCellVillages({ id: selectedCell })
@@ -279,7 +335,7 @@ export default function HouseholdServicesManager({
 
   // Reset child selections when parent changes
   useEffect(() => {
-    if (userLevelId === 5) {
+    if (userLevelId === 5 || userLevelId === 1) {
       setSelectedDistrict(null)
       setSelectedSector(null)
       setSelectedCell(null)
@@ -288,7 +344,7 @@ export default function HouseholdServicesManager({
   }, [selectedProvince, userLevelId])
 
   useEffect(() => {
-    if (userLevelId === 5 || userLevelId === 2) {
+    if (userLevelId === 5 || userLevelId === 2 || userLevelId === 1) {
       setSelectedSector(null)
       setSelectedCell(null)
       setSelectedVillage(null)
@@ -296,7 +352,7 @@ export default function HouseholdServicesManager({
   }, [selectedDistrict, userLevelId])
 
   useEffect(() => {
-    if (userLevelId === 5 || userLevelId === 2 || userLevelId === 3) {
+    if (userLevelId === 5 || userLevelId === 2 || userLevelId === 3 || userLevelId === 1) {
       setSelectedCell(null)
       setSelectedVillage(null)
     }
@@ -307,7 +363,8 @@ export default function HouseholdServicesManager({
       userLevelId === 5 ||
       userLevelId === 2 ||
       userLevelId === 3 ||
-      userLevelId === 4
+      userLevelId === 4 ||
+      userLevelId === 1
     ) {
       setSelectedVillage(null)
     }
@@ -399,12 +456,18 @@ export default function HouseholdServicesManager({
       toast.error('Please select a province')
       return
     }
-    if ((userLevelId === 5 || userLevelId === 2) && !selectedDistrict) {
+    if (
+      (userLevelId === 5 || userLevelId === 2 || userLevelId === 1) &&
+      !selectedDistrict
+    ) {
       toast.error('Please select a district')
       return
     }
     if (
-      (userLevelId === 5 || userLevelId === 2 || userLevelId === 3) &&
+      (userLevelId === 5 ||
+        userLevelId === 2 ||
+        userLevelId === 3 ||
+        userLevelId === 1) &&
       !selectedSector
     ) {
       toast.error('Please select a sector')
@@ -414,7 +477,8 @@ export default function HouseholdServicesManager({
       (userLevelId === 5 ||
         userLevelId === 2 ||
         userLevelId === 3 ||
-        userLevelId === 4) &&
+        userLevelId === 4 ||
+        userLevelId === 1) &&
       !selectedCell
     ) {
       toast.error('Please select a cell')
@@ -424,7 +488,8 @@ export default function HouseholdServicesManager({
       (userLevelId === 5 ||
         userLevelId === 2 ||
         userLevelId === 3 ||
-        userLevelId === 4) &&
+        userLevelId === 4 ||
+        userLevelId === 1) &&
       !selectedVillage
     ) {
       toast.error('Please select a village')
@@ -474,6 +539,13 @@ export default function HouseholdServicesManager({
         districtId = selectedDistrict
         provinceId = selectedProvince
         break
+      case 1: // Province - use user's province, allow district, sector, cell, village
+        villageId = selectedVillage
+        cellId = selectedCell
+        sectorId = selectedSector
+        districtId = selectedDistrict
+        provinceId = userDepartmentId
+        break
       default:
         break
     }
@@ -501,6 +573,11 @@ export default function HouseholdServicesManager({
         setSelectedSector(null)
         setSelectedCell(null)
         setSelectedVillage(null)
+      } else if (userLevelId === 1) {
+        setSelectedDistrict(null)
+        setSelectedSector(null)
+        setSelectedCell(null)
+        setSelectedVillage(null)
       } else if (userLevelId === 2) {
         setSelectedSector(null)
         setSelectedCell(null)
@@ -518,6 +595,9 @@ export default function HouseholdServicesManager({
   }
 
   const onRemove = async (item) => {
+    const numericLevelId = Number(userLevelId)
+    const isPsfItem = getServiceIdFromItem(item) === 2
+    if ((numericLevelId === 6 || numericLevelId === 4) && isPsfItem) return
     const id = item?.id ?? item?.ID
     if (!id) return
 
@@ -531,6 +611,9 @@ export default function HouseholdServicesManager({
   }
 
   const onUpdateStatus = async (item, newStatus) => {
+    const numericLevelId = Number(userLevelId)
+    const isPsfItem = getServiceIdFromItem(item) === 2
+    if ((numericLevelId === 6 || numericLevelId === 4) && isPsfItem) return
     const id = item?.id ?? item?.ID
     if (!id) return
 
@@ -583,8 +666,8 @@ export default function HouseholdServicesManager({
                 </div>
               )}
 
-              {/* District - For Country and District levels */}
-              {(userLevelId === 5 || userLevelId === 2) && (
+              {/* District - For Country and Province levels only */}
+              {(userLevelId === 5 || userLevelId === 1) && (
                 <div className="flex-1">
                   <label className="block mb-2 text-sm font-medium text-black">
                     District <span className="text-red-500">*</span>
@@ -613,10 +696,8 @@ export default function HouseholdServicesManager({
                 </div>
               )}
 
-              {/* Sector - For Country, District, and Sector levels */}
-              {(userLevelId === 5 ||
-                userLevelId === 2 ||
-                userLevelId === 3) && (
+              {/* Sector - For Country, Province, and District levels only */}
+              {(userLevelId === 5 || userLevelId === 1 || userLevelId === 2) && (
                 <div className="flex-1">
                   <label className="block mb-2 text-sm font-medium text-black">
                     Sector <span className="text-red-500">*</span>
@@ -643,11 +724,11 @@ export default function HouseholdServicesManager({
                 </div>
               )}
 
-              {/* Cell - For Country, District, Sector, and Cell levels */}
+              {/* Cell - For Country, Province, District, and Sector levels */}
               {(userLevelId === 5 ||
+                userLevelId === 1 ||
                 userLevelId === 2 ||
-                userLevelId === 3 ||
-                userLevelId === 4) && (
+                userLevelId === 3) && (
                 <div className="flex-1">
                   <label className="block mb-2 text-sm font-medium text-black">
                     Cell <span className="text-red-500">*</span>
@@ -674,8 +755,9 @@ export default function HouseholdServicesManager({
                 </div>
               )}
 
-              {/* Village - For Country, District, Sector, and Cell levels */}
+              {/* Village - For Country, Province, District, Sector, and Cell levels */}
               {(userLevelId === 5 ||
+                userLevelId === 1 ||
                 userLevelId === 2 ||
                 userLevelId === 3 ||
                 userLevelId === 4) && (
@@ -728,7 +810,7 @@ export default function HouseholdServicesManager({
                     ? 'Loading services...'
                     : 'Select a service'}
                 </option>
-                {allServices.map((ds) => {
+                {filteredServices.map((ds) => {
                   const service = ds?.service ?? {}
                   return (
                     <option
@@ -775,7 +857,7 @@ export default function HouseholdServicesManager({
                 value={householdType}
                 onChange={(e) => setHouseholdType(e.target.value)}
                 className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 bg-white"
-                disabled={isAdding || !householdId}
+                disabled={isAdding || !householdId || isPsfSelected}
               >
                 <option value="Residence">Residence</option>
                 <option value="Business">Business</option>
@@ -847,6 +929,11 @@ export default function HouseholdServicesManager({
             assignedServices.length > 0 && (
               <ul className="space-y-2">
                 {assignedServices.map((item) => {
+                  const numericLevelId = Number(userLevelId)
+                  const isPsfItem = getServiceIdFromItem(item) === 2
+                  if ((numericLevelId === 6 || numericLevelId === 4) && isPsfItem) {
+                    return null
+                  }
                   const titleEnglish = getServiceTitleEnglish(item)
                   const titleFrench = getServiceTitleFrench(item)
 

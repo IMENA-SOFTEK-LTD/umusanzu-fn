@@ -67,7 +67,7 @@ function getServiceLabel(service) {
   )
 }
 
-export default function DepartmentServicesManager({ departmentId, onChanged }) {
+export default function DepartmentServicesManager({ departmentId, levelId, onChanged }) {
   const [selectedServiceId, setSelectedServiceId] = useState('')
   const { user } = useSelector((state) => state.auth)
   const { data, isFetching, isLoading, isError, refetch } =
@@ -91,10 +91,26 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
     [allServicesData]
   )
 
+  // Filter services based on levelId
+  // If levelId === 2, show only PSF (id: 2)
+  // Otherwise, show all services except PSF (id: 2)
+  const filteredServices = useMemo(() => {
+    const numericLevelId = Number(levelId)
+    if (numericLevelId === 2) {
+      return allServices.filter((s) => s?.id === 2)
+    }
+    return allServices.filter((s) => s?.id !== 2)
+  }, [allServices, levelId])
+
   const onAssign = async () => {
     const trimmed = String(selectedServiceId).trim()
     if (!trimmed) {
       toast.error('Please select a service')
+      return
+    }
+    const numericLevelId = Number(levelId)
+    if ((numericLevelId === 6 || numericLevelId === 4) && Number(trimmed) === 2) {
+      toast.error('PSF service cannot be assigned at this level')
       return
     }
 
@@ -110,8 +126,10 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
   }
 
   const onRemove = async (service) => {
+    const numericLevelId = Number(levelId)
     const sid = getServiceId(service)
     if (!sid) return
+    if ((numericLevelId === 6 || numericLevelId === 4) && sid === 2) return
 
     try {
       await removeService({ id: departmentId, serviceId: sid }).unwrap()
@@ -147,7 +165,7 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
                     ? 'Loading services...'
                     : 'Select a service'}
                 </option>
-                {allServices.map((s) => (
+                {filteredServices.map((s) => (
                   <option key={s?.id ?? JSON.stringify(s)} value={s?.id ?? ''}>
                     {s?.title ??
                       s?.title_english ??
@@ -216,6 +234,9 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
             <ul className="space-y-2">
               {services.map((service) => {
                 const sid = getServiceId(service)
+                const numericLevelId = Number(levelId)
+                const disablePsfRemove =
+                  (numericLevelId === 6 || numericLevelId === 4) && sid === 2
                 const s = service?.service ?? service
                 return (
                   <li
@@ -237,7 +258,7 @@ export default function DepartmentServicesManager({ departmentId, onChanged }) {
                         <div className="text-xs text-gray-500">ID: {sid}</div>
                       )}
                     </div>
-                    {parseInt(user?.staff_role) === 1 && (
+                    {parseInt(user?.staff_role) === 1 && !disablePsfRemove && (
                     <button
                       type="button"
                       onClick={() => onRemove(service)}

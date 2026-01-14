@@ -34,6 +34,20 @@ function normalizePayload(payload) {
   return []
 }
 
+function getServiceIdFromItem(item) {
+  return (
+    item?.department_service?.service?.id ??
+    item?.service?.id ??
+    item?.service_id ??
+    item?.serviceId ??
+    item?.service?.ID ??
+    item?.department_service_id ??
+    item?.department_service?.id ??
+    item?.id ??
+    item?.ID
+  )
+}
+
 function getServiceLabel(item) {
   const service = item?.department_service?.service ?? item?.service ?? item
   return (
@@ -369,6 +383,12 @@ const RecordOfflinePayment = ({ household }) => {
   const filteredServices = useMemo(() => {
     let services = locationFilteredServices
 
+    // Remove PSF for agent (6) and cell (4) levels
+    const numericLevelId = Number(userLevelId)
+    if (numericLevelId === 6 || numericLevelId === 4) {
+      services = services.filter((service) => getServiceIdFromItem(service) !== 2)
+    }
+
     // Filter by householdType
     if (householdType) {
       services = services.filter(
@@ -377,10 +397,10 @@ const RecordOfflinePayment = ({ household }) => {
     }
 
     return services
-  }, [locationFilteredServices, householdType])
+  }, [locationFilteredServices, householdType, userLevelId])
 
   // Get services filtered by household type
-  const getServicesByHouseholdType = () => {
+  function getServicesByHouseholdType() {
     if (householdType) {
       return filteredServices.filter(
         (service) => service?.householdType === householdType
@@ -398,6 +418,32 @@ const RecordOfflinePayment = ({ household }) => {
         s?.ID?.toString() === selectedServiceId
     )
   }, [selectedServiceId, filteredServices])
+
+  const monthPaidValue = useWatch({
+    control,
+    name: 'month_paid',
+    defaultValue: moment().format('YYYY-MM'),
+  })
+  const amountValue = useWatch({
+    control,
+    name: 'amount',
+    defaultValue: household?.ubudehe,
+  })
+  const phoneValue = useWatch({
+    control,
+    name: 'phone1',
+    defaultValue: household?.phone1,
+  })
+
+  const availableServices = getServicesByHouseholdType()
+  const requiresServiceSelection = availableServices.length > 0
+  const isMissingRequired =
+    !selectedVillage ||
+    !monthPaidValue ||
+    !amountValue ||
+    !phoneValue ||
+    availableServices.length === 0 ||
+    (requiresServiceSelection && !selectedServiceId)
 
   // Reset selected service when householdType or location changes
   useEffect(() => {
@@ -477,6 +523,10 @@ const RecordOfflinePayment = ({ household }) => {
 
   // HANDLE SUBMIT
   const onSubmit = (data) => {
+    if (isMissingRequired) {
+      toast.error('Please fill all required fields before submitting')
+      return
+    }
     recordOfflinePayment({
       service: selectedService?.serviceId || selectedServiceId || null,
       amount: data?.amount,
@@ -885,6 +935,7 @@ const RecordOfflinePayment = ({ household }) => {
                       setHouseholdType(e.target.value)
                     }}
                     className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
+                    disabled={!selectedVillage}
                   >
                     {availableHouseholdTypes.map((type) => (
                       <option key={type} value={type}>
@@ -924,6 +975,7 @@ const RecordOfflinePayment = ({ household }) => {
                     className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4"
                     disabled={
                       isLoadingServices ||
+                      !selectedVillage ||
                       getServicesByHouseholdType().length === 0 ||
                       getServicesByHouseholdType().length === 1
                     }
@@ -1101,6 +1153,7 @@ const RecordOfflinePayment = ({ household }) => {
                     'Pay now'
                   )
                 }
+                disabled={recordOfflinePaymentLoading || isMissingRequired}
               />
             )
           }}

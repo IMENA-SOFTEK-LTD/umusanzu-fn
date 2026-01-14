@@ -76,7 +76,7 @@ function EditDepartmentModal({ department, isOpen, onClose, onUpdate }) {
         email: values.email,
         phone1: values.phone1,
         phone2: values.phone2,
-        service_offer: values.service_offer,
+        service_offer:'N/A', //values.service_offer,
         leader_name: values.leader_name,
         leader_title: values.leader_title,
         account_bank: values.account_bank,
@@ -85,8 +85,9 @@ function EditDepartmentModal({ department, isOpen, onClose, onUpdate }) {
         .unwrap()
         .then(() => {
           toast.success('Department Updated Successfully')
-          onUpdate && onUpdate()
-          onClose()
+          setTimeout(() => {
+            window.location.reload()
+          }, 1500)
         })
         .catch((error) => {
           console.error(error)
@@ -172,7 +173,7 @@ function EditDepartmentModal({ department, isOpen, onClose, onUpdate }) {
             </div>
 
             <div className="flex space-x-4">
-              <div className="flex-1">
+              {/* <div className="flex-1">
                 <label
                   htmlFor="service_offer"
                   className="block mb-2 text-sm font-medium text-black"
@@ -196,7 +197,7 @@ function EditDepartmentModal({ department, isOpen, onClose, onUpdate }) {
                     {errors.service_offer.message}
                   </span>
                 )}
-              </div>
+              </div> */}
               <div className="flex-1">
                 <label
                   htmlFor="leader_name"

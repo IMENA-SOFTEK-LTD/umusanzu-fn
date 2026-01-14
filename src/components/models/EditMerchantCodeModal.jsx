@@ -65,8 +65,9 @@ function EditMerchantCodeModal({ department, isOpen, onClose, onUpdate }) {
           toast.success(
             'Merchant Code and BK Service Code Updated Successfully'
           )
-          onUpdate && onUpdate()
-          onClose()
+          setTimeout(() => {
+            window.location.reload()
+          }, 1500)
         })
         .catch((error) => {
           console.error(error)
@@ -86,7 +87,7 @@ function EditMerchantCodeModal({ department, isOpen, onClose, onUpdate }) {
   }
 
   if (!isOpen) return null
-
+  console.log(department)
   return (
     <div
       tabIndex={-1}
@@ -235,6 +236,7 @@ function EditMerchantCodeModal({ department, isOpen, onClose, onUpdate }) {
           {activeTab === 'services' && (
             <DepartmentServicesManager
               departmentId={department?.ID}
+              levelId={department?.level_id || 0}
               onChanged={() => {
                 onUpdate && onUpdate()
               }}

@@ -32,6 +32,20 @@ function normalizePayload(payload) {
   return []
 }
 
+function getServiceIdFromItem(item) {
+  return (
+    item?.department_service?.service?.id ??
+    item?.service?.id ??
+    item?.service_id ??
+    item?.serviceId ??
+    item?.service?.ID ??
+    item?.department_service_id ??
+    item?.department_service?.id ??
+    item?.id ??
+    item?.ID
+  )
+}
+
 function getServiceLabel(item) {
   const service = item?.department_service?.service ?? item?.service ?? item
   return (
@@ -391,6 +405,12 @@ const RecordMultipleMonths = () => {
   const filteredServices = useMemo(() => {
     let services = locationFilteredServices
 
+    // Remove PSF for agent (6) and cell (4) levels
+    const numericLevelId = Number(userLevelId)
+    if (numericLevelId === 6 || numericLevelId === 4) {
+      services = services.filter((service) => getServiceIdFromItem(service) !== 2)
+    }
+
     // Filter by householdType
     if (householdType) {
       services = services.filter(
@@ -399,10 +419,10 @@ const RecordMultipleMonths = () => {
     }
 
     return services
-  }, [locationFilteredServices, householdType])
+  }, [locationFilteredServices, householdType, userLevelId])
 
   // Get services filtered by household type
-  const getServicesByHouseholdType = () => {
+  function getServicesByHouseholdType() {
     if (householdType) {
       return filteredServices.filter(
         (service) => service?.householdType === householdType
@@ -420,6 +440,22 @@ const RecordMultipleMonths = () => {
         s?.ID?.toString() === selectedServiceId
     )
   }, [selectedServiceId, filteredServices])
+
+  const startMonthValue = watch('start_month')
+  const endMonthValue = watch('end_month')
+  const paymentPhoneValue = watch('payment_phone')
+  const totalMonthPaidValue = watch('total_month_paid')
+
+  const availableServices = getServicesByHouseholdType()
+  const requiresServiceSelection = availableServices.length > 0
+  const isMissingRequired =
+    !selectedVillage ||
+    !startMonthValue ||
+    !endMonthValue ||
+    !paymentPhoneValue ||
+    !totalMonthPaidValue ||
+    availableServices.length === 0 ||
+    (requiresServiceSelection && !selectedServiceId)
 
   // Reset selected service when householdType or location changes
   useEffect(() => {
@@ -498,6 +534,10 @@ const RecordMultipleMonths = () => {
   ])
 
   const onSubmit = (data, type = 'ishyura') => {
+    if (isMissingRequired) {
+      toast.error('Please fill all required fields before submitting')
+      return
+    }
     setLastPaymentType(type)
     recordMultiplePayments({
       household_id: household?.guid,
@@ -515,6 +555,10 @@ const RecordMultipleMonths = () => {
   }
 
   const handleConfirm = () => {
+    if (isMissingRequired) {
+      toast.error('Please fill all required fields before submitting')
+      return
+    }
     const totalAmount = watch('total_month_paid') || 0
     if (
       window.confirm(
@@ -527,6 +571,10 @@ const RecordMultipleMonths = () => {
 
   const handleIshyura = (e) => {
     e.preventDefault()
+    if (isMissingRequired) {
+      toast.error('Please fill all required fields before submitting')
+      return
+    }
     const totalAmount = watch('total_month_paid') || 0
     if (
       window.confirm(
@@ -948,6 +996,7 @@ const RecordMultipleMonths = () => {
                         setHouseholdType(e.target.value)
                       }}
                       className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                      disabled={!selectedVillage}
                     >
                       {availableHouseholdTypes.map((type) => (
                         <option key={type} value={type}>
@@ -980,6 +1029,7 @@ const RecordMultipleMonths = () => {
                       className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                       disabled={
                         isLoadingServices ||
+                        !selectedVillage ||
                         getServicesByHouseholdType().length === 0 ||
                         getServicesByHouseholdType().length === 1
                       }
@@ -1110,7 +1160,7 @@ const RecordMultipleMonths = () => {
             <Button
               type="button"
               onClick={handleConfirm}
-              disabled={recordMultiplePaymentsLoading}
+              disabled={recordMultiplePaymentsLoading || isMissingRequired}
               className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
               value={
                 recordMultiplePaymentsLoading ? (
@@ -1123,7 +1173,7 @@ const RecordMultipleMonths = () => {
             <Button
               type="button"
               onClick={handleIshyura}
-              disabled={recordMultiplePaymentsLoading}
+              disabled={recordMultiplePaymentsLoading || isMissingRequired}
               className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
               value={
                 recordMultiplePaymentsLoading ? (

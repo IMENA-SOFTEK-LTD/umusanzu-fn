@@ -277,6 +277,16 @@ const HouseholdConflictModal = ({
           </p>
         </div>
 
+        <div 
+          className="rounded-lg p-4"
+          style={{ backgroundColor: 'rgb(21, 108, 48)' }}
+        >
+          <p className="text-sm text-white font-medium">
+            <strong>Recommendation:</strong> We recommend you to search for this household in the "Search Household" page, 
+            then click on the home icon to add services there instead of creating a duplicate household.
+          </p>
+        </div>
+
         {/* Household Details Comparison */}
         <div className="border rounded-lg p-4 bg-gray-50">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">

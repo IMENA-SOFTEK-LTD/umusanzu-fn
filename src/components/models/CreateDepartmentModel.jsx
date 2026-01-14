@@ -40,7 +40,7 @@ const CreateDepartmentModel = ({
         phone1: data.phone1,
         phone2: data.phone2,
         email: data.email,
-        merchant_code: data.merchant_code,
+        merchant_code: null,// data.merchant_code,
 
         department: department.toLowerCase() || 'village',
       })
@@ -144,7 +144,7 @@ const CreateDepartmentModel = ({
                   )}
                 </div>
 
-                <div>
+                {/* <div>
                   <label
                     htmlFor="merchant_code"
                     className="block mb-2 text-sm font-medium text-black"
@@ -163,7 +163,7 @@ const CreateDepartmentModel = ({
                       />
                     )}
                   />
-                </div>
+                </div> */}
 
                 <div className="flex space-x-4">
                   <div className="flex-1">

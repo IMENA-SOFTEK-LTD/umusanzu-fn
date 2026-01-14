@@ -260,57 +260,54 @@ const HouseholdTable = ({ user }) => {
   const onLoadHouseholdLists = async (data) => {
     setHouseholdsListIsLoading(true)
     try {
-      await getHouseholdsList(data)
-        .unwrap()
-        .then((res) => {
-          dispatch(setTotalPages(res?.data?.totalPages))
-          setTotalRecords(res?.data?.count)
-          setTotalAmount(res?.data?.totalAmount)
-          setData(
-            res?.data?.rows?.map((row, index) => ({
-              ID: row?.id,
-              id: index + 1,
-              name: row?.name,
-              nid: row?.nid,
-              email: row?.email,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
-              amount: row?.amount,
-              status: row?.status,
-              village: row?.village_name,
-              villageId: row?.village,
-              cell: row?.cell_name,
-              cellId: row?.cell,
-              sector: row?.sector_name,
-              sectorId: row?.sector,
-              district: row?.district_name,
-              districtId: row?.district,
-              province: row?.province_name,
-              provinceId: row?.province,
-              type: row?.type,
-              payment_status: row?.payment_status,
-              total_services:
-                row?.total_services === 0
-                  ? 'No Services'
-                  : row?.total_services + ' Services',
-            })) || []
-          )
-        })
-        .catch((error) => {
-          setHouseholdListError(true)
-          if (error.data && error.data.message) {
-            toast.error(error.data.message)
-          } else {
-            toast.error(
-              'An error occurred while retrieving the household lists. Please try again'
-            )
-          }
-        })
-        .finally(() => {
-          setHouseholdsListIsLoading(false)
-        })
+      const res = await getHouseholdsList(data).unwrap()
+      
+      if (res && res.data) {
+        dispatch(setTotalPages(res.data.totalPages))
+        setTotalRecords(res.data.count)
+        setTotalAmount(res.data.totalAmount)
+        setData(
+          res.data.rows?.map((row, index) => ({
+            ID: row?.id,
+            id: index + 1,
+            name: row?.name,
+            nid: row?.nid,
+            email: row?.email,
+            phone1: row?.phone1,
+            phone2: row?.phone2,
+            amount: row?.amount,
+            status: row?.status,
+            village: row?.village_name,
+            villageId: row?.village,
+            cell: row?.cell_name,
+            cellId: row?.cell,
+            sector: row?.sector_name,
+            sectorId: row?.sector,
+            district: row?.district_name,
+            districtId: row?.district,
+            province: row?.province_name,
+            provinceId: row?.province,
+            type: row?.type,
+            payment_status: row?.payment_status,
+            total_services:
+              row?.total_services === 0
+                ? 'No Services'
+                : row?.total_services + ' Services',
+          })) || []
+        )
+      }
     } catch (error) {
-      return error
+      setHouseholdListError(true)
+      console.error('Error fetching household lists:', error)
+      if (error.data && error.data.message) {
+        toast.error(error.data.message)
+      } else {
+        toast.error(
+          'An error occurred while retrieving the household lists. Please try again'
+        )
+      }
+    } finally {
+      setHouseholdsListIsLoading(false)
     }
   }
 

@@ -100,7 +100,7 @@ function Sidebar({ user }) {
         //   path: '/agent/transactions/initiated',
         //   route: '/agent/transactions/initiated',
         // },
-        [3, 5].includes(stateUser?.departments?.level_id)
+        ![6].includes(stateUser?.departments?.level_id)
           ? {
               title: 'Pending Payments',
               icon: FaPaypal,

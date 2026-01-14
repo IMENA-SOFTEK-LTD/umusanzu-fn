@@ -55,7 +55,8 @@ import download from 'downloadjs'
 
 const PendingPayments = ({ user }) => {
   // State management
-  const [pendingPaymentsIsLoading, setPendingPaymentsIsLoading] = useState(false)
+  const [pendingPaymentsIsLoading, setPendingPaymentsIsLoading] =
+    useState(false)
   const [pendingPaymentsIsError, setPendingPaymentsIsError] = useState(false)
   const [expandedRows, setExpandedRows] = useState({})
   const [isExporting, setIsExporting] = useState(false)
@@ -82,9 +83,9 @@ const PendingPayments = ({ user }) => {
 
   // Toggle row expansion for mobile view
   const toggleRowExpansion = useCallback((index) => {
-    setExpandedRows(prev => ({
+    setExpandedRows((prev) => ({
       ...prev,
-      [index]: !prev[index]
+      [index]: !prev[index],
     }))
   }, [])
 
@@ -191,6 +192,7 @@ const PendingPayments = ({ user }) => {
               lastPendingMonth: row?.last_pending_month,
               agentName: row?.agent_names,
               status: row?.transaction_status,
+              serviceName: row?.service_name,
               date: 'All Time',
             })) || []
           )
@@ -248,6 +250,12 @@ const PendingPayments = ({ user }) => {
       {
         Header: 'Village',
         accessor: 'village',
+        sortable: true,
+        Filter: SelectColumnFilter,
+      },
+      {
+        Header: 'Service',
+        accessor: 'serviceName',
         sortable: true,
         Filter: SelectColumnFilter,
       },
@@ -355,10 +363,13 @@ const PendingPayments = ({ user }) => {
     setReportName(reportName)
   }, [userOrSelectedDepartmentNames, user])
 
-  const gotoPage1 = useCallback((newPage) => {
-    if (newPage < 0 || newPage >= totalPages) return
-    dispatch(setPage(Number(newPage)))
-  }, [totalPages, dispatch])
+  const gotoPage1 = useCallback(
+    (newPage) => {
+      if (newPage < 0 || newPage >= totalPages) return
+      dispatch(setPage(Number(newPage)))
+    },
+    [totalPages, dispatch]
+  )
 
   const openExportPopup = useCallback(() => {
     setShowExportPopup(true)
@@ -421,10 +432,7 @@ const PendingPayments = ({ user }) => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-orange-100 rounded-full">
-            <FontAwesomeIcon
-              className="text-orange-600"
-              icon={faUser}
-            />
+            <FontAwesomeIcon className="text-orange-600" icon={faUser} />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">
@@ -472,7 +480,9 @@ const PendingPayments = ({ user }) => {
               <p className="font-medium text-red-600">{payment.totalAmount}</p>
             </div>
             <div>
-              <span className="text-gray-500 block text-xs">Pending Months</span>
+              <span className="text-gray-500 block text-xs">
+                Pending Months
+              </span>
               <p className="font-medium text-orange-600 flex items-center">
                 <FontAwesomeIcon icon={faClock} className="w-3 h-3 mr-1" />
                 {payment.pendingMonths} Month(s)
@@ -483,7 +493,13 @@ const PendingPayments = ({ user }) => {
               <p className="font-medium">{payment.agentName || 'N/A'}</p>
             </div>
             <div>
-              <span className="text-gray-500 block text-xs">Ubudehe Category</span>
+              <span className="text-gray-500 block text-xs">Service</span>
+              <p className="font-medium">{payment.serviceName || 'N/A'}</p>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-xs">
+                Ubudehe Category
+              </span>
               <p className="font-medium">{payment.ubudehe || 'N/A'}</p>
             </div>
           </div>
@@ -615,19 +631,22 @@ const PendingPayments = ({ user }) => {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                {user?.departments.level_id !== 6 && parseInt(user?.staff_role) === 1 && (
-                  <Button
-                    className="w-full sm:w-auto"
-                    value={
-                      <span className="flex items-center gap-2">
-                        <FontAwesomeIcon icon={faFile} />
-                        <span className="hidden sm:inline">Export Report</span>
-                        <span className="sm:hidden">Export</span>
-                      </span>
-                    }
-                    onClick={openExportPopup}
-                  />
-                )}
+                {user?.departments.level_id !== 6 &&
+                  parseInt(user?.staff_role) === 1 && (
+                    <Button
+                      className="w-full sm:w-auto"
+                      value={
+                        <span className="flex items-center gap-2">
+                          <FontAwesomeIcon icon={faFile} />
+                          <span className="hidden sm:inline">
+                            Export Report
+                          </span>
+                          <span className="sm:hidden">Export</span>
+                        </span>
+                      }
+                      onClick={openExportPopup}
+                    />
+                  )}
               </div>
             </div>
           </div>
@@ -669,7 +688,8 @@ const PendingPayments = ({ user }) => {
                   onChange={(query) => {
                     const queries2 = {
                       departmentId: user?.departments?.id,
-                      searchTerm: query.searchTerm || queryRoute?.searchTerm || '',
+                      searchTerm:
+                        query.searchTerm || queryRoute?.searchTerm || '',
                       village: query.village || queryRoute?.village || '',
                       cell: query.cell || queryRoute?.cell || '',
                       sector: query.sector || queryRoute?.sector || '',
@@ -683,7 +703,8 @@ const PendingPayments = ({ user }) => {
                     gotoPage1(0)
                     const queries2 = {
                       departmentId: user?.departments?.id,
-                      searchTerm: query.searchTerm || queryRoute?.searchTerm || '',
+                      searchTerm:
+                        query.searchTerm || queryRoute?.searchTerm || '',
                       village: query.village || queryRoute?.village || '',
                       cell: query.cell || queryRoute?.cell || '',
                       sector: query.sector || queryRoute?.sector || '',
@@ -719,13 +740,17 @@ const PendingPayments = ({ user }) => {
                       </p>
                     </div>
                     <div className="text-center lg:text-left">
-                      <p className="text-sm text-gray-600">Total Pending Amount</p>
+                      <p className="text-sm text-gray-600">
+                        Total Pending Amount
+                      </p>
                       <p className="text-xl font-bold text-red-600">
                         {formatFunds(totalAmount)} RWF
                       </p>
                     </div>
                     <div className="text-center lg:text-left">
-                      <p className="text-sm text-gray-600">Total Pending Months</p>
+                      <p className="text-sm text-gray-600">
+                        Total Pending Months
+                      </p>
                       <p className="text-xl font-bold text-orange-600">
                         {totalPendingMonths}
                       </p>
@@ -888,7 +913,9 @@ const PendingPayments = ({ user }) => {
                 </PageButton>
                 <PageButton
                   onClick={() => gotoPage1(Number(offset) + 1)}
-                  disabled={offset >= totalPages - 1 || pendingPaymentsIsLoading}
+                  disabled={
+                    offset >= totalPages - 1 || pendingPaymentsIsLoading
+                  }
                   className="px-4 cursor-pointer hover:scale-[1.02] shadow-md"
                 >
                   <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
@@ -899,7 +926,9 @@ const PendingPayments = ({ user }) => {
                 <PageButton
                   className="px-4 cursor-pointer hover:scale-[1.02] rounded-r-md shadow-md"
                   onClick={() => gotoPage1(Number(totalPages) - 1)}
-                  disabled={offset >= totalPages - 1 || pendingPaymentsIsLoading}
+                  disabled={
+                    offset >= totalPages - 1 || pendingPaymentsIsLoading
+                  }
                 >
                   <span className="px-4 cursor-pointer hover:scale-[1.02] sr-only">
                     Last

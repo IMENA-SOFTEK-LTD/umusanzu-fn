@@ -209,49 +209,47 @@ const DepartmentsTable = ({ user }) => {
   const onLoadDepartmentLists = async (data) => {
     setShowDepartmentListLoading(true)
     try {
-      await getDepartmentLists(data)
-        .unwrap()
-        .then((res) => {
-          dispatch(setTotalPages(res?.data?.totalPages))
-          setTotalRecords(res?.data?.count)
-          setData(
-            res?.data?.rows?.map((row, index) => ({
-              ID: row?.id,
-              id: index + 1,
-              name: row?.name,
-              email: row?.email,
-              phone1: row?.phone1,
-              phone2: row?.phone2,
+      const res = await getDepartmentLists(data).unwrap()
+      // console.log('API Response:', res)
+      
+      if (res && res.data) {
+        dispatch(setTotalPages(res.data.totalPages))
+        setTotalRecords(res.data.count)
+        setData(
+          res.data.rows?.map((row, index) => ({
+            ID: row?.id,
+            id: index + 1,
+            name: row?.name,
+            email: row?.email,
+            phone1: row?.phone1,
+            phone2: row?.phone2,
 
-              village: row?.name,
-              cell: row?.cell,
-              sector: row?.sector,
-              district: row?.district,
-              province: row?.province,
+            village: row?.name,
+            cell: row?.cell,
+            sector: row?.sector,
+            district: row?.district,
+            province: row?.province,
 
-              level_id: row?.level_id,
-              level: row?.level,
-              merchant_code: row?.merchant_code,
-              department_id: row?.department_id,
-              bk_service_code: row?.bk_service_code,
-            })) || []
-          )
-        })
-        .catch((error) => {
-          setDepartmentListError(true)
-          if (error.data && error.data.message) {
-            toast.error(error.data.message)
-          } else {
-            toast.error(
-              'An error occurred while retrieving the department lists. Please try again'
-            )
-          }
-        })
-        .finally(() => {
-          setShowDepartmentListLoading(false)
-        })
+            level_id: row?.level_id,
+            level: row?.level,
+            merchant_code: row?.merchant_code,
+            department_id: row?.department_id,
+            bk_service_code: row?.bk_service_code,
+          })) || []
+        )
+      }
     } catch (error) {
-      return error
+      setDepartmentListError(true)
+      console.error('Error fetching department lists:', error)
+      if (error.data && error.data.message) {
+        toast.error(error.data.message)
+      } else {
+        toast.error(
+          'An error occurred while retrieving the department lists. Please try again'
+        )
+      }
+    } finally {
+      setShowDepartmentListLoading(false)
     }
   }
 

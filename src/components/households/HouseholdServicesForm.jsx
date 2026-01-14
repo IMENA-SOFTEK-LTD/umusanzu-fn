@@ -23,6 +23,27 @@ function normalizeAllServicesPayload(payload) {
   return []
 }
 
+function getServiceIdFromDepartmentService(item) {
+  return (
+    item?.service?.id ??
+    item?.service_id ??
+    item?.serviceId ??
+    item?.service?.ID ??
+    item?.service?.id
+  )
+}
+
+function getServiceIdFromServiceItem(item) {
+  const service = item?.service ?? item
+  return (
+    service?.service?.id ??
+    service?.service_id ??
+    service?.serviceId ??
+    service?.id ??
+    service?.ID
+  )
+}
+
 export default function HouseholdServicesForm({ onServicesChange }) {
   const { user } = useSelector((state) => state.auth)
   const [selectedDepartmentServiceId, setSelectedDepartmentServiceId] =
@@ -249,6 +270,33 @@ export default function HouseholdServicesForm({ onServicesChange }) {
     () => normalizeAllServicesPayload(allServicesData),
     [allServicesData]
   )
+  const filteredServices = useMemo(() => {
+    const numericLevelId = Number(userLevelId)
+    if (numericLevelId === 6 || numericLevelId === 4) {
+      return allServices.filter(
+        (ds) => getServiceIdFromDepartmentService(ds) !== 2
+      )
+    }
+    return allServices
+  }, [allServices, userLevelId])
+
+  const selectedDepartmentService = useMemo(
+    () =>
+      allServices.find(
+        (ds) => String(ds?.id) === String(selectedDepartmentServiceId)
+      ),
+    [allServices, selectedDepartmentServiceId]
+  )
+  const isPsfSelected = useMemo(() => {
+    const serviceId = getServiceIdFromDepartmentService(selectedDepartmentService)
+    return serviceId === 2
+  }, [selectedDepartmentService])
+
+  useEffect(() => {
+    if (isPsfSelected) {
+      setHouseholdType('Business')
+    }
+  }, [isPsfSelected])
 
   // Helper function to get location names
   const getLocationNames = (provinceId, districtId, sectorId, cellId, villageId) => {
@@ -589,6 +637,11 @@ export default function HouseholdServicesForm({ onServicesChange }) {
   }
 
   const handleRemoveService = (index) => {
+    const numericLevelId = Number(userLevelId)
+    const serviceId = getServiceIdFromServiceItem(services[index])
+    if ((numericLevelId === 6 || numericLevelId === 4) && serviceId === 2) {
+      return
+    }
     const updatedServices = services.filter((_, i) => i !== index)
     setServices(updatedServices)
     onServicesChange && onServicesChange(updatedServices)
@@ -616,8 +669,8 @@ export default function HouseholdServicesForm({ onServicesChange }) {
           {/* Location Dropdowns based on user department level */}
           {userLevelId !== 6 && (
             <div className="flex flex-col md:flex-row md:items-end gap-3">
-              {/* Province - Only for Province level */}
-              {userLevelId === 1 && (
+              {/* Province - Only for Country level */}
+              {userLevelId === 5 && (
                 <div className="flex-1">
                   <label className="block mb-2 text-sm font-medium text-black">
                     Province <span className="text-red-500">*</span>
@@ -669,7 +722,7 @@ export default function HouseholdServicesForm({ onServicesChange }) {
                 </div>
               )}
 
-              {/* Sector - For Province and District levels (sector level users already have sector set) */}
+              {/* Sector - For Province and District levels only */}
               {(userLevelId === 1 || userLevelId === 2) && (
                 <div className="flex-1">
                   <label className="block mb-2 text-sm font-medium text-black">
@@ -777,7 +830,7 @@ export default function HouseholdServicesForm({ onServicesChange }) {
                     ? 'Loading services...'
                     : 'Select a service'}
                 </option>
-                {allServices.map((ds) => {
+                {filteredServices.map((ds) => {
                   const service = ds?.service ?? {}
                   return (
                     <option
@@ -807,6 +860,7 @@ export default function HouseholdServicesForm({ onServicesChange }) {
                 value={householdType}
                 onChange={(e) => setHouseholdType(e.target.value)}
                 className="text-sm border-[1.3px] focus:outline-primary border-primary rounded-lg block w-full p-2 py-2.5 px-4 bg-white"
+                disabled={isPsfSelected}
               >
                 <option value="Residence">Residence</option>
                 <option value="Business">Business</option>
@@ -894,6 +948,12 @@ export default function HouseholdServicesForm({ onServicesChange }) {
             <ul className="space-y-2">
               {services.map((item, index) => {
                 const service = item?.service ?? {}
+                const numericLevelId = Number(userLevelId)
+                const serviceId = getServiceIdFromServiceItem(item)
+                if ((numericLevelId === 6 || numericLevelId === 4) && serviceId === 2) {
+                  return null
+                }
+
                 return (
                   <li
                     key={`${item.department_service_id}-${item.householdType}-${index}`}

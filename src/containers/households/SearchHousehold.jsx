@@ -43,6 +43,8 @@ import {
   setSelectedCell,
   setSelectedSector,
   setSelectedVillage,
+  setSelectedProvince,
+  setSelectedDistrict,
 } from '../../states/features/modals/householdSlice'
 import { toast } from 'react-toastify'
 import OverlayLoading from '../../components/OverlayLoading'
