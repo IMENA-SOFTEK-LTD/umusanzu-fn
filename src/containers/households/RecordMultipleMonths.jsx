@@ -548,9 +548,7 @@ const RecordMultipleMonths = () => {
       phone1: data?.phone1,
       lang: data?.lang,
       type: type === 'emeza' ? 'emeza' : 'ishyura',
-      service_id: data?.selected_service_id || selectedServiceId || null,
-      ubudehe: selectedService?.ubudehe || household?.ubudehe || null,
-      householdType: householdType,
+      household_service_id: selectedService?.id || selectedServiceId || null,
     })
   }
 

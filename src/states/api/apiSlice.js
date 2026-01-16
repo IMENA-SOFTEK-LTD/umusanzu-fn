@@ -682,10 +682,8 @@ export const apiSlice = createApi({
           payment_method,
           agent,
           type,
-          merchant_code,
-          ubudehe,
-          service_id,
-          householdType,
+          household_service_id,
+          phone1
         }) => ({
           url: `/payment/initiate`,
           method: 'POST',
@@ -698,15 +696,13 @@ export const apiSlice = createApi({
             payment_method,
             agent,
             type,
-            merchant_code,
-            ubudehe,
-            service_id,
-            householdType,
+            household_service_id,
+            phone1,
           },
         }),
       }),
       updateHousehold: builder.mutation({
-        query: ({ name, nid, phone1, phone2, ubudehe, id, type, email }) => ({
+        query: ({ name, nid, phone1, phone2, id, email }) => ({
           url: `/households/${id}`,
           method: 'PATCH',
           body: {
@@ -714,8 +710,6 @@ export const apiSlice = createApi({
             nid,
             phone1,
             phone2,
-            ubudehe,
-            type,
             email,
           },
         }),
@@ -974,36 +968,6 @@ export const apiSlice = createApi({
           method: 'DELETE',
         }),
       }),
-      // RECORD OFFLINE PAYMENT
-      recordOfflinePayment: builder.mutation({
-        query: ({
-          service,
-          amount,
-          month_paid,
-          agent,
-          household_id,
-          sms_phone,
-          phone1,
-          ubudehe,
-          lang,
-          householdType,
-        }) => ({
-          url: `/payment/offline?household_id=${household_id}`,
-          method: 'POST',
-          body: {
-            service,
-            amount,
-            month_paid,
-            agent,
-            sms_phone,
-            household_id,
-            phone1,
-            ubudehe,
-            lang,
-            householdType,
-          },
-        }),
-      }),
       // GET PAYMENTS
       getPayments: builder.query({
         query: ({ page, size, status }) => ({
@@ -1028,11 +992,9 @@ export const apiSlice = createApi({
           start_month,
           end_month,
           type,
-          merchant_code,
           lang,
           phone1,
-          service_id,
-          householdType,
+          household_service_id
         }) => ({
           url: `/payment/advance`,
           method: 'POST',
@@ -1044,10 +1006,8 @@ export const apiSlice = createApi({
             start_month,
             end_month,
             type,
-            merchant_code,
             lang,
-            service_id,
-            householdType,
+            household_service_id,
           },
         }),
       }),
@@ -1153,7 +1113,6 @@ export const {
   useLazyGetHouseholdDepartmentsQuery,
   useUpdateAdminStatusMutation,
   useDeleteAdminMutation,
-  useRecordOfflinePaymentMutation,
   useLazyGetProvinceChildrenQuery,
   useLazyGetDistrictChildrenQuery,
   useLazyGetSectorChildrenQuery,

@@ -1,6 +1,5 @@
 import HouseHoldDetailTable from './HouseHoldDetailTable' // Adjust the import path accordingly
-import RecordPaymentModel from '../../components/models/RecordPaymentModel'
-import CreateOfflinePaymentModel from '../../components/models/CreateOfflinePaymentModel'
+
 import {
   useLazyGetHouseHoldDetailsQuery,
   useLazyGetHouseholdDepartmentsQuery,
@@ -9,9 +8,7 @@ import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import UpdateHousehold from '../../components/models/UpdateHousehold'
 import UpdateHouseholdStatus from '../../components/models/UpdateHouseholdStatus'
-import DeleteTransaction from '../../components/models/DeleteTransaction'
-import InvoiceRequestFormModel from '../../components/models/InvoiceRequestFormModel'
-import RecordMultipleMonthsPayment from '../../components/models/RecordMultipleMonthsPayment'
+
 const HouseholdDetail = () => {
   const { id } = useParams()
   const user = JSON.parse(localStorage.getItem('user'))

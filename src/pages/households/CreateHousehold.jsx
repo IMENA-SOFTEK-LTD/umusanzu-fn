@@ -39,6 +39,13 @@ import { toast } from 'react-toastify'
 import HouseholdServicesForm from '../../components/households/HouseholdServicesForm'
 import HouseholdConflictModal from '../../components/models/HouseholdConflictModal'
 
+const isValidPhoneNumber = (value) => {
+  const digitsOnly = value.replace(/\D/g, '')
+  const patternMobileMoney = /^07[89]\d{7}$/
+  const patternAirtelMoney = /^07[23]\d{7}$/
+  return patternMobileMoney.test(digitsOnly) || patternAirtelMoney.test(digitsOnly)
+}
+
 const CreateHousehold = ({ user }) => {
   const {
     register,
@@ -477,7 +484,13 @@ const CreateHousehold = ({ user }) => {
               <Controller
                 control={control}
                 name="phone1"
-                rules={{ required: 'Please add the primary phone number' }}
+                rules={{
+                  required: 'Please add the primary phone number',
+                  validate: (value) =>
+                    isValidPhoneNumber(value || '')
+                      ? true
+                      : 'Phone number must be valid (MTN: 078/079, Airtel: 072/073)',
+                }}
                 render={({ field }) => {
                   return <Input {...field} placeholder="0788 000 000" />
                 }}
@@ -493,10 +506,23 @@ const CreateHousehold = ({ user }) => {
               <Controller
                 control={control}
                 name="phone2"
+                rules={{
+                  validate: (value) => {
+                    if (!value) return true
+                    return isValidPhoneNumber(value)
+                      ? true
+                      : 'Phone number must be valid (MTN: 078/079, Airtel: 072/073)'
+                  },
+                }}
                 render={({ field }) => {
                   return <Input {...field} placeholder="0788 111 111" />
                 }}
               />
+              {errors.phone2 && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.phone2.message}
+                </span>
+              )}
             </label>
           </span>
         </section>

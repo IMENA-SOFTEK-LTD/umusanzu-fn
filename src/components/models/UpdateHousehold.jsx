@@ -10,6 +10,13 @@ import { useEffect, useState } from 'react'
 import { useUpdateHouseholdMutation } from '../../states/api/apiSlice'
 import Loading from '../Loading'
 
+const isValidPhoneNumber = (value) => {
+  const digitsOnly = value.replace(/\D/g, '')
+  const patternMobileMoney = /^07[89]\d{7}$/
+  const patternAirtelMoney = /^07[23]\d{7}$/
+  return patternMobileMoney.test(digitsOnly) || patternAirtelMoney.test(digitsOnly)
+}
+
 const UpdateHousehold = ({ household }) => {
   const {
     handleSubmit,
@@ -25,6 +32,7 @@ const UpdateHousehold = ({ household }) => {
       isLoading: updateHouseholdLoading,
       isSuccess: updateHouseholdSuccess,
       isError: updateHouseholdError,
+      error: updateHouseholdErrorData,
     },
   ] = useUpdateHouseholdMutation()
 
@@ -48,8 +56,8 @@ const UpdateHousehold = ({ household }) => {
       nid: data?.nid,
       phone1: data?.phone1,
       phone2: data?.phone2,
-      ubudehe: data?.ubudehe,
-      type: data?.type,
+      // ubudehe: data?.ubudehe,
+      // type: data?.type,
       email: data?.email,
     })
   }
@@ -117,9 +125,68 @@ const UpdateHousehold = ({ household }) => {
                 control={control}
                 name="nid"
                 defaultValue={household?.nid}
-                render={({ field }) => {
+                rules={{
+                  validate: (value) => {
+                    if (!value) return true
+                    const digitsOnly = value.replace(/\s/g, '')
+                    if (value.length !== 21) {
+                      return 'National ID must be exactly 21 characters (including spaces)'
+                    }
+                    if (digitsOnly.length !== 16) {
+                      return 'National ID must contain exactly 16 digits'
+                    }
+                    if (!/^\d{16}$/.test(digitsOnly)) {
+                      return 'National ID must contain only numbers'
+                    }
+                    return true
+                  },
+                }}
+                render={({ field: { value, onChange, ...fieldProps } }) => {
+                  const formatNationalId = (inputValue) => {
+                    if (!inputValue) return ''
+                    const digitsOnly = inputValue.replace(/\D/g, '')
+                    const limitedDigits = digitsOnly.slice(0, 16)
+                    if (limitedDigits.length === 0) return ''
+
+                    let formatted = limitedDigits[0]
+                    if (limitedDigits.length > 1) {
+                      formatted += ' ' + limitedDigits.slice(1, 5)
+                    }
+                    if (limitedDigits.length > 5) {
+                      formatted += ' ' + limitedDigits[5]
+                    }
+                    if (limitedDigits.length > 6) {
+                      formatted += ' ' + limitedDigits.slice(6, 13)
+                    }
+                    if (limitedDigits.length > 13) {
+                      formatted += ' ' + limitedDigits[13]
+                    }
+                    if (limitedDigits.length > 14) {
+                      formatted += ' ' + limitedDigits.slice(14, 16)
+                    }
+                    return formatted
+                  }
+
+                  const handleChange = (e) => {
+                    const formattedValue = formatNationalId(e.target.value)
+                    onChange(formattedValue)
+                  }
+
                   return (
-                    <Input {...field} placeholder="1 1989 8 0133256 7 89" />
+                    <>
+                      <Input
+                        {...fieldProps}
+                        value={formatNationalId(value || '')}
+                        onChange={handleChange}
+                        placeholder="eg. 1 1979 8 0044189 1 35"
+                        maxLength={21}
+                      />
+                      {errors.nid && (
+                        <span className="text-red-500 text-[12px]">
+                          {errors.nid.message}
+                        </span>
+                      )}
+                    </>
                   )
                 }}
               />
@@ -132,7 +199,13 @@ const UpdateHousehold = ({ household }) => {
                 control={control}
                 name="phone1"
                 defaultValue={household?.phone1}
-                rules={{ required: 'Please add the primary phone number' }}
+                rules={{
+                  required: 'Please add the primary phone number',
+                  validate: (value) =>
+                    isValidPhoneNumber(value || '')
+                      ? true
+                      : 'Phone number must be valid (MTN: 078/079, Airtel: 072/073)',
+                }}
                 render={({ field }) => {
                   return <Input {...field} placeholder="07XX XXX XXX" />
                 }}
@@ -149,10 +222,23 @@ const UpdateHousehold = ({ household }) => {
                 control={control}
                 name="phone2"
                 defaultValue={household?.phone2}
+                rules={{
+                  validate: (value) => {
+                    if (!value) return true
+                    return isValidPhoneNumber(value)
+                      ? true
+                      : 'Phone number must be valid (MTN: 078/079, Airtel: 072/073)'
+                  },
+                }}
                 render={({ field }) => {
                   return <Input {...field} placeholder="07XX XXX XXX" />
                 }}
               />
+              {errors.phone2 && (
+                <span className="text-red-500 text-[12px]">
+                  {errors.phone2.message}
+                </span>
+              )}
             </label>
             <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
               Email
@@ -165,7 +251,7 @@ const UpdateHousehold = ({ household }) => {
                 }}
               />
             </label>
-            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
+            {/* <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col gap-2">
               <p>
                 Amount <span className="text-red-500">*</span>
               </p>
@@ -183,8 +269,8 @@ const UpdateHousehold = ({ household }) => {
                   {errors.amount.message}
                 </span>
               )}
-            </label>
-            <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
+            </label> */}
+            {/* <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
               Household type
               <Controller
                 control={control}
@@ -205,7 +291,7 @@ const UpdateHousehold = ({ household }) => {
                   )
                 }}
               />
-            </label>
+            </label> */}
           </section>
           <section
             className={
@@ -226,7 +312,9 @@ const UpdateHousehold = ({ household }) => {
                 updateHouseholdError ? 'text-red-600 text-center' : 'hidden'
               }
             >
-              Could not update household. Please refresh and try again
+              {updateHouseholdErrorData?.data?.message ||
+                updateHouseholdErrorData?.error ||
+                'Could not update household. Please refresh and try again'}
             </p>
           </section>
           <Controller

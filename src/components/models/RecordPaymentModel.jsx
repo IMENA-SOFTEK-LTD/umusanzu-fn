@@ -57,7 +57,12 @@ function getServiceLabel(item) {
   )
 }
 
-function RecordPaymentModel({ household, showModal, setShowModal }) {
+function RecordPaymentModel({
+  household,
+  showModal,
+  setShowModal,
+  payment_method,
+}) {
   const { user } = useSelector((state) => state.auth)
   const {
     control,
@@ -68,7 +73,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
 
   const [selectedServiceId, setSelectedServiceId] = useState('')
   const [householdType, setHouseholdType] = useState('Residence')
-  
+
   // Location states for filtering
   const [selectedProvince, setSelectedProvince] = useState(null)
   const [selectedDistrict, setSelectedDistrict] = useState(null)
@@ -80,14 +85,14 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
   const [sectors, setSectors] = useState([])
   const [cells, setCells] = useState([])
   const [villages, setVillages] = useState([])
-  
+
   const userLevelId = user?.departments?.level_id
   const userDepartmentId = user?.departments?.id
-  
+
   // Initialize location based on user department level
   useEffect(() => {
     if (!user?.departments) return
-    
+
     switch (userLevelId) {
       case 6: // Agent - use user's village
         setSelectedVillage(userDepartmentId)
@@ -108,9 +113,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
         break
     }
   }, [user?.departments, userLevelId, userDepartmentId])
-  
+
   // Location data is now extracted from services - no API calls needed
-  
+
   // Reset child selections when parent changes
   useEffect(() => {
     if (userLevelId === 5) {
@@ -120,7 +125,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       setSelectedVillage(null)
     }
   }, [selectedProvince, userLevelId])
-  
+
   useEffect(() => {
     if (userLevelId === 5 || userLevelId === 1) {
       setSelectedSector(null)
@@ -128,16 +133,21 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       setSelectedVillage(null)
     }
   }, [selectedDistrict, userLevelId])
-  
+
   useEffect(() => {
     if (userLevelId === 5 || userLevelId === 1 || userLevelId === 2) {
       setSelectedCell(null)
       setSelectedVillage(null)
     }
   }, [selectedSector, userLevelId])
-  
+
   useEffect(() => {
-    if (userLevelId === 5 || userLevelId === 1 || userLevelId === 2 || userLevelId === 3) {
+    if (
+      userLevelId === 5 ||
+      userLevelId === 1 ||
+      userLevelId === 2 ||
+      userLevelId === 3
+    ) {
       setSelectedVillage(null)
     }
   }, [selectedCell, userLevelId])
@@ -179,52 +189,86 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
         setVillages([])
         break
       case 4: // Cell - show villages from user's cell
-        setVillages(getVillages(activeServices.filter(s => s.cell_id === userDepartmentId)))
+        setVillages(
+          getVillages(
+            activeServices.filter((s) => s.cell_id === userDepartmentId)
+          )
+        )
         setProvinces([])
         setDistricts([])
         setSectors([])
         setCells([])
         break
       case 3: // Sector - show cells and villages from user's sector
-        const sectorServices = activeServices.filter(s => s.sector_id === userDepartmentId)
+        const sectorServices = activeServices.filter(
+          (s) => s.sector_id === userDepartmentId
+        )
         setCells(getCells(sectorServices))
-        setVillages(selectedCell ? getVillages(sectorServices, selectedCell) : getVillages(sectorServices))
+        setVillages(
+          selectedCell
+            ? getVillages(sectorServices, selectedCell)
+            : getVillages(sectorServices)
+        )
         setProvinces([])
         setDistricts([])
         setSectors([])
         break
       case 2: // District - show sectors, cells, and villages from user's district
-        const districtServices = activeServices.filter(s => s.district_id === userDepartmentId)
+        const districtServices = activeServices.filter(
+          (s) => s.district_id === userDepartmentId
+        )
         setSectors(getSectors(districtServices))
-        setCells(selectedSector ? getCells(districtServices, selectedSector) : getCells(districtServices))
+        setCells(
+          selectedSector
+            ? getCells(districtServices, selectedSector)
+            : getCells(districtServices)
+        )
         setVillages(
-          selectedCell 
+          selectedCell
             ? getVillages(districtServices, selectedCell)
             : selectedSector
-            ? getVillages(districtServices.filter(s => s.sector_id === selectedSector))
+            ? getVillages(
+                districtServices.filter((s) => s.sector_id === selectedSector)
+              )
             : getVillages(districtServices)
         )
         setProvinces([])
         setDistricts([])
         break
       case 1: // Province - show districts, sectors, cells, and villages from user's province
-        const provinceServices = activeServices.filter(s => s.province_id === userDepartmentId)
+        const provinceServices = activeServices.filter(
+          (s) => s.province_id === userDepartmentId
+        )
         setDistricts(getDistricts(provinceServices))
-        setSectors(selectedDistrict ? getSectors(provinceServices, selectedDistrict) : getSectors(provinceServices))
+        setSectors(
+          selectedDistrict
+            ? getSectors(provinceServices, selectedDistrict)
+            : getSectors(provinceServices)
+        )
         setCells(
           selectedSector
             ? getCells(provinceServices, selectedSector)
             : selectedDistrict
-            ? getCells(provinceServices.filter(s => s.district_id === selectedDistrict))
+            ? getCells(
+                provinceServices.filter(
+                  (s) => s.district_id === selectedDistrict
+                )
+              )
             : getCells(provinceServices)
         )
         setVillages(
           selectedCell
             ? getVillages(provinceServices, selectedCell)
             : selectedSector
-            ? getVillages(provinceServices.filter(s => s.sector_id === selectedSector))
+            ? getVillages(
+                provinceServices.filter((s) => s.sector_id === selectedSector)
+              )
             : selectedDistrict
-            ? getVillages(provinceServices.filter(s => s.district_id === selectedDistrict))
+            ? getVillages(
+                provinceServices.filter(
+                  (s) => s.district_id === selectedDistrict
+                )
+              )
             : getVillages(provinceServices)
         )
         setProvinces([])
@@ -232,32 +276,48 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       case 5: // Country - show all locations
       default:
         setProvinces(getProvinces(activeServices))
-        setDistricts(selectedProvince ? getDistricts(activeServices, selectedProvince) : getDistricts(activeServices))
+        setDistricts(
+          selectedProvince
+            ? getDistricts(activeServices, selectedProvince)
+            : getDistricts(activeServices)
+        )
         setSectors(
           selectedDistrict
             ? getSectors(activeServices, selectedDistrict)
             : selectedProvince
-            ? getSectors(activeServices.filter(s => s.province_id === selectedProvince))
+            ? getSectors(
+                activeServices.filter((s) => s.province_id === selectedProvince)
+              )
             : getSectors(activeServices)
         )
         setCells(
           selectedSector
             ? getCells(activeServices, selectedSector)
             : selectedDistrict
-            ? getCells(activeServices.filter(s => s.district_id === selectedDistrict))
+            ? getCells(
+                activeServices.filter((s) => s.district_id === selectedDistrict)
+              )
             : selectedProvince
-            ? getCells(activeServices.filter(s => s.province_id === selectedProvince))
+            ? getCells(
+                activeServices.filter((s) => s.province_id === selectedProvince)
+              )
             : getCells(activeServices)
         )
         setVillages(
           selectedCell
             ? getVillages(activeServices, selectedCell)
             : selectedSector
-            ? getVillages(activeServices.filter(s => s.sector_id === selectedSector))
+            ? getVillages(
+                activeServices.filter((s) => s.sector_id === selectedSector)
+              )
             : selectedDistrict
-            ? getVillages(activeServices.filter(s => s.district_id === selectedDistrict))
+            ? getVillages(
+                activeServices.filter((s) => s.district_id === selectedDistrict)
+              )
             : selectedProvince
-            ? getVillages(activeServices.filter(s => s.province_id === selectedProvince))
+            ? getVillages(
+                activeServices.filter((s) => s.province_id === selectedProvince)
+              )
             : getVillages(activeServices)
         )
         break
@@ -310,7 +370,10 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
 
   // Reset householdType if current selection is not available
   useEffect(() => {
-    if (availableHouseholdTypes.length > 0 && !availableHouseholdTypes.includes(householdType)) {
+    if (
+      availableHouseholdTypes.length > 0 &&
+      !availableHouseholdTypes.includes(householdType)
+    ) {
       setHouseholdType(availableHouseholdTypes[0])
       setValue('householdType', availableHouseholdTypes[0])
     }
@@ -323,7 +386,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     // Remove PSF for agent (6) and cell (4) levels
     const numericLevelId = Number(userLevelId)
     if (numericLevelId === 6 || numericLevelId === 4) {
-      services = services.filter((service) => getServiceIdFromItem(service) !== 2)
+      services = services.filter(
+        (service) => getServiceIdFromItem(service) !== 2
+      )
     }
 
     // Filter by householdType
@@ -334,17 +399,21 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
     }
 
     return services
-  }, [
-    locationFilteredServices,
-    householdType,
-    userLevelId,
-  ])
+  }, [locationFilteredServices, householdType, userLevelId])
 
   // Reset selected service when householdType or location changes
   useEffect(() => {
     setSelectedServiceId('')
     setValue('selected_service_id', '')
-  }, [householdType, selectedProvince, selectedDistrict, selectedSector, selectedCell, selectedVillage, setValue])
+  }, [
+    householdType,
+    selectedProvince,
+    selectedDistrict,
+    selectedSector,
+    selectedCell,
+    selectedVillage,
+    setValue,
+  ])
 
   // Auto-select service if there's only one after filtering
   useEffect(() => {
@@ -409,6 +478,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
         (s) =>
           s?.id?.toString() === serviceId || s?.ID?.toString() === serviceId
       )
+
       if (selectedService?.ubudehe) {
         setValue('total_month_paid', selectedService.ubudehe)
       }
@@ -449,16 +519,13 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
       household_id: household?.guid,
       month_paid: data?.month_paid,
       total_month_paid: data?.total_month_paid,
-      payment_method: data?.payment_method,
       payment_phone: data?.payment_phone,
       lang: data?.lang,
       agent: household?.agents.id || 'N/A',
-      merchant_code: household?.sectors[0].merchant_code || 'N/A',
-      phone1: data?.payment_phone,
+      phone1: data?.phone1,
       type: type,
-      service_id: selectedService?.serviceId || selectedServiceId || null,
-      ubudehe: selectedService?.ubudehe || household?.ubudehe || null,
-      householdType: householdType,
+      household_service_id: selectedService?.id || selectedServiceId || null,
+      payment_method: payment_method,
     })
   }
 
@@ -549,7 +616,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                 }
               />
               <h4 className="text-[20px] text-center font-medium uppercase text-white">
-                Record Transaction
+                {payment_method === 'Mobile_Money'
+                  ? 'Record Monthly Transaction'
+                  : 'Record Cash Transaction'}
               </h4>
             </article>
             {isWaitingCompletePayment ? (
@@ -577,7 +646,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       </span>
                     )}
                   </label>
-                
+
                   {/* Location filters for Country level users */}
                   {userLevelId === 5 && activeServices.length > 0 && (
                     <div className="flex items-start gap-6 w-full flex-wrap">
@@ -585,7 +654,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Province
                         <select
                           value={selectedProvince || ''}
-                          onChange={(e) => setSelectedProvince(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedProvince(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={false}
                         >
@@ -601,7 +672,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         District
                         <select
                           value={selectedDistrict || ''}
-                          onChange={(e) => setSelectedDistrict(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedDistrict(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedProvince}
                         >
@@ -617,7 +690,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Sector
                         <select
                           value={selectedSector || ''}
-                          onChange={(e) => setSelectedSector(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedSector(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedDistrict}
                         >
@@ -633,7 +708,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Cell
                         <select
                           value={selectedCell || ''}
-                          onChange={(e) => setSelectedCell(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedCell(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedSector}
                         >
@@ -649,7 +726,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Village
                         <select
                           value={selectedVillage || ''}
-                          onChange={(e) => setSelectedVillage(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedVillage(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedCell}
                         >
@@ -663,7 +742,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       </label>
                     </div>
                   )}
-                  
+
                   {/* Location filters for Province level users */}
                   {userLevelId === 1 && activeServices.length > 0 && (
                     <div className="flex items-start gap-6 w-full flex-wrap">
@@ -671,7 +750,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         District
                         <select
                           value={selectedDistrict || ''}
-                          onChange={(e) => setSelectedDistrict(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedDistrict(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={false}
                         >
@@ -687,7 +768,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Sector
                         <select
                           value={selectedSector || ''}
-                          onChange={(e) => setSelectedSector(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedSector(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedDistrict}
                         >
@@ -703,7 +786,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Cell
                         <select
                           value={selectedCell || ''}
-                          onChange={(e) => setSelectedCell(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedCell(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedSector}
                         >
@@ -719,7 +804,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Village
                         <select
                           value={selectedVillage || ''}
-                          onChange={(e) => setSelectedVillage(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedVillage(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedCell}
                         >
@@ -733,7 +820,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       </label>
                     </div>
                   )}
-                  
+
                   {/* Location filters for District level users */}
                   {userLevelId === 2 && activeServices.length > 0 && (
                     <div className="flex items-start gap-6 w-full">
@@ -741,7 +828,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Sector
                         <select
                           value={selectedSector || ''}
-                          onChange={(e) => setSelectedSector(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedSector(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={false}
                         >
@@ -757,7 +846,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Cell
                         <select
                           value={selectedCell || ''}
-                          onChange={(e) => setSelectedCell(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedCell(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedSector}
                         >
@@ -773,7 +864,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Village
                         <select
                           value={selectedVillage || ''}
-                          onChange={(e) => setSelectedVillage(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedVillage(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedCell}
                         >
@@ -787,7 +880,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       </label>
                     </div>
                   )}
-                  
+
                   {/* Location filters for Sector level users - Cell and Village */}
                   {userLevelId === 3 && activeServices.length > 0 && (
                     <div className="flex items-start gap-6 w-full">
@@ -795,7 +888,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Cell
                         <select
                           value={selectedCell || ''}
-                          onChange={(e) => setSelectedCell(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedCell(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={false}
                         >
@@ -811,7 +906,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Village
                         <select
                           value={selectedVillage || ''}
-                          onChange={(e) => setSelectedVillage(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedVillage(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={!selectedCell}
                         >
@@ -825,7 +922,7 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       </label>
                     </div>
                   )}
-                  
+
                   {/* Location filters for Cell level users - Village only */}
                   {userLevelId === 4 && activeServices.length > 0 && (
                     <div className="flex items-start gap-6 w-full">
@@ -833,7 +930,9 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                         Village
                         <select
                           value={selectedVillage || ''}
-                          onChange={(e) => setSelectedVillage(Number(e.target.value) || null)}
+                          onChange={(e) =>
+                            setSelectedVillage(Number(e.target.value) || null)
+                          }
                           className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
                           disabled={false}
                         >
@@ -847,94 +946,97 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                       </label>
                     </div>
                   )}
-                    {activeServices.length > 0 && availableHouseholdTypes.length > 0 && (
-                    <div className="flex items-start gap-6 w-full">
-                      <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
-                        Household Type
-                        <Controller
-                          name="householdType"
-                          control={control}
-                          defaultValue={availableHouseholdTypes[0] || 'Residence'}
-                          render={({ field }) => (
-                            <select
-                              {...field}
-                              value={householdType}
-                              onChange={(e) => {
-                                field.onChange(e)
-                                setHouseholdType(e.target.value)
-                              }}
-                              className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
-                              disabled={!selectedVillage}
-                            >
-                              {availableHouseholdTypes.map((type) => (
-                                <option key={type} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                        />
-                      </label>
-                      <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
-                        Select Service
-                        <Controller
-                          name="selected_service_id"
-                          control={control}
-                          rules={{
-                            required:
-                              getServicesByHouseholdType().length > 0
-                                ? 'Service selection is required'
-                                : false,
-                          }}
-                          render={({ field }) => (
-                            <select
-                              {...field}
-                              value={selectedServiceId}
-                              onChange={(e) => {
-                                field.onChange(e)
-                                handleServiceChange(e)
-                              }}
-                              className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
-                              disabled={
-                                isLoadingServices ||
-                                !selectedVillage ||
-                                getServicesByHouseholdType().length === 0 ||
-                                getServicesByHouseholdType().length === 1
-                              }
-                            >
-                              <option value="">
-                                {isLoadingServices
-                                  ? 'Loading services...'
-                                  : getServicesByHouseholdType().length === 0
-                                  ? 'No services available for this household type'
-                                  : getServicesByHouseholdType().length === 1
-                                  ? 'Auto-selected'
-                                  : 'Select a service'}
-                              </option>
-                              {getServicesByHouseholdType().map((service) => {
-                                const serviceId = service?.id ?? service?.ID
-                                return (
-                                  <option
-                                    key={serviceId ?? JSON.stringify(service)}
-                                    value={serviceId?.toString() ?? ''}
-                                  >
-                                    {getServiceLabel(service)} - Ubudehe:{' '}
-                                    {service?.ubudehe || 'N/A'}
+                  {activeServices.length > 0 &&
+                    availableHouseholdTypes.length > 0 && (
+                      <div className="flex items-start gap-6 w-full">
+                        <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
+                          Household Type
+                          <Controller
+                            name="householdType"
+                            control={control}
+                            defaultValue={
+                              availableHouseholdTypes[0] || 'Residence'
+                            }
+                            render={({ field }) => (
+                              <select
+                                {...field}
+                                value={householdType}
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  setHouseholdType(e.target.value)
+                                }}
+                                className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                                disabled={!selectedVillage}
+                              >
+                                {availableHouseholdTypes.map((type) => (
+                                  <option key={type} value={type}>
+                                    {type}
                                   </option>
-                                )
-                              })}
-                            </select>
+                                ))}
+                              </select>
+                            )}
+                          />
+                        </label>
+                        <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
+                          Select Service
+                          <Controller
+                            name="selected_service_id"
+                            control={control}
+                            rules={{
+                              required:
+                                getServicesByHouseholdType().length > 0
+                                  ? 'Service selection is required'
+                                  : false,
+                            }}
+                            render={({ field }) => (
+                              <select
+                                {...field}
+                                value={selectedServiceId}
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  handleServiceChange(e)
+                                }}
+                                className="p-2 outline-none border-[1px] rounded-md border-primary w-full focus:border-[1.5px] ease-in-out duration-150"
+                                disabled={
+                                  isLoadingServices ||
+                                  !selectedVillage ||
+                                  getServicesByHouseholdType().length === 0 ||
+                                  getServicesByHouseholdType().length === 1
+                                }
+                              >
+                                <option value="">
+                                  {isLoadingServices
+                                    ? 'Loading services...'
+                                    : getServicesByHouseholdType().length === 0
+                                    ? 'No services available for this household type'
+                                    : getServicesByHouseholdType().length === 1
+                                    ? 'Auto-selected'
+                                    : 'Select a service'}
+                                </option>
+                                {getServicesByHouseholdType().map((service) => {
+                                  const serviceId = service?.id ?? service?.ID
+                                  return (
+                                    <option
+                                      key={serviceId ?? JSON.stringify(service)}
+                                      value={serviceId?.toString() ?? ''}
+                                    >
+                                      {getServiceLabel(service)} - Ubudehe:{' '}
+                                      {service?.ubudehe || 'N/A'}
+                                    </option>
+                                  )
+                                })}
+                              </select>
+                            )}
+                          />
+                          {errors.selected_service_id && (
+                            <span className="text-red-500">
+                              {errors.selected_service_id.message}
+                            </span>
                           )}
-                        />
-                        {errors.selected_service_id && (
-                          <span className="text-red-500">
-                            {errors.selected_service_id.message}
-                          </span>
-                        )}
-                      </label>
-                    </div>
-                  )}
-                  
+                        </label>
+                      </div>
+                    )}
+
                   <label className="text-[15px] w-full flex-1 basis-[40%] flex flex-col items-start gap-2">
                     Amount Paid
                     <Controller
@@ -981,14 +1083,18 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                 </div>
                 <div className="flex items-start gap-6 w-full">
                   <label className="text-[15px] flex-1 flex flex-col items-start gap-2">
-                    Numero iriho amafaranga
+                  {payment_method === 'Mobile_Money' ? 'Numero iriho amafaranga' : 'Numero ya telephone'}
                     <Controller
                       name="payment_phone"
                       control={control}
                       defaultValue={household?.phone1}
                       rules={{ required: 'Please enter the phone number' }}
                       render={({ field }) => (
-                        <Input type="text" {...field} placeholder="07XXXXXXXX" />
+                        <Input
+                          type="text"
+                          {...field}
+                          placeholder="07XXXXXXXX"
+                        />
                       )}
                     />
                     {errors.payment_phone && (
@@ -1033,36 +1139,57 @@ function RecordPaymentModel({ household, showModal, setShowModal }) {
                   />
                 </label>
                 <div className="flex gap-4 w-full mt-2">
-                  <Button
-                    type="button"
-                    onClick={handleConfirm}
-                    disabled={paymentSessionIsLoading || isMissingRequired}
-                    className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
-                    value={
-                      paymentSessionIsLoading ? (
-                        <>
-                          <Loading /> Pay
-                        </>
-                      ) : (
-                        `Emeza ${totalMonthPaid || 0} RWF`
-                      )
-                    }
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleIshyura}
-                    disabled={paymentSessionIsLoading || isMissingRequired}
-                    className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
-                    value={
-                      paymentSessionIsLoading ? (
-                        <>
-                          <Loading /> Pay
-                        </>
-                      ) : (
-                        `Ishyura ${totalMonthPaid || 0} RWF`
-                      )
-                    }
-                  />
+                  {payment_method === 'Mobile_Money' && (
+                    <>
+                      <Button
+                        type="button"
+                        onClick={handleConfirm}
+                        disabled={paymentSessionIsLoading || isMissingRequired}
+                        className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
+                        value={
+                          paymentSessionIsLoading ? (
+                            <>
+                              <Loading /> Pay
+                            </>
+                          ) : (
+                            `Emeza ${totalMonthPaid || 0} RWF`
+                          )
+                        }
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleIshyura}
+                        disabled={paymentSessionIsLoading || isMissingRequired}
+                        className="!w-full !bg-green-600 hover:!bg-green-700 !text-white"
+                        value={
+                          paymentSessionIsLoading ? (
+                            <>
+                              <Loading /> Pay
+                            </>
+                          ) : (
+                            `Ishyura ${totalMonthPaid || 0} RWF`
+                          )
+                        }
+                      />
+                    </>
+                  )}
+                  {payment_method === 'Cash' && (
+                    <Button
+                      type="button"
+                      onClick={handleConfirm}
+                      disabled={paymentSessionIsLoading || isMissingRequired}
+                      className="!w-full !bg-blue-600 hover:!bg-blue-700 !text-white"
+                      value={
+                        paymentSessionIsLoading ? (
+                          <>
+                            <Loading /> Pay Cash
+                          </>
+                        ) : (
+                          `Pay Cash ${totalMonthPaid || 0} RWF`
+                        )
+                      }
+                    />
+                  )}
                 </div>
               </form>
             )}

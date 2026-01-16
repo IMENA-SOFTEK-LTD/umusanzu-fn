@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
+import {  faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from 'moment'
@@ -19,10 +19,24 @@ import { printTransactionPDF } from '../../components/table/Export'
 import { setCompletePaymentModal } from '../../states/features/modals/householdSlice'
 import {
   setDeletePaymentModal,
-  setEditPaymentModal,
   setPayment,
 } from '../../states/features/transactions/paymentSlice'
 import { useLazyGetPaymentDetailsQuery } from '../../states/api/apiSlice'
+
+function getServiceIdFromPayment(payment) {
+  const service =
+    payment?.householdDepartmentService?.department_service?.service ??
+    payment?.householdDepartmentService?.service ??
+    payment?.service ??
+    null
+  return (
+    service?.id ??
+    service?.ID ??
+    payment?.householdDepartmentService?.service_id ??
+    payment?.service_id ??
+    null
+  )
+}
 
 const HouseholdPayments = ({ household }) => {
   const dispatch = useDispatch()
@@ -46,6 +60,7 @@ const HouseholdPayments = ({ household }) => {
     if (paymentDetailsIsSuccess && paymentDetailsData) {
       printTransactionPDF({ payment: paymentDetailsData?.data })
       setIsLoading(false)
+
     }
     if (paymentDetailsIsError) {
       toast.error('Could not print receipt. Please check your internet')
@@ -405,6 +420,13 @@ const HouseholdPayments = ({ household }) => {
 
     return household?.payments
       ?.filter((p) => p?.status !== 'FAILED')
+      ?.filter((payment) => {
+        const numericLevelId = Number(userLevelId)
+        if (numericLevelId === 6 || numericLevelId === 4) {
+          return getServiceIdFromPayment(payment) !== 2
+        }
+        return true
+      })
       ?.filter(filterByDepartment)
       ?.sort((a, b) => {
         const statusOrder = (status) =>

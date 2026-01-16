@@ -63,18 +63,19 @@ const HouseholdInfo = ({ household }) => {
                 <td className="py-2 pl-4">{household?.phone1}</td>
               </tr>
               <tr className="border-b border-gray-300">
+                <td className="py-2 pr-4 font-semibold">Phone 1</td>
+                <td className="py-2 pl-4">{household?.phone2}</td>
+              </tr>
+              <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Email</td>
                 <td className="py-2 pl-4">{household?.email}</td>
               </tr>
-              <tr className="border-b border-gray-300">
-                <td className="py-2 pr-4 font-semibold">TIN number</td>
-                <td className="py-2 pl-4">{household?.phone2}</td>
-              </tr>
+
               <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">National ID</td>
                 <td className="py-2 pl-4">{household?.nid}</td>
               </tr>
-              <tr className="border-b border-gray-300">
+              {/* <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Household type </td>
                 {![6, 4].includes(user?.departments?.level_id) ? (
                   <td className="py-2 pl-4">
@@ -122,14 +123,14 @@ const HouseholdInfo = ({ household }) => {
                 ) : (
                   <td className="py-2 pl-4">{household?.type}</td>
                 )}
-              </tr>
-              <tr className="border-b border-gray-300">
+              </tr> */}
+              {/* <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Amount</td>
                 <td className="py-2 pl-4">
                   {household?.ubudehe} ({household?.currency || 'RWF'})
                 </td>
-              </tr>
-              <tr className="border-b border-gray-300">
+              </tr> */}
+              {/* <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Village</td>
                 <td className="py-2 pl-4">
                   {household?.villages && household?.villages[0]?.name}
@@ -140,8 +141,8 @@ const HouseholdInfo = ({ household }) => {
                 <td className="py-2 pl-4">
                   {household?.cells && household?.cells[0]?.name}
                 </td>
-              </tr>
-              <tr className="border-b border-gray-300">
+              </tr> */}
+              {/* <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Sector</td>
                 <td className="py-2 pl-4">
                   {household?.sectors && household?.sectors[0]?.name}
@@ -152,13 +153,13 @@ const HouseholdInfo = ({ household }) => {
                 <td className="py-2 pl-4">
                   {household?.districts && household?.districts[0]?.name}
                 </td>
-              </tr>
-              <tr className="border-b border-gray-300">
+              </tr> */}
+              {/* <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Province</td>
                 <td className="py-2 pl-4">
                   {household?.provinces && household?.provinces[0]?.name}
                 </td>
-              </tr>
+              </tr> */}
               <tr className="border-b border-gray-300">
                 <td className="py-2 pr-4 font-semibold">Status</td>
                 <td className="py-2 pl-4">

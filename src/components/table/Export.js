@@ -425,9 +425,11 @@ export const printTransactionPDF = ({ payment }) => {
     cell: serviceData?.cell,
     village: serviceData?.village,
   }
+  // console.log(serviceData)
   const serviceName = serviceData?.department_service?.service?.title || 'Umutekano'
   const serviceType = serviceData?.householdType || 'N/A'
   const ubudehe = serviceData?.ubudehe || payment?.amount
+  const serviceId = serviceData?.department_service?.service?.id || null;
   
   // Add the header section
   doc.addImage(RWlogo, 'PNG', 10, 10, 30, 30)
@@ -436,7 +438,9 @@ export const printTransactionPDF = ({ payment }) => {
   doc.text('REPUBLIC OF RWANDA', 70, 17)
   doc.text(`${locationInfo?.province?.name || payment?.household?.provinces?.[0]?.name || 'KIGALI CITY'}`, 70, 23)
   doc.text(`${locationInfo?.district?.name || payment?.household?.districts?.[0]?.name || ''} DISTRICT`, 70, 29)
-  doc.text(`${locationInfo?.sector?.name || payment?.household?.sectors?.[0]?.name || ''} SECTOR`, 70, 35)
+  if(serviceId!==2){
+    doc.text(`${locationInfo?.sector?.name || payment?.household?.sectors?.[0]?.name || ''} SECTOR`, 70, 35)
+  }
   doc.setFont('Times New Roman', 'bold')
   doc.addImage(Kgl, 'PNG', 150, 10, 30, 30)
 
@@ -468,6 +472,7 @@ export const printTransactionPDF = ({ payment }) => {
   ]
   const itemsColumn2 = [
     `Date: ${moment(payment?.transaction_date || payment?.updatedAt || payment?.createdAt).format('YYYY-MM-DD HH:mm:ss')}`,
+    `Sector: ${locationInfo?.sector?.name || payment?.household?.sectors?.[0]?.name || 'N/A'}`,
     `Cell: ${locationInfo?.cell?.name || payment?.household?.cells?.[0]?.name || 'N/A'}`,
     `Village: ${locationInfo?.village?.name || payment?.household?.villages?.[0]?.name || 'N/A'}`,
     `Service: ${serviceName} / ${serviceType}`,
@@ -585,7 +590,7 @@ export const printTransactionPDF = ({ payment }) => {
   doc.line(rightMargin - 60, doc.autoTable.previous.finalY + 25, rightMargin, doc.autoTable.previous.finalY + 25)
   
   // Use sector info from householdDepartmentService, fallback to household
-  const sectorInfo = locationInfo?.sector || payment?.household?.sectors?.[0]
+  const sectorInfo = (serviceId===2) ? locationInfo?.district || payment?.household?.districts?.[0] : locationInfo?.sector || payment?.household?.sectors?.[0]
   const image = sectorInfo?.stamp || null
   if (image) {
     // Position stamp with better design
@@ -615,7 +620,7 @@ export const printTransactionPDF = ({ payment }) => {
     { align: 'left' }
   )
   doc.text(
-    `${locationInfo?.sector?.name || sectorInfo?.name || 'N/A'} SECTOR`,
+    `${(serviceId===2) ? locationInfo?.district?.name || sectorInfo?.name || 'N/A' : locationInfo?.sector?.name || sectorInfo?.name || 'N/A'} ${serviceId===2 ? 'DISTRICT' : 'SECTOR'}`,
     signatureDetailsX,
     signatureStartY + 16,
     { align: 'left' }

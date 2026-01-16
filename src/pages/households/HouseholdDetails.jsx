@@ -18,7 +18,6 @@ import {
   setReceiptsModal,
 } from '../../states/features/transactions/paymentSlice'
 import Button from '../../components/Button'
-import RecordOfflinePayment from '../../containers/payments/RecordOfflinePayment'
 import RecordMultipleMonths from '../../containers/households/RecordMultipleMonths'
 import GenerateReceipts from '../../containers/households/GenerateReceipts'
 import { capitalizeWords } from '../../utils/Words'
@@ -42,6 +41,7 @@ const HouseholdDetails = () => {
     useState(false)
   const [paymentFeedbackStatus, setPaymentFeedbackStatus] = useState('')
   const dispatch = useDispatch()
+  const [paymentMethod, setPaymentMethod] = useState('Mobile_Money')
 
   // GET HOUSEHOLD BY ID
   const [
@@ -126,6 +126,7 @@ useEffect(() => {
                 setShowModal={setRecordPaymentModal}
                 household={household}
                 className="mb-2 md:mb-0"
+                payment_method={paymentMethod}
               />
             )}
             {showPaymentFeedbackMsgModal && (
@@ -143,6 +144,7 @@ useEffect(() => {
               className="bg-green-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
               onClick={(e) => {
                 e.preventDefault()
+                setPaymentMethod('Mobile_Money')
                 setRecordPaymentModal(true)
               }}
             >
@@ -156,7 +158,8 @@ useEffect(() => {
               className="bg-yellow-600 text-white rounded-full text-center shadow-lg hover:bg-primary/80 py-2"
               onClick={(e) => {
                 e.preventDefault()
-                dispatch(setOfflinePaymentModal(true))
+                setPaymentMethod('Cash')
+                setRecordPaymentModal(true)
               }}
             >
               <span className="text-center text-white">
@@ -197,7 +200,7 @@ useEffect(() => {
               <menu
                 className={`${
                   !showMenu && 'hidden'
-                } flex flex-col gap-2 z-[10000000] absolute top-12 shadow-lg bg-white w-full rounded-md`}
+                } rounded-full text-center shadow-lg flex flex-col gap-2 z-[10000000] absolute top-12 shadow-lg bg-white w-full rounded-md`}
               >
                 <Link
                   className="w-full h-full p-3 flex items-center justify-center text-center hover:bg-primary hover:text-white"
@@ -306,7 +309,6 @@ useEffect(() => {
             </div>
           </div>
 
-          <RecordOfflinePayment household={household} />
           <RecordMultipleMonths />
           <GenerateReceipts title={title} />
         </>
