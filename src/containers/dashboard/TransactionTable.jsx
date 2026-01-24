@@ -63,6 +63,7 @@ const TransactionTable = ({ user }) => {
     useState(false)
   const [transactionsListIsError, setTransactionsListIsError] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [, setDownloadProgress] = useState(0)
   const [expandedRows, setExpandedRows] = useState({})
 
   const [getTransactionsList] = useLazyGetTransactionsListQuery()
@@ -313,6 +314,7 @@ const TransactionTable = ({ user }) => {
   const handleExportToPdf = async () => {
     try {
       setIsExporting(true)
+      setDownloadProgress(0)
 
       const { data } = await axios.get(
         `${API_URL}/transactions/pdf-reports?reportName=${reportName}&${new URLSearchParams(
@@ -323,20 +325,31 @@ const TransactionTable = ({ user }) => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
+          onDownloadProgress: (progressEvent) => {
+            const total =
+              progressEvent.total ||
+              progressEvent.target?.getResponseHeader('Content-Length')
+            if (total) {
+              const percent = Math.round((progressEvent.loaded * 100) / total)
+              setDownloadProgress(percent)
+            }
+          },
         }
       )
-      setIsExporting(false)
       download(new Blob([data]), `${reportName}.pdf`, '.pdf')
     } catch (error) {
       // console.log(error)
-      setIsExporting(false)
       toast.error('Househould not found')
+    } finally {
+      setIsExporting(false)
+      setDownloadProgress(0)
     }
   }
 
   const handleExportToExcel = async () => {
     try {
       setIsExporting(true)
+      setDownloadProgress(0)
 
       const { data } = await axios.get(
         `${API_URL}/transactions/excel-reports?reportName=${reportName}&${new URLSearchParams(
@@ -347,14 +360,24 @@ const TransactionTable = ({ user }) => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
+          onDownloadProgress: (progressEvent) => {
+            const total =
+              progressEvent.total ||
+              progressEvent.target?.getResponseHeader('Content-Length')
+            if (total) {
+              const percent = Math.round((progressEvent.loaded * 100) / total)
+              setDownloadProgress(percent)
+            }
+          },
         }
       )
-      setIsExporting(false)
       download(new Blob([data]), `${reportName}.csv`, '.csv')
     } catch (error) {
       console.log(error)
-      setIsExporting(false)
       toast.error('Try again.')
+    } finally {
+      setIsExporting(false)
+      setDownloadProgress(0)
     }
   }
 

@@ -343,37 +343,129 @@ const HouseholdTable = ({ user }) => {
   // }
 
   const handleExport = async (file) => {
-    try {
-      setIsExporting(true)
-      setDownloadProgress(0) // reset progress
+    const getExportErrorMessage = async (error) => {
+      const directMessage =
+        error?.response?.data?.message ||
+        error?.data?.message ||
+        error?.message
+      if (directMessage) return directMessage
 
-      const { data } = await axios.get(
-        `${API_URL}/households/${file}-reports?reportName=${reportName}&${new URLSearchParams(
-          reportQueries
-        ).toString()}`,
-        {
-          responseType: 'blob',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-          onDownloadProgress: (progressEvent) => {
-            const total =
-              progressEvent.total ||
-              progressEvent.target?.getResponseHeader('Content-Length')
-            if (total) {
-              const percent = Math.round((progressEvent.loaded * 100) / total)
+      const data = error?.response?.data
+      if (data instanceof Blob) {
+        try {
+          const text = await data.text()
+          const parsed = JSON.parse(text)
+          if (parsed?.message) return parsed.message
+        } catch (parseError) {
+          // ignore blob parsing failures
+        }
+      }
+
+      return 'Household not found'
+    }
+
+    const extension = file === 'pdf' ? '.pdf' : '.csv'
+    const baseParams = new URLSearchParams(reportQueries)
+    baseParams.set('reportName', reportName)
+    const baseUrl = `${API_URL}/households/${file}-reports?${baseParams.toString()}`
+
+    const startStreamedExport = () =>
+      new Promise((resolve, reject) => {
+        const streamParams = new URLSearchParams(baseParams)
+        streamParams.set('progress', 'stream')
+        const authToken = localStorage.getItem('token')
+        if (authToken) {
+          streamParams.set('token', authToken)
+        }
+        const streamUrl = `${API_URL}/households/${file}-reports?${streamParams.toString()}`
+        const es = new EventSource(streamUrl, { withCredentials: true })
+
+        let resolved = false
+
+        es.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data)
+            if (payload?.phase === 'fetch' && Number.isFinite(payload?.percent)) {
+              const percent = Math.min(99, Math.max(0, payload.percent))
               setDownloadProgress(percent)
             }
-          },
+            if (payload?.phase === 'ready') {
+              resolved = true
+              es.close()
+              resolve(payload)
+            }
+          } catch (parseError) {
+            // Ignore malformed stream payloads and keep listening.
+          }
         }
-      )
-      if (file === 'pdf') {
-        download(new Blob([data]), `${reportName}.pdf`, '.pdf')
-      } else {
-        download(new Blob([data]), `${reportName}.csv`, '.csv')
+
+        es.onerror = () => {
+          es.close()
+          if (!resolved) {
+            reject(new Error('STREAM_FAILED'))
+          }
+        }
+      })
+
+    try {
+      setIsExporting(true)
+      setDownloadProgress(0)
+
+      let streamedMeta = null
+      try {
+        streamedMeta = await startStreamedExport()
+        setDownloadProgress(100)
+      } catch (streamError) {
+        streamedMeta = null
       }
+
+      if (streamedMeta?.downloadId) {
+        const { data } = await axios.get(
+          `${API_URL}/households/${file}-reports/download/${streamedMeta.downloadId}`,
+          {
+            responseType: 'blob',
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+            onDownloadProgress: (progressEvent) => {
+              const total =
+                progressEvent.total ||
+                progressEvent.target?.getResponseHeader('Content-Length')
+              if (total) {
+                const percent = Math.round((progressEvent.loaded * 100) / total)
+                setDownloadProgress(percent)
+              }
+            },
+          }
+        )
+
+        const downloadName = streamedMeta?.filename || `${reportName}${extension}`
+        download(new Blob([data]), downloadName, extension)
+        return
+      }
+
+      const { data } = await axios.get(baseUrl, {
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        onDownloadProgress: (progressEvent) => {
+          const total =
+            progressEvent.total ||
+            progressEvent.target?.getResponseHeader('Content-Length')
+          if (total) {
+            const percent = Math.round((progressEvent.loaded * 100) / total)
+            setDownloadProgress(percent)
+          }
+        },
+      })
+
+      download(new Blob([data]), `${reportName}${extension}`, extension)
     } catch (error) {
-      toast.error('Household not found')
+      console.log(error)
+      const message = await getExportErrorMessage(error)
+      toast.error(message)
     } finally {
       setIsExporting(false)
       setDownloadProgress(0)
@@ -800,6 +892,17 @@ const HouseholdTable = ({ user }) => {
         <div className="fixed inset-0 flex items-center justify-center z-10 bg-gray-800 bg-opacity-60">
           <div className="bg-white p-4 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Export Report</h2>
+            {downloadProgress > 0 && (
+           <>
+            <p className="text-sm text-gray-500 mb-4">Download progress: {downloadProgress}%</p>
+              <div className="h-2 bg-gray-200 rounded-full">
+                <div
+                  className="h-full bg-blue-600 rounded-full transition-all duration-300"
+                  style={{ width: `${downloadProgress}%` }}
+                />
+              </div>
+           </>
+            )}
             <input
               type="text"
               disabled={isExporting}
@@ -835,6 +938,7 @@ const HouseholdTable = ({ user }) => {
                 onClick={() => handleExport('excel')}
               />
               <Button
+                 disabled={isExporting}
                 value={
                   <span className="flex items-center gap-2">
                     Close

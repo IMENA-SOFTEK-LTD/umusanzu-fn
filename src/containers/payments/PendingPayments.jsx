@@ -60,6 +60,7 @@ const PendingPayments = ({ user }) => {
   const [pendingPaymentsIsError, setPendingPaymentsIsError] = useState(false)
   const [expandedRows, setExpandedRows] = useState({})
   const [isExporting, setIsExporting] = useState(false)
+  const [, setDownloadProgress] = useState(0)
   const [showExportPopup, setShowExportPopup] = useState(false)
   const [reportName, setReportName] = useState('')
 
@@ -382,6 +383,7 @@ const PendingPayments = ({ user }) => {
   const handleExportToPdf = async () => {
     try {
       setIsExporting(true)
+      setDownloadProgress(0)
 
       const { data } = await axios.get(
         `${API_URL}/payment/pending/pdf-reports?reportName=${reportName}&${new URLSearchParams(
@@ -392,19 +394,30 @@ const PendingPayments = ({ user }) => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
+          onDownloadProgress: (progressEvent) => {
+            const total =
+              progressEvent.total ||
+              progressEvent.target?.getResponseHeader('Content-Length')
+            if (total) {
+              const percent = Math.round((progressEvent.loaded * 100) / total)
+              setDownloadProgress(percent)
+            }
+          },
         }
       )
-      setIsExporting(false)
       download(new Blob([data]), `${reportName}.pdf`, '.pdf')
     } catch (error) {
-      setIsExporting(false)
       toast.error('Failed to export PDF. Please try again.')
+    } finally {
+      setIsExporting(false)
+      setDownloadProgress(0)
     }
   }
 
   const handleExportToExcel = async () => {
     try {
       setIsExporting(true)
+      setDownloadProgress(0)
 
       const { data } = await axios.get(
         `${API_URL}/payment/pending/excel-reports?reportName=${reportName}&${new URLSearchParams(
@@ -415,13 +428,23 @@ const PendingPayments = ({ user }) => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
+          onDownloadProgress: (progressEvent) => {
+            const total =
+              progressEvent.total ||
+              progressEvent.target?.getResponseHeader('Content-Length')
+            if (total) {
+              const percent = Math.round((progressEvent.loaded * 100) / total)
+              setDownloadProgress(percent)
+            }
+          },
         }
       )
-      setIsExporting(false)
       download(new Blob([data]), `${reportName}.csv`, '.csv')
     } catch (error) {
-      setIsExporting(false)
       toast.error('Failed to export Excel. Please try again.')
+    } finally {
+      setIsExporting(false)
+      setDownloadProgress(0)
     }
   }
 

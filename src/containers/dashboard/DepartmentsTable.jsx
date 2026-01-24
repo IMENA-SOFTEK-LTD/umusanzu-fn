@@ -49,6 +49,7 @@ import OverlayLoading from '../../components/OverlayLoading'
 
 const DepartmentsTable = ({ user }) => {
   const [isExporting, setIsExporting] = useState(false)
+  const [, setDownloadProgress] = useState(0)
   const [openAdmins, setOpenAdmins] = useState(false)
   const [showDepartmentModal, setShowDepartmentModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -265,6 +266,7 @@ const DepartmentsTable = ({ user }) => {
   const handleExportToPdf = async () => {
     try {
       setIsExporting(true)
+      setDownloadProgress(0)
 
       const { data } = await axios.get(
         `${API_URL}/department/pdf-reports?reportName=${reportName}&${new URLSearchParams(
@@ -275,20 +277,31 @@ const DepartmentsTable = ({ user }) => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
+          onDownloadProgress: (progressEvent) => {
+            const total =
+              progressEvent.total ||
+              progressEvent.target?.getResponseHeader('Content-Length')
+            if (total) {
+              const percent = Math.round((progressEvent.loaded * 100) / total)
+              setDownloadProgress(percent)
+            }
+          },
         }
       )
-      setIsExporting(false)
       download(new Blob([data]), `${reportName}.pdf`, '.pdf')
     } catch (error) {
       // console.log(error)
-      setIsExporting(false)
       toast.error('Househould not found')
+    } finally {
+      setIsExporting(false)
+      setDownloadProgress(0)
     }
   }
 
   const handleExportToExcel = async () => {
     try {
       setIsExporting(true)
+      setDownloadProgress(0)
       // if (reportName.length > 31) {
       //   toast.error('Report name should not exceed to 31 chars')
       //   return false
@@ -302,13 +315,20 @@ const DepartmentsTable = ({ user }) => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
+          onDownloadProgress: (progressEvent) => {
+            const total =
+              progressEvent.total ||
+              progressEvent.target?.getResponseHeader('Content-Length')
+            if (total) {
+              const percent = Math.round((progressEvent.loaded * 100) / total)
+              setDownloadProgress(percent)
+            }
+          },
         }
       )
-      setIsExporting(false)
       download(new Blob([data]), `${reportName}.xlsx`, '.xlsx')
     } catch (error) {
       console.log(error)
-      setIsExporting(false)
       if (error && error?.message) {
         toast.error(error.message)
       } else {
@@ -316,6 +336,9 @@ const DepartmentsTable = ({ user }) => {
           'An error occurred while retrieving the department lists. Please try again'
         )
       }
+    } finally {
+      setIsExporting(false)
+      setDownloadProgress(0)
     }
   }
   const order = ['province', 'district', 'sector', 'cell']

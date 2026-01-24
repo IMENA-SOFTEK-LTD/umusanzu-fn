@@ -4,6 +4,10 @@ import { toast } from 'react-toastify'
 import API_URL from '../../constants'
 import { logOut } from '../../utils/User'
 
+const isOnLoginPage = () =>
+  typeof window !== 'undefined' &&
+  window.location?.pathname?.startsWith('/login')
+
 const showToast = (message, type = 'error') => {
   const toastOptions = {
     position: 'top-right',
@@ -32,9 +36,12 @@ const showToast = (message, type = 'error') => {
 export const rtkQueryErrorLogger = (api) => (next) => (action) => {
   if (isRejectedWithValue(action)) {
     const { status, data } = action.payload || {}
-
+// console.log(action)
     switch (status) {
       case 401:
+        if (isOnLoginPage()) {
+          break
+        }
         toast.error('Your session has expired. Please log in again.', {
           position: 'top-right',
           autoClose: 3000,
@@ -108,15 +115,18 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     }
   }
 
+  // console.log(result.error)
   // Handle 401 errors (token expiry)
   if (result.error?.status === 401) {
     // Clear invalid token
     localStorage.removeItem('token')
     localStorage.removeItem('user')
 
-    result.error = {
-      status: 401,
-      data: { message: 'Session expired' },
+    if (!isOnLoginPage()) {
+      result.error = {
+        status: 401,
+        data: { message: 'Session expired' },
+      }
     }
   }
 
