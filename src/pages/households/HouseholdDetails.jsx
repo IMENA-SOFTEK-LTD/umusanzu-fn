@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import HouseholdInfo from '../../containers/households/HouseholdInfo'
 import HouseholdServicesManager from '../../components/models/HouseholdServicesManager'
 import { useLazyGetHouseHoldDetailsQuery } from '../../states/api/apiSlice'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import {
   setCompletePaymentModal,
@@ -59,33 +59,69 @@ const HouseholdDetails = () => {
     getHouseholdDetails({ id })
   }, [id])
 
-useEffect(() => {
-  const ws = new WebSocket('ws://142.93.185.21:9090');
+  // Keep a ref so the message handler always reads the latest household guid
+  // without needing to re-establish the WebSocket connection on every render.
+  const householdGuidRef = useRef(household?.guid)
+  useEffect(() => {
+    householdGuidRef.current = household?.guid
+  }, [household?.guid])
 
-  ws.onopen = () => console.log('Connected to WebSocket server');
+  useEffect(() => {
+    const WS_URL = import.meta.env.VITE_WS_URL
+    let ws
+    let reconnectTimer
+    let attempts = 0
 
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
+    const connect = () => {
+      ws = new WebSocket(WS_URL)
 
-    if (
-      data?.payment?.status === 'PAID' &&
-      household?.guid === data?.payment?.household_id
-    ) {
-      setPaymentFeedbackStatus(data.payment.status);
-      setShowPaymentFeedbackMsgModal(true);
-      setRecordPaymentModal(false);
-      dispatch(setCompletePaymentModal(false));
-      getHouseholdDetails({ id });
-      toast.success('Payment made successfully');
+      ws.onopen = () => {
+        attempts = 0
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const { type, household_id, amount } = JSON.parse(event.data)
+
+          // Ignore events for other households
+          if (household_id !== householdGuidRef.current) return
+
+          if (type === 'PAYMENT_SUCCESS') {
+            setPaymentFeedbackStatus('PAID')
+            setShowPaymentFeedbackMsgModal(true)
+            setRecordPaymentModal(false)
+            dispatch(setCompletePaymentModal(false))
+            getHouseholdDetails({ id })
+            toast.success(`Payment of ${amount ?? ''} received successfully`)
+          } else if (type === 'PAYMENT_FAILED') {
+            setPaymentFeedbackStatus('FAILED')
+            setShowPaymentFeedbackMsgModal(true)
+            setRecordPaymentModal(false)
+            dispatch(setCompletePaymentModal(false))
+            toast.error('Payment failed or was cancelled. Please try again.')
+          }
+        } catch (_) {
+          // ignore malformed frames
+        }
+      }
+
+      ws.onerror = () => ws.close()
+
+      ws.onclose = () => {
+        // Exponential backoff: 1s, 2s, 4s … capped at 30s
+        const delay = Math.min(1000 * 2 ** attempts, 30_000)
+        attempts += 1
+        reconnectTimer = setTimeout(connect, delay)
+      }
     }
-  };
 
-  ws.onclose = () => console.log('WebSocket disconnected');
+    connect()
 
-  // cleanup on unmount
-  return () => ws.close();
-  // 👇 only run on mount, not on every id/household change
-}, []); // <— no [id, household] here
+    return () => {
+      clearTimeout(reconnectTimer)
+      ws?.close()
+    }
+  }, [id])
 
 
   // HANDLE GET HOUSEHOLD DETAILS
